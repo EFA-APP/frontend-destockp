@@ -1,0 +1,12 @@
+export { default as Comprobante } from "./Comprobante";
+export { default as Inicio } from "./Inicio";
+export { default as Pagos } from "./Pagos";
+export { default as Persona } from "./Persona";
+export { default as Producto } from "./Producto";
+export { default as Reporte } from "./Reporte";
+export { default as Gastos } from "./Gastos";
+export { default as Proveedores } from "./Proveedores";
+export { default as Buscador } from "./Buscador";
+export { default as Notificaciones } from "./Notificaciones";
+export { default as Desplegador } from "./Desplegador";
+export { default as Cuenta } from "./Cuenta";
