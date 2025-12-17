@@ -1,15 +1,14 @@
-import React from "react";
 import Articulo from "./Articulo";
 import {
-  Comprobante,
-  Gastos,
-  Inicio,
-  Pagos,
-  Persona,
-  Producto,
-  Proveedores,
-  Reporte,
-} from "../../assets/Icons";
+  ComprobanteIcono,
+  GastosIcono,
+  InicioIcono,
+  PagosIcono,
+  PersonaIcono,
+  ProductoIcono,
+  ProveedoresIcono,
+  ReporteIcono,
+} from "../../../assets/Icons";
 
 const BarraLateral = () => {
   return (
@@ -36,28 +35,40 @@ const BarraLateral = () => {
                     <h5 className=" text-white! font-semibold leading-8 tracking-wide text-[8px]">
                       Panel
                     </h5>
-                    <Articulo nombre={"Inicio"} icono={<Inicio />} />
+                    <Articulo nombre={"Inicio"} icono={<InicioIcono />} />
                     <h5 className=" text-white! font-semibold leading-6 tracking-wide text-[8px]">
                       Articulos
                     </h5>
-                    <Articulo nombre={"Inventario"} icono={<Producto />} />
+                    <Articulo nombre={"Inventario"} icono={<ProductoIcono />} />
                     <h5 className=" text-white! font-semibold leading-6 tracking-wide text-[8px]">
                       Ventas
                     </h5>
-                    <Articulo nombre={"Clientes"} icono={<Persona />} />
-                    <Articulo nombre={"Comprobantes"} icono={<Comprobante />} />
-                    <Articulo nombre={"Pagos recibos"} icono={<Pagos />} />
+                    <Articulo nombre={"Clientes"} icono={<PersonaIcono />} />
+                    <Articulo
+                      nombre={"Comprobantes"}
+                      icono={<ComprobanteIcono />}
+                    />
+                    <Articulo nombre={"Pagos recibos"} icono={<PagosIcono />} />
                     <h5 className=" text-white! font-semibold leading-6 tracking-wide text-[8px]">
                       Compras
                     </h5>
-                    <Articulo nombre={"Proveedores"} icono={<Proveedores />} />
-                    <Articulo nombre={"Gastos"} icono={<Gastos />} />
-                    <Articulo nombre={"Comprobantes"} icono={<Comprobante />} />
-                    <Articulo nombre={"Pagos realizados"} icono={<Pagos />} />
+                    <Articulo
+                      nombre={"Proveedores"}
+                      icono={<ProveedoresIcono />}
+                    />
+                    <Articulo nombre={"Gastos"} icono={<GastosIcono />} />
+                    <Articulo
+                      nombre={"Comprobantes"}
+                      icono={<ComprobanteIcono />}
+                    />
+                    <Articulo
+                      nombre={"Pagos realizados"}
+                      icono={<PagosIcono />}
+                    />
                     <h5 className=" text-white! font-semibold leading-6 tracking-wide text-[8px]">
                       Informes
                     </h5>
-                    <Articulo nombre={"Reportes"} icono={<Reporte />} />
+                    <Articulo nombre={"Reportes"} icono={<ReporteIcono />} />
                   </div>
                 </ul>
               </div>

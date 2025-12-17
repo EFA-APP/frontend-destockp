@@ -1,11 +1,11 @@
 import React from "react";
 
-const Buscador = () => {
+const BuscadorIcono = () => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
-      aria-hidden="true"
+      ariaHidden="true"
       role="img"
       class="iconify iconify--solar"
       width="20"
@@ -14,11 +14,11 @@ const Buscador = () => {
     >
       <defs>
         <mask id="iconifyReact20">
-          <g fill="none" stroke-width="1.5">
+          <g fill="none" strokeWidth="1.5">
             <circle cx="11.5" cy="11.5" r="9.5" stroke="gray"></circle>
             <path
               stroke="#fff"
-              stroke-linecap="round"
+              strokeLinecap="round"
               d="M18.5 18.5L22 22"
             ></path>
           </g>
@@ -33,4 +33,4 @@ const Buscador = () => {
   );
 };
 
-export default Buscador;
+export default BuscadorIcono;

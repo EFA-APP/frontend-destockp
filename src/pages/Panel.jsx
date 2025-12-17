@@ -1,5 +1,5 @@
-import BarraLateral from "../Componenetes/BarraLateral/BarraLateral";
 import ContenidoPanel from "../Componenetes/ContenidoPanel/ContenidoPanel";
+import BarraLateral from "../Componenetes/Diseño/BarraLateral/BarraLateral";
 
 const Panel = () => {
   return (

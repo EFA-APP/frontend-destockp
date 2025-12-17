@@ -1,6 +1,4 @@
-import React from "react";
-
-const Persona = () => {
+const PersonaIcono = () => {
   return (
     <svg
       width="24"
@@ -20,4 +18,4 @@ const Persona = () => {
   );
 };
 
-export default Persona;
+export default PersonaIcono;

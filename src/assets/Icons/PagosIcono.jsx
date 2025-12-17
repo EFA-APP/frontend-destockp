@@ -1,6 +1,6 @@
 import React from "react";
 
-const Pagos = () => {
+const PagosIcono = () => {
   return (
     <svg
       width="24"
@@ -25,4 +25,4 @@ const Pagos = () => {
   );
 };
 
-export default Pagos;
+export default PagosIcono;

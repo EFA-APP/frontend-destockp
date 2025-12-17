@@ -1,6 +1,4 @@
-import React from "react";
-
-const Producto = () => {
+const ProductoIcono = () => {
   return (
     <svg
       width="24"
@@ -9,7 +7,7 @@ const Producto = () => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g fill="none" stroke="currentColor" stroke-width="1">
+      <g fill="none" stroke="currentColor" strokeWidth="1">
         <path
           d="M3 7L10 3L21 7M3 7V12L14 16L21 12V7M3 7L14 11L21 7"
           strokeLinejoin="round"
@@ -20,4 +18,4 @@ const Producto = () => {
   );
 };
 
-export default Producto;
+export default ProductoIcono;

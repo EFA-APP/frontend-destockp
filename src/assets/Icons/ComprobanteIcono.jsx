@@ -1,4 +1,4 @@
-const Comprobante = () => {
+const ComprobanteIcono = () => {
   return (
     <svg
       width="24"
@@ -17,4 +17,4 @@ const Comprobante = () => {
   );
 };
 
-export default Comprobante;
+export default ComprobanteIcono;
