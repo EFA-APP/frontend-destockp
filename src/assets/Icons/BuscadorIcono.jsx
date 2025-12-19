@@ -1,8 +1,9 @@
 import React from "react";
 
-const BuscadorIcono = () => {
+const BuscadorIcono = ({ props }) => {
   return (
     <svg
+      className={`${props}`}
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       ariaHidden="true"

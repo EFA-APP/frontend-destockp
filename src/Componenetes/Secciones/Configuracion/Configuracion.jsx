@@ -75,6 +75,7 @@ const Configuracion = () => {
                       />
                     </div>
                     <div>
+                      -
                       <label className="text-xs mb-2 block font-normal text-white">
                         Nueva Contraseña
                       </label>
