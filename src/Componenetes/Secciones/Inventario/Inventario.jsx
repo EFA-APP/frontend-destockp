@@ -19,10 +19,10 @@ const Inventario = () => {
 
             {/* BUSCADOR */}
             <div className="relative sm:max-w-60 max-w-full w-full">
-              <BuscadorIcono props="absolute left-3 top-5 transform -translate-y-1/2 text-gray-100" />
+              <BuscadorIcono props="absolute! left-3 top-5 transform -translate-y-1/2 text-gray-100" />
               <input
                 type="text"
-                className="border-[.5px]! border-gray-100/10! flex h-10  rounded-md! px-3 py-2 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-0 border-ld  placeholder:text-gray-100/50! focus-visible:ring-0 z-10 w-full  pl-10 pr-20 text-sm text-[var(--primary)]! focus:outline-none "
+                className="border-[.5px]! border-gray-100/10! flex h-10 rounded-md!  py-2 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-0 border-ld  placeholder:text-gray-100/50! focus-visible:ring-0 z-10 w-full  pl-10  placeholder:text-xs text-[var(--primary)]! focus:outline-none focus:border-2 focus:border-[var(--primary)]!"
                 placeholder="Ingrese el producto a buscar"
               />
             </div>
