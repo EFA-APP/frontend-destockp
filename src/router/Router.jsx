@@ -6,6 +6,7 @@ import IniciarSesion from "../pages/IniciarSesion";
 import ContenidoPanel from "../Componenetes/ContenidoPanel/ContenidoPanel";
 import Configuracion from "../Componenetes/Secciones/Configuracion/Configuracion";
 import Inventario from "../Componenetes/Secciones/Inventario/Inventario";
+import Clientes from "../Componenetes/Secciones/Clientes/Clientes";
 
 export default function Router() {
   return (
@@ -19,6 +20,7 @@ export default function Router() {
         <Route index element={<Configuracion />} />
         <Route path="configuracion" element={<Configuracion />} />
         <Route path="inventario" element={<Inventario />} />
+        <Route path="clientes" element={<Clientes />} />
       </Route>
 
       {/* ERROR */}

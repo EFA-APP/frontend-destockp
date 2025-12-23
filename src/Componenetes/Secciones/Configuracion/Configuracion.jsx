@@ -1,16 +1,18 @@
-import { CuentaIcono } from "../../../assets/Icons";
-import EncabezadoSeccion from "../../Diseño/EncabezadoSeccion/EncabezadoSeccion";
-
+import { ConfiguracionIcono, CuentaIcono } from "../../../assets/Icons";
+import EncabezadoSeccion from "../../UI/EncabezadoSeccion/EncabezadoSeccion";
 const Configuracion = () => {
   return (
     <div className="w-full py-6 px-6">
       {/* ENCABEZADO */}
-      <EncabezadoSeccion ruta={"Configuración"} />
+      <EncabezadoSeccion
+        ruta={"Configuración"}
+        icono={<ConfiguracionIcono />}
+      />
       {/* CONTENIDO */}
       <div className="rounded-md p-6 border-0 no-inset no-ring bg-[var(--fill)] px-0 py-0 dark:shadow-dark-md shadow-md">
         <div className="w-full">
           {/* NAVEGACION MENU */}
-          <div className="flex text-center -mb-px flex-wrap  w-full justify-start">
+          <div className="flex text-center -mb-px flex-wrap  w-full  justify-start">
             {/* TAB 1 */}
             <button
               className="flex items-center gap-2 p-4 text-sm font-medium transition-all whitespace-nowrap
@@ -56,7 +58,7 @@ const Configuracion = () => {
               {/* TARJETA DE CAMBIAR IMAGEN */}
               {/* TARJETA DE CAMBIAR TU CONTRASEÑA */}
               <div className="md:col-span-6 col-span-12">
-                <div className="p-6 text-bodytext bg-[var(--fill2)] dark:bg-darkgray shadow-md dark:shadow-dark-md card h-full border border-ld rounded-md">
+                <div className="p-6 text-bodytext bg-[var(--fill2)] shadow-md card h-full  rounded-md border-none">
                   <h5 className="leading-1 font-normal! text-white!">
                     Cambiar la contraseña
                   </h5>

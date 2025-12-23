@@ -32,7 +32,7 @@ const BarraNavegacion = () => {
             </div>
             {/* PERFIL */}
             <div className="relative">
-              <div className="flex items-center gap-1 cursor-pointer">
+              <div className="flex items-center gap-1 cursor-pointe text-white">
                 <span className="h-8 w-8 hover:text-primary rounded-full flex justify-center items-center group-hover/menu:bg-lightprimary group-hover/menu:text-primary">
                   <img src="/girl-icon.jpg" alt="" className="rounded-full" />
                 </span>

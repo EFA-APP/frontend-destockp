@@ -13,7 +13,9 @@ const IniciarSesion = () => {
         <h3 className="text-4nf font-b4x my-ylr mt-jos text-white">
           Iniciar Sesión
         </h3>
-        <p className="text-ka6 font-433">Ingresar al sistema de gestión EFA.</p>
+        <p className="text-ka6 font-433 text-white/70">
+          Ingresar al sistema de gestión EFA.
+        </p>
 
         <form className="mt-1i3">
           <div className="mb-ifv">

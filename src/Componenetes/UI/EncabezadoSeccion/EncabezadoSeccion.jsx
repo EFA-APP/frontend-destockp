@@ -1,15 +1,18 @@
 import { InicioIcono } from "../../../assets/Icons";
 
-const EncabezadoSeccion = ({ ruta }) => {
+const EncabezadoSeccion = ({ ruta, icono }) => {
   return (
-    <div className="rounded-md p-6 text-bodytext border-0 no-inset no-ring bg-[var(--fill)] dark:bg-darkgray mb-[30px] py-4 dark:shadow-dark-md shadow-md">
+    <div className="rounded-md p-6 text-bodytext border-0 no-inset no-ring bg-[var(--fill)] dark:bg-darkgray mb-[20px] py-4 dark:shadow-dark-md shadow-md">
       <div className="flex items-center justify-between">
-        <h6 className="text-[15px] text-white">{ruta}</h6>
+        <div className="flex justify-center items-center gap-2">
+          <span className="text-[var(--primary)]">{icono}</span>
+          <h6 className="text-[15px] text-white">{ruta}</h6>
+        </div>
         <div className="flex items-center gap-3">
           <ol className="flex flex-wrap items-center gap-1.5 text-sm text-bodytext sm:gap-2.5">
             <li>
               <a
-                className="transition-colors hover:text-primary dark:hover:text-primary"
+                className="transition-colors dark:hover:text-[var(--primary)]! text-white! "
                 href="/panel"
               >
                 <InicioIcono />

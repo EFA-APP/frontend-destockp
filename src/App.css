@@ -2,7 +2,6 @@ body {
   background-color: var(--fill);
   font-size: var(--text-sm);
   line-height: var(--tw-leading, var(--text-sm--line-height));
-  color: var(--bodytext);
   font-family: var(
     --default-font-family,
     ui-sans-serif,
@@ -13,25 +12,6 @@ body {
     "Segoe UI Symbol",
     "Noto Color Emoji"
   );
-}
-body {
-  /* CSS Variables that may have been missed get put on body */
-  --tw-font-weight: var(--font-weight-semibold);
-  --tw-font-weight: var(--font-weight-bold);
-  --tw-font-weight: var(--font-weight-medium);
-  --tw-ring-offset-color: var(--background);
-  --tw-leading: 1;
-  --tw-font-weight: var(--font-weight-semibold);
-  --tw-font-weight: var(--font-weight-normal);
-}
-
-* {
-  box-sizing: border-box;
-  border: 0 solid;
-}
-
-* {
-  border-color: var(--color-gray-200, currentcolor);
 }
 
 .fle-oca {
@@ -54,20 +34,6 @@ body {
   .lg\:justify-start {
     justify-content: flex-start;
   }
-}
-
-body {
-  font-size: var(--text-sm);
-  line-height: var(--tw-leading, var(--text-sm--line-height));
-  overflow-x: hidden;
-}
-
-body {
-  color: var(--bodytext);
-}
-
-body {
-  font-family: Manrope;
 }
 
 :root {
@@ -141,30 +107,6 @@ body {
   --radius-bb: var(--radius-bb);
   --fill: rgb(44, 44, 44);
   --fill2: rgb(46, 46, 46);
-}
-
-html {
-  -webkit-text-size-adjust: 100%;
-  -moz-tab-size: 4;
-  tab-size: 4;
-  line-height: 1.5;
-  font-family: var(
-    --default-font-family,
-    ui-sans-serif,
-    system-ui,
-    sans-serif,
-    "Apple Color Emoji",
-    "Segoe UI Emoji",
-    "Segoe UI Symbol",
-    "Noto Color Emoji"
-  );
-  font-feature-settings: var(--default-font-feature-settings, normal);
-  font-variation-settings: var(--default-font-variation-settings, normal);
-  -webkit-tap-highlight-color: transparent;
-}
-
-html {
-  scroll-behavior: smooth;
 }
 
 :root {
@@ -343,39 +285,6 @@ html {
 
 .max-w-ayq {
   max-width: var(--container-md);
-}
-
-*,
-:after,
-:before,
-:backdrop {
-  box-sizing: border-box;
-  border: 0 solid;
-  margin: 0;
-  padding: 0;
-}
-
-*,
-:after,
-:before,
-:backdrop {
-  border-color: var(--color-gray-200, currentcolor);
-}
-
-a {
-  color: inherit;
-  -webkit-text-decoration: inherit;
-  text-decoration: inherit;
-}
-
-h3 {
-  font-size: inherit;
-  font-weight: inherit;
-}
-
-h3 {
-  --tw-font-weight: var(--font-weight-semibold);
-  font-weight: var(--font-weight-semibold);
 }
 
 .my-ylr {
@@ -599,16 +508,6 @@ button {
   border-radius: 0;
 }
 
-button {
-  -webkit-appearance: button;
-  -moz-appearance: button;
-  appearance: button;
-}
-
-button {
-  cursor: pointer;
-}
-
 .h-\[18px\] {
   height: 18px;
 }
@@ -729,7 +628,6 @@ button {
 }
 
 a {
-  color: inherit;
   -webkit-text-decoration: inherit;
   text-decoration: inherit;
 }

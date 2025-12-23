@@ -1,5 +1,5 @@
 import ContenidoPanel from "../Componenetes/ContenidoPanel/ContenidoPanel";
-import BarraLateral from "../Componenetes/Diseño/BarraLateral/BarraLateral";
+import BarraLateral from "../Componenetes/UI/BarraLateral/BarraLateral";
 
 const Panel = () => {
   return (
@@ -7,7 +7,7 @@ const Panel = () => {
       <div className="flex w-full transition-all duration-[2s] ease-in">
         {/* ASIDE */}
         <BarraLateral />
-        <div className="w-[220px]"></div>
+        <div className="w-[250px]"></div>
         <ContenidoPanel />
       </div>
     </div>

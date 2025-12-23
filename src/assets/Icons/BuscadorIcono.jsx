@@ -25,11 +25,7 @@ const BuscadorIcono = ({ props }) => {
           </g>
         </mask>
       </defs>
-      <path
-        fill="currentColor"
-        d="M0 0h24v24H0z"
-        mask="url(#iconifyReact20)"
-      ></path>
+      <path fill={"#ffff"} d="M0 0h24v24H0z" mask="url(#iconifyReact20)"></path>
     </svg>
   );
 };
