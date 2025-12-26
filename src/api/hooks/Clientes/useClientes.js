@@ -5,7 +5,7 @@ export const useClientes = () => {
     {
       id: 1,
       codigo: "V001",
-      tipo: "VENTA",
+      tipo: "COMPRADOR",
       nombre: "Juan Pérez",
       documento: "30123456",
       email: "juan@gmail.com",
@@ -23,6 +23,19 @@ export const useClientes = () => {
       telefono: "3815558888",
       direccion: "Belgrano 456",
       curso: "5° A",
+      cuotaMensual: 15000,
+      tieneDeuda: true,
+    },
+    {
+      id: 3,
+      codigo: "A002",
+      tipo: "ALUMNO",
+      nombre: "Juan Pérez",
+      documento: "30123452",
+      email: "juanalumno@gmail.com",
+      telefono: "3815551234",
+      curso: "4° B",
+      direccion: "San Martín 123",
       cuotaMensual: 15000,
       tieneDeuda: true,
     },
@@ -60,7 +73,7 @@ export const useClientes = () => {
         cuotaMensual: 0,
         tieneDeuda: false,
       }),
-      ...(tipo === "VENTA" && {
+      ...(tipo === "COMPRADOR" && {
         condicionIVA: "Consumidor Final",
       }),
     };

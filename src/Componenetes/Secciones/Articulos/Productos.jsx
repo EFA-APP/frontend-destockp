@@ -1,15 +1,15 @@
 import { InventarioIcono } from "../../../assets/Icons";
-import TablaInventario from "../../Tablas/TablaInventario/TablaInventario";
+import TablaProductos from "../../Tablas/Productos/TablaProductos";
 import EncabezadoSeccion from "../../UI/EncabezadoSeccion/EncabezadoSeccion";
 
-const Inventario = () => {
+const Productos = () => {
   return (
     <div className="px-3 py-4 border-0 card no-inset no-ring bg-[var(--fill2)] shadow-md rounded-md">
-      <EncabezadoSeccion ruta={"Inventario"} icono={<InventarioIcono />} />
+      <EncabezadoSeccion ruta={"Productos"} icono={<InventarioIcono />} />
 
-      <TablaInventario />
+      <TablaProductos />
     </div>
   );
 };
 
-export default Inventario;
+export default Productos;

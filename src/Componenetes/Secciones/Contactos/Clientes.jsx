@@ -1,5 +1,5 @@
-import { ClientesIcono, PersonaIcono } from "../../../assets/Icons";
-import TablaClientes from "../../Tablas/TablaCliente/TablaCliente";
+import { ClientesIcono } from "../../../assets/Icons";
+import TablaClientes from "../../Tablas/Clientes/TablaClientes";
 import EncabezadoSeccion from "../../UI/EncabezadoSeccion/EncabezadoSeccion";
 
 const Clientes = () => {

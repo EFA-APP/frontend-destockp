@@ -16,3 +16,4 @@ export { default as EditarIcono } from "./EditarIcono";
 export { default as BorrarIcono } from "./BorrarIcono";
 export { default as ErrorIcono } from "./ErrorIcono";
 export { default as ClientesIcono } from "./ClientesIcono";
+export { default as CanastaIcono } from "./CanastaIcono";
