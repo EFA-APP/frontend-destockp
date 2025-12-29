@@ -1,4 +1,5 @@
 import { useClientes } from "../../../api/hooks/clientes/useClientes";
+import Select from "../../UI/Select/Select";
 import TablaReutilizable from "../../UI/TablaReutilizable/TablaReutilizable";
 import { columnasClientes } from "./ColumnaCliente";
 
@@ -29,16 +30,29 @@ const TablaClientes = () => {
         busqueda={busqueda}
         setBusqueda={setBusqueda}
         placeholderBuscador="Ingrese la persona"
-        elementosSuperior={
-          <select
-            value={tipoFiltro}
-            onChange={(e) => setTipoFiltro(e.target.value)}
-            className="w-auto px-3 h-10 rounded-md text-sm bg-[var(--fill)] border border-[var(--primary)] text-[var(--primary)] shadow-md focus:border-[var(--primary)]"
-          >
-            <option value="TODOS">Todos</option>
-            <option value="COMPRADOR">Compradores</option>
-            <option value="ALUMNO">Alumnos</option>
-          </select>
+        mostrarFiltros={true}
+        textoFiltros="Filtros avanzados"
+        filtrosAbiertosInicial={true}
+        filtrosElementos={
+          <Select
+            valor={tipoFiltro}
+            label={"Tipo:"}
+            setValor={setTipoFiltro}
+            options={[
+              {
+                valor: "TODOS",
+                texto: "Todos",
+              },
+              {
+                valor: "COMPRADOR",
+                texto: "Compradores",
+              },
+              {
+                valor: "ALUMNO",
+                texto: "Alumnos",
+              },
+            ]}
+          />
         }
       />
     </div>

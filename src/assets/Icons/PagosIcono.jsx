@@ -1,15 +1,15 @@
 import React from "react";
 
-const PagosIcono = () => {
+const PagosIcono = ({ size, color }) => {
   return (
     <svg
-      width="24"
-      height="24"
+      width={size || "24"}
+      height={size || "24"}
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g stroke="currentColor" strokeWidth="1">
+      <g stroke={color || "currentColor"} strokeWidth="1">
         <path
           fill-rule="evenodd"
           clip-rule="evenodd"

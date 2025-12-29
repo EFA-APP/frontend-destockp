@@ -1,3 +1,9 @@
+const tipoClienteStyles = {
+  comprador: "bg-blue-500/20 text-blue-400 border-blue-400/30",
+  alumno: "bg-teal-500/20 text-teal-400 border-teal-400/30",
+  otros: "bg-gray-500/20 text-gray-400 border-gray-400/30",
+};
+
 export const columnasClientes = [
   {
     key: "nombre",
@@ -17,20 +23,22 @@ export const columnasClientes = [
   {
     key: "tipo",
     etiqueta: "Tipo",
-    filtrable: true,
+    filtrable: false,
     renderizar: (valor) => {
-      const esAlumno = valor === "ALUMNO";
+      const tipo = valor.toLowerCase();
+      const style =
+        tipoClienteStyles[tipo] ||
+        "bg-gray-500/20 text-gray-400 border-gray-400/30";
 
       return (
         <span
-          className={`px-2 py-0.5 rounded text-xs font-semibold
-            ${
-              esAlumno
-                ? "bg-blue-500/20 text-blue-300"
-                : "bg-green-500/20 text-green-300"
-            }`}
+          className={`
+          inline-flex items-center px-2 py-0.5
+          text-xs font-medium rounded-full
+          border ${style}
+        `}
         >
-          {esAlumno ? "Alumno" : "Comprador"}
+          {valor ? valor.replace("_", " ").toUpperCase() : "-"}
         </span>
       );
     },

@@ -12,7 +12,7 @@ export const useProveedores = () => {
       telefono: "3815551111",
       direccion: "Av. Alem 100",
       condicionIVA: "Responsable Inscripto",
-      rubro: "Alimentos",
+      rubro: "alimentos",
       activo: true,
     },
     {
@@ -25,7 +25,7 @@ export const useProveedores = () => {
       telefono: "3815552222",
       direccion: "San Juan 450",
       condicionIVA: "Monotributo",
-      rubro: "Librería",
+      rubro: "equipamiento",
       activo: true,
     },
   ]);

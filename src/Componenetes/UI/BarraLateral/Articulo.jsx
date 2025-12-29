@@ -2,9 +2,15 @@ import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
-const Articulo = ({ nombre, icono, redireccion, submenu = [] }) => {
+const Articulo = ({
+  nombre,
+  icono,
+  redireccion,
+  submenu = [],
+  isOpen = false,
+  onToggle,
+}) => {
   const location = useLocation();
-  const [isOpen, setIsOpen] = useState(false);
 
   const tieneSubmenu = submenu.length > 0;
   const estaActivado = location.pathname === redireccion;
@@ -19,7 +25,7 @@ const Articulo = ({ nombre, icono, redireccion, submenu = [] }) => {
   const handleClick = (e) => {
     if (tieneSubmenu) {
       e.preventDefault();
-      setIsOpen(!isOpen);
+      onToggle?.();
     }
   };
 
@@ -34,7 +40,7 @@ const Articulo = ({ nombre, icono, redireccion, submenu = [] }) => {
       >
         <a
           href={tieneSubmenu ? "#" : redireccion}
-          className={`flex items-center gap-2 text-md text-white p-2 rounded-md w-full py-2 transition-all hover:text-white! hover:bg-[#7a79783a] ${
+          className={`flex items-center gap-2 text-xs text-white p-2 rounded-md w-full py-2 transition-all hover:text-white! hover:bg-[#7a79783a] ${
             estaActivadoOSubmenu
               ? "text-[var(--primary)]! bg-[var(--primary)]/20"
               : ""
@@ -69,12 +75,14 @@ const Articulo = ({ nombre, icono, redireccion, submenu = [] }) => {
                 <li
                   key={index}
                   className={`group relative rounded-md transition-all duration-200 ease-in-out cursor-pointer ${
-                    submenuItemActivo ? "translate-x-1" : "hover:translate-x-1"
+                    submenuItemActivo === index
+                      ? "translate-x-1"
+                      : "hover:translate-x-1"
                   }`}
                 >
                   <a
                     href={item.redireccion}
-                    className={`flex items-center gap-2 text-sm p-2 rounded-md transition-all hover:text-white! hover:bg-[#7a79783a] ${
+                    className={`flex items-center gap-2 text-xs p-2 rounded-md transition-all hover:text-white! hover:bg-[#7a79783a] ${
                       submenuItemActivo
                         ? "text-[var(--primary)]! bg-[var(--primary)]/10 font-medium"
                         : "text-gray-100/70"

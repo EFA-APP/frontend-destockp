@@ -1,20 +1,20 @@
+import { useState } from "react";
 import {
   BuscadorIcono,
   DesplegadorIcono,
   NotificacionesIcono,
 } from "../../../assets/Icons";
 
+import MenuUsuario from "../MenuUsuario/MenuUsuario";
+
 const BarraNavegacion = () => {
+  const [menuAbierto, setMenuAbierto] = useState(false);
+
   return (
     <header className="sticky top-0 z-2 bg-transparent">
-      <nav className="px-2 dark:border-gray-700 rounded-none bg-[var(--fill)] py-4 sm:px-6">
+      <nav className="px-2  rounded-none bg-[var(--fill)] py-4 sm:px-6">
         <div className="mx-auto flex flex-wrap items-center justify-between">
-          {/* BUSCADOR */}
-          <div className="flex gap-0 items-center relative">
-            <button className="px-[15px] hover:text-primary text-ld dark:hover:text-primary relative after:absolute after:w-10 after:h-10 after:rounded-full hover:after:bg-lightprimary  after:bg-transparent rounded-full flex justify-center items-center cursor-pointer">
-              <BuscadorIcono />
-            </button>
-          </div>
+          <div className="flex gap-0 items-center relative"></div>
 
           {/* OTROS ICONOS */}
           <div className="flex items-center justify-center gap-2">
@@ -36,9 +36,16 @@ const BarraNavegacion = () => {
                 <span className="h-8 w-8 hover:text-primary rounded-full flex justify-center items-center group-hover/menu:bg-lightprimary group-hover/menu:text-primary">
                   <img src="/girl-icon.jpg" alt="" className="rounded-full" />
                 </span>
-                <DesplegadorIcono />
+                <button
+                  className="text-white! hover:text-[var(--primary)]! cursor-pointer"
+                  onClick={() => !setMenuAbierto(!menuAbierto)}
+                >
+                  <DesplegadorIcono />
+                </button>
               </div>
             </div>
+            {/* MENU DESPLEGABLE */}
+            {menuAbierto && <MenuUsuario />}
           </div>
         </div>
       </nav>

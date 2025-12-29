@@ -106,57 +106,22 @@ body {
   --radius-tw: var(--radius-tw);
   --radius-bb: var(--radius-bb);
   --fill: rgb(44, 44, 44);
-  --fill2: rgb(46, 46, 46);
+  --fill2: rgb(49, 51, 49);
+  --primary: var(--color-primary);
+  --primary-light: var(--color-primary-light);
+  --primary-opacity-10: var(--color-primary-opacity-10);
+  --secondary: var(--color-secondary);
 }
 
 :root {
   --color-primary: #f29222;
+  --color-primary-light: #f7b871;
+  --color-primary-opacity-10: color-mix(
+    in oklab,
+    var(--color-primary) 10%,
+    transparent
+  );
   --color-secondary: #16cdc7;
-}
-
-:root {
-  --background: #fff;
-  --foreground: var(--color-link);
-  --card: var(--color-white);
-  --card-foreground: var(--color-link);
-  --popover: var(--color-white);
-  --popover-foreground: var(--color-link);
-  --primary: var(--color-primary);
-  --primary-foreground: var(--color-white);
-  --secondary: var(--color-secondary);
-  --secondary-foreground: var(--color-white);
-  --muted: #f5f5f5;
-  --muted-foreground: #737373;
-  --accent: var(--color-lightprimary);
-  --accent-foreground: var(--color-primary);
-  --destructive: var(--color-error);
-  --border: #e5e5e5;
-  --darkborder: #333f55;
-  --input: var(--color-input);
-  --ring: var(--color-lightprimary);
-  --chart-1: var(--color-primary);
-  --chart-2: var(--color-secondary);
-  --chart-3: var(--color-success);
-  --chart-4: var(--color-warning);
-  --chart-5: var(--color-error);
-  --sidebar: var(--color-white);
-  --sidebar-foreground: var(--color-link);
-  --sidebar-primary: var(--color-primary);
-  --sidebar-primary-foreground: var(--color-white);
-  --sidebar-accent: var(--color-lightprimary);
-  --sidebar-accent-foreground: var(--color-primary);
-  --sidebar-border: #e5e5e5;
-  --sidebar-ring: #a1a1a1;
-  --info: #46caeb;
-  --success: #2ea95c;
-  --warning: #f8c20a;
-  --error: #ff6692;
-  --dark: #1f2a3d;
-  --darkgray: #1a2537;
-  --bodytext: #98a4ae;
-  --link: #2a3547;
-  --destructive-foreground: var(--color-white);
-  --lightprimary: var(--color-primary);
 }
 
 :root {
@@ -273,6 +238,12 @@ body {
   --radius-lg: 24px;
   --radius-tw: 12px;
   --radius-bb: 20px;
+}
+
+/* Oculta el icono del input date */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  cursor: pointer;
 }
 
 .mx-lgy {
@@ -840,11 +811,6 @@ h5 {
   .hovertranslate-x-jr3:hover {
     --tw-translate-x: calc(var(--spacing) * 1);
     translate: var(--tw-translate-x) var(--tw-translate-y);
-  }
-
-  .form-xlv:hover {
-    transform: var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z)
-      var(--tw-skew-x) var(--tw-skew-y);
   }
 
   .hoverbg-ks8:hover {

@@ -1,6 +1,7 @@
-import { useState } from "react";
 import Articulo from "./Articulo";
 import {
+  CarritoIcono,
+  ColegioIcono,
   ComprobanteIcono,
   GastosIcono,
   InicioIcono,
@@ -9,17 +10,34 @@ import {
   PersonaIcono,
   ProveedoresIcono,
   ReporteIcono,
+  VentasIcono,
 } from "../../../assets/Icons";
-import { useTamañoBarraLateral } from "../../../api/zustand/useTamanoBarraLateral";
+import { useTamañoBarraLateral } from "../../../store/useTamanoBarraLateral";
+import { useState } from "react";
 
 const BarraLateral = () => {
   const { isExpanded, setIsExpanded } = useTamañoBarraLateral();
+  const [openItem, setOpenItem] = useState(null);
 
-  const handleArticuloClick = (e) => {
+  const handleArticuloClick = (e, itemId) => {
     if (!isExpanded) {
+      // Si está colapsado, expande y abre el submenú
       e.preventDefault();
       e.stopPropagation();
       setIsExpanded(true);
+      setActiveSubmenu(itemId);
+    } else {
+      // Si ya está expandido, alterna el submenú (abre/cierra)
+      setActiveSubmenu(activeSubmenu === itemId ? null : itemId);
+    }
+  };
+
+  const toggleItem = (id) => {
+    if (!isExpanded) {
+      setIsExpanded(true);
+      setOpenItem(id);
+    } else {
+      setOpenItem(openItem === id ? null : id);
     }
   };
 
@@ -27,7 +45,7 @@ const BarraLateral = () => {
     <div className="block ">
       <aside
         className={`bg-[var(--fill)]! md:bg-transparent! pt-2 fixed transition-all duration-300 ease-in-out start-3 top-0 rtl:pe-4 rtl:ps-0 flex flex-col  z-[99999] ${
-          isExpanded ? "w-[180px]" : "w-[50px]"
+          isExpanded ? "w-[180px] " : "w-[50px] items-start"
         }`}
         onMouseLeave={() => setIsExpanded(false)}
       >
@@ -52,7 +70,7 @@ const BarraLateral = () => {
                     <div onClick={handleArticuloClick}>
                       <Articulo
                         nombre={isExpanded ? "Inicio" : ""}
-                        icono={<InicioIcono />}
+                        icono={<InicioIcono size={18} />}
                         redireccion={"/panel"}
                         isCollapsed={!isExpanded}
                       />
@@ -62,7 +80,7 @@ const BarraLateral = () => {
                     <div onClick={handleArticuloClick}>
                       <Articulo
                         nombre={isExpanded ? "Inventario" : ""}
-                        icono={<InventarioIcono />}
+                        icono={<InventarioIcono size={20} />}
                         submenu={
                           isExpanded
                             ? [
@@ -78,14 +96,17 @@ const BarraLateral = () => {
                               ]
                             : undefined
                         }
+                        isOpen={openItem === "inventario"}
+                        onToggle={() => toggleItem("inventario")}
                         isCollapsed={!isExpanded}
                       />
                     </div>
 
+                    {/* CONTACTO */}
                     <div onClick={handleArticuloClick}>
                       <Articulo
                         nombre={isExpanded ? "Contactos" : ""}
-                        icono={<PersonaIcono />}
+                        icono={<PersonaIcono size={20} />}
                         submenu={
                           isExpanded
                             ? [
@@ -100,59 +121,105 @@ const BarraLateral = () => {
                               ]
                             : undefined
                         }
+                        isOpen={openItem === "contactos"}
+                        onToggle={() => toggleItem("contactos")}
                         isCollapsed={!isExpanded}
                       />
                     </div>
 
+                    {/* VENTA */}
                     <div onClick={handleArticuloClick}>
                       <Articulo
-                        nombre={isExpanded ? "Comprobantes" : ""}
-                        icono={<ComprobanteIcono />}
-                        redireccion={"/panel/comprobantes"}
+                        nombre={isExpanded ? "Ventas" : ""}
+                        icono={<VentasIcono size={18} />}
+                        submenu={
+                          isExpanded
+                            ? [
+                                {
+                                  nombre: "Facturas",
+                                  redireccion: "/panel/ventas/facturas",
+                                },
+                                {
+                                  nombre: "Orden de venta",
+                                  redireccion: "/panel/ventas/orden-venta",
+                                },
+                                {
+                                  nombre: "Notas de Créditos",
+                                  redireccion: "/panel/ventas/nota-credito",
+                                },
+                                {
+                                  nombre: "Notas de Débito",
+                                  redireccion: "/panel/ventas/nota-debito",
+                                },
+                              ]
+                            : undefined
+                        }
+                        isOpen={openItem === "ventas"}
+                        onToggle={() => toggleItem("ventas")}
                         isCollapsed={!isExpanded}
                       />
                     </div>
 
+                    {/* COMPRAS */}
                     <div onClick={handleArticuloClick}>
                       <Articulo
-                        nombre={isExpanded ? "Pagos recibos" : ""}
-                        icono={<PagosIcono />}
-                        redireccion={"/panel/pagos-recibidos"}
+                        nombre={isExpanded ? "Compras" : ""}
+                        icono={<CarritoIcono size={19} />}
+                        submenu={
+                          isExpanded
+                            ? [
+                                {
+                                  nombre: "Facturas de proveedor",
+                                  redireccion:
+                                    "/panel/compras/facturas-proveedor",
+                                },
+                                {
+                                  nombre: "Notas de Créditos",
+                                  redireccion: "/panel/compras/nota-credito",
+                                },
+                              ]
+                            : undefined
+                        }
+                        isOpen={openItem === "compras"}
+                        onToggle={() => toggleItem("compras")}
                         isCollapsed={!isExpanded}
                       />
                     </div>
 
+                    {/* ESCUELA */}
                     <div onClick={handleArticuloClick}>
                       <Articulo
-                        nombre={isExpanded ? "Proveedores" : ""}
-                        icono={<ProveedoresIcono />}
-                        redireccion={"/panel/proveedores"}
+                        nombre={isExpanded ? "Escuela" : ""}
+                        icono={<ColegioIcono size={19} />}
+                        submenu={
+                          isExpanded
+                            ? [
+                                {
+                                  nombre: "Cuotas",
+                                  redireccion: "/panel/escuela/cuotas",
+                                },
+                                {
+                                  nombre: "Recibos",
+                                  redireccion: "/panel/escuela/recibos",
+                                },
+                                {
+                                  nombre: "Intereses",
+                                  redireccion: "/panel/escuela/intereses",
+                                },
+                              ]
+                            : undefined
+                        }
+                        isOpen={openItem === "colegio"}
+                        onToggle={() => toggleItem("colegio")}
                         isCollapsed={!isExpanded}
                       />
                     </div>
 
-                    <div onClick={handleArticuloClick}>
-                      <Articulo
-                        nombre={isExpanded ? "Gastos" : ""}
-                        icono={<GastosIcono />}
-                        redireccion={"/panel/gastos"}
-                        isCollapsed={!isExpanded}
-                      />
-                    </div>
-
-                    <div onClick={handleArticuloClick}>
-                      <Articulo
-                        nombre={isExpanded ? "Pagos realizados" : ""}
-                        icono={<PagosIcono />}
-                        redireccion={"/panel/pagos-realizados"}
-                        isCollapsed={!isExpanded}
-                      />
-                    </div>
-
+                    {/* REPORTES */}
                     <div onClick={handleArticuloClick}>
                       <Articulo
                         nombre={isExpanded ? "Reportes" : ""}
-                        icono={<ReporteIcono />}
+                        icono={<ReporteIcono size={18} />}
                         redireccion={"/panel/reportes"}
                         isCollapsed={!isExpanded}
                       />

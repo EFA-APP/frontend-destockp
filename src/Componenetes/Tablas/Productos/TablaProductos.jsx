@@ -1,5 +1,6 @@
 import { useProductos } from "../../../api/hooks/Productos/useProductos";
 import TablaReutilizable from "../../UI/TablaReutilizable/TablaReutilizable";
+import TarjetaInformacion from "../../UI/TarjetaInformacion/TarjetaInformacion";
 import { columnasProductos } from "./ColumnaProductos";
 
 const TablaProductos = () => {
@@ -28,30 +29,26 @@ const TablaProductos = () => {
     <div className="space-y-4">
       {/* Cards con información del inventario */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="px-6 py-4 bg-[var(--fill)] shadow-md rounded-md border border-gray-100/10">
-          <div className="text-gray-100/50 text-sm">Total Frascos</div>
-          <div className="text-2xl font-bold text-blue-400 mt-1">
-            {totalFrascos}
-          </div>
-          <div className="text-xs text-gray-100/50 mt-1">
-            {totalPaquetes} paquetes
-          </div>
-        </div>
+        <TarjetaInformacion
+          titulo={"Total Frascos"}
+          color={"text-blue-400"}
+          numero={totalPaquetes}
+          descripcion={`${totalPaquetes} paquetes`}
+        />
 
-        <div className="px-6 py-4 bg-[var(--fill)] shadow-md rounded-md border border-gray-100/10">
-          <div className="text-gray-100/50 text-sm">Valor Inventario</div>
-          <div className="text-2xl font-bold text-green-400 mt-1">
-            ${valorTotalInventario.toLocaleString("es-AR")}
-          </div>
-        </div>
+        <TarjetaInformacion
+          titulo={"Valor Inventario"}
+          color={"text-green-400"}
+          valorMoneda={true}
+          numero={valorTotalInventario}
+        />
 
-        <div className="px-6 py-4 bg-[var(--fill)] shadow-md rounded-md border border-gray-100/10">
-          <div className="text-gray-100/50 text-sm">Stock Bajo</div>
-          <div className="text-2xl font-bold text-red-400 mt-1">
-            {productos.filter((item) => item.stock < 20).length}
-          </div>
-          <div className="text-xs text-gray-100/50 mt-1">productos</div>
-        </div>
+        <TarjetaInformacion
+          titulo={"Stock Bajo"}
+          color={"text-red-400"}
+          numero={productos.filter((item) => item.stock < 20).length}
+          descripcion={"productos"}
+        />
       </div>
 
       {/* Tabla principal */}

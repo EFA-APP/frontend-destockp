@@ -1,13 +1,13 @@
-const InventarioIcono = () => {
+const InventarioIcono = ({ size, color }) => {
   return (
     <svg
-      width="24"
-      height="24"
+      width={size || "24"}
+      height={size || "24"}
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g fill="none" stroke="currentColor" strokeWidth="1">
+      <g fill="none" stroke={color || "currentColor"} strokeWidth="1">
         <path
           d="M3 7L10 3L21 7M3 7V12L14 16L21 12V7M3 7L14 11L21 7"
           strokeLinejoin="round"

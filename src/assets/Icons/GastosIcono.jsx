@@ -1,13 +1,13 @@
-const Gastos = () => {
+const Gastos = ({ size, color }) => {
   return (
     <svg
-      width="24"
-      height="24"
+      width={size || "24"}
+      height={size || "24"}
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g fill="none" stroke="currentColor" strokeWidth="1">
+      <g fill="none" stroke={color || "currentColor"} strokeWidth="1">
         <path d="M7.5 3.5V6.5" strokeLinecap="round" />
         <path d="M7.5 14.5V18.5" strokeLinecap="round" />
         <path d="M8.2002 6.5C8.91801 6.50011 9.49989 7.08199 9.5 7.7998V13.2002C9.49989 13.918 8.91801 14.4999 8.2002 14.5H6.7998C6.08199 14.4999 5.50011 13.918 5.5 13.2002V7.7998C5.50011 7.08199 6.08199 6.50011 6.7998 6.5H8.2002Z" />

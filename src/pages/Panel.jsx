@@ -1,6 +1,6 @@
-import { useTamañoBarraLateral } from "../api/zustand/useTamanoBarraLateral";
 import ContenidoPanel from "../Componenetes/ContenidoPanel/ContenidoPanel";
 import BarraLateral from "../Componenetes/UI/BarraLateral/BarraLateral";
+import { useTamañoBarraLateral } from "../store/useTamanoBarraLateral";
 
 const Panel = () => {
   const isExpanded = useTamañoBarraLateral((state) => state.isExpanded);
@@ -11,7 +11,7 @@ const Panel = () => {
         <BarraLateral />
         <div
           className={`transition-all duration-300 ${
-            isExpanded ? "w-[250px]" : "w-[80px]"
+            isExpanded ? "w-[250px]" : "w-[75px]"
           }`}
         />
         <ContenidoPanel />

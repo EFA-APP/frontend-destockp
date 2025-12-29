@@ -9,6 +9,12 @@ import Productos from "../Componenetes/Secciones/Articulos/Productos";
 import MateriaPrima from "../Componenetes/Secciones/Articulos/MateriaPrima";
 import Proveedores from "../Componenetes/Secciones/Contactos/Proveedores";
 import CrearProductos from "../Componenetes/Secciones/CrearArticulos/CrearProductos";
+import CrearMateriaPrima from "../Componenetes/Secciones/CrearArticulos/CrearMateriaPrima";
+import CrearClientes from "../Componenetes/Secciones/CrearContactos/CrearClientes";
+import CrearProveedores from "../Componenetes/Secciones/CrearContactos/CrearProveedores";
+import Facturas from "../Componenetes/Secciones/Ventas/Facturas/Facturas";
+import CrearFactura from "../Componenetes/Secciones/Ventas/CrearFactura/CrearFactura";
+import OrdenDeVentas from "../Componenetes/Secciones/Ventas/OrdenDeVentas/OrdenDeVentas";
 
 export default function Router() {
   return (
@@ -24,8 +30,20 @@ export default function Router() {
         <Route path="inventario/productos" element={<Productos />} />
         <Route path="inventario/productos/nuevo" element={<CrearProductos />} />
         <Route path="inventario/materia-prima" element={<MateriaPrima />} />
+        <Route
+          path="inventario/materia-prima/nuevo"
+          element={<CrearMateriaPrima />}
+        />
         <Route path="contactos/clientes" element={<Clientes />} />
+        <Route path="contactos/clientes/nuevo" element={<CrearClientes />} />
         <Route path="contactos/proveedores" element={<Proveedores />} />
+        <Route
+          path="contactos/proveedores/nuevo"
+          element={<CrearProveedores />}
+        />
+        <Route path="ventas/facturas" element={<Facturas />} />
+        <Route path="ventas/facturas/nueva" element={<CrearFactura />} />
+        <Route path="ventas/orden-venta" element={<OrdenDeVentas />} />
       </Route>
 
       {/* ERROR */}
