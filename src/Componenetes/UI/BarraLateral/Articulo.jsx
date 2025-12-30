@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
 const Articulo = ({
@@ -38,7 +38,7 @@ const Articulo = ({
           estaActivadoOSubmenu ? "translate-x-1" : "hover:translate-x-1"
         }`}
       >
-        <a
+        <Link
           href={tieneSubmenu ? "#" : redireccion}
           className={`flex items-center gap-2 text-xs text-white p-2 rounded-md w-full py-2 transition-all hover:text-white! hover:bg-[#7a79783a] ${
             estaActivadoOSubmenu
@@ -55,7 +55,7 @@ const Articulo = ({
               {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
             </span>
           )}
-        </a>
+        </Link>
       </div>
 
       {/* Submenú desplegable */}
@@ -80,8 +80,8 @@ const Articulo = ({
                       : "hover:translate-x-1"
                   }`}
                 >
-                  <a
-                    href={item.redireccion}
+                  <Link
+                    to={item.redireccion}
                     className={`flex items-center gap-2 text-xs p-2 rounded-md transition-all hover:text-white! hover:bg-[#7a79783a] ${
                       submenuItemActivo
                         ? "text-[var(--primary)]! bg-[var(--primary)]/10 font-medium"
@@ -89,7 +89,7 @@ const Articulo = ({
                     }`}
                   >
                     <span className="truncate">{item.nombre}</span>
-                  </a>
+                  </Link>
                 </li>
               );
             })}

@@ -1,22 +1,29 @@
 import { useState } from "react";
-import { X, Plus, Trash2 } from "lucide-react";
-import { AgregarIcono, BorrarIcono, GuardarIcono } from "../../../assets/Icons";
-
+import { X } from "lucide-react";
+import {
+  BorrarIcono,
+  AgregarIcono,
+  GuardarIcono,
+  CalendarioIcono,
+} from "../../../assets/Icons";
+import { useAlertas } from "../../../store/useAlertas";
 const FormularioDinamico = ({
-  title = "Formulario",
-  subtitle = "Complete los datos",
-  fields = [],
+  titulo = "Formulario",
+  subtitulo = "Complete los datos",
+  campos = [],
   initialData = null,
   onSubmit,
   onCancel,
   submitLabel = "Guardar",
   cancelLabel = "Cancelar",
 }) => {
+  const agregarAlerta = useAlertas((state) => state.agregarAlerta);
+
   const [formData, setFormData] = useState(() => {
     if (initialData) return initialData;
 
     const initial = {};
-    fields.forEach((field) => {
+    campos.forEach((field) => {
       if (field.type === "items-table") {
         initial[field.name] = [];
       } else if (field.type === "number") {
@@ -57,7 +64,7 @@ const FormularioDinamico = ({
     setFormData((prev) => {
       const updated = { ...prev, [name]: newValue };
 
-      const field = fields.find((f) => f.name === name);
+      const field = campos.find((f) => f.name === name);
       if (field?.onChangeCalculate) {
         return field.onChangeCalculate(updated, name);
       }
@@ -97,7 +104,10 @@ const FormularioDinamico = ({
       });
 
     if (missingFields.length > 0) {
-      alert(`Complete: ${missingFields.map((f) => f.label).join(", ")}`);
+      agregarAlerta({
+        type: "error",
+        message: `Complete: ${missingFields.map((f) => f.label).join(", ")}`,
+      });
       return;
     }
 
@@ -133,7 +143,7 @@ const FormularioDinamico = ({
   const validate = () => {
     const newErrors = {};
 
-    fields.forEach((field) => {
+    campos.forEach((field) => {
       if (field.type === "items-table") {
         // Validar que haya al menos un item si es requerido
         if (
@@ -163,7 +173,14 @@ const FormularioDinamico = ({
       }
     });
 
-    setErrors(newErrors);
+    // AGREGAR AQUÍ: Mostrar alerta solo si hay errores
+    if (Object.keys(newErrors).length > 0) {
+      agregarAlerta({
+        type: "error",
+        message: "Por favor complete todos los campos requeridos",
+      });
+    }
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -174,7 +191,7 @@ const FormularioDinamico = ({
   };
 
   const renderField = (field) => {
-    const commonClasses = `bg-gray-500/5! w-full px-4 py-2 rounded-md! border-1 bg-[var(--fill2)] text-White! ${
+    const commonClasses = `bg-gray-500/5! w-full px-2 py-[7px] rounded-md! border-1 bg-[var(--fill2)] text-White! ${
       errors[field.name] ? "border-red-400" : "border-gray-300/20!"
     } focus:border-[var(--primary)] focus:outline-none transition-colors placeholder-gray-500 ${
       field.readOnly ? "text-white! cursor-not-allowed" : "text-white!"
@@ -234,6 +251,34 @@ const FormularioDinamico = ({
       case "items-table":
         return renderItemsTable(field);
 
+      case "date":
+        return (
+          <div className="relative">
+            <input
+              type="date"
+              name={field.name}
+              value={formData[field.name] || ""}
+              onChange={handleChange}
+              className={`${commonClasses} pr-10`}
+              readOnly={field.readOnly}
+            />
+
+            {/* Icono calendario */}
+            <button
+              type="button"
+              onClick={() => {
+                const input = document.querySelector(
+                  `input[name="${field.name}"]`
+                );
+                input?.showPicker?.();
+                input?.focus();
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition cursor-pointer"
+            >
+              <CalendarioIcono color={"var(--primary)"} />
+            </button>
+          </div>
+        );
       default:
         return (
           <input
@@ -266,7 +311,7 @@ const FormularioDinamico = ({
     }
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 w-full flex flex-col items-center">
         {/* Formulario para agregar items */}
         <div className={`grid gap-3 ${field.itemLayout || "grid-cols-12"}`}>
           {field.itemFields.map((itemField) => (
@@ -338,8 +383,8 @@ const FormularioDinamico = ({
         {/* Tabla de items agregados */}
         {items.length > 0 && (
           <>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+            <div className="overflow-x-auto w-full">
+              <table className="w-full text-md">
                 <thead className="bg-[var(--fill2)] text-gray-300">
                   <tr>
                     {field.tableColumns?.map((col) => (
@@ -364,13 +409,13 @@ const FormularioDinamico = ({
                           {col.render ? col.render(item) : item[col.key]}
                         </td>
                       ))}
-                      <td className="px-3 py-2">
+                      <td className="px-2 py-2">
                         <button
                           type="button"
                           onClick={() => removeItem(field.name, item.id)}
                           className="text-red-400! hover:text-red-300! hover:bg-red-400/10! bg-red-400/20! p-1 rounded-md! cursor-pointer"
                         >
-                          <BorrarIcono />
+                          <BorrarIcono size={18} />
                         </button>
                       </td>
                     </tr>
@@ -381,22 +426,18 @@ const FormularioDinamico = ({
 
             {/* Totales si están definidos */}
             {field.renderTotals && (
-              <div className="border-t-2 border-gray-700 pt-4">
+              <div className="border-t-2 border-gray-500/20 pt-4 w-full">
                 {field.renderTotals(items)}
               </div>
             )}
           </>
-        )}
-
-        {errors[field.name] && (
-          <p className="text-red-400 text-sm">{errors[field.name]}</p>
         )}
       </div>
     );
   };
 
   // Agrupar campos por sección
-  const sections = fields.reduce((acc, field) => {
+  const sections = campos.reduce((acc, field) => {
     const section = field.section || "default";
     if (!acc[section]) acc[section] = [];
     acc[section].push(field);
@@ -406,83 +447,86 @@ const FormularioDinamico = ({
   return (
     <div className="w-full bg-[var(--fill)] rounded-xl shadow-md overflow-hidden">
       {/* Header */}
-      <div className="bg-[var(--primary-opacity-10)] px-6 py-4">
-        <h2 className="text-lg font-bold text-white">{title}</h2>
-        <p className="text-[var(--primary-light)] mt-1 text-sm">{subtitle}</p>
+      <div className="block bg-[var(--primary-opacity-10)] px-6 py-4 md:flex md:flex-col md:items-center md:justify-center">
+        <h2 className="text-2xl font-bold text-white">{titulo}</h2>
+        <p className="text-[var(--primary-light)] mt-1 text-md">{subtitulo}</p>
       </div>
 
-      <div className="p-6">
-        {/* Renderizar secciones */}
-        {Object.entries(sections).map(([sectionName, sectionFields], idx) => (
-          <div key={sectionName} className={idx > 0 ? "mb-7" : "mb-7"}>
-            {sectionName !== "default" && (
-              <h3 className="text-md font-semibold text-gray-200 mb-4 flex items-center gap-1">
-                {sectionFields[0]?.sectionIcon}
-                {sectionName}
-              </h3>
-            )}
+      <div className="flex justify-center p-4 ">
+        <div className="w-full md:w-[800px]">
+          {/* Renderizar secciones */}
+          {Object.entries(sections).map(([sectionName, sectionFields], idx) => (
+            <div key={sectionName} className={idx > 0 ? "mb-3" : "mb-3"}>
+              {sectionName !== "default" && (
+                <h3 className="text-md font-semibold bg-[var(--primary)]/5 py-2 px-2 rounded-md text-white border text-center border-[var(--primary)] mb-4 flex items-center gap-1">
+                  {sectionFields[0]?.sectionIcon}
+                  {sectionName}
+                </h3>
+              )}
 
-            <div
-              className={`grid grid-cols-1 ${
-                sectionFields[0]?.cols || "md:grid-cols-2"
-              } gap-4`}
-            >
-              {sectionFields.map((field) => (
-                <div
-                  key={field.name}
-                  className={
-                    field.fullWidth || field.type === "items-table"
-                      ? "md:col-span-2"
-                      : ""
-                  }
-                >
-                  {field.type !== "items-table" && (
-                    <label className="block text-xs font-medium text-gray-300 mb-2">
-                      {field.label}{" "}
-                      {field.required && (
-                        <span className="text-red-400 text-xs">*</span>
-                      )}
-                    </label>
-                  )}
-                  <div className="col-span-6">{renderField(field)}</div>
-                  {field.type !== "items-table" && errors[field.name] && (
-                    <p className="text-red-400 text-sm mt-1">
-                      {errors[field.name]}
-                    </p>
-                  )}
-                  {field.type !== "items-table" &&
-                    field.helpText &&
-                    !errors[field.name] && (
-                      <p className="text-[var(--primary-light)] text-xs mt-1">
-                        {field.helpText}
+              <div
+                className={`grid grid-cols-1 ${
+                  sectionFields[0]?.cols || "md:grid-cols-2"
+                } gap-4`}
+              >
+                {sectionFields.map((field) => (
+                  <div
+                    key={field.name}
+                    className={
+                      field.fullWidth || field.type === "items-table"
+                        ? "md:col-span-2"
+                        : ""
+                    }
+                  >
+                    {field.type !== "items-table" && (
+                      <label className="block text-xs font-medium text-white mb-2">
+                        {field.label}{" "}
+                        {field.required && (
+                          <span className="text-red-400 text-xs">*</span>
+                        )}
+                      </label>
+                    )}
+                    <div className="col-span-6">{renderField(field)}</div>
+                    {field.type !== "items-table" && errors[field.name] && (
+                      <p className="text-red-400 text-sm mt-1">
+                        {errors[field.name]}
                       </p>
                     )}
-                </div>
-              ))}
+                    {field.type !== "items-table" &&
+                      field.helpText &&
+                      !errors[field.name] && (
+                        <p className="text-[var(--primary-light)] text-xs mt-1">
+                          {field.helpText}
+                        </p>
+                      )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+          {/* Botones */}
+          <div className="gap-2 pt-2 border-t-2 border-gray-500/20">
+            <div className="flex justify-end ">
+              {onCancel && (
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className="flex-1 px-6 py-3 border-2 text-gray-300 font-medium hover:bg-[var(--fill2)] transition-colors flex items-center justify-center gap-2"
+                >
+                  <X className="w-5 h-5" />
+                  {cancelLabel}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={handleSubmit}
+                className="w-auto px-6 py-2 rounded-md! bg-[var(--primary)]! text-white! font-medium hover:opacity-90 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 hover:bg-[var(--primary)]/70! cursor-pointer"
+              >
+                <GuardarIcono size={18} />
+                {submitLabel}
+              </button>
             </div>
           </div>
-        ))}
-
-        {/* Botones */}
-        <div className="flex gap-2 pt-2 border-t-2 border-gray-500/20">
-          {onCancel && (
-            <button
-              type="button"
-              onClick={onCancel}
-              className="flex-1 px-6 py-3 border-2 text-gray-300 font-medium hover:bg-[var(--fill2)] transition-colors flex items-center justify-center gap-2"
-            >
-              <X className="w-5 h-5" />
-              {cancelLabel}
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={handleSubmit}
-            className="flex-1 px-6 py-3 rounded-md! bg-[var(--primary)]! text-white! font-medium hover:opacity-90 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 hover:bg-[var(--primary)]/70! cursor-pointer"
-          >
-            <GuardarIcono />
-            {submitLabel}
-          </button>
         </div>
       </div>
     </div>

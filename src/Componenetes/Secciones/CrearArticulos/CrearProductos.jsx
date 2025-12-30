@@ -5,7 +5,7 @@ import FormularioDinamico from "../../UI/FormularioReutilizable/FormularioDinami
 
 const CrearProductos = () => {
   // Configuración para PRODUCTOS
-  const productFields = [
+  const camposProductos = [
     {
       name: "nombre",
       label: "Nombre",
@@ -142,9 +142,9 @@ const CrearProductos = () => {
 
       {/* Formulario */}
       <FormularioDinamico
-        title="Nuevo Producto"
-        subtitle="Complete los datos del producto"
-        fields={productFields}
+        titulo="Nuevo Producto"
+        subtitulo="Complete los datos del producto"
+        campos={camposProductos}
         onSubmit={handleSubmit}
         submitLabel="Guardar Producto"
       />

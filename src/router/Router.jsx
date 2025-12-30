@@ -15,6 +15,11 @@ import CrearProveedores from "../Componenetes/Secciones/CrearContactos/CrearProv
 import Facturas from "../Componenetes/Secciones/Ventas/Facturas/Facturas";
 import CrearFactura from "../Componenetes/Secciones/Ventas/CrearFactura/CrearFactura";
 import OrdenDeVentas from "../Componenetes/Secciones/Ventas/OrdenDeVentas/OrdenDeVentas";
+import CrearOrdenDeVentas from "../Componenetes/Secciones/Ventas/CrearOrdenDeVenta/CrearOrdeDeVenta";
+import NotaDeCredito from "../Componenetes/Secciones/Ventas/NotaDeCredito/NotaDeCredito";
+import CrearNotaCredito from "../Componenetes/Secciones/Ventas/CrearNotaCredito/CrearNotaCredito";
+import NotaDeDebito from "../Componenetes/Secciones/Ventas/NotaDeDebito/NotaDeDebito";
+import CrearNotaDebito from "../Componenetes/Secciones/Ventas/CrearNotaDebito/CrearNotaDebito";
 
 export default function Router() {
   return (
@@ -43,7 +48,21 @@ export default function Router() {
         />
         <Route path="ventas/facturas" element={<Facturas />} />
         <Route path="ventas/facturas/nueva" element={<CrearFactura />} />
-        <Route path="ventas/orden-venta" element={<OrdenDeVentas />} />
+        <Route path="ventas/orden-ventas" element={<OrdenDeVentas />} />
+        <Route
+          path="ventas/orden-ventas/nueva"
+          element={<CrearOrdenDeVentas />}
+        />
+        <Route path="ventas/notas-creditos" element={<NotaDeCredito />} />
+        <Route
+          path="ventas/notas-creditos/nueva"
+          element={<CrearNotaCredito />}
+        />
+        <Route path="ventas/notas-debitos" element={<NotaDeDebito />} />
+        <Route
+          path="ventas/notas-debitos/nueva"
+          element={<CrearNotaDebito />}
+        />
       </Route>
 
       {/* ERROR */}

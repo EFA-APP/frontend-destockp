@@ -20,13 +20,13 @@ const CalendarioIcono = ({ size, color }) => {
           x="3"
           y="6"
           stroke={color || "currentColor"}
-          stroke-width="1.2"
+          strokeWidth="1.2"
           rx="2"
         />
         <path
           stroke={color || "currentColor"}
-          stroke-linecap="round"
-          stroke-width="1.2"
+          strokeLinecap="round"
+          strokeWidth="1.2"
           d="M7 3v3m10-3v3"
         />
         <rect

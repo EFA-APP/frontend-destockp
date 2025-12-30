@@ -27,3 +27,5 @@ export { default as ColegioIcono } from "./ColegioIcono";
 export { default as FiltroIcono } from "./FiltroIcono";
 export { default as CalendarioIcono } from "./CalendarioIcono";
 export { default as OrdenDeVentaIcono } from "./OrdenDeVentaIcono";
+export { default as NotaCreditoIcono } from "./NotaCreditoIcono";
+export { default as NotaDebitoIcono } from "./NotaDebitoIcono";

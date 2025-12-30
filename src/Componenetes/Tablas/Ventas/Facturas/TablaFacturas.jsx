@@ -18,6 +18,8 @@ const TablaFacturas = () => {
     setFechaDesde,
     fechaHasta,
     setFechaHasta,
+    isBlanco,
+    setIsBlanco,
   } = useFacturas();
 
   const totalFacturado = facturas.reduce((acc, f) => acc + f.total, 0);
@@ -88,6 +90,17 @@ const TablaFacturas = () => {
                   { valor: "pagada", texto: "Pagadas" },
                   { valor: "pendiente", texto: "Pendientes" },
                   { valor: "vencida", texto: "Vencidas" },
+                ]}
+              />
+
+              <Select
+                label="Condición fiscal"
+                valor={isBlanco}
+                setValor={setIsBlanco}
+                options={[
+                  { valor: "TODAS", texto: "Todas" },
+                  { valor: "BLANCO", texto: "Registrada (Fiscal)" },
+                  { valor: "NEGRO", texto: "No registrada" },
                 ]}
               />
 

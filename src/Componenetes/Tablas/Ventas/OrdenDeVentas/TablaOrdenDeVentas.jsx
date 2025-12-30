@@ -57,7 +57,7 @@ const TablaOrdenDeVentas = () => {
           placeholderBuscador="Buscar por número o cliente..."
           botonAgregar={{
             texto: "Nueva orden",
-            ruta: "/panel/ventas/orden-venta/nueva",
+            ruta: "/panel/ventas/orden-ventas/nueva",
           }}
           mostrarFiltros
           textoFiltros="Filtros avanzados"

@@ -17,8 +17,8 @@ const PagosIcono = ({ size, color }) => {
           fill-opacity="0.25"
         />
         <rect x="3" y="6" width="18" height="12" rx="2" strokeWidth="1" />
-        <path d="M6 9H8" strokeWidth="1" stroke-linecap="round" />
-        <path d="M16 15H18" strokeWidth="1" stroke-linecap="round" />
+        <path d="M6 9H8" strokeWidth="1" strokeLinecap="round" />
+        <path d="M16 15H18" strokeWidth="1" strokeLinecap="round" />
         <circle cx="12" cy="12" r="2.4" strokeWidth="1" />
       </g>
     </svg>

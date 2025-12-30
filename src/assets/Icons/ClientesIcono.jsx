@@ -9,7 +9,7 @@ const ClientesIcono = ({ size }) => {
       <g fill="none">
         <path
           stroke="currentColor"
-          stroke-width="1.5"
+          strokeWidth="1.5"
           d="M14 4a2 2 0 1 1-4 0a2 2 0 0 1 4 0Z"
         />
         <path
@@ -18,8 +18,8 @@ const ClientesIcono = ({ size }) => {
         />
         <path
           stroke="currentColor"
-          stroke-linecap="round"
-          stroke-width="1.5"
+          strokeLinecap="round"
+          strokeWidth="1.5"
           d="M19.454 15c1.583.796 2.546 1.848 2.546 3c0 .748-.406 1.454-1.124 2.075M4.546 15C2.963 15.796 2 16.848 2 18c0 2.485 4.477 4.5 10 4.5c1.821 0 3.53-.22 5-.602"
         />
       </g>

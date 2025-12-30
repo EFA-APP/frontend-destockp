@@ -4,7 +4,7 @@ import FormularioDinamico from "../../UI/FormularioReutilizable/FormularioDinami
 
 const CrearProveedores = () => {
   // Configuración para PRODUCTOS
-  const proveedoresFields = [
+  const camposProveedores = [
     // ─────────────────────────────
     // INFORMACIÓN BÁSICA
     // ─────────────────────────────
@@ -113,9 +113,9 @@ const CrearProveedores = () => {
 
       {/* Formulario */}
       <FormularioDinamico
-        title="Nuevo Proveedor"
-        subtitle="Complete los datos."
-        fields={proveedoresFields}
+        titulo="Nuevo Proveedor"
+        subtitulo="Complete los datos."
+        campos={camposProveedores}
         onSubmit={handleSubmit}
         submitLabel="Guardar Proveedor"
       />

@@ -5,7 +5,7 @@ const BuscadorIcono = ({ props }) => {
     <svg
       className={`${props}`}
       xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
       ariaHidden="true"
       role="img"
       class="iconify iconify--solar"

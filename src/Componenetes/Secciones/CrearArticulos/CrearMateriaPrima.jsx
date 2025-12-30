@@ -3,7 +3,7 @@ import EncabezadoSeccion from "../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import FormularioDinamico from "../../UI/FormularioReutilizable/FormularioDinamico";
 
 const CrearMateriaPrima = () => {
-  const materiaPrimaFields = [
+  const materiaPrimaCampos = [
     // ─────────────────────────────
     // INFORMACIÓN BÁSICA
     // ─────────────────────────────
@@ -115,9 +115,9 @@ const CrearMateriaPrima = () => {
 
       {/* Formulario */}
       <FormularioDinamico
-        title="Nuevo Materia Prima"
-        subtitle="Complete los datos."
-        fields={materiaPrimaFields}
+        titulo="Nuevo Materia Prima"
+        subtitulo="Complete los datos."
+        campos={materiaPrimaCampos}
         onSubmit={handleSubmit}
         submitLabel="Guardar Materia Prima"
       />

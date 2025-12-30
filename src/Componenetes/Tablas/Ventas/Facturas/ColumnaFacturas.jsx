@@ -10,8 +10,19 @@ export const columnasFacturas = [
     etiqueta: "Comprobante",
     renderizar: (valor, fila) => (
       <div>
-        <div className="font-medium">{valor}</div>
-        <div className="text-xs text-gray-100/50">{`Factura ${fila.tipo}`}</div>
+        <div className="font-medium">{`${fila.prefijo}-${valor}`}</div>
+        <div className="flex justify-start items-center gap-2">
+          <div className="text-xs text-gray-100/50">
+            {`Factura ${fila.tipo}`}{" "}
+          </div>
+          <div
+            className={` w-2 h-2 rounded-full shadow-lg! ${
+              fila.isBlanco
+                ? "bg-green-400 shadow-green-300!"
+                : "bg-red-400 shadow-red-300!"
+            } `}
+          ></div>
+        </div>
       </div>
     ),
   },

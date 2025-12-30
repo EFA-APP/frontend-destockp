@@ -25,7 +25,7 @@ const CrearFactura = () => {
     return calcularSubtotal(item) + calcularIVA(item);
   };
 
-  const facturaFields = [
+  const camposFactura = [
     // ═══════════════════════════════════════
     // CONFIGURACIÓN DEL COMPROBANTE
     // ═══════════════════════════════════════
@@ -187,7 +187,7 @@ const CrearFactura = () => {
       name: "items",
       type: "items-table",
       required: true,
-      section: "Productos / Servicios",
+      section: "Productos",
       fullWidth: true,
       errorMessage: "Debe agregar al menos un producto o servicio",
 
@@ -195,10 +195,10 @@ const CrearFactura = () => {
       itemFields: [
         {
           name: "descripcion",
-          label: "Descripción",
+          label: "Producto",
           type: "text",
           required: true,
-          placeholder: "Ej: Producto X",
+          placeholder: "Descripción",
           colSpan: "col-span-4",
         },
         {
@@ -214,6 +214,7 @@ const CrearFactura = () => {
         {
           name: "precioUnitario",
           label: "Precio Unit.",
+          placeholder: "$1.000",
           type: "number",
           required: true,
           defaultValue: 0,
@@ -224,6 +225,7 @@ const CrearFactura = () => {
         {
           name: "descuento",
           label: "Descuento %",
+          placeholder: "10%",
           type: "number",
           defaultValue: 0,
           min: 0,
@@ -342,8 +344,6 @@ const CrearFactura = () => {
       numeroCompleto: `${data.puntoVenta}-${data.numeroComprobante}`,
     };
 
-    console.log("Factura creada:", facturaCompleta);
-
     if (data.enBlanco === "si") {
       alert(
         `✓ Factura registrada en ARCA\n\nComprobante: ${
@@ -377,9 +377,9 @@ const CrearFactura = () => {
 
       {/* Formulario Único con todo integrado */}
       <FormularioDinamico
-        title="Nueva Factura"
-        subtitle="Complete los datos del comprobante"
-        fields={facturaFields}
+        titulo="Nueva Factura"
+        subtitulo="Complete los datos del comprobante"
+        campos={camposFactura}
         onSubmit={handleSubmit}
         submitLabel="Generar Factura"
       />

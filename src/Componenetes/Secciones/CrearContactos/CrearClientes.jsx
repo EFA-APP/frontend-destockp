@@ -4,7 +4,7 @@ import FormularioDinamico from "../../UI/FormularioReutilizable/FormularioDinami
 
 const CrearClientes = () => {
   // Configuración para PRODUCTOS
-  const clientesFields = [
+  const clientesCampos = [
     // ─────────────────────────────
     // INFORMACIÓN BÁSICA
     // ─────────────────────────────
@@ -98,9 +98,9 @@ const CrearClientes = () => {
 
       {/* Formulario */}
       <FormularioDinamico
-        title="Nuevo Cliente"
-        subtitle="Complete los datos."
-        fields={clientesFields}
+        titulo="Nuevo Cliente"
+        subtitulo="Complete los datos."
+        campos={clientesCampos}
         onSubmit={handleSubmit}
         submitLabel="Guardar Cliente"
       />

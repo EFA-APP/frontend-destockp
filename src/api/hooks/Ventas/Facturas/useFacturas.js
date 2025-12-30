@@ -4,7 +4,8 @@ export const useFacturas = () => {
   const [facturas, setFacturas] = useState([
     {
       id: 1,
-      numero: "0001-00000012",
+      prefijo: "0001",
+      numero: "00000012",
       fecha: "2025-03-01",
       cliente: "Distribuidora San Martín",
       tipo: "B",
@@ -22,7 +23,8 @@ export const useFacturas = () => {
     },
     {
       id: 2,
-      numero: "0001-00000013",
+      prefijo: "0001",
+      numero: "00000013",
       fecha: "2025-03-05",
       cliente: "Kiosco Don Pepe",
       tipo: "C",
@@ -40,12 +42,13 @@ export const useFacturas = () => {
     },
     {
       id: 3,
-      numero: "0001-00000020",
+      prefijo: "0001",
+      numero: "00000020",
       fecha: "2025-03-05",
       cliente: "Kiosco Don Pepe",
       tipo: "C",
       estado: "vencida",
-      isBlanco: true,
+      isBlanco: false,
       total: 27600,
       items: [
         {
@@ -64,6 +67,7 @@ export const useFacturas = () => {
   const [fechaHasta, setFechaHasta] = useState("");
 
   const [busqueda, setBusqueda] = useState("");
+  const [isBlanco, setIsBlanco] = useState("TODAS");
 
   const facturasFiltradas = facturas.filter((f) => {
     const coincideBusqueda =
@@ -73,6 +77,10 @@ export const useFacturas = () => {
     const coincideTipo = tipoFactura === "TODAS" || f.tipo === tipoFactura;
     const coincideEstado =
       estadoFactura === "TODAS" || f.estado === estadoFactura;
+    const coincideBlanco =
+      isBlanco === "TODAS" ||
+      (isBlanco === "BLANCO" && f.isBlanco === true) ||
+      (isBlanco === "NEGRO" && f.isBlanco === false);
 
     const fechaFactura = new Date(f.fecha);
     const desdeValida = !fechaDesde || fechaFactura >= new Date(fechaDesde);
@@ -81,6 +89,7 @@ export const useFacturas = () => {
     return (
       coincideBusqueda &&
       coincideTipo &&
+      coincideBlanco &&
       coincideEstado &&
       desdeValida &&
       hastaValida
@@ -99,5 +108,7 @@ export const useFacturas = () => {
     setFechaDesde,
     fechaHasta,
     setFechaHasta,
+    isBlanco,
+    setIsBlanco,
   };
 };

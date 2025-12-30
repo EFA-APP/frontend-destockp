@@ -14,6 +14,7 @@ import {
 } from "../../../assets/Icons";
 import { useTamañoBarraLateral } from "../../../store/useTamanoBarraLateral";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const BarraLateral = () => {
   const { isExpanded, setIsExpanded } = useTamañoBarraLateral();
@@ -44,28 +45,28 @@ const BarraLateral = () => {
   return (
     <div className="block ">
       <aside
-        className={`bg-[var(--fill)]! md:bg-transparent! pt-2 fixed transition-all duration-300 ease-in-out start-3 top-0 rtl:pe-4 rtl:ps-0 flex flex-col  z-[99999] ${
+        className={`bg-[var(--fill)]! md:bg-transparent! pt-2 fixed transition-all duration-300 ease-in-out start-3 top-0 rtl:pe-4 rtl:ps-0 flex flex-col  z-[99999999] ${
           isExpanded ? "w-[180px] " : "w-[50px] items-start"
         }`}
         onMouseLeave={() => setIsExpanded(false)}
       >
         {/* LOGO */}
         <div className="flex items-center py-2 px-2">
-          <a href="/" data-discover="true">
+          <Link to="/" data-discover="true">
             <img
               alt="logo"
               className="block w-10 rounded-full"
               src="/efa-logo.png"
             />
-          </a>
+          </Link>
         </div>
 
         {/* ITEMS */}
-        <div className="relative h-[calc(100vh-85px)] ">
+        <div className="relative h-[calc(100vh-85px)] bg-[var(--fill)]!">
           <div className="mt-4 space-y-2 border-t pt-2 border-gray-400/10">
             <div className="min-w-full table">
               <div className="pe-4 rtl:pe-0 rtl:ps-4 list-none">
-                <ul className="mt-4 space-y-2 border-t pt-2 first:mt-0 first:border-t-0 first:pt-0 border-ld hide-menu">
+                <div className="mt-4 space-y-2 border-t pt-2 first:mt-0 first:border-t-0 first:pt-0 border-ld hide-menu">
                   <div className="mt-1 flex flex-col gap-2">
                     <div onClick={handleArticuloClick}>
                       <Articulo
@@ -141,15 +142,15 @@ const BarraLateral = () => {
                                 },
                                 {
                                   nombre: "Orden de venta",
-                                  redireccion: "/panel/ventas/orden-venta",
+                                  redireccion: "/panel/ventas/orden-ventas",
                                 },
                                 {
                                   nombre: "Notas de Créditos",
-                                  redireccion: "/panel/ventas/nota-credito",
+                                  redireccion: "/panel/ventas/notas-creditos",
                                 },
                                 {
                                   nombre: "Notas de Débito",
-                                  redireccion: "/panel/ventas/nota-debito",
+                                  redireccion: "/panel/ventas/notas-debitos",
                                 },
                               ]
                             : undefined
@@ -225,7 +226,7 @@ const BarraLateral = () => {
                       />
                     </div>
                   </div>
-                </ul>
+                </div>
               </div>
             </div>
           </div>
