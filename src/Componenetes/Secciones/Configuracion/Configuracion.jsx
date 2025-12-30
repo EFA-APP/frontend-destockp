@@ -32,31 +32,6 @@ const Configuracion = () => {
           <div className="mt-2 p-6">
             {/* GRILLA */}
             <div className="grid grid-cols-12 gap-[30px]">
-              {/* TARJETA DE CAMBIAR IMAGEN */}
-              <div className="md:col-span-6 col-span-12">
-                <div className="p-6 bg-[var(--fill2)] shadow-md card rounded-md">
-                  <h5 className="leading-1 font-normal! text-white! text-lg!">
-                    Cambiar Perfil
-                  </h5>
-                  <p className="leading-12 font-light text-white/50 text-md">
-                    Cambia tu foto de perfil desde aquí.
-                  </p>
-                  <div className="mx-auto text-center mt-5">
-                    <img
-                      width={"120"}
-                      height={"120"}
-                      src="/girl-icon.jpg"
-                      alt=""
-                      className="rounded-full mx-auto"
-                    />
-                  </div>
-                  <div className="flex justify-center gap-3 py-10">
-                    <Boton bg={"bg-[var(--primary)]!"} texto={"Subir"} />
-                    <Boton bg={"bg-red-400!"} texto={"Borrar"} />
-                  </div>
-                </div>
-              </div>
-              {/* TARJETA DE CAMBIAR IMAGEN */}
               {/* TARJETA DE CAMBIAR TU CONTRASEÑA */}
               <div className="md:col-span-6 col-span-12">
                 <div className="p-6 bg-[var(--fill2)] dark:bg-darkgray shadow-md  card h-full rounded-md">
@@ -87,7 +62,7 @@ const Configuracion = () => {
               {/* TARJETA DE CAMBIAR TU CONTRASEÑA */}
 
               {/* DETALLE PERSONAL */}
-              <div className="col-span-12">
+              <div className="col-span-12 md:col-span-6">
                 <div className="p-6 bg-[var(--fill2)] shadow-md card rounded-md">
                   <h5 className="leading-1 font-normal! text-white! text-lg!">
                     Detalle Personales
@@ -98,7 +73,7 @@ const Configuracion = () => {
 
                   <div className="grid grid-cols-12 gap-6">
                     <div className="col-span-12">
-                      <div className="flex flex-col gap-3 mt-3">
+                      <div className="flex flex-col gap-3 mt-6">
                         <InputReutilizable label={"Nombre"} tipo={""} />
                       </div>
                       <div className="flex flex-col gap-3 mt-3">

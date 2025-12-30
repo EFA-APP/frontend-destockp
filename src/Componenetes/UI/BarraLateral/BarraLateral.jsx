@@ -172,11 +172,11 @@ const BarraLateral = () => {
                                 {
                                   nombre: "Facturas de proveedor",
                                   redireccion:
-                                    "/panel/compras/facturas-proveedor",
+                                    "/panel/compras/facturas-proveedores",
                                 },
                                 {
                                   nombre: "Notas de Créditos",
-                                  redireccion: "/panel/compras/nota-credito",
+                                  redireccion: "/panel/compras/notas-creditos",
                                 },
                               ]
                             : undefined

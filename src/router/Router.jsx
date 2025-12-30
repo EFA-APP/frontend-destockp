@@ -20,6 +20,8 @@ import NotaDeCredito from "../Componenetes/Secciones/Ventas/NotaDeCredito/NotaDe
 import CrearNotaCredito from "../Componenetes/Secciones/Ventas/CrearNotaCredito/CrearNotaCredito";
 import NotaDeDebito from "../Componenetes/Secciones/Ventas/NotaDeDebito/NotaDeDebito";
 import CrearNotaDebito from "../Componenetes/Secciones/Ventas/CrearNotaDebito/CrearNotaDebito";
+import FacturasProveedor from "../Componenetes/Secciones/Compras/FacturaProveedor/FacturaProveedor";
+import CrearFacturaProveedor from "../Componenetes/Secciones/Compras/CrearFacturaProveedor/CrearFacturaProveedor";
 
 export default function Router() {
   return (
@@ -62,6 +64,16 @@ export default function Router() {
         <Route
           path="ventas/notas-debitos/nueva"
           element={<CrearNotaDebito />}
+        />
+
+        <Route
+          path="compras/facturas-proveedores"
+          element={<FacturasProveedor />}
+        />
+
+        <Route
+          path="compras/facturas-proveedores/nueva"
+          element={<CrearFacturaProveedor />}
         />
       </Route>
 
