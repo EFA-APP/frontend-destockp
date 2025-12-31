@@ -1,6 +1,6 @@
-import { InventarioIcono } from "../../../assets/Icons";
-import TablaProductos from "../../Tablas/Productos/TablaProductos";
-import EncabezadoSeccion from "../../UI/EncabezadoSeccion/EncabezadoSeccion";
+import { InventarioIcono } from "../../../../assets/Icons";
+import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
+import TablaProductos from "../../../Tablas/Productos/TablaProductos";
 
 const Productos = () => {
   return (

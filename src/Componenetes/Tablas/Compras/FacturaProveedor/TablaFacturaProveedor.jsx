@@ -20,6 +20,9 @@ const TablaFacturasProveedor = () => {
     setFechaHasta,
     isBlanco,
     setIsBlanco,
+    manejarDetalle,
+    manejarEditar,
+    manejarEliminar,
   } = useFacturasProveedor();
 
   const totalComprado = facturas.reduce((acc, f) => acc + f.total, 0);
@@ -56,6 +59,11 @@ const TablaFacturasProveedor = () => {
           mostrarBuscador
           busqueda={busqueda}
           setBusqueda={setBusqueda}
+          onVer={manejarDetalle}
+          onEditar={manejarEditar}
+          onEliminar={manejarEliminar}
+          onDescargar={manejarDetalle}
+          mostrarAcciones={true}
           placeholderBuscador="Buscar por número o proveedor..."
           botonAgregar={{
             texto: "Nueva factura de proveedor",
@@ -100,8 +108,16 @@ const TablaFacturasProveedor = () => {
                 ]}
               />
 
-              <FechaInput label="Desde:" value={fechaDesde} onChange={setFechaDesde} />
-              <FechaInput label="Hasta:" value={fechaHasta} onChange={setFechaHasta} />
+              <FechaInput
+                label="Desde:"
+                value={fechaDesde}
+                onChange={setFechaDesde}
+              />
+              <FechaInput
+                label="Hasta:"
+                value={fechaHasta}
+                onChange={setFechaHasta}
+              />
             </>
           }
         />
@@ -111,4 +127,3 @@ const TablaFacturasProveedor = () => {
 };
 
 export default TablaFacturasProveedor;
- 

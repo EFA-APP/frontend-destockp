@@ -5,8 +5,8 @@ import IniciarSesion from "../pages/IniciarSesion";
 
 import Configuracion from "../Componenetes/Secciones/Configuracion/Configuracion";
 import Clientes from "../Componenetes/Secciones/Contactos/Clientes";
-import Productos from "../Componenetes/Secciones/Articulos/Productos";
-import MateriaPrima from "../Componenetes/Secciones/Articulos/MateriaPrima";
+import Productos from "../Componenetes/Secciones/Articulos/Productos/Productos";
+import MateriaPrima from "../Componenetes/Secciones/Articulos/MateriaPrima/MateriaPrima";
 import Proveedores from "../Componenetes/Secciones/Contactos/Proveedores";
 import CrearProductos from "../Componenetes/Secciones/CrearArticulos/CrearProductos";
 import CrearMateriaPrima from "../Componenetes/Secciones/CrearArticulos/CrearMateriaPrima";
@@ -22,6 +22,10 @@ import NotaDeDebito from "../Componenetes/Secciones/Ventas/NotaDeDebito/NotaDeDe
 import CrearNotaDebito from "../Componenetes/Secciones/Ventas/CrearNotaDebito/CrearNotaDebito";
 import FacturasProveedor from "../Componenetes/Secciones/Compras/FacturaProveedor/FacturaProveedor";
 import CrearFacturaProveedor from "../Componenetes/Secciones/Compras/CrearFacturaProveedor/CrearFacturaProveedor";
+import PlanDeCuentas from "../Componenetes/Secciones/Contabilidad/PlanDeCuentas/PlanDeCuentas";
+import CrearPlanDeCuenta from "../Componenetes/Secciones/Contabilidad/CrearPlanDeCuenta.jsx/CrearPlanDeCuenta";
+import Asientos from "../Componenetes/Secciones/Contabilidad/Asientos/Asientos";
+import LibroDiario from "../Componenetes/Secciones/Contabilidad/LibroDiario/LibroDiario";
 
 export default function Router() {
   return (
@@ -33,7 +37,11 @@ export default function Router() {
       <Route path="/panel" element={<Panel />}>
         {/* LAYOUT INTERNO */}
         <Route index element={<Configuracion />} />
+
+        {/* CONFIGURACION */}
         <Route path="configuracion" element={<Configuracion />} />
+
+        {/* INVENTARIO */}
         <Route path="inventario/productos" element={<Productos />} />
         <Route path="inventario/productos/nuevo" element={<CrearProductos />} />
         <Route path="inventario/materia-prima" element={<MateriaPrima />} />
@@ -41,6 +49,8 @@ export default function Router() {
           path="inventario/materia-prima/nuevo"
           element={<CrearMateriaPrima />}
         />
+
+        {/* CONTACTOS */}
         <Route path="contactos/clientes" element={<Clientes />} />
         <Route path="contactos/clientes/nuevo" element={<CrearClientes />} />
         <Route path="contactos/proveedores" element={<Proveedores />} />
@@ -48,6 +58,8 @@ export default function Router() {
           path="contactos/proveedores/nuevo"
           element={<CrearProveedores />}
         />
+
+        {/* VENTAS */}
         <Route path="ventas/facturas" element={<Facturas />} />
         <Route path="ventas/facturas/nueva" element={<CrearFactura />} />
         <Route path="ventas/orden-ventas" element={<OrdenDeVentas />} />
@@ -66,6 +78,7 @@ export default function Router() {
           element={<CrearNotaDebito />}
         />
 
+        {/* COMPRAS */}
         <Route
           path="compras/facturas-proveedores"
           element={<FacturasProveedor />}
@@ -75,6 +88,15 @@ export default function Router() {
           path="compras/facturas-proveedores/nueva"
           element={<CrearFacturaProveedor />}
         />
+
+        {/* CONTABILIDAD */}
+        <Route path="contabilidad/cuentas" element={<PlanDeCuentas />} />
+        <Route
+          path="contabilidad/cuentas/nueva"
+          element={<CrearPlanDeCuenta />}
+        />
+        <Route path="contabilidad/asientos" element={<Asientos />} />
+        <Route path="contabilidad/libro-diario" element={<LibroDiario />} />
       </Route>
 
       {/* ERROR */}

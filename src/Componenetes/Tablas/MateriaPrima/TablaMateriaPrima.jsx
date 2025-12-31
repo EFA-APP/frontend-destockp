@@ -8,6 +8,7 @@ const TablaMateriaPrima = () => {
     materiaPrima,
     busqueda,
     setBusqueda,
+    manejarDetalle,
     manejarEditar,
     manejarEliminar,
   } = useMateriaPrima();
@@ -45,6 +46,7 @@ const TablaMateriaPrima = () => {
         <TablaReutilizable
           columnas={columnasMateriaPrima}
           datos={materiaPrima}
+          onVer={manejarDetalle}
           onEditar={manejarEditar}
           onEliminar={manejarEliminar}
           mostrarAcciones={true}

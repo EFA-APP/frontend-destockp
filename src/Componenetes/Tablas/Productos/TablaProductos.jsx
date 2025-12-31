@@ -4,8 +4,14 @@ import TarjetaInformacion from "../../UI/TarjetaInformacion/TarjetaInformacion";
 import { columnasProductos } from "./ColumnaProductos";
 
 const TablaProductos = () => {
-  const { productos, busqueda, setBusqueda, manejarEditar, manejarEliminar } =
-    useProductos();
+  const {
+    productos,
+    busqueda,
+    setBusqueda,
+    manejarDetalle,
+    manejarEditar,
+    manejarEliminar,
+  } = useProductos();
 
   // Calcular estadísticas
   const valorTotalInventario = productos.reduce(
@@ -56,6 +62,7 @@ const TablaProductos = () => {
         <TablaReutilizable
           columnas={columnasProductos}
           datos={productos}
+          onVer={manejarDetalle}
           onEditar={manejarEditar}
           onEliminar={manejarEliminar}
           mostrarAcciones={true}

@@ -77,6 +77,20 @@ export const useNotasCredito = () => {
     );
   });
 
+  const manejarDetalle = (id) => {
+    console.log(id);
+  };
+
+  const manejarEditar = (nota) => {
+    console.log("Editando:", nota);
+  };
+
+  const manejarEliminar = (id) => {
+    if (window.confirm("¿Eliminar?")) {
+      setFacturas((prev) => prev.filter((c) => c.id !== id));
+    }
+  };
+
   return {
     notasCredito: notasFiltradas,
     busqueda,
@@ -91,5 +105,8 @@ export const useNotasCredito = () => {
     setIsBlanco,
     tipoNotaCredito,
     setTipoNotaCredito,
+    manejarDetalle,
+    manejarEditar,
+    manejarEliminar,
   };
 };

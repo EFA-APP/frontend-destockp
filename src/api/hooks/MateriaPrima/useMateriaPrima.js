@@ -157,6 +157,10 @@ export const useMateriaPrima = () => {
       item.descripcion.toLowerCase().includes(busqueda.toLowerCase())
   );
 
+  const manejarDetalle = (id) => {
+    console.log(id);
+  };
+
   const manejarEditar = (fila) => {
     console.log("Editando materia prima:", fila);
     // Aquí puedes navegar a la página de edición
@@ -193,5 +197,6 @@ export const useMateriaPrima = () => {
     manejarEditar,
     manejarEliminar,
     manejarAgregar,
+    manejarDetalle,
   };
 };

@@ -20,6 +20,9 @@ const TablaNotasCredito = () => {
     setIsBlanco,
     tipoNotaCredito,
     setTipoNotaCredito,
+    manejarDetalle,
+    manejarEditar,
+    manejarEliminar,
   } = useNotasCredito();
 
   const totalNotas = notasCredito.reduce(
@@ -61,6 +64,11 @@ const TablaNotasCredito = () => {
           mostrarBuscador
           busqueda={busqueda}
           setBusqueda={setBusqueda}
+          onVer={manejarDetalle}
+          onEditar={manejarEditar}
+          onEliminar={manejarEliminar}
+          onDescargar={manejarDetalle}
+          mostrarAcciones={true}
           placeholderBuscador="Buscar por nota o cliente..."
           botonAgregar={{
             texto: "Nueva nota de crédito",

@@ -5,6 +5,7 @@ import {
   AgregarIcono,
   GuardarIcono,
   CalendarioIcono,
+  SubirIcono,
 } from "../../../assets/Icons";
 import { useAlertas } from "../../../store/useAlertas";
 const FormularioDinamico = ({
@@ -52,6 +53,20 @@ const FormularioDinamico = ({
 
   // Estado para items actuales en tablas
   const [currentItems, setCurrentItems] = useState({});
+
+  const handleFileChange = (e, field) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      [field.name]: file,
+    }));
+
+    if (errors[field.name]) {
+      setErrors((prev) => ({ ...prev, [field.name]: "" }));
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -279,6 +294,84 @@ const FormularioDinamico = ({
             </button>
           </div>
         );
+      case "file": {
+        const file = formData[field.name];
+
+        const formatSize = (bytes) => (bytes / 1024 / 1024).toFixed(2) + " MB";
+
+        const formatDate = (ts) => new Date(ts).toLocaleDateString("es-AR");
+
+        return (
+          <div className="w-full">
+            <label
+              htmlFor={`file-${field.name}`}
+              className="px-6 pt-4 pb-6 group/file block rounded-md cursor-pointer w-[220px] relative overflow-hidden"
+            >
+              <input
+                type="file"
+                id={`file-${field.name}`}
+                name={field.name}
+                className="hidden"
+                onChange={(e) => handleFileChange(e, field)}
+                accept={field.accept}
+              />
+
+              <div className="relative w-full mt-2 mx-auto">
+                <div
+                  className="
+              relative z-40
+              bg-white dark:bg-white/10
+              flex items-center justify-center
+              h-28 mt-2 w-full max-w-[8rem] mx-auto
+              rounded-md
+              shadow-[0px_10px_50px_rgba(0,0,0,0.1)]
+              transition-all duration-300 ease-out
+              group-hover/file:shadow-2xl
+              group-hover/file:opacity-90
+              group-hover/file:translate-x-5
+              group-hover/file:-translate-y-5
+            "
+                >
+                  <SubirIcono color="#FFF" />
+                </div>
+
+                <div
+                  className="
+              absolute inset-0 z-30
+              border-2 border-dashed border-[var(--primary)]
+              rounded-md
+              opacity-0
+              transition-opacity duration-300
+              group-hover/file:opacity-50
+            "
+                />
+              </div>
+            </label>
+
+            {/* INFO DEL ARCHIVO */}
+            {file && (
+              <div className="relative overflow-hidden z-40 bg-[var(--fill2)] flex flex-col items-start justify-start md:h-20 border border-[var(--fill)] py-2 px-4 mb-4 w-full mx-auto rounded-md shadow-sm">
+                <div className="flex justify-between w-full items-center gap-4">
+                  <p className="text-sm font-medium text-white truncate max-w-xs">
+                    {file.name}
+                  </p>
+
+                  <p className="rounded-lg px-2 py-1 text-xs font-medium text-[var(--primary)] bg-[var(--primary-opacity-10)]  shadow-input">
+                    {formatSize(file.size)}
+                  </p>
+                </div>
+
+                <div className="flex text-sm md:flex-row flex-col items-start md:items-center w-full mt-2 justify-between ">
+                  <p className="px-3 py-1 rounded-md bg-[var(--primary-opacity-10)] text-xs text-[var(--primary)]">
+                    {file.type || "desconocido"}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
       default:
         return (
           <input

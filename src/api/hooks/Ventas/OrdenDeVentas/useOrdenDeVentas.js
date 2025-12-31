@@ -60,6 +60,20 @@ export const useOrdenesVenta = () => {
     return coincideBusqueda && coincideEstado && desdeValida && hastaValida;
   });
 
+  const manejarDetalle = (id) => {
+    console.log(id);
+  };
+
+  const manejarEditar = (order) => {
+    console.log("Editando:", order);
+  };
+
+  const manejarEliminar = (id) => {
+    if (window.confirm("¿Eliminar?")) {
+      setFacturas((prev) => prev.filter((c) => c.id !== id));
+    }
+  };
+
   return {
     ordenes: ordenesFiltradas,
     busqueda,
@@ -70,5 +84,8 @@ export const useOrdenesVenta = () => {
     setFechaDesde,
     fechaHasta,
     setFechaHasta,
+    manejarDetalle,
+    manejarEditar,
+    manejarEliminar,
   };
 };

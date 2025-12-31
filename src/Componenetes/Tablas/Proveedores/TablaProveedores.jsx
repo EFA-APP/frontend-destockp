@@ -3,13 +3,20 @@ import TablaReutilizable from "../../UI/TablaReutilizable/TablaReutilizable";
 import { columnasProveedores } from "./ColumnaProveedores";
 
 const TablaProveedores = () => {
-  const { proveedores, manejarEditar, manejarEliminar, busqueda, setBusqueda } =
-    useProveedores();
+  const {
+    proveedores,
+    manejarDetalle,
+    manejarEditar,
+    manejarEliminar,
+    busqueda,
+    setBusqueda,
+  } = useProveedores();
   return (
     <div className="px-6 py-4 border-0 card no-inset no-ring bg-[var(--fill)]! shadow-md rounded-md">
       <TablaReutilizable
         columnas={columnasProveedores}
         datos={proveedores}
+        onVer={manejarDetalle}
         onEditar={manejarEditar}
         onEliminar={manejarEliminar}
         mostrarAcciones

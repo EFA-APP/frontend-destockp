@@ -1,6 +1,6 @@
-import { CanastaIcono, InventarioIcono } from "../../../assets/Icons";
-import TablaMateriaPrima from "../../Tablas/MateriaPrima/TablaMateriaPrima";
-import EncabezadoSeccion from "../../UI/EncabezadoSeccion/EncabezadoSeccion";
+import { CanastaIcono } from "../../../../assets/Icons";
+import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
+import TablaMateriaPrima from "../../../Tablas/MateriaPrima/TablaMateriaPrima";
 
 const MateriaPrima = () => {
   return (

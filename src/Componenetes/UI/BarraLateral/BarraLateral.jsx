@@ -3,6 +3,7 @@ import {
   CarritoIcono,
   ColegioIcono,
   ComprobanteIcono,
+  ContableIcono,
   GastosIcono,
   InicioIcono,
   InventarioIcono,
@@ -26,10 +27,6 @@ const BarraLateral = () => {
       e.preventDefault();
       e.stopPropagation();
       setIsExpanded(true);
-      setActiveSubmenu(itemId);
-    } else {
-      // Si ya está expandido, alterna el submenú (abre/cierra)
-      setActiveSubmenu(activeSubmenu === itemId ? null : itemId);
     }
   };
 
@@ -141,16 +138,16 @@ const BarraLateral = () => {
                                   redireccion: "/panel/ventas/facturas",
                                 },
                                 {
-                                  nombre: "Orden de venta",
-                                  redireccion: "/panel/ventas/orden-ventas",
-                                },
-                                {
                                   nombre: "Notas de Créditos",
                                   redireccion: "/panel/ventas/notas-creditos",
                                 },
                                 {
                                   nombre: "Notas de Débito",
                                   redireccion: "/panel/ventas/notas-debitos",
+                                },
+                                {
+                                  nombre: "Orden de venta",
+                                  redireccion: "/panel/ventas/orden-ventas",
                                 },
                               ]
                             : undefined
@@ -216,12 +213,36 @@ const BarraLateral = () => {
                       />
                     </div>
 
-                    {/* REPORTES */}
+                    {/* CONTABILIDAD */}
                     <div onClick={handleArticuloClick}>
                       <Articulo
-                        nombre={isExpanded ? "Reportes" : ""}
-                        icono={<ReporteIcono size={18} />}
-                        redireccion={"/panel/reportes"}
+                        nombre={isExpanded ? "Contabilidad" : ""}
+                        icono={<ContableIcono size={18} />}
+                        submenu={
+                          isExpanded
+                            ? [
+                                {
+                                  nombre: "Plan de Cuentas",
+                                  redireccion: "/panel/contabilidad/cuentas",
+                                },
+                                {
+                                  nombre: "Asientos",
+                                  redireccion: "/panel/contabilidad/asientos",
+                                },
+                                {
+                                  nombre: "Libro Diario",
+                                  redireccion:
+                                    "/panel/contabilidad/libro-diario",
+                                },
+                                {
+                                  nombre: "Balance",
+                                  redireccion: "/panel/contabilidad/balance",
+                                },
+                              ]
+                            : undefined
+                        }
+                        isOpen={openItem === "contabilidad"}
+                        onToggle={() => toggleItem("contabilidad")}
                         isCollapsed={!isExpanded}
                       />
                     </div>

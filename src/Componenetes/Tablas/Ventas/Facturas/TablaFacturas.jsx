@@ -20,6 +20,9 @@ const TablaFacturas = () => {
     setFechaHasta,
     isBlanco,
     setIsBlanco,
+    manejarDetalle,
+    manejarEditar,
+    manejarEliminar,
   } = useFacturas();
 
   const totalFacturado = facturas.reduce((acc, f) => acc + f.total, 0);
@@ -56,6 +59,11 @@ const TablaFacturas = () => {
           mostrarBuscador
           busqueda={busqueda}
           setBusqueda={setBusqueda}
+          mostrarAcciones={true}
+          onVer={manejarDetalle}
+          onEditar={manejarEditar}
+          onEliminar={manejarEliminar}
+          onDescargar={manejarDetalle}
           placeholderBuscador="Buscar por número o cliente..."
           botonAgregar={{
             texto: "Nueva factura",

@@ -194,6 +194,10 @@ export const useProductos = () => {
       producto.descripcion.toLowerCase().includes(busqueda.toLowerCase())
   );
 
+  const manejarDetalle = (id) => {
+    console.log(id);
+  };
+
   const manejarEditar = (fila) => {
     console.log("Editando producto:", fila);
     // Aquí puedes navegar a la página de edición
@@ -232,6 +236,7 @@ export const useProductos = () => {
     setBusqueda,
     manejarEditar,
     manejarEliminar,
+    manejarDetalle,
     manejarAgregar,
   };
 };

@@ -79,6 +79,20 @@ export const useNotasDebito = () => {
     );
   });
 
+  const manejarDetalle = (id) => {
+    console.log(id);
+  };
+
+  const manejarEditar = (nota) => {
+    console.log("Editando:", nota);
+  };
+
+  const manejarEliminar = (id) => {
+    if (window.confirm("¿Eliminar?")) {
+      setFacturas((prev) => prev.filter((c) => c.id !== id));
+    }
+  };
+
   return {
     notasDebito: notasFiltradas,
     busqueda,
@@ -93,5 +107,8 @@ export const useNotasDebito = () => {
     setIsBlanco,
     tipoNotaDebito,
     setTipoNotaDebito,
+    manejarDetalle,
+    manejarEditar,
+    manejarEliminar,
   };
 };

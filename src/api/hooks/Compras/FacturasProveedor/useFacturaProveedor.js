@@ -79,6 +79,20 @@ export const useFacturasProveedor = () => {
     );
   });
 
+  const manejarDetalle = (id) => {
+    console.log(id);
+  };
+
+  const manejarEditar = (factura) => {
+    console.log("Editando:", factura);
+  };
+
+  const manejarEliminar = (id) => {
+    if (window.confirm("¿Eliminar?")) {
+      setFacturas((prev) => prev.filter((c) => c.id !== id));
+    }
+  };
+
   return {
     facturas: facturasFiltradas,
     busqueda,
@@ -93,5 +107,8 @@ export const useFacturasProveedor = () => {
     setFechaHasta,
     isBlanco,
     setIsBlanco,
+    manejarDetalle,
+    manejarEditar,
+    manejarEliminar,
   };
 };

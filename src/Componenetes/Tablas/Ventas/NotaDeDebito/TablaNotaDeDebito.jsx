@@ -20,6 +20,9 @@ const TablaNotaDeDebito = () => {
     setIsBlanco,
     tipoNotaDebito,
     setTipoNotaDebito,
+    manejarDetalle,
+    manejarEditar,
+    manejarEliminar,
   } = useNotasDebito();
 
   const totalNotas = notasDebito.reduce((acc, n) => acc + n.total, 0);
@@ -57,6 +60,11 @@ const TablaNotaDeDebito = () => {
           mostrarBuscador
           busqueda={busqueda}
           setBusqueda={setBusqueda}
+          onVer={manejarDetalle}
+          onEditar={manejarEditar}
+          onEliminar={manejarEliminar}
+          onDescargar={manejarDetalle}
+          mostrarAcciones={true}
           placeholderBuscador="Buscar por nota, factura o cliente..."
           botonAgregar={{
             texto: "Nueva nota de débito",

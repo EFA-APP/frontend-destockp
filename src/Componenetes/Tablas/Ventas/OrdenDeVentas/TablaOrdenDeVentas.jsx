@@ -16,6 +16,9 @@ const TablaOrdenDeVentas = () => {
     setFechaDesde,
     fechaHasta,
     setFechaHasta,
+    manejarDetalle,
+    manejarEliminar,
+    manejarEditar,
   } = useOrdenesVenta();
 
   const totalOrdenes = ordenes.reduce((acc, o) => acc + o.total, 0);
@@ -54,6 +57,11 @@ const TablaOrdenDeVentas = () => {
           mostrarBuscador
           busqueda={busqueda}
           setBusqueda={setBusqueda}
+          onVer={manejarDetalle}
+          onEditar={manejarEditar}
+          onEliminar={manejarEliminar}
+          onDescargar={manejarDetalle}
+          mostrarAcciones={true}
           placeholderBuscador="Buscar por número o cliente..."
           botonAgregar={{
             texto: "Nueva orden",

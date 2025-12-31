@@ -3,7 +3,6 @@ import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import { AgregarIcono } from "../../../../assets/Icons";
 import FormularioDinamico from "../../../UI/FormularioReutilizable/FormularioDinamico";
 
-
 const CrearFacturaProveedor = () => {
   // ─────────────────────────────────────
   // FUNCIONES DE CÁLCULO (IGUALES A VENTAS)
@@ -40,8 +39,6 @@ const CrearFacturaProveedor = () => {
         { value: "FA", label: "Factura A" },
         { value: "FB", label: "Factura B" },
         { value: "FC", label: "Factura C" },
-        { value: "ND", label: "Nota de Débito" },
-        { value: "NC", label: "Nota de Crédito" },
       ],
     },
     {
@@ -69,10 +66,10 @@ const CrearFacturaProveedor = () => {
     },
     {
       name: "archivoComprobante",
-      label: "Adjuntar factura (PDF / Imagen)",
+      label: "Seleccionar archivo",
+      section: "Adjuntar factura (PDF / Imagen)",
       type: "file",
       required: true,
-      section: "Comprobante",
       accept: ".pdf,.jpg,.jpeg,.png",
       helpText: "Archivo original recibido del proveedor",
     },
@@ -126,8 +123,7 @@ const CrearFacturaProveedor = () => {
         { value: 520101, label: "520101 - Gastos de servicios" },
         { value: 130101, label: "130101 - Bienes de uso" },
       ],
-      helpText:
-        "Define el impacto contable de esta factura",
+      helpText: "Define el impacto contable de esta factura",
     },
 
     // ═══════════════════════════════════════
@@ -187,7 +183,7 @@ const CrearFacturaProveedor = () => {
         },
         {
           name: "descuento",
-          placeholder: "%10",
+          placeholder: "10%",
           label: "Desc. %",
           type: "number",
           defaultValue: 0,
@@ -233,14 +229,12 @@ const CrearFacturaProveedor = () => {
         {
           key: "subtotal",
           label: "Subtotal",
-          render: (item) =>
-            `$${calcularSubtotal(item).toFixed(2)}`,
+          render: (item) => `$${calcularSubtotal(item).toFixed(2)}`,
         },
         {
           key: "total",
           label: "Total",
-          render: (item) =>
-            `$${calcularTotal(item).toFixed(2)}`,
+          render: (item) => `$${calcularTotal(item).toFixed(2)}`,
         },
       ],
 
@@ -249,27 +243,21 @@ const CrearFacturaProveedor = () => {
           (sum, item) => sum + calcularSubtotal(item),
           0
         );
-        const iva = items.reduce(
-          (sum, item) => sum + calcularIVA(item),
-          0
-        );
-        const total = items.reduce(
-          (sum, item) => sum + calcularTotal(item),
-          0
-        );
+        const iva = items.reduce((sum, item) => sum + calcularIVA(item), 0);
+        const total = items.reduce((sum, item) => sum + calcularTotal(item), 0);
 
         return (
           <div className="flex justify-end">
             <div className="w-full md:w-1/3 space-y-2">
-              <div className="flex justify-between">
+              <div className="flex justify-between text-white/85">
                 <span>Subtotal:</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between text-white/85">
                 <span>IVA:</span>
                 <span>${iva.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-xl font-bold border-t pt-2">
+              <div className="flex justify-between text-xl font-bold border-t pt-2 text-white">
                 <span>TOTAL:</span>
                 <span>${total.toFixed(2)}</span>
               </div>
@@ -289,14 +277,8 @@ const CrearFacturaProveedor = () => {
         (sum, item) => sum + calcularSubtotal(item),
         0
       ),
-      iva: data.items.reduce(
-        (sum, item) => sum + calcularIVA(item),
-        0
-      ),
-      total: data.items.reduce(
-        (sum, item) => sum + calcularTotal(item),
-        0
-      ),
+      iva: data.items.reduce((sum, item) => sum + calcularIVA(item), 0),
+      total: data.items.reduce((sum, item) => sum + calcularTotal(item), 0),
     };
 
     const facturaProveedor = {

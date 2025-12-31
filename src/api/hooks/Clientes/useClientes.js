@@ -81,6 +81,10 @@ export const useClientes = () => {
     setClientes((prev) => [...prev, nuevo]);
   };
 
+  const manejarDetalle = (id) => {
+    console.log(id);
+  };
+
   const manejarEditar = (cliente) => {
     console.log("Editando:", cliente);
   };
@@ -98,6 +102,7 @@ export const useClientes = () => {
     tipoFiltro,
     setTipoFiltro,
     manejarAgregar,
+    manejarDetalle,
     manejarEditar,
     manejarEliminar,
   };

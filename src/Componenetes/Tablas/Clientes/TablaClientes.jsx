@@ -8,6 +8,7 @@ const TablaClientes = () => {
     clientes,
     busqueda,
     setBusqueda,
+    manejarDetalle,
     manejarEditar,
     manejarEliminar,
     tipoFiltro,
@@ -19,6 +20,7 @@ const TablaClientes = () => {
       <TablaReutilizable
         columnas={columnasClientes}
         datos={clientes}
+        onVer={manejarDetalle}
         onEditar={manejarEditar}
         onEliminar={manejarEliminar}
         mostrarAcciones

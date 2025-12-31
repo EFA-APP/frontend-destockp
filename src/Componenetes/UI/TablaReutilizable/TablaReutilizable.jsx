@@ -9,13 +9,17 @@ import {
   BuscadorIcono,
   FiltroIcono, // 👈 Asegúrate de importar este icono
 } from "../../../assets/Icons";
+import MenuDeAcciones from "./MenuDeAcciones";
 
 // Componente de tabla reutilizable
 function TablaReutilizable({
   columnas,
   datos,
+  onVer,
+  onDescargar,
   onEditar,
   onEliminar,
+  permisos = { ver: true, editar: true, eliminar: true, descargar: true },
   mostrarAcciones = true,
   botonAgregar = null,
   elementosSuperior = null,
@@ -154,47 +158,21 @@ function TablaReutilizable({
                     </td>
                   ))}
                   {mostrarAcciones && (
-                    <td className="p-4 align-middle">
-                      <div className="relative">
-                        <button
-                          onClick={() =>
-                            setMenuAbiertoId(
-                              menuAbiertoId === fila.id ? null : fila.id
-                            )
-                          }
-                          className="p-1 hover:bg-gray-100/10 rounded transition-colors cursor-pointer"
-                        >
-                          <MoreVertical size={18} className="text-white" />
-                        </button>
-
-                        {menuAbiertoId === fila.id && (
+                    <td className="p-4">
+                      <div className="w-auto">
+                        {
                           <>
-                            <div
-                              className="fixed inset-0 z-10"
-                              onClick={() => setMenuAbiertoId(null)}
-                            ></div>
-                            <div className="absolute right-10 bottom-0 z-20 w-14 bg-[var(--fill)] rounded-r-md shadow-lg border border-gray-100/10 text-white text-[10px]!">
-                              <button
-                                onClick={() => {
-                                  onEditar && onEditar(fila);
-                                  setMenuAbiertoId(null);
-                                }}
-                                className="w-full px-4 py-2 text-left hover:bg-gray-600/20! flex items-center gap-2 cursor-pointer"
-                              >
-                                <EditarIcono size={18} />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  onEliminar && onEliminar(fila.id);
-                                  setMenuAbiertoId(null);
-                                }}
-                                className="w-full px-4 py-2 text-left text-red-400! bg-red-400/20! hover:bg-red-400/10! flex items-center gap-2 cursor-pointer"
-                              >
-                                <BorrarIcono size={18} />
-                              </button>
-                            </div>
+                            <MenuDeAcciones
+                              permisos={permisos}
+                              onDescargar={onDescargar}
+                              onVer={onVer}
+                              onEditar={onEditar}
+                              onEliminar={onEliminar}
+                              fila={fila}
+                              setMenuAbiertoId={setMenuAbiertoId}
+                            />
                           </>
-                        )}
+                        }
                       </div>
                     </td>
                   )}

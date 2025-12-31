@@ -42,6 +42,10 @@ export const useProveedores = () => {
     );
   });
 
+  const manejarDetalle = (id) => {
+    console.log(id);
+  };
+
   // ➕ Agregar proveedor
   const manejarAgregar = () => {
     const nuevo = {
@@ -87,6 +91,7 @@ export const useProveedores = () => {
     proveedores: proveedoresFiltrados,
     busqueda,
     setBusqueda,
+    manejarDetalle,
     manejarAgregar,
     manejarEditar,
     manejarEliminar,
