@@ -1,5 +1,5 @@
-import ContenidoPanel from "../Componenetes/ContenidoPanel/ContenidoPanel";
-import BarraLateral from "../Componenetes/UI/BarraLateral/BarraLateral";
+import ContenidoPanel from "../Componentes/ContenidoPanel/ContenidoPanel";
+import BarraLateral from "../Componentes/UI/BarraLateral/BarraLateral";
 import { useTamañoBarraLateral } from "../store/useTamanoBarraLateral";
 
 const Panel = () => {

@@ -35,3 +35,6 @@ export { default as DescargarIcono } from "./DescargarIcono";
 export { default as ContableIcono } from "./ContableIcono";
 export { default as CalculadoraIcono } from "./CalculadoraIcono";
 export { default as LibroDiarioIcono } from "./LibroDiarioIcono";
+export { default as LibroMayorIcono } from "./LibroMayorIcono";
+export { default as AlumnoIcono } from "./AlumnoIcono";
+export { default as CuotasIcono } from "./CuotasIcono";

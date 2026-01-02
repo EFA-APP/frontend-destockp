@@ -3,29 +3,36 @@ import Error from "../pages/Error";
 import Panel from "../pages/Panel";
 import IniciarSesion from "../pages/IniciarSesion";
 
-import Configuracion from "../Componenetes/Secciones/Configuracion/Configuracion";
-import Clientes from "../Componenetes/Secciones/Contactos/Clientes";
-import Productos from "../Componenetes/Secciones/Articulos/Productos/Productos";
-import MateriaPrima from "../Componenetes/Secciones/Articulos/MateriaPrima/MateriaPrima";
-import Proveedores from "../Componenetes/Secciones/Contactos/Proveedores";
-import CrearProductos from "../Componenetes/Secciones/CrearArticulos/CrearProductos";
-import CrearMateriaPrima from "../Componenetes/Secciones/CrearArticulos/CrearMateriaPrima";
-import CrearClientes from "../Componenetes/Secciones/CrearContactos/CrearClientes";
-import CrearProveedores from "../Componenetes/Secciones/CrearContactos/CrearProveedores";
-import Facturas from "../Componenetes/Secciones/Ventas/Facturas/Facturas";
-import CrearFactura from "../Componenetes/Secciones/Ventas/CrearFactura/CrearFactura";
-import OrdenDeVentas from "../Componenetes/Secciones/Ventas/OrdenDeVentas/OrdenDeVentas";
-import CrearOrdenDeVentas from "../Componenetes/Secciones/Ventas/CrearOrdenDeVenta/CrearOrdeDeVenta";
-import NotaDeCredito from "../Componenetes/Secciones/Ventas/NotaDeCredito/NotaDeCredito";
-import CrearNotaCredito from "../Componenetes/Secciones/Ventas/CrearNotaCredito/CrearNotaCredito";
-import NotaDeDebito from "../Componenetes/Secciones/Ventas/NotaDeDebito/NotaDeDebito";
-import CrearNotaDebito from "../Componenetes/Secciones/Ventas/CrearNotaDebito/CrearNotaDebito";
-import FacturasProveedor from "../Componenetes/Secciones/Compras/FacturaProveedor/FacturaProveedor";
-import CrearFacturaProveedor from "../Componenetes/Secciones/Compras/CrearFacturaProveedor/CrearFacturaProveedor";
-import PlanDeCuentas from "../Componenetes/Secciones/Contabilidad/PlanDeCuentas/PlanDeCuentas";
-import CrearPlanDeCuenta from "../Componenetes/Secciones/Contabilidad/CrearPlanDeCuenta.jsx/CrearPlanDeCuenta";
-import Asientos from "../Componenetes/Secciones/Contabilidad/Asientos/Asientos";
-import LibroDiario from "../Componenetes/Secciones/Contabilidad/LibroDiario/LibroDiario";
+import Configuracion from "../Componentes/Secciones/Configuracion/Configuracion";
+import Productos from "../Componentes/Secciones/Articulos/Productos/Productos";
+import MateriaPrima from "../Componentes/Secciones/Articulos/MateriaPrima/MateriaPrima";
+import Facturas from "../Componentes/Secciones/Ventas/Facturas/Facturas";
+import CrearFactura from "../Componentes/Secciones/Ventas/CrearFactura/CrearFactura";
+import OrdenDeVentas from "../Componentes/Secciones/Ventas/OrdenDeVentas/OrdenDeVentas";
+import CrearOrdenDeVentas from "../Componentes/Secciones/Ventas/CrearOrdenDeVenta/CrearOrdeDeVenta";
+import NotaDeCredito from "../Componentes/Secciones/Ventas/NotaDeCredito/NotaDeCredito";
+import CrearNotaCredito from "../Componentes/Secciones/Ventas/CrearNotaCredito/CrearNotaCredito";
+import NotaDeDebito from "../Componentes/Secciones/Ventas/NotaDeDebito/NotaDeDebito";
+import CrearNotaDebito from "../Componentes/Secciones/Ventas/CrearNotaDebito/CrearNotaDebito";
+import FacturasProveedor from "../Componentes/Secciones/Compras/FacturaProveedor/FacturaProveedor";
+import CrearFacturaProveedor from "../Componentes/Secciones/Compras/CrearFacturaProveedor/CrearFacturaProveedor";
+import PlanDeCuentas from "../Componentes/Secciones/Contabilidad/PlanDeCuentas/PlanDeCuentas";
+import CrearPlanDeCuenta from "../Componentes/Secciones/Contabilidad/CrearPlanDeCuenta.jsx/CrearPlanDeCuenta";
+import Asientos from "../Componentes/Secciones/Contabilidad/Asientos/Asientos";
+import LibroDiario from "../Componentes/Secciones/Contabilidad/LibroDiario/LibroDiario";
+import LibroMayor from "../Componentes/Secciones/Contabilidad/LibroMayor/LibroMayor";
+import SistemaContable from "../pages/Demo";
+import Alumnos from "../Componentes/Secciones/Escuela/Alumnos/Alumnos";
+import CrearAlumnos from "../Componentes/Secciones/Escuela/CrearAlumnos/CrearAlumnos";
+import Clientes from "../Componentes/Secciones/Contactos/Cliente/Clientes";
+import Proveedores from "../Componentes/Secciones/Contactos/Proveedores/Proveedores";
+import CrearProductos from "../Componentes/Secciones/Articulos/CrearArticulos/CrearProductos";
+import CrearMateriaPrima from "../Componentes/Secciones/Articulos/CrearArticulos/CrearMateriaPrima";
+import CrearClientes from "../Componentes/Secciones/Contactos/CrearContactos/CrearClientes";
+import CrearProveedores from "../Componentes/Secciones/Contactos/CrearContactos/CrearProveedores";
+import Cuotas from "../Componentes/Secciones/Escuela/Cuotas/Cuotas";
+import Recibos from "../Componentes/Secciones/Escuela/Recibos/Recibos";
+import CrearRecibo from "../Componentes/Secciones/Escuela/CrearRecibo/CrearRecibo";
 
 export default function Router() {
   return (
@@ -89,6 +96,13 @@ export default function Router() {
           element={<CrearFacturaProveedor />}
         />
 
+        {/* ESCUELA */}
+        <Route path="escuela/alumnos" element={<Alumnos />} />
+        <Route path="escuela/alumnos/nuevo" element={<CrearAlumnos />} />
+        <Route path="escuela/cuotas" element={<Cuotas />} />
+        <Route path="escuela/recibos" element={<Recibos />} />
+        <Route path="escuela/recibos/nuevo" element={<CrearRecibo />} />
+
         {/* CONTABILIDAD */}
         <Route path="contabilidad/cuentas" element={<PlanDeCuentas />} />
         <Route
@@ -97,6 +111,8 @@ export default function Router() {
         />
         <Route path="contabilidad/asientos" element={<Asientos />} />
         <Route path="contabilidad/libro-diario" element={<LibroDiario />} />
+        <Route path="contabilidad/libro-mayor" element={<LibroMayor />} />
+        <Route path="demo" element={<SistemaContable />} />
       </Route>
 
       {/* ERROR */}
