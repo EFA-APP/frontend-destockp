@@ -7,6 +7,7 @@ import {
 } from "../../../assets/Icons";
 
 import MenuUsuario from "../MenuUsuario/MenuUsuario";
+import { Link } from "react-router-dom";
 
 const BarraNavegacion = () => {
   const [menuAbierto, setMenuAbierto] = useState(false);
@@ -19,6 +20,13 @@ const BarraNavegacion = () => {
 
           {/* OTROS ICONOS */}
           <div className="flex items-center justify-center gap-2">
+
+            {/* DEMO */}
+            <Link to={"/panel/demo"} className="text-xs p-1 bg-[var(--primary)]/20! text-[var(--primary)]! border-[var(--primary)]/30! rounded-md border">
+              DEMO
+            </Link>
+            {/* DEMO */}
+
             {/* VERIFICAR SI SE CONECTO A ARCA */}
             <div className="flex gap-2 justify-center items-center">
               <span className="cursor-pointer">
@@ -33,14 +41,13 @@ const BarraNavegacion = () => {
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400  shadow-green-300"></span>
               </div>
             </div>
-
             {/* VERIFICAR SI SE CONECTO A ARCA */}
 
             <div className="relative group/menu">
               {/* NOTIFICACIONES */}
               <button className="">
                 <span class="h-10 w-10 hover:bg-lightprimary text-darklink dark:text-white rounded-full flex justify-center items-center cursor-pointer group-hover/menu:bg-lightprimary group-hover/menu:text-primary">
-                  <NotificacionesIcono />
+                  <NotificacionesIcono color={"white"} />
                 </span>
                 {/* CONTADOR DE NOTIFICACIONES */}
                 <span className="rounded-full absolute end-1 top-1 bg-[var(--primary)] text-[10px] h-4 w-4 flex justify-center items-center text-white">

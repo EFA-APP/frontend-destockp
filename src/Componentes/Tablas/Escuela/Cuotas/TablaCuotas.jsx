@@ -212,7 +212,7 @@ const TablaCuotas = ({
                       <h3 className="text-lg font-semibold text-white">
                         {mes} 2024
                       </h3>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-[var(--primary-light)]">
                         Recaudado: $
                         {stats.totalRecaudado.toLocaleString("es-AR")}
                       </p>

@@ -68,14 +68,14 @@ const TablaRecibos = () => {
 
         <TarjetaInformacion
           titulo="Total intereses"
-          color="text-red-400"
+          color="text-green-400"
           valorMoneda
           numero={estadisticas.totalIntereses}
           subtexto="Por pagos con mora"
         />
 
-        <div className="px-4 py-3 card bg-[var(--fill)] shadow-md rounded-md">
-          <h3 className="text-sm text-gray-400 mb-2">Métodos de pago</h3>
+        <div className="px-4 py-3 card bg-[var(--fill)] shadow-md rounded-md border border-gray-100/10">
+          <h3 className="text-sm text-white/85 mb-2">Métodos de pago</h3>
           <div className="space-y-1">
             {Object.entries(estadisticas.recaudacionPorMetodo).map(
               ([metodo, monto]) => (
@@ -83,7 +83,7 @@ const TablaRecibos = () => {
                   key={metodo}
                   className="flex justify-between items-center text-xs"
                 >
-                  <span className="text-gray-300">{metodo}</span>
+                  <span className="text-[var(--primary-light)]">{metodo}</span>
                   <span className="font-medium text-green-400">
                     ${monto.toLocaleString("es-AR")}
                   </span>
