@@ -3,6 +3,7 @@ import {
   BuscadorIcono,
   DesplegadorIcono,
   NotificacionesIcono,
+  RefrescarIcono,
 } from "../../../assets/Icons";
 
 import MenuUsuario from "../MenuUsuario/MenuUsuario";
@@ -18,6 +19,23 @@ const BarraNavegacion = () => {
 
           {/* OTROS ICONOS */}
           <div className="flex items-center justify-center gap-2">
+            {/* VERIFICAR SI SE CONECTO A ARCA */}
+            <div className="flex gap-2 justify-center items-center">
+              <span className="cursor-pointer">
+                <RefrescarIcono size={20} color={"gray"} />
+              </span>
+              <p className="text-white text-xs">ARCA:</p>
+              <div className="relative flex justify-center">
+                {/* Pulso */}
+                <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping"></span>
+
+                {/* Punto fijo */}
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400  shadow-green-300"></span>
+              </div>
+            </div>
+
+            {/* VERIFICAR SI SE CONECTO A ARCA */}
+
             <div className="relative group/menu">
               {/* NOTIFICACIONES */}
               <button className="">

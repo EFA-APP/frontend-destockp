@@ -38,3 +38,4 @@ export { default as LibroDiarioIcono } from "./LibroDiarioIcono";
 export { default as LibroMayorIcono } from "./LibroMayorIcono";
 export { default as AlumnoIcono } from "./AlumnoIcono";
 export { default as CuotasIcono } from "./CuotasIcono";
+export { default as RefrescarIcono } from "./RefrescarIcono";
