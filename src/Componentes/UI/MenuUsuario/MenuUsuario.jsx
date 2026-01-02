@@ -39,7 +39,7 @@ const MenuUsuario = () => {
 
       <div className="px-2 mb-2">
         <Link
-          to="/iniciar-sesion"
+          to="/"
           className="relative select-none gap-2 text-xs outline-none transition-colors [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 px-3 py-2 flex justify-between items-center  group/link w-full rounded-md cursor-pointer focus:bg-hover flex items-center w-full bg-red-700/40 hover:bg-white/20"
         >
           <div className="flex items-center gap-2 w-full text-white">

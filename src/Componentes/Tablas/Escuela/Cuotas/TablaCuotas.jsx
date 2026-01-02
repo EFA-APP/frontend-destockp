@@ -6,6 +6,7 @@ import {
   DescargarIcono,
   PagosIcono,
 } from "../../../../assets/Icons";
+import { Link } from "react-router-dom";
 
 const estados = [
   {
@@ -313,14 +314,12 @@ const TablaCuotas = ({
                                   <td className="py-3 px-4">
                                     <div className="flex gap-2">
                                       {cuota.estado !== "pagado" && (
-                                        <button
-                                          onClick={() =>
-                                            onRegistrarPago?.(alumno.id, index)
-                                          }
+                                        <Link
+                                          to={"/panel/escuela/recibos/nuevo"}
                                           className="p-1 text-green-400! rounded-md! bg-green-500/10! flex items-center gap-2 cursor-pointer hover:bg-green-400/5!"
                                         >
                                           <PagosIcono size={24} />
-                                        </button>
+                                        </Link>
                                       )}
                                       {cuota.estado === "pagado" && (
                                         <div className="flex gap-1">

@@ -428,7 +428,7 @@ const CrearRecibo = () => {
       {/* Encabezado */}
       <div className="card no-inset no-ring bg-[var(--fill2)] shadow-md rounded-md mb-4">
         <EncabezadoSeccion
-          ruta="Crear Recibo de Cobranza"
+          ruta="Crear Recibo de Cuota"
           icono={<AgregarIcono />}
           volver={true}
           redireccionAnterior="/panel/escuela/recibos"
@@ -438,7 +438,7 @@ const CrearRecibo = () => {
       {/* Formulario de Recibo */}
       <FormularioDinamico
         titulo="Nuevo Recibo de Pago"
-        subtitulo="Complete los datos del recibo de cobranza"
+        subtitulo="Complete los datos del recibo de cuota"
         campos={camposRecibo}
         onSubmit={handleSubmit}
         submitLabel="Generar Recibo"
