@@ -45,7 +45,7 @@ const CrearPlanDeCuenta = () => {
         { value: "COSTO", label: "Costo" },
         { value: "BIEN_USO", label: "Bien de Uso" },
       ],
-      helpText: "Solo para cuentas de resultado o activo",
+      helpText: "Aplica según el tipo de cuenta",
     },
     {
       name: "cuentaPadre",
@@ -53,21 +53,24 @@ const CrearPlanDeCuenta = () => {
       type: "select",
       section: "Estructura",
       options: [
-        { value: "", label: "-- Sin cuenta padre --" },
+        { value: null, label: "-- Sin cuenta padre --" },
         { value: 1, label: "1 - Activo" },
         { value: 11, label: "1.1 - Activo Corriente" },
       ],
+      helpText: "Define la jerarquía del plan de cuentas",
     },
     {
-      name: "permiteMovimientos",
+      name: "imputable",
       label: "¿Permite Movimientos?",
       type: "select",
       section: "Configuración",
-      defaultValue: "si",
+      defaultValue: true,
       options: [
-        { value: "si", label: "Sí" },
-        { value: "no", label: "No (solo agrupadora)" },
+        { value: true, label: "Sí (cuenta operativa)" },
+        { value: false, label: "No (solo agrupadora)" },
       ],
+      helpText:
+        "Las cuentas no imputables no pueden usarse en asientos contables",
     },
     {
       name: "descripcion",
@@ -80,7 +83,21 @@ const CrearPlanDeCuenta = () => {
   ];
 
   const handleSubmit = (data) => {
-    console.log("Cuenta contable creada:", data);
+    /**
+     * Ejemplo de payload listo para backend
+     */
+    const payload = {
+      codigo: data.codigo,
+      nombre: data.nombre,
+      tipo: data.tipo,
+      subtipo: data.subtipo || null,
+      imputable: data.imputable,
+      cuentaPadre: data.cuentaPadre,
+      activa: true,
+      descripcion: data.descripcion,
+    };
+
+    console.log("Cuenta contable creada:", payload);
   };
 
   return (
@@ -88,10 +105,10 @@ const CrearPlanDeCuenta = () => {
       {/* Encabezado */}
       <div className="card no-inset no-ring bg-[var(--fill2)] shadow-md rounded-md mb-4">
         <EncabezadoSeccion
-          ruta={"Crear Factura"}
+          ruta="Crear Cuenta Contable"
           icono={<AgregarIcono />}
-          volver={true}
-          redireccionAnterior={"/panel/contabilidad/cuentas"}
+          volver
+          redireccionAnterior="/panel/contabilidad/cuentas"
         />
       </div>
 

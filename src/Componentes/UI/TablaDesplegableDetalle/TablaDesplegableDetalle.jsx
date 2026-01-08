@@ -1,22 +1,21 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import MenuDeAcciones from "../TablaReutilizable/MenuDeAcciones";
 import {
-  ErrorIcono,
   AgregarIcono,
   BuscadorIcono,
-  FiltroIcono, // 👈 Asegúrate de importar este icono
+  FiltroIcono,
 } from "../../../assets/Icons";
-import MenuDeAcciones from "./MenuDeAcciones";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-// Componente de tabla reutilizable
-function TablaReutilizable({
+const TablaDesplegableDetalle = ({
   columnas,
   datos,
+  renderDetalle,
   onVer,
-  onDescargar,
   onEditar,
   onEliminar,
+  onDescargar,
   permisos = { ver: true, editar: true, eliminar: true, descargar: true },
   mostrarAcciones = true,
   botonAgregar = null,
@@ -29,13 +28,18 @@ function TablaReutilizable({
   filtrosElementos = null,
   textoFiltros = "Filtros",
   filtrosAbiertosInicial = false,
-}) {
+}) => {
   const navigate = useNavigate();
   const [filasSeleccionadas, setFilasSeleccionadas] = useState([]);
   const [menuAbiertoId, setMenuAbiertoId] = useState(null);
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(
     filtrosAbiertosInicial
   );
+  const [filaExpandidaId, setFilaExpandidaId] = useState(null);
+
+  const toggleFila = (id) => {
+    setFilaExpandidaId((prev) => (prev === id ? null : id));
+  };
 
   const manejarAgregarClick = () => {
     if (botonAgregar?.onClick) {
@@ -115,90 +119,77 @@ function TablaReutilizable({
         </div>
       )}
 
-      {/* Tabla */}
-      <div
-        className="overflow-x-auto"
-        style={{ opacity: 1, transform: "none" }}
-      >
-        <div className="relative w-full overflow-auto">
-          <table className="w-full text-sm">
-            <thead className="border-[.5px] border-gray-400/30">
-              <tr className="transition-colors data-[state=selected]:bg-neutral-100 text-white">
-                {columnas.map((col) => (
-                  <th
-                    key={col.key}
-                    className="h-12 px-4 text-left align-middle text-md font-semibold py-3 whitespace-nowrap"
-                  >
-                    {col.etiqueta}
-                  </th>
-                ))}
-                {mostrarAcciones && (
-                  <th className="h-12 px-4 text-left align-middle text-md font-semibold py-3 whitespace-nowrap">
-                    Acción
-                  </th>
-                )}
-              </tr>
-            </thead>
-            <tbody className="[&_tr:last-child]:border-0">
-              {datos.map((fila) => (
-                <tr
-                  key={fila?.id}
-                  className="border-b border-gray-400/30 transition-colors hover:bg-gray-100/5 data-[state=selected]:bg-neutral-100"
-                >
-                  {columnas.map((col) => (
-                    <td key={col.key} className="p-4 align-middle text-white">
-                      {col.renderizar ? (
-                        col.renderizar(fila[col.key], fila)
-                      ) : (
-                        <span className="text-sm">{fila[col.key]}</span>
-                      )}
-                    </td>
-                  ))}
-                  {mostrarAcciones && (
-                    <td className="p-4">
-                      <div className="w-auto">
-                        {
-                          <>
-                            <MenuDeAcciones
-                              permisos={permisos}
-                              onDescargar={onDescargar}
-                              onVer={onVer}
-                              onEditar={onEditar}
-                              onEliminar={onEliminar}
-                              fila={fila}
-                              setMenuAbiertoId={setMenuAbiertoId}
-                            />
-                          </>
-                        }
-                      </div>
-                    </td>
-                  )}
-                </tr>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="border-b border-gray-400/30 text-white">
+            <tr>
+              {columnas.map((col) => (
+                <th key={col.key} className="h-12 px-4 text-left font-semibold">
+                  {col.etiqueta}
+                </th>
               ))}
-            </tbody>
-          </table>
 
-          {datos.length === 0 && (
-            <div className="w-full flex justify-center py-12 text-white/75">
-              <p className="flex justify-center items-center gap-2">
-                <span className="text-red-400">
-                  <ErrorIcono size={20} />
-                </span>
-                No se encontraron resultados
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+              {mostrarAcciones && (
+                <th className="px-4 text-left font-semibold">Acción</th>
+              )}
+            </tr>
+          </thead>
 
-      {/* Footer info */}
-      <div className="mt-4 text-xs w-full flex justify-end text-[var(--primary)]">
-        Mostrando {datos.length} registros
-        {filasSeleccionadas.length > 0 &&
-          ` • ${filasSeleccionadas.length} seleccionados`}
+          <tbody>
+            {datos.map((fila) => {
+              const expandida = filaExpandidaId === fila.id;
+
+              return (
+                <>
+                  {/* Fila principal */}
+                  <tr
+                    key={fila.id}
+                    className="border-b border-gray-400/30 hover:bg-gray-100/5"
+                  >
+                    {columnas.map((col) => (
+                      <td key={col.key} className="px-4 text-xs text-white">
+                        {col.renderizar
+                          ? col.renderizar(fila[col.key], fila)
+                          : fila[col.key]}
+                      </td>
+                    ))}
+
+                    {mostrarAcciones && (
+                      <td className="p-2">
+                        <MenuDeAcciones
+                          permisos={permisos}
+                          fila={fila}
+                          onVer={() => toggleFila(fila.id)}
+                          onEditar={onEditar}
+                          onEliminar={onEliminar}
+                          onDescargar={onDescargar}
+                        />
+                      </td>
+                    )}
+                  </tr>
+
+                  {/* Fila expandida */}
+                  {expandida && (
+                    <tr className="bg-[var(--primary-light)]/20">
+                      <td colSpan={columnas.length + (mostrarAcciones ? 2 : 1)}>
+                        <div className="p-4">{renderDetalle(fila)}</div>
+                      </td>
+                    </tr>
+                  )}
+                </>
+              );
+            })}
+          </tbody>
+        </table>
+
+        {datos.length === 0 && (
+          <div className="py-10 text-center text-white">
+            No se encontraron resultados
+          </div>
+        )}
       </div>
     </>
   );
-}
+};
 
-export default TablaReutilizable;
+export default TablaDesplegableDetalle;

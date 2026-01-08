@@ -8,6 +8,7 @@ import {
 const MenuDeAcciones = ({
   permisos = { ver: true, editar: true, eliminar: true, descargar: true },
   onVer,
+  onClickVer,
   onDescargar,
   onEditar,
   onEliminar,

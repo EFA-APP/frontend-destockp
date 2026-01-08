@@ -9,16 +9,42 @@ export const columnasPlanDeCuentas = [
   {
     key: "codigo",
     etiqueta: "Código",
-    renderizar: (valor, fila) => <span className="font-mono">{valor}</span>,
+    renderizar: (valor, fila) => (
+      <span
+        className={`font-mono text-xs ${
+          !fila.imputable ? "font-bold text-white" : ""
+        }`}
+      >
+        {valor}
+      </span>
+    ),
   },
   {
     key: "nombre",
     etiqueta: "Cuenta",
     renderizar: (valor, fila) => (
       <div>
-        <div className="font-medium text-xs">{valor}</div>
+        {/* Nombre */}
+        <div
+          className={`text-xs ${
+            fila.imputable ? "font-medium" : "font-semibold uppercase"
+          }`}
+        >
+          {valor}
+        </div>
+
+        {/* Subtipo */}
         {fila.subtipo && (
-          <div className="text-xs text-gray-400">{fila.subtipo}</div>
+          <div className="text-xs text-[var(--primary-light)]">
+            {fila.subtipo}
+          </div>
+        )}
+
+        {/* Helper visual opcional */}
+        {!fila.imputable && (
+          <div className="text-xs text-[var(--primary-light)]">
+            Cuenta agrupadora
+          </div>
         )}
       </div>
     ),
@@ -28,7 +54,7 @@ export const columnasPlanDeCuentas = [
     etiqueta: "Tipo",
     renderizar: (valor) => (
       <span
-        className={`font-semibold text-xs p-1 rounded-full border ${tipoColor[valor]}`}
+        className={`font-semibold text-xs px-2 py-[2px] rounded-full border ${tipoColor[valor]}`}
       >
         {valor}
       </span>
@@ -37,11 +63,27 @@ export const columnasPlanDeCuentas = [
   {
     key: "imputable",
     etiqueta: "Imputable",
-    renderizar: (valor) => (valor ? "✔ Sí" : "—"),
+    renderizar: (valor) => (
+      <span
+        className={`text-xs font-medium ${
+          valor ? "text-green-400" : "text-[var(--primary-light)]"
+        }`}
+      >
+        {valor ? "✔ Sí" : "—"}
+      </span>
+    ),
   },
   {
     key: "activa",
     etiqueta: "Estado",
-    renderizar: (valor) => (valor ? "Activa" : "Inactiva"),
+    renderizar: (valor) => (
+      <span
+        className={`text-xs font-medium ${
+          valor ? "text-green-400" : "text-red-400"
+        }`}
+      >
+        {valor ? "Activa" : "Inactiva"}
+      </span>
+    ),
   },
 ];

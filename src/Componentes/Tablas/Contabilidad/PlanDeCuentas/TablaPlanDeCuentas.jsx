@@ -1,6 +1,6 @@
 import { usePlanDeCuentas } from "../../../../api/hooks/Contabilidad/PlanDeCuenta/usePlanDeCuenta";
 import Select from "../../../UI/Select/Select";
-import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
+import TablaDesplegableReutilizable from "../../../UI/TablaDesplegableReutilizable/TablaDesplegableReutilizable";
 import { columnasPlanDeCuentas } from "./columnaPlanDeCuentas";
 
 const TablaPlanDeCuentas = () => {
@@ -16,9 +16,11 @@ const TablaPlanDeCuentas = () => {
 
   return (
     <div className="px-6 py-4 card bg-[var(--fill)] shadow-md rounded-md">
-      <TablaReutilizable
+      <TablaDesplegableReutilizable
         columnas={columnasPlanDeCuentas}
         datos={cuentas}
+        /* 🔑 CLAVE PARA EL DESPLIEGUE */
+        getChildren={(fila) => [{ key: "children", data: fila.children || [] }]}
         mostrarBuscador
         busqueda={busqueda}
         setBusqueda={setBusqueda}

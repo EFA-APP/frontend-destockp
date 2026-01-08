@@ -33,6 +33,7 @@ import CrearProveedores from "../Componentes/Secciones/Contactos/CrearContactos/
 import Cuotas from "../Componentes/Secciones/Escuela/Cuotas/Cuotas";
 import Recibos from "../Componentes/Secciones/Escuela/Recibos/Recibos";
 import CrearRecibo from "../Componentes/Secciones/Escuela/CrearRecibo/CrearRecibo";
+import CrearAsientos from "../Componentes/Secciones/Contabilidad/CrearAsientos/CrearAsientos";
 
 export default function Router() {
   return (
@@ -110,6 +111,8 @@ export default function Router() {
           element={<CrearPlanDeCuenta />}
         />
         <Route path="contabilidad/asientos" element={<Asientos />} />
+        <Route path="contabilidad/asientos/nuevo" element={<CrearAsientos />} />
+
         <Route path="contabilidad/libro-diario" element={<LibroDiario />} />
         <Route path="contabilidad/libro-mayor" element={<LibroMayor />} />
         <Route path="demo" element={<SistemaContable />} />

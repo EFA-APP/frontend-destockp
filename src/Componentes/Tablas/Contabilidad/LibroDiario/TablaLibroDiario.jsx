@@ -3,12 +3,12 @@
 import { useLibroDiario } from "../../../../api/hooks/Contabilidad/LibroDiario/useLibroDiario";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
 import Select from "../../../UI/Select/Select";
-import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
+import TablaDesplegableDetalle from "../../../UI/TablaDesplegableDetalle/TablaDesplegableDetalle";
 import { columnasLibroDiario } from "./columnasLibroDiario";
 
 const TablaLibroDiario = () => {
   const {
-    movimientos,
+    movimientos, // ← ASIENTOS
     fechaDesde,
     setFechaDesde,
     fechaHasta,
@@ -16,23 +16,18 @@ const TablaLibroDiario = () => {
     origen,
     setOrigen,
     totales,
-    manejarDetalle,
   } = useLibroDiario();
 
   return (
     <div className="px-6 py-4 card bg-[var(--fill)] shadow-md rounded-md">
-      <TablaReutilizable
+      <TablaDesplegableDetalle
         columnas={columnasLibroDiario}
         datos={movimientos}
         mostrarBuscador={false}
-        onVer={manejarDetalle}
-        onDescargar={manejarDetalle}
         mostrarAcciones={true}
-        placeholderBuscador=""
         mostrarFiltros
         filtrosElementos={
           <>
-            {/* Fecha desde */}
             <FechaInput
               label="Desde:"
               value={fechaDesde}
@@ -45,7 +40,6 @@ const TablaLibroDiario = () => {
               onChange={setFechaHasta}
               size="sm"
             />
-
             <Select
               label="Origen"
               valor={origen}
@@ -59,10 +53,44 @@ const TablaLibroDiario = () => {
             />
           </>
         }
+        renderDetalle={() => (
+          <div className="rounded-md border border-gray-600/30 overflow-hidden">
+            <table className="w-full text-xs">
+              <thead className="bg-[var(--fill)] text-white">
+                <tr>
+                  <th className="px-3 py-2 text-left">Cuenta</th>
+                  <th className="px-3 py-2 text-right">Debe</th>
+                  <th className="px-3 py-2 text-right">Haber</th>
+                </tr>
+              </thead>
+              <tbody>
+                {movimientos?.map((mov) => (
+                  <tr
+                    key={mov.id}
+                    className="border-t border-gray-700/30 text-white"
+                  >
+                    <td className="px-3 py-2">
+                      <div className="font-mono">{mov.cuenta}</div>
+                      <div className="text-green-400 text-[11px]">
+                        {mov.nombreCuenta}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      {mov.debe > 0 ? `$${mov.debe.toFixed(2)}` : "—"}
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      {mov.haber > 0 ? `$${mov.haber.toFixed(2)}` : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       />
 
-      {/* Footer con totales */}
-      <div className="mt-4 pt-4 border-t-1 border-gray-400/30 text-white">
+      {/* ================= FOOTER CONTABLE ================= */}
+      <div className="mt-4 pt-4 border-t border-gray-400/30 text-white">
         <div className="grid grid-cols-2 gap-4 mb-2">
           <div className="text-right font-semibold text-sm">
             Total Debe:{" "}
@@ -77,11 +105,12 @@ const TablaLibroDiario = () => {
             </span>
           </div>
         </div>
+
         <div className="text-right text-xs text-gray-400">
           Balance:
           <span
             className={`ml-2 font-semibold ${
-              totales.debe === totales.haber ? "text-green-600" : "text-red-600"
+              totales.debe === totales.haber ? "text-green-500" : "text-red-500"
             }`}
           >
             {totales.debe === totales.haber
