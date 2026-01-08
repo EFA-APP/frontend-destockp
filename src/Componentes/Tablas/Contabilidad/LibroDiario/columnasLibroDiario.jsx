@@ -17,7 +17,7 @@ export const columnasLibroDiario = [
     ),
   },
   {
-    key: "asientoId",
+    key: "id",
     etiqueta: "Asiento",
     renderizar: (valor) => (
       <span className="font-semibold text-[var(--primary)] text-xs">
@@ -39,37 +39,9 @@ export const columnasLibroDiario = [
           >
             {fila.origen}
           </span>
-          <span className="text-xs text-gray-500">Ref: {fila.referencia}</span>
+          <span className="text-xs text-[var(--primary-light)]">Ref: {fila.referencia}</span>
         </div>
       </div>
-    ),
-  },
-  {
-    key: "cuenta",
-    etiqueta: "Cuenta",
-    renderizar: (valor, fila) => (
-      <div>
-        <div className="font-mono text-xs text-white">{valor}</div>
-        <div className="text-xs text-gray-500">{fila.nombreCuenta}</div>
-      </div>
-    ),
-  },
-  {
-    key: "debe",
-    etiqueta: "Debe",
-    renderizar: (valor) => (
-      <span className="font-medium text-xs">
-        {valor > 0 ? `$${valor.toFixed(2)}` : "—"}
-      </span>
-    ),
-  },
-  {
-    key: "haber",
-    etiqueta: "Haber",
-    renderizar: (valor) => (
-      <span className="font-medium text-xs">
-        {valor > 0 ? `$${valor.toFixed(2)}` : "—"}
-      </span>
     ),
   },
 ];

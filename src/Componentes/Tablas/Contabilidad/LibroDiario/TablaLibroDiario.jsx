@@ -8,7 +8,7 @@ import { columnasLibroDiario } from "./columnasLibroDiario";
 
 const TablaLibroDiario = () => {
   const {
-    movimientos, // ← ASIENTOS
+    asientos, // ← ASIENTOS
     fechaDesde,
     setFechaDesde,
     fechaHasta,
@@ -22,7 +22,7 @@ const TablaLibroDiario = () => {
     <div className="px-6 py-4 card bg-[var(--fill)] shadow-md rounded-md">
       <TablaDesplegableDetalle
         columnas={columnasLibroDiario}
-        datos={movimientos}
+        datos={asientos}
         mostrarBuscador={false}
         mostrarAcciones={true}
         mostrarFiltros
@@ -53,8 +53,8 @@ const TablaLibroDiario = () => {
             />
           </>
         }
-        renderDetalle={() => (
-          <div className="rounded-md border border-gray-600/30 overflow-hidden">
+        renderDetalle={(asiento) => (
+          <div className="rounded-md border border-gray-600/30 overflow-hidden mx-20 bg-[var(--fill)] shadow-md">
             <table className="w-full text-xs">
               <thead className="bg-[var(--fill)] text-white">
                 <tr>
@@ -64,7 +64,7 @@ const TablaLibroDiario = () => {
                 </tr>
               </thead>
               <tbody>
-                {movimientos?.map((mov) => (
+                {asiento?.movimientos?.map((mov) => (
                   <tr
                     key={mov.id}
                     className="border-t border-gray-700/30 text-white"
@@ -106,7 +106,7 @@ const TablaLibroDiario = () => {
           </div>
         </div>
 
-        <div className="text-right text-xs text-gray-400">
+        <div className="text-right text-xs text-white/75">
           Balance:
           <span
             className={`ml-2 font-semibold ${

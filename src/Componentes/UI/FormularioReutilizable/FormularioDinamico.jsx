@@ -320,7 +320,7 @@ const FormularioDinamico = ({
                 <div
                   className="
               relative z-40
-              bg-white dark:bg-white/10
+              bg-white/10
               flex items-center justify-center
               h-28 mt-2 w-full max-w-[8rem] mx-auto
               rounded-md

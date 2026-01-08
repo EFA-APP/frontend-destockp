@@ -152,7 +152,7 @@ export const useLibroDiario = () => {
 
   return {
     loading,
-    movimientos,
+    asientos:  asientosFiltrados,
     fechaDesde,
     setFechaDesde,
     fechaHasta,

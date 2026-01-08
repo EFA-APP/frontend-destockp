@@ -39,3 +39,4 @@ export { default as LibroMayorIcono } from "./LibroMayorIcono";
 export { default as AlumnoIcono } from "./AlumnoIcono";
 export { default as CuotasIcono } from "./CuotasIcono";
 export { default as RefrescarIcono } from "./RefrescarIcono";
+export { default as BalanceIcono } from "./BalanceIcono";

@@ -34,6 +34,7 @@ import Cuotas from "../Componentes/Secciones/Escuela/Cuotas/Cuotas";
 import Recibos from "../Componentes/Secciones/Escuela/Recibos/Recibos";
 import CrearRecibo from "../Componentes/Secciones/Escuela/CrearRecibo/CrearRecibo";
 import CrearAsientos from "../Componentes/Secciones/Contabilidad/CrearAsientos/CrearAsientos";
+import Balance from "../Componentes/Secciones/Contabilidad/Balance/Balance";
 
 export default function Router() {
   return (
@@ -115,6 +116,7 @@ export default function Router() {
 
         <Route path="contabilidad/libro-diario" element={<LibroDiario />} />
         <Route path="contabilidad/libro-mayor" element={<LibroMayor />} />
+        <Route path="contabilidad/balance" element={<Balance />} />
         <Route path="demo" element={<SistemaContable />} />
       </Route>
 

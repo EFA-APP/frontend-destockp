@@ -121,7 +121,6 @@ body {
     var(--color-primary) 10%,
     transparent
   );
-  --color-secondary: #16cdc7;
 }
 
 :root {

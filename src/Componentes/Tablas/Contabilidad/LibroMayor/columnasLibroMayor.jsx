@@ -1,32 +1,40 @@
 export const columnasLibroMayor = [
   {
-    key: "fecha",
-    etiqueta: "Fecha",
+    key: "cuenta",
+    etiqueta: "Cuenta",
+    renderizar: (valor, fila) => (
+      <div>
+        <div className="font-mono text-xs text-white">{valor}</div>
+        <div className="text-xs text-[var(--primary-light)]">
+          {fila.nombreCuenta}
+        </div>
+      </div>
+    ),
   },
   {
-    key: "descripcion",
-    etiqueta: "Descripción",
-  },
-  {
-    key: "debe",
+    key: "totalDebe",
     etiqueta: "Debe",
-    renderizar: (v) => (v > 0 ? `$${v.toFixed(2)}` : "—"),
+    renderizar: (valor) => (
+      <span className="text-xs text-blue-400">${valor.toFixed(2)}</span>
+    ),
   },
   {
-    key: "haber",
+    key: "totalHaber",
     etiqueta: "Haber",
-    renderizar: (v) => (v > 0 ? `$${v.toFixed(2)}` : "—"),
+    renderizar: (valor) => (
+      <span className="text-xs text-red-400">${valor.toFixed(2)}</span>
+    ),
   },
   {
     key: "saldo",
     etiqueta: "Saldo",
-    renderizar: (v) => (
+    renderizar: (valor) => (
       <span
-        className={`font-semibold ${
-          v >= 0 ? "text-green-400" : "text-red-400"
+        className={`text-xs font-semibold ${
+          valor >= 0 ? "text-green-400" : "text-red-400"
         }`}
       >
-        ${v.toFixed(2)}
+        ${valor.toFixed(2)}
       </span>
     ),
   },

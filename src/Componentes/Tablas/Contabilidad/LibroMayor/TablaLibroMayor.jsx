@@ -1,66 +1,64 @@
 import { useLibroMayor } from "../../../../api/hooks/Contabilidad/LibroMayor/useLibroMayor";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
-import Select from "../../../UI/Select/Select";
-import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
+import TablaDesplegableDetalle from "../../../UI/TablaDesplegableDetalle/TablaDesplegableDetalle";
 import { columnasLibroMayor } from "./columnasLibroMayor";
 
 const TablaLibroMayor = () => {
   const {
-    mayor,
+    cuentas,
     fechaDesde,
     setFechaDesde,
     fechaHasta,
     setFechaHasta,
-    cuentaSeleccionada,
-    setCuentaSeleccionada,
-    totales,
+    busqueda,
+    setBusqueda
   } = useLibroMayor();
 
   return (
     <div className="px-6 py-4 card bg-[var(--fill)] shadow-md rounded-md">
-      <TablaReutilizable
+      <TablaDesplegableDetalle
         columnas={columnasLibroMayor}
-        datos={mayor}
+        datos={cuentas}
+        mostrarAcciones={true}
+        mostrarBuscador={true}
+        busqueda={busqueda}
+        setBusqueda={setBusqueda}
         mostrarFiltros
         filtrosElementos={
           <>
-            <FechaInput
-              label="Desde:"
-              value={fechaDesde}
-              onChange={setFechaDesde}
-            />
-            <FechaInput
-              label="Hasta:"
-              value={fechaHasta}
-              onChange={setFechaHasta}
-            />
-            <Select
-              label="Cuenta"
-              valor={cuentaSeleccionada}
-              setValor={setCuentaSeleccionada}
-              options={[
-                { valor: "", texto: "Todas" },
-                { valor: "1.1.01.001", texto: "Caja" },
-                { valor: "1.1.02.001", texto: "Banco" },
-                { valor: "1.1.04.001", texto: "IVA Crédito Fiscal" },
-                { valor: "2.1.05.001", texto: "IVA Débito Fiscal" },
-                { valor: "5.1.01.001", texto: "Compras" },
-                { valor: "6.2.01.001", texto: "Diferencia de cambio" },
-                { valor: "5.2.01.001", texto: "Alquileres" },
-              ]}
-            />
+            <FechaInput label="Desde:" value={fechaDesde} onChange={setFechaDesde} />
+            <FechaInput label="Hasta:" value={fechaHasta} onChange={setFechaHasta} />
           </>
         }
+        renderDetalle={(cuenta) => (
+          <table className="w-full text-xs border border-gray-600/30 mt-2 bg-[var(--fill)] rounded-md" >
+            <thead className="bg-[var(--fill)] text-white">
+              <tr>
+                <th className="px-3 py-2 text-left">Fecha</th>
+                <th className="px-3 py-2 text-left">Detalle</th>
+                <th className="px-3 py-2 text-right">Debe</th>
+                <th className="px-3 py-2 text-right">Haber</th>
+              </tr>
+            </thead>
+            <tbody className="text-white">
+              {cuenta.movimientos.map((mov, i) => (
+                <tr key={i} className="border-t border-gray-700/30">
+                  <td className="px-3 py-2">
+                    {new Date(mov.fecha + "T00:00:00").toLocaleDateString("es-AR")}
+                  </td>
+                  <td className="px-3 py-2">{mov.descripcion}</td>
+                  <td className="px-3 py-2 text-right text-blue-400">
+                    {mov.debe > 0 ? `$${mov.debe.toFixed(2)}` : "—"}
+                  </td>
+                  <td className="px-3 py-2 text-right text-red-400">
+                    {mov.haber > 0 ? `$${mov.haber.toFixed(2)}` : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       />
-
-      {/* Totales */}
-      <div className="mt-4 text-right text-sm">
-        <div>Debe: ${totales.debe.toFixed(2)}</div>
-        <div>Haber: ${totales.haber.toFixed(2)}</div>
-        <div className="font-bold">
-          Saldo Final: ${totales.saldo.toFixed(2)}
-        </div>
-      </div>
     </div>
   );
 };
