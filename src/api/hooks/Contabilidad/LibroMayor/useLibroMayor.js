@@ -54,28 +54,29 @@ export const useLibroMayor = () => {
   // ─────────────────────────────────────
   // Asientos filtrados por fecha
   // ─────────────────────────────────────
-  const asientosFiltrados = useMemo(() => {
-    const busq = busqueda.toLowerCase();
+const asientosFiltrados = useMemo(() => {
+  const busq = busqueda.toLowerCase();
 
-    return asientos.filter((a) => {
-      // 🔍 Coincidencia por texto
-      const coincideBusqueda =
-        !busq ||
-        a.descripcion.toLowerCase().includes(busq) ||
-        a.movimientos.some(
-          (m) =>
-            m.nombreCuenta.toLowerCase().includes(busq) ||
-            m.cuenta.toLowerCase().includes(busq)
-        );
+  return asientos.filter((a) => {
+    // 🔍 Coincidencia por texto
+    const coincideBusqueda =
+      !busq ||
+      a.descripcion.toLowerCase().includes(busq) ||
+      a.movimientos.some(
+        (m) =>
+          m.nombreCuenta.toLowerCase().includes(busq) ||
+          m.cuenta.toLowerCase().includes(busq)
+      );
 
-      // 📅 Filtro por fecha
-      const fechaFactura = new Date(a.fecha);
-      const desdeValida = !fechaDesde || fechaFactura >= new Date(fechaDesde);
-      const hastaValida = !fechaHasta || fechaFactura <= new Date(fechaHasta);
+    // 📅 Filtro por fecha
+    const fechaFactura = new Date(a.fecha);
+    const desdeValida = !fechaDesde || fechaFactura >= new Date(fechaDesde);
+    const hastaValida = !fechaHasta || fechaFactura <= new Date(fechaHasta);
 
-      return coincideBusqueda && desdeValida && hastaValida;
-    });
-  }, [asientos, fechaDesde, fechaHasta, busqueda]);
+    return coincideBusqueda && desdeValida && hastaValida;
+  });
+}, [asientos, fechaDesde, fechaHasta, busqueda]);
+
 
   // ─────────────────────────────────────
   // Agrupar por cuenta (LIBRO MAYOR)

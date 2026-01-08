@@ -40,3 +40,5 @@ export { default as AlumnoIcono } from "./AlumnoIcono";
 export { default as CuotasIcono } from "./CuotasIcono";
 export { default as RefrescarIcono } from "./RefrescarIcono";
 export { default as BalanceIcono } from "./BalanceIcono";
+export { default as BolsaDeDineroIcono } from "./BolsaDeDineroIcono";
+export { default as ListaIcono } from "./ListaIcono";

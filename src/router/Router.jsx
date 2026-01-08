@@ -35,6 +35,7 @@ import Recibos from "../Componentes/Secciones/Escuela/Recibos/Recibos";
 import CrearRecibo from "../Componentes/Secciones/Escuela/CrearRecibo/CrearRecibo";
 import CrearAsientos from "../Componentes/Secciones/Contabilidad/CrearAsientos/CrearAsientos";
 import Balance from "../Componentes/Secciones/Contabilidad/Balance/Balance";
+import Inicio from "../Componentes/Secciones/Inicio/Inicio";
 
 export default function Router() {
   return (
@@ -45,7 +46,7 @@ export default function Router() {
       {/* PANEL (LAYOUT) */}
       <Route path="/panel" element={<Panel />}>
         {/* LAYOUT INTERNO */}
-        <Route index element={<Configuracion />} />
+        <Route index element={<Inicio />} />
 
         {/* CONFIGURACION */}
         <Route path="configuracion" element={<Configuracion />} />

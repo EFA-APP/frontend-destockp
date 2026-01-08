@@ -40,13 +40,13 @@ const Articulo = ({
       >
         <Link
           href={tieneSubmenu ? "#" : redireccion}
-          className={`flex items-center gap-2 text-xs text-white p-2 rounded-md w-full py-2 transition-all hover:text-white! hover:bg-[#7a79783a] ${
-            estaActivadoOSubmenu
+          className={`flex items-center gap-2 text-xs text-white rounded-md w-full py-2 transition-all hover:text-white!`}
+        >
+          <span className={`group-hover:text-[var(--primary)]! border border-gray-300/15 rounded-md p-1 ${
+                        estaActivadoOSubmenu
               ? "text-[var(--primary)]! bg-[var(--primary)]/20"
               : ""
-          }`}
-        >
-          <span className="group-hover:text-[var(--primary)]!">{icono}</span>
+          }`}>{icono}</span>
           <span className="truncate flex-1">{nombre}</span>
 
           {/* Flecha indicadora si tiene submenú */}

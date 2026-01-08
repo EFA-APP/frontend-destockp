@@ -69,7 +69,7 @@ const BarraLateral = () => {
                       <Articulo
                         nombre={isExpanded ? "Inicio" : ""}
                         icono={<InicioIcono size={18} />}
-                        redireccion={"/panel"}
+                        redireccion={"/panel/"}
                         isCollapsed={!isExpanded}
                       />
                     </div>
