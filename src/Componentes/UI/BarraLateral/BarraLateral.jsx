@@ -64,7 +64,7 @@ const BarraLateral = () => {
             <div className="min-w-full table">
               <div className="pe-4 rtl:pe-0 rtl:ps-4 list-none">
                 <div className="mt-4 space-y-2 border-t pt-2 first:mt-0 first:border-t-0 first:pt-0 border-ld hide-menu">
-                  <div className="mt-1 flex flex-col gap-2">
+                  <div className="mt-1 flex flex-col">
                     <div onClick={handleArticuloClick}>
                       <Articulo
                         nombre={isExpanded ? "Inicio" : ""}

@@ -29,7 +29,7 @@ export const useLibroDiario = () => {
               cuenta: "4.1.01.001",
               nombreCuenta: "Ventas",
               debe: 0,
-              haber: 100,
+              haber: 102,
             },
             {
               cuenta: "2.1.05.001",
@@ -152,7 +152,7 @@ export const useLibroDiario = () => {
 
   return {
     loading,
-    asientos:  asientosFiltrados,
+    asientos: asientosFiltrados,
     fechaDesde,
     setFechaDesde,
     fechaHasta,

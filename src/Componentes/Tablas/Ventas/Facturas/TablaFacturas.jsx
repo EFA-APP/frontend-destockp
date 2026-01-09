@@ -41,7 +41,7 @@ const TablaFacturas = () => {
         <TarjetaInformacion
           titulo="Pendientes"
           color="text-yellow-400"
-          numero={facturas.filter((f) => f.estado === "Pendiente").length}
+          numero={facturas.filter((f) => f.estado === "pendiente").length}
         />
 
         <TarjetaInformacion

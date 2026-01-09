@@ -36,8 +36,8 @@ const CrearFactura = () => {
       required: true,
       defaultValue: "si",
       options: [
-        { value: "si", label: "✓ Sí - Factura en blanco (registrada en ARCA)" },
-        { value: "no", label: "✗ No - Factura en negro (sin registrar)" },
+        { value: "si", label: "✓ Sí - Factura en blanco 🟢" },
+        { value: "no", label: "✗ No - Factura en negro 🔵" },
       ],
       section: "Configuración",
       helpText: "Las facturas en blanco se envían automáticamente a ARCA/AFIP",

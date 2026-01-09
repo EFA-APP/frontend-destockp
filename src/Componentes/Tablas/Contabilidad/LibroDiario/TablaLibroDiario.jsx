@@ -90,33 +90,44 @@ const TablaLibroDiario = () => {
       />
 
       {/* ================= FOOTER CONTABLE ================= */}
-      <div className="mt-4 pt-4 border-t border-gray-400/30 text-white">
-        <div className="grid grid-cols-2 gap-4 mb-2">
-          <div className="text-right font-semibold text-sm">
+      <div className="mt-6 space-y-2">
+        {/* Barra Total Debe / Haber */}
+        <div className="flex items-center justify-between rounded-xl overflow-hidden border border-white/10 bg-gradient-to-r from-orange-600/40 via-[var(--fill2)] to-green-600/40 shadow-inner">
+          <div className="px-4 py-2 font-semibold text-sm text-white">
             Total Debe:{" "}
             <span className="text-[var(--primary)]">
               ${totales.debe.toFixed(2)}
             </span>
           </div>
-          <div className="text-right font-semibold text-sm">
+
+          <div className="px-4 py-2 font-semibold text-sm text-white text-right">
             Total Haber:{" "}
-            <span className="text-[var(--primary)]">
-              ${totales.haber.toFixed(2)}
-            </span>
+            <span className="text-green-400">${totales.haber.toFixed(2)}</span>
           </div>
         </div>
 
-        <div className="text-right text-xs text-white/75">
-          Balance:
-          <span
-            className={`ml-2 font-semibold ${
-              totales.debe === totales.haber ? "text-green-500" : "text-red-500"
-            }`}
+        {/* Balance */}
+        <div className="w-full flex justify-center text-center text-sm font-semibold">
+          <div
+            className={`w-[300px] text-white border-b border-t bg-gradient-to-r ${
+              totales.debe === totales.haber
+                ? "border-green-500/30  from-[var(--fill)] via-green-600/40 to-[var(--fill)]"
+                : "border-red-500/30 from-[var(--fill)] via-red-600/15 to-[var(--fill)]"
+            }  py-2`}
           >
-            {totales.debe === totales.haber
-              ? "Balanceado ✓"
-              : "Desbalanceado ✗"}
-          </span>
+            Balance:{" "}
+            <span
+              className={
+                totales.debe === totales.haber
+                  ? "text-green-500"
+                  : "text-red-500"
+              }
+            >
+              {totales.debe === totales.haber
+                ? "Balanceado ✓"
+                : "Desbalanceado ✗"}
+            </span>
+          </div>
         </div>
       </div>
     </div>

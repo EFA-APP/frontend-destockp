@@ -19,7 +19,7 @@ export const columnasFacturas = [
             className={` w-2 h-2 rounded-full shadow-lg! ${
               fila.isBlanco
                 ? "bg-green-400 shadow-green-300!"
-                : "bg-red-400 shadow-red-300!"
+                : "bg-blue-400 shadow-blue-300!"
             } `}
           ></div>
         </div>
