@@ -39,7 +39,7 @@ const Articulo = ({
         }`}
       >
         <Link
-          href={tieneSubmenu ? "#" : redireccion}
+          to={tieneSubmenu ? "#" : redireccion}
           className={`flex items-center gap-2 text-xs text-white rounded-md w-full py-2 transition-all hover:text-white!`}
         >
           <span className={`group-hover:text-[var(--primary)]! border border-gray-300/15 rounded-md p-1 ${

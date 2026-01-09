@@ -8,8 +8,10 @@ import {
   BuscadorIcono,
   InicioIcono,
   ListaIcono,
+  ProveedoresIcono,
 } from "../../../assets/Icons";
 import EncabezadoSeccion from "../../UI/EncabezadoSeccion/EncabezadoSeccion";
+import { Link } from "react-router-dom";
 
 const GlassCard = ({ children, className = "" }) => (
   <div
@@ -45,11 +47,11 @@ const Movimiento = ({ icon, concepto, monto, negativo }) => (
 );
 
 
-const QuickButton = ({ icon, label }) => (
+const QuickButton = ({ icon, label, redirigir }) => (
   <button className="group bg-[var(--fill)]! hover:bg-[var(--fill)]/10 rounded-md! p-2 text-sm transition flex flex-col items-center gap-2 cursor-pointer">
-    <div className="text-[var(--color-primary)] group-hover:scale-110 transition">
+    <Link to={redirigir} className="text-[var(--color-primary)] group-hover:scale-110 transition">
       {icon}
-    </div>
+    </Link>
     <span>{label}</span>
   </button>
 );
@@ -88,12 +90,12 @@ const Inicio = () => {
           <CardHeader title="Accesos rápidos" />
 
           <div className="grid grid-cols-2 gap-3 mt-4">
-            <QuickButton icon={<CarritoIcono size={28} />} label="Punto de Venta" />
-            <QuickButton icon={<PagosIcono size={28} />} label="Nueva Compra" />
-            <QuickButton icon={<ContableIcono size={28} />} label="Nuevo Asiento" />
-            <QuickButton icon={<InventarioIcono size={28} />} label="Productos" />
-            <QuickButton icon={<PersonaIcono size={28} />} label="Nuevo Contacto" />
-            <QuickButton icon={<ContableIcono size={28} />} label="Plan de Cuentas" />
+            <QuickButton icon={<PagosIcono size={28} />} label="Nueva Compra" redirigir={"/panel/compras/facturas-proveedores/nueva"}/>
+            <QuickButton icon={<ContableIcono size={28} />} label="Nuevo Asiento" redirigir={"/panel/contabilidad/asientos/nuevo"}/>
+            <QuickButton icon={<InventarioIcono size={28} />} label="Productos" redirigir={"/panel/inventario/productos"}/>
+            <QuickButton icon={<PersonaIcono size={28} />} label="Nuevo Cliente" redirigir={"/panel/contactos/clientes/nuevo"}/>
+            <QuickButton icon={<ProveedoresIcono size={28} />} label="Nuevo Proveedor" redirigir={"/panel/contactos/proveedores/nuevo"}/>
+            <QuickButton icon={<ContableIcono size={28} />} label="Plan de Cuentas" redirigir={"/panel/contabilidad/cuentas"}/>
           </div>
         </GlassCard>
         {/* ÚLTIMOS MOVIMIENTOS (SEGUNDA LISTA) */}

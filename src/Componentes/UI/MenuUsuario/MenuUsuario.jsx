@@ -3,7 +3,7 @@ import { CerrarSesionIcono, ConfiguracionIcono } from "../../../assets/Icons";
 
 const MenuUsuario = () => {
   return (
-    <div className="shadow-md fixed right-5 top-15 mt-3 z-50 w-auto rounded-sm bg-[var(--fill)] p-2 border border-gray-50/40">
+    <div className="shadow-md fixed right-5 top-15 mt-3 z-9 w-auto rounded-sm bg-[var(--fill)] p-2 border border-gray-50/40">
       <div className="px-1">
         <div className="flex items-center gap-6 pb-3 border-b border-gray-50/40 mt-5 mb-3">
           <img

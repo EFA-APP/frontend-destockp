@@ -13,7 +13,7 @@ const BarraNavegacion = () => {
   const [menuAbierto, setMenuAbierto] = useState(false);
 
   return (
-    <header className="sticky top-0 z-2 bg-transparent">
+    <header className="sticky top-0 z-[999999] bg-transparent">
       <nav className="px-2  rounded-none bg-[var(--fill)] py-4 sm:px-6">
         <div className="mx-auto flex flex-wrap items-center justify-between">
           <div className="flex gap-0 items-center relative"></div>

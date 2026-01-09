@@ -34,7 +34,7 @@ const TarjetaKpi = ({
       
       {/* Glow inferior */}
       <div
-        className={`absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t ${current.glow} to-transparent`}
+        className={`absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t ${current.glow} to-transparent z-2`}
       />
 
       {/* CONTENIDO */}
