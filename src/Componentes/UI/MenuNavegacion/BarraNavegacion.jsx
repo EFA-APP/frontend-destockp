@@ -8,9 +8,11 @@ import {
 
 import MenuUsuario from "../MenuUsuario/MenuUsuario";
 import { Link } from "react-router-dom";
+import MenuNotificacion from "../MenuNotificacion/MenuNotificacion";
 
 const BarraNavegacion = () => {
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [menuAbiertoNotificacion, setMenuAbiertoNotificacion] = useState(false);
 
   return (
     <header className="sticky top-0 z-[999999] bg-transparent">
@@ -45,9 +47,15 @@ const BarraNavegacion = () => {
 
             <div className="relative group/menu">
               {/* NOTIFICACIONES */}
-              <button className="">
-                <span class="h-10 w-10 hover:bg-lightprimary text-darklink dark:text-white rounded-full flex justify-center items-center cursor-pointer group-hover/menu:bg-lightprimary group-hover/menu:text-primary">
-                  <NotificacionesIcono color={"white"} />
+              <button 
+                  onClick={() => !setMenuAbiertoNotificacion(!menuAbiertoNotificacion)}
+              >
+                <span className="
+                text-white
+                duration-100
+                hover:text-[var(--primary-light)]!
+                h-10 w-10 rounded-full flex justify-center items-center cursor-pointer">
+                  <NotificacionesIcono />
                 </span>
                 {/* CONTADOR DE NOTIFICACIONES */}
                 <span className="rounded-full absolute end-1 top-1 bg-[var(--primary)] text-[10px] h-4 w-4 flex justify-center items-center text-white">
@@ -71,6 +79,7 @@ const BarraNavegacion = () => {
             </div>
             {/* MENU DESPLEGABLE */}
             {menuAbierto && <MenuUsuario />}
+            {menuAbiertoNotificacion && <MenuNotificacion />}
           </div>
         </div>
       </nav>
