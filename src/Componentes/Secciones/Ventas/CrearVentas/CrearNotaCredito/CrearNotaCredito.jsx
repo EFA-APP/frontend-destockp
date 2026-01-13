@@ -1,7 +1,7 @@
 import { useState } from "react";
-import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
-import { AgregarIcono } from "../../../../assets/Icons";
-import FormularioDinamico from "../../../UI/FormularioReutilizable/FormularioDinamico";
+import EncabezadoSeccion from "../../../../UI/EncabezadoSeccion/EncabezadoSeccion";
+import { AgregarIcono } from "../../../../../assets/Icons";
+import FormularioDinamico from "../../../../UI/FormularioReutilizable/FormularioDinamico";
 
 const CrearNotaCredito = () => {
   const [numeroComprobante] = useState({

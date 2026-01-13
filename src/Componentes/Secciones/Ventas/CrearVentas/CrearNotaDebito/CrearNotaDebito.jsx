@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { AgregarIcono } from "../../../../assets/Icons";
-import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
-import FormularioDinamico from "../../../UI/FormularioReutilizable/FormularioDinamico";
+import FormularioDinamico from "../../../../UI/FormularioReutilizable/FormularioDinamico";
+import { AgregarIcono } from "../../../../../assets/Icons";
+import EncabezadoSeccion from "../../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 
-const CrearFactura = () => {
+const CrearNotaDebito = () => {
   const [numeroComprobante] = useState({
     puntoVenta: "00001",
-    numero: "00000123",
+    numero: "00000067",
   });
 
-  // Funciones de cálculo
+  // === Cálculos (iguales que factura y NC, pero ND es POSITIVA - aumenta la deuda) ===
   const calcularSubtotal = (item) => {
     const subtotal = item.cantidad * item.precioUnitario;
     const descuento = subtotal * (item.descuento / 100);
@@ -21,13 +21,11 @@ const CrearFactura = () => {
     return subtotal * (item.iva / 100);
   };
 
-  const calcularTotal = (item) => {
-    return calcularSubtotal(item) + calcularIVA(item);
-  };
+  const calcularTotal = (item) => calcularSubtotal(item) + calcularIVA(item);
 
-  const camposFactura = [
+  const camposNotaDebito = [
     // ═══════════════════════════════════════
-    // CONFIGURACIÓN DEL COMPROBANTE
+    // CONFIGURACIÓN
     // ═══════════════════════════════════════
     {
       name: "enBlanco",
@@ -36,45 +34,53 @@ const CrearFactura = () => {
       required: true,
       defaultValue: "si",
       options: [
-        { value: "si", label: "✓ Sí - Factura en blanco 🟢" },
-        { value: "no", label: "✗ No - Factura en negro 🔵" },
+        { value: "si", label: "✓ Sí - Nota registrada en ARCA" },
+        { value: "no", label: "✗ No - Nota interna" },
       ],
       section: "Configuración",
-      helpText: "Las facturas en blanco se envían automáticamente a ARCA/AFIP",
+      helpText:
+        "Las notas de débito en blanco se envían automáticamente a ARCA/AFIP",
     },
 
     // ═══════════════════════════════════════
-    // DATOS DEL COMPROBANTE
+    // COMPROBANTE
     // ═══════════════════════════════════════
     {
       name: "tipoComprobante",
-      label: "Tipo de Comprobante",
+      label: "Tipo de Nota",
       type: "select",
       required: true,
-      defaultValue: "B",
+      defaultValue: "ND-B",
       options: [
-        { value: "A", label: "Factura A" },
-        { value: "B", label: "Factura B" },
-        { value: "C", label: "Factura C" },
+        { value: "ND-A", label: "Nota de Débito A" },
+        { value: "ND-B", label: "Nota de Débito B" },
+        { value: "ND-C", label: "Nota de Débito C" },
       ],
       section: "Comprobante",
+    },
+    {
+      name: "facturaOrigen",
+      label: "Factura asociada",
+      type: "text",
+      required: true,
+      section: "Comprobante",
+      placeholder: "FC-00001-00001234",
+      helpText: "Factura a la que se adiciona un cargo",
     },
     {
       name: "puntoVenta",
       label: "Punto de Venta",
       type: "text",
-      required: true,
+      // readOnly: true,
       defaultValue: numeroComprobante.puntoVenta,
-      readOnly: true,
       section: "Comprobante",
     },
     {
       name: "numeroComprobante",
       label: "Número",
       type: "text",
-      required: true,
+      // readOnly: true,
       defaultValue: numeroComprobante.numero,
-      readOnly: true,
       section: "Comprobante",
       helpText: "Número automático generado por el sistema",
     },
@@ -85,31 +91,12 @@ const CrearFactura = () => {
       required: true,
       section: "Comprobante",
     },
-    {
-      name: "fechaVencimiento",
-      label: "Fecha de Vencimiento",
-      type: "date",
-      section: "Comprobante",
-      helpText: "Opcional - Para facturas con pago diferido",
-    },
-    {
-      name: "condicionVenta",
-      label: "Condición de Venta",
-      type: "select",
-      required: true,
-      defaultValue: "contado",
-      options: [
-        { value: "contado", label: "Contado" },
-        { value: "cuenta_corriente", label: "Cuenta Corriente" },
-      ],
-      section: "Comprobante",
-    },
 
     // ═══════════════════════════════════════
-    // DATOS DEL CLIENTE
+    // CLIENTE
     // ═══════════════════════════════════════
     {
-      name: "clienteId",
+      name: "cliente",
       label: "Cliente",
       type: "select",
       required: true,
@@ -128,84 +115,45 @@ const CrearFactura = () => {
       required: true,
       section: "Cliente",
       placeholder: "XX-XXXXXXXX-X",
-      helpText: "Obligatorio para facturas A y B",
+      helpText: "Obligatorio para notas de débito A y B",
     },
     {
-      name: "condicionIVA",
-      label: "Condición frente al IVA",
-      type: "select",
-      required: true,
-      defaultValue: "consumidor_final",
-      options: [
-        { value: "responsable_inscripto", label: "Responsable Inscripto" },
-        { value: "monotributista", label: "Monotributista" },
-        { value: "consumidor_final", label: "Consumidor Final" },
-        { value: "exento", label: "Exento" },
-        { value: "no_responsable", label: "No Responsable" },
-      ],
-      section: "Cliente",
-    },
-    {
-      name: "domicilioCliente",
-      label: "Domicilio",
-      type: "text",
-      section: "Cliente",
-      placeholder: "Calle 123, Ciudad, Provincia",
-    },
-
-    // ═══════════════════════════════════════
-    // OBSERVACIONES Y NOTAS
-    // ═══════════════════════════════════════
-    {
-      name: "observaciones",
-      label: "Observaciones",
+      name: "motivo",
+      label: "Motivo de la Nota de Débito",
       type: "textarea",
-      fullWidth: true,
-      section: "Observaciones",
-      placeholder: "Información adicional sobre la factura...",
+      required: true,
+      section: "Cliente",
       rows: 3,
-    },
-    {
-      name: "remito",
-      label: "Número de Remito (Opcional)",
-      type: "text",
-      section: "Observaciones",
-      placeholder: "R-00001-00000123",
-    },
-    {
-      name: "ordenCompra",
-      label: "Orden de Compra (Opcional)",
-      type: "text",
-      section: "Observaciones",
-      placeholder: "OC-2025-001",
+      placeholder:
+        "Ej: Intereses por mora / Gastos adicionales / Recargo por flete / Corrección de precio",
+      helpText: "Indique claramente el motivo del cargo adicional",
     },
 
     // ═══════════════════════════════════════
-    // PRODUCTOS Y SERVICIOS (TABLA DE ITEMS)
+    // ITEMS (CONCEPTOS A COBRAR)
     // ═══════════════════════════════════════
     {
       name: "items",
       type: "items-table",
       required: true,
-      section: "Productos",
+      section: "Conceptos a Debitar",
       fullWidth: true,
-      errorMessage: "Debe agregar al menos un producto o servicio",
+      errorMessage: "Debe agregar al menos un concepto a debitar",
 
-      // Definición de campos para cada item
       itemFields: [
         {
           name: "descripcion",
-          label: "Producto",
+          label: "Concepto",
+          placeholder: "Ej: Intereses por mora del período 11/2024",
           type: "text",
           required: true,
-          placeholder: "Descripción",
           colSpan: "col-span-4",
         },
         {
           name: "cantidad",
           label: "Cantidad",
+          placeholder: "1",
           type: "number",
-          required: true,
           defaultValue: 1,
           min: 0,
           step: 0.01,
@@ -213,10 +161,9 @@ const CrearFactura = () => {
         },
         {
           name: "precioUnitario",
+          placeholder: "$5000",
           label: "Precio Unit.",
-          placeholder: "$1.000",
           type: "number",
-          required: true,
           defaultValue: 0,
           min: 0,
           step: 0.01,
@@ -224,8 +171,8 @@ const CrearFactura = () => {
         },
         {
           name: "descuento",
-          label: "Descuento %",
-          placeholder: "10%",
+          label: "Desc %",
+          placeholder: "0%",
           type: "number",
           defaultValue: 0,
           min: 0,
@@ -247,14 +194,12 @@ const CrearFactura = () => {
         },
       ],
 
-      // Layout del formulario de items
       itemLayout: "grid-cols-12",
 
-      // Definición de columnas de la tabla
       tableColumns: [
         {
           key: "descripcion",
-          label: "Descripción",
+          label: "Concepto",
           align: "text-left",
         },
         {
@@ -294,15 +239,11 @@ const CrearFactura = () => {
         },
       ],
 
-      // Renderizado de totales
       renderTotals: (items) => {
         const totales = {
-          subtotal: items.reduce(
-            (sum, item) => sum + calcularSubtotal(item),
-            0
-          ),
-          iva: items.reduce((sum, item) => sum + calcularIVA(item), 0),
-          total: items.reduce((sum, item) => sum + calcularTotal(item), 0),
+          subtotal: items.reduce((sum, i) => sum + calcularSubtotal(i), 0),
+          iva: items.reduce((sum, i) => sum + calcularIVA(i), 0),
+          total: items.reduce((sum, i) => sum + calcularTotal(i), 0),
         };
 
         return (
@@ -310,55 +251,67 @@ const CrearFactura = () => {
             <div className="w-full md:w-1/3 space-y-2">
               <div className="flex justify-between text-gray-300">
                 <span>Subtotal:</span>
-                <span>${totales.subtotal.toFixed(2)}</span>
+                <span>$${totales.subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-gray-300">
                 <span>IVA:</span>
-                <span>${totales.iva.toFixed(2)}</span>
+                <span>$${totales.iva.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-white text-xl font-bold border-t border-gray-600 pt-2">
-                <span>TOTAL:</span>
-                <span>${totales.total.toFixed(2)}</span>
+              <div className="flex justify-between text-orange-400 text-xl font-bold border-t border-gray-600 pt-2">
+                <span>TOTAL A DEBITAR:</span>
+                <span>+${totales.total.toFixed(2)}</span>
               </div>
+              <p className="text-xs text-gray-400 italic mt-2">
+                ⚠️ Este monto se SUMA a la deuda del cliente
+              </p>
             </div>
           </div>
         );
       },
     },
+
+    // ═══════════════════════════════════════
+    // OBSERVACIONES
+    // ═══════════════════════════════════════
+    {
+      name: "observaciones",
+      label: "Observaciones adicionales",
+      type: "textarea",
+      fullWidth: true,
+      section: "Observaciones",
+      placeholder: "Información adicional sobre la nota de débito...",
+      rows: 3,
+    },
   ];
 
   const handleSubmit = (data) => {
-    // Calcular totales finales
-    const totalesFactura = {
-      subtotal: data.items.reduce(
-        (sum, item) => sum + calcularSubtotal(item),
-        0
-      ),
-      iva: data.items.reduce((sum, item) => sum + calcularIVA(item), 0),
-      total: data.items.reduce((sum, item) => sum + calcularTotal(item), 0),
+    const totales = {
+      subtotal: data.items.reduce((sum, i) => sum + calcularSubtotal(i), 0),
+      iva: data.items.reduce((sum, i) => sum + calcularIVA(i), 0),
+      total: data.items.reduce((sum, i) => sum + calcularTotal(i), 0),
     };
 
-    const facturaCompleta = {
+    const notaDebito = {
       ...data,
-      totales: totalesFactura,
+      totales,
       numeroCompleto: `${data.puntoVenta}-${data.numeroComprobante}`,
     };
 
     if (data.enBlanco === "si") {
       alert(
-        `✓ Factura registrada en ARCA\n\nComprobante: ${
-          facturaCompleta.numeroCompleto
-        }\nTotal: $${totalesFactura.total.toFixed(
-          2
-        )}\n\nRevisa la consola para ver los detalles completos.`
+        `✓ Nota de Débito registrada en ARCA\n\n` +
+          `Comprobante: ${notaDebito.numeroCompleto}\n` +
+          `Factura origen: ${data.facturaOrigen}\n` +
+          `Total a debitar: +$${totales.total.toFixed(2)}\n\n` +
+          `⚠️ Este monto se SUMA a la deuda del cliente\n\n` +
+          `Revisa la consola para ver los detalles completos.`
       );
     } else {
       alert(
-        `✗ Factura en negro (sin registrar)\n\nComprobante: ${
-          facturaCompleta.numeroCompleto
-        }\nTotal: $${totalesFactura.total.toFixed(
-          2
-        )}\n\n⚠️ Esta factura NO se envía a ARCA/AFIP`
+        `✗ Nota de Débito interna (sin registrar)\n\n` +
+          `Comprobante: ${notaDebito.numeroCompleto}\n` +
+          `Total: +$${totales.total.toFixed(2)}\n\n` +
+          `⚠️ Esta nota NO se envía a ARCA/AFIP`
       );
     }
   };
@@ -366,25 +319,25 @@ const CrearFactura = () => {
   return (
     <div className="px-3 py-4">
       {/* Encabezado */}
-      <div className="card no-inset no-ring bg-[var(--fill2)] shadow-md rounded-md mb-4">
+      <div className="card bg-[var(--fill2)] shadow-md rounded-md mb-4">
         <EncabezadoSeccion
-          ruta={"Crear Factura"}
+          ruta="Crear Nota de Débito"
           icono={<AgregarIcono />}
-          volver={true}
-          redireccionAnterior={"/panel/ventas/facturas"}
+          volver
+          redireccionAnterior="/panel/ventas/notas-debitos"
         />
       </div>
 
-      {/* Formulario Único con todo integrado */}
+      {/* Formulario */}
       <FormularioDinamico
-        titulo="Nueva Factura"
-        subtitulo="Complete los datos del comprobante"
-        campos={camposFactura}
+        titulo="Nueva Nota de Débito"
+        subtitulo="Asociada a una factura existente - Aumenta la deuda del cliente"
+        campos={camposNotaDebito}
         onSubmit={handleSubmit}
-        submitLabel="Generar Factura"
+        submitLabel="Generar Nota de Débito"
       />
     </div>
   );
 };
 
-export default CrearFactura;
+export default CrearNotaDebito;

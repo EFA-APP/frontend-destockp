@@ -1,6 +1,7 @@
-import { AgregarIcono } from "../../../../assets/Icons";
-import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
-import FormularioDinamico from "../../../UI/FormularioReutilizable/FormularioDinamico";
+import { AgregarIcono } from "../../../../../assets/Icons";
+import EncabezadoSeccion from "../../../../UI/EncabezadoSeccion/EncabezadoSeccion";
+import FormularioDinamico from "../../../../UI/FormularioReutilizable/FormularioDinamico";
+
 
 const CrearPlanDeCuenta = () => {
   const camposCuenta = [

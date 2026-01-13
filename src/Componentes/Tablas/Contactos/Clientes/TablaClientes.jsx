@@ -1,5 +1,5 @@
-import { useClientes } from "../../../api/hooks/clientes/useClientes";
-import TablaReutilizable from "../../UI/TablaReutilizable/TablaReutilizable";
+import { useClientes } from "../../../../api/hooks/clientes/useClientes";
+import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
 import { columnasClientes } from "./ColumnaCliente";
 
 const TablaClientes = () => {

@@ -1,6 +1,6 @@
 import { ClientesIcono } from "../../../../assets/Icons";
+import TablaClientes from "../../../Tablas/Contactos/Clientes/TablaClientes";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
-import TablaClientes from "../../../Tablas/Clientes/TablaClientes";
 
 const Clientes = () => {
   return (

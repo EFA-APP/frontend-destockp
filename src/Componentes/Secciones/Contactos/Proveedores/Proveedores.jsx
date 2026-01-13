@@ -1,6 +1,6 @@
 import { ProveedoresIcono } from "../../../../assets/Icons";
+import TablaProveedores from "../../../Tablas/Contactos/Proveedores/TablaProveedores";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
-import TablaProveedores from "../../../Tablas/Proveedores/TablaProveedores";
 
 const Proveedores = () => {
   return (

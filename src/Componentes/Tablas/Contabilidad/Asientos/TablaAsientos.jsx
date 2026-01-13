@@ -8,7 +8,7 @@ const TablaAsientos = () => {
     useAsientos();
 
   const renderDetalleAsiento = (asiento) => (
-    <div className="p-4 bg-[var(--fill)] rounded-md border border-gray-100/10">
+    <div className="p-4 mx-6 bg-[var(--fill)] rounded-md border border-gray-200/30">
       <table className="w-full text-sm">
         <thead className="border-b border-gray-400/30 text-white">
           <tr>

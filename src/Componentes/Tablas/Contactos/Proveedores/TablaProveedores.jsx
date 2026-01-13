@@ -1,5 +1,5 @@
-import { useProveedores } from "../../../api/hooks/Proveedores/useProveedores";
-import TablaReutilizable from "../../UI/TablaReutilizable/TablaReutilizable";
+import { useProveedores } from "../../../../api/hooks/Proveedores/useProveedores";
+import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
 import { columnasProveedores } from "./ColumnaProveedores";
 
 const TablaProveedores = () => {

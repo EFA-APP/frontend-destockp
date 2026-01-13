@@ -54,7 +54,8 @@ const TablaLibroDiario = () => {
           </>
         }
         renderDetalle={(asiento) => (
-          <div className="rounded-md border border-gray-600/30 overflow-hidden mx-20 bg-[var(--fill)] shadow-md">
+              <div className="p-4 mx-6 bg-[var(--fill)] rounded-md border border-gray-200/30">
+
             <table className="w-full text-xs">
               <thead className="bg-[var(--fill)] text-white">
                 <tr>

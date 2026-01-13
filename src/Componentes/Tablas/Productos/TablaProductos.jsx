@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { useProductos } from "../../../api/hooks/Productos/useProductos";
+import ModalDetalleProducto from "../../Modales/Articulos/Producto/ModalDetalleProducto";
 import TablaReutilizable from "../../UI/TablaReutilizable/TablaReutilizable";
 import TarjetaInformacion from "../../UI/TarjetaInformacion/TarjetaInformacion";
 import { columnasProductos } from "./ColumnaProductos";
@@ -12,6 +14,14 @@ const TablaProductos = () => {
     manejarEditar,
     manejarEliminar,
   } = useProductos();
+
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [productoSeleccionado, setProductoSeleccionado] = useState(null);
+
+  const handleVerDetalle = (producto) => {
+    setProductoSeleccionado(producto);
+    setModalAbierto(true);
+  }
 
   // Calcular estadísticas
   const valorTotalInventario = productos.reduce(
@@ -33,12 +43,16 @@ const TablaProductos = () => {
 
   return (
     <div className="space-y-4">
+
+      {/* Modal Producto */}
+      <ModalDetalleProducto open={modalAbierto} onClose={() => setModalAbierto(false)} producto={productoSeleccionado}/>
+
       {/* Cards con información del inventario */}
       <div className="grid grid-cols-3 gap-4">
         <TarjetaInformacion
           titulo={"Total Frascos"}
           color={"text-blue-400"}
-          numero={totalPaquetes}
+          numero={totalFrascos}
           descripcion={`${totalPaquetes} paquetes`}
         />
 
@@ -62,7 +76,7 @@ const TablaProductos = () => {
         <TablaReutilizable
           columnas={columnasProductos}
           datos={productos}
-          onVer={manejarDetalle}
+          onVer={handleVerDetalle}
           onEditar={manejarEditar}
           onEliminar={manejarEliminar}
           mostrarAcciones={true}
