@@ -4,6 +4,9 @@ import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
 import { columnasFacturas } from "./ColumnaFacturas";
+import facturaConfig from "../../../Modales/ConfigFactura";
+import { useState } from "react";
+import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
 
 const TablaFacturas = () => {
   const {
@@ -25,10 +28,27 @@ const TablaFacturas = () => {
     manejarEliminar,
   } = useFacturas();
 
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [seleccionado, setSeleccionado] = useState(null);
+
+  const handleVerDetalle = (articulo) => {
+    setSeleccionado(articulo);
+    setModalAbierto(true);
+  };
+
   const totalFacturado = facturas.reduce((acc, f) => acc + f.total, 0);
 
   return (
     <div className="space-y-4">
+      {/* Modal de factura */}
+      <ModalDetalleGenerico
+        open={modalAbierto}
+        onClose={() => setModalAbierto(false)}
+        data={seleccionado}
+        {...facturaConfig}
+        width="w-[420px]"
+      />
+
       {/* Cards */}
       <div className="grid grid-cols-3 gap-4">
         <TarjetaInformacion
@@ -60,7 +80,7 @@ const TablaFacturas = () => {
           busqueda={busqueda}
           setBusqueda={setBusqueda}
           mostrarAcciones={true}
-          onVer={manejarDetalle}
+          onVer={handleVerDetalle}
           onEditar={manejarEditar}
           onEliminar={manejarEliminar}
           onDescargar={manejarDetalle}

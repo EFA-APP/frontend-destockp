@@ -1,19 +1,11 @@
-import React from 'react'
-
+import React from "react";
 
 // components/ui/ModalCard.jsx
-const ModalDetalle = ({
-  title,
-  icon,
-  onClose,
-  children,
-  footer,
-  width = "max-w-2xl",
-}) => {
+const ModalDetalle = ({ title, icon, onClose, children, footer }) => {
   return (
     <div
       className={`
-        w-full ${width}
+        w-full
         rounded-2xl
         bg-gradient-to-b from-[#2b2e33] to-[#1f2226]
         shadow-[0_20px_60px_rgba(0,0,0,0.6)]
@@ -28,9 +20,7 @@ const ModalDetalle = ({
               {icon}
             </div>
           )}
-          <h2 className="text-lg font-semibold text-white">
-            {title}
-          </h2>
+          <h2 className="text-lg font-semibold text-white">{title}</h2>
         </div>
 
         <button
@@ -42,9 +32,7 @@ const ModalDetalle = ({
       </div>
 
       {/* Body */}
-      <div className="px-6 py-4">
-        {children}
-      </div>
+      <div className="px-6 py-4">{children}</div>
 
       {/* Footer */}
       {footer && (
@@ -54,7 +42,6 @@ const ModalDetalle = ({
       )}
     </div>
   );
-}
-
+};
 
 export default ModalDetalle;

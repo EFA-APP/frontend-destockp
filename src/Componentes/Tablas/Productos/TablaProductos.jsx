@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useProductos } from "../../../api/hooks/Productos/useProductos";
-import ModalDetalleProducto from "../../Modales/Articulos/Producto/ModalDetalleProducto";
 import TablaReutilizable from "../../UI/TablaReutilizable/TablaReutilizable";
 import TarjetaInformacion from "../../UI/TarjetaInformacion/TarjetaInformacion";
 import { columnasProductos } from "./ColumnaProductos";
+import productoConfig from "../../Modales/ConfigProducto";
+import ModalDetalleGenerico from "../../UI/ModalDetalleBase/ModalDetalleGenerico";
 
 const TablaProductos = () => {
   const {
@@ -21,7 +22,7 @@ const TablaProductos = () => {
   const handleVerDetalle = (producto) => {
     setProductoSeleccionado(producto);
     setModalAbierto(true);
-  }
+  };
 
   // Calcular estadísticas
   const valorTotalInventario = productos.reduce(
@@ -43,9 +44,14 @@ const TablaProductos = () => {
 
   return (
     <div className="space-y-4">
-
       {/* Modal Producto */}
-      <ModalDetalleProducto open={modalAbierto} onClose={() => setModalAbierto(false)} producto={productoSeleccionado}/>
+      <ModalDetalleGenerico
+        open={modalAbierto}
+        onClose={() => setModalAbierto(false)}
+        data={productoSeleccionado}
+        {...productoConfig}
+        width="w-[420px]"
+      />
 
       {/* Cards con información del inventario */}
       <div className="grid grid-cols-3 gap-4">

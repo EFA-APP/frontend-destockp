@@ -1,10 +1,9 @@
 // components/ui/ModalBase.jsx
-const ModalDetalleBase = ({ open, onClose, children }) => {
+const ModalDetalleBase = ({ open, onClose, children, width }) => {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[99999999] flex items-center justify-center">
-      
+    <div className="fixed inset-0 z-[99999999] flex gap-3 items-center justify-center">
       {/* Overlay */}
       <div
         className="absolute inset-0 bg-[var(--fill)]/20 backdrop-blur-sm"
@@ -12,12 +11,9 @@ const ModalDetalleBase = ({ open, onClose, children }) => {
       />
 
       {/* Contenido */}
-      <div className="relative z-10">
-        {children}
-      </div>
+      <div className={`relative z-10 ${width}`}>{children}</div>
     </div>
   );
-}
-
+};
 
 export default ModalDetalleBase;
