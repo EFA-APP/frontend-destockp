@@ -6,7 +6,7 @@ const ContenidoPanel = () => {
       <BarraNavegacion />
 
       {/* CONTENDOR DE VISTAS RELATIVAS */}
-      <div className="bg-[var(--fill2)] dark:bg-dark h-auto rounded-[20px]">
+      <div className="bg-[var(--fill)] dark:bg-dark h-auto rounded-[20px]">
         <Outlet />
       </div>
     </div>

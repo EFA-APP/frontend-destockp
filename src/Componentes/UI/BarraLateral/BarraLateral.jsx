@@ -42,9 +42,7 @@ const BarraLateral = () => {
   return (
     <div className="block ">
       <aside
-        className={`bg-[var(--fill)]! md:bg-transparent! pt-2 fixed transition-all duration-300 ease-in-out start-3 top-0 rtl:pe-4 rtl:ps-0 flex flex-col  z-[99999999] ${
-          isExpanded ? "w-[180px] " : "w-[50px] items-start"
-        }`}
+        className={`bg-[var(--fill)]! md:bg-transparent! pt-2 fixed transition-all duration-300 ease-in-out start-3 top-0 rtl:pe-4 rtl:ps-0 flex flex-col  z-[99999999] `}
         onMouseLeave={() => setIsExpanded(false)}
       >
         {/* LOGO */}

@@ -18,9 +18,17 @@ const TablaProductos = () => {
 
   const [modalAbierto, setModalAbierto] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
+  const [modoModal, setModoModal] = useState("view");
 
   const handleVerDetalle = (producto) => {
     setProductoSeleccionado(producto);
+    setModoModal("vista");
+    setModalAbierto(true);
+  };
+
+  const handleEditar = (producto) => {
+    setProductoSeleccionado(producto);
+    setModoModal("editar");
     setModalAbierto(true);
   };
 
@@ -46,11 +54,17 @@ const TablaProductos = () => {
     <div className="space-y-4">
       {/* Modal Producto */}
       <ModalDetalleGenerico
+        mode={modoModal}
         open={modalAbierto}
         onClose={() => setModalAbierto(false)}
+        onSave={(dataEditada) => {
+          manejarEditar(dataEditada);
+          setModalAbierto(false);
+        }}
         data={productoSeleccionado}
         {...productoConfig}
         width="w-[420px]"
+
       />
 
       {/* Cards con información del inventario */}
@@ -83,7 +97,7 @@ const TablaProductos = () => {
           columnas={columnasProductos}
           datos={productos}
           onVer={handleVerDetalle}
-          onEditar={manejarEditar}
+          onEditar={handleEditar}
           onEliminar={manejarEliminar}
           mostrarAcciones={true}
           botonAgregar={{

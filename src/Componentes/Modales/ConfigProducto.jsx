@@ -8,7 +8,14 @@ const productoConfig = {
       label: "Producto",
       key: "nombre",
       sub: (p) => `Código: ${p.codigo}`,
+      editable: true,
     },
+    {
+      label: "Código",
+      key: "codigo",
+      editable: true,
+      ocultar: true,
+    }
   ],
   metrics: [
     { label: "Stock", value: "stock" },

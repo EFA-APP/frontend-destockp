@@ -1,19 +1,16 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { CandadoIcono, ConfirmarContrasenaIcono, DocumentoIcono, EmailIcono, PersonaIcono } from "../../../assets/Icons";
 
-/**
- * Componente reutilizable para formularios de autenticación
- * @param {Object} props
- * @param {string} props.titulo - Título del formulario
- * @param {string} props.descripcion - Descripción del formulario
- * @param {Array} props.campos - Array de objetos con configuración de campos
- * @param {Function} props.onSubmit - Función que se ejecuta al enviar el formulario
- * @param {boolean} props.cargando - Estado de carga
- * @param {Object} props.errores - Objeto con errores de validación
- * @param {Array} props.enlaces - Enlaces adicionales (ej: "¿Olvidaste tu contraseña?")
- * @param {Object} props.boton - Configuración del botón principal
- * @param {Object} props.pieFormulario - Enlaces en el pie del formulario
- */
+const iconosPorCampo = {
+  email: <EmailIcono color="var(--primary-light)" />,
+  contrasena: <CandadoIcono color="var(--primary-light)" size={20} />,
+  usuario: <PersonaIcono color="var(--primary-light)" size={20} />,
+  cuit: <DocumentoIcono color="var(--primary-light)" size={20} />,
+  confirmarContrasena: <ConfirmarContrasenaIcono color="var(--primary-light)" size={20} />,
+  
+};
+
 const FormularioAuth = ({
   titulo,
   descripcion,
@@ -22,25 +19,19 @@ const FormularioAuth = ({
   cargando = false,
   errores = {},
   enlaces = [],
-  boton = { texto: "Enviar" },
+  boton = { texto: "Enviar", textoCargando: "Cargando..." },
   pieFormulario = null,
 }) => {
   const [valores, setValores] = useState({});
 
-  // Inicializar valores del formulario
   useEffect(() => {
-    const valoresIniciales = {};
-    campos.forEach((campo) => {
-      valoresIniciales[campo.name] = "";
-    });
-    setValores(valoresIniciales);
-  }, []);
+    const iniciales = {};
+    campos.forEach((c) => (iniciales[c.name] = ""));
+    setValores(iniciales);
+  }, [campos]);
 
   const handleChange = (name, value) => {
-    setValores((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setValores((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
@@ -49,96 +40,134 @@ const FormularioAuth = ({
   };
 
   return (
-    <div className="flex justify-center px-12 items-center min-h-screen">
-      <div className="w-[320px]">
-        <div>
+    <div className="min-h-screen flex items-center justify-center bg-[#1b1e22]">
+      {/* Card */}
+      <div
+        className="
+          w-full max-w-sm
+          rounded-2xl
+          bg-gradient-to-b from-[var(--fill2)] to-black/20
+          border border-gray-300/20
+          shadow-[0_25px_70px_rgba(209,112,16,0.11)]
+          px-8 py-10
+        "
+      >
+        {/* Logo */}
+        <div className="flex justify-center mb-2">
           <img
-            src="/logo.png"
-            alt="logo"
-            className="rounded-full h-[40px]"
+            src="/efa-logo.png"
+            alt="Logo"
+            className="w-14 rounded-full"
           />
         </div>
 
-        <h3 className="text-md font-semibold text-white mt-3">
+        <h2 className="text-xl font-semibold text-white text-center">
           {titulo}
-        </h3>
-        <p className="text-white/70 text-xs mt-2">{descripcion}</p>
+        </h2>
 
-        <form className="mt-3" onSubmit={handleSubmit}>
-          {campos.map((campo, index) => (
-            <div key={campo.name} className="mb-ifv">
-              <label
-                className="text-xs text-white!"
-                htmlFor={campo.name}
-              >
+        {descripcion && (
+          <p className="text-sm text-white/60 text-center mt-1">
+            {descripcion}
+          </p>
+        )}
+
+        <form onSubmit={handleSubmit} className="mt-8 space-y-3">
+          {campos.map((campo) => (
+            <div key={campo.name} className="relative">
+              <label className="block text-xs text-white/70 mb-1">
                 {campo.label}
               </label>
+
               <input
-                id={campo.name}
-                name={campo.name}
                 type={campo.type || "text"}
-                inputMode={campo.inputMode}
-                placeholder={campo.placeholder}
                 value={valores[campo.name] || ""}
-                onChange={(e) => handleChange(campo.name, e.target.value)}
+                onChange={(e) =>
+                  handleChange(campo.name, e.target.value)
+                }
+                placeholder={campo.placeholder}
+                inputMode={campo.inputMode}
                 maxLength={campo.maxLength}
-                className="flex h-10 w-full rounded-md! px-3 py-2 text-xs! border-[0.2px]! border-gray-200/10! text-white! placeholder:text-[var(--primary-light)]/60"
+                className="
+                  w-full h-10
+                  rounded-md!
+                  bg-black/20!
+                  border border-white/10
+                  text-sm text-white!
+                  focus:outline-none
+                  focus:border-[var(--primary)]
+                  placeholder:text-gray-300/40!
+                  px-10
+                "
               />
-              
-              {/* Enlaces después del input (ej: "¿Olvidaste tu email?") */}
-              {campo.enlace && (
-                <Link
-                  className="text-[var(--primary-light)] hover:text-[var(--primary)]! text-xs"
-                  to={campo.enlace.to}
-                >
-                  {campo.enlace.texto}
-                </Link>
+
+              {/* Ícono */}
+              {iconosPorCampo[campo.name] && (
+                <span className="absolute top-7 left-3">
+                  {iconosPorCampo[campo.name]}
+                </span>
               )}
 
-              {/* Mostrar error específico del campo */}
+              {/* Error */}
               {errores[campo.name] && (
-                <p className="text-xs text-red-300 mt-1 text-right">
+                <p className="text-xs text-red-400 mt-1">
                   {errores[campo.name]}
                 </p>
+              )}
+
+              {/* Enlace por campo */}
+              {campo.enlace && (
+                <div className="flex justify-end mt-2">
+                  <Link
+                    to={campo.enlace.to}
+                    className="text-xs text-[var(--primary-light)] hover:underline"
+                  >
+                    {campo.enlace.texto}
+                  </Link>
+                </div>
               )}
             </div>
           ))}
 
-          {/* Enlaces adicionales entre campos y botón */}
-          {enlaces.map((enlace, idx) => (
+          {/* Enlaces extra */}
+          {enlaces.map((enlace, i) => (
             <Link
-              key={idx}
-              className="text-[var(--primary-light)] text-xs hover:text-[var(--primary)]! block mb-2"
+              key={i}
               to={enlace.to}
+              className="block text-xs text-[var(--primary-light)] hover:underline text-right"
             >
               {enlace.texto}
             </Link>
           ))}
 
+          {/* Botón */}
           <button
             type="submit"
             disabled={cargando}
-            className={`bg-[var(--primary)]! w-full flex justify-center text-white! py-2 rounded-md! hover:bg-[var(--primary)]/80! ${
-              cargando ? "opacity-60 cursor-not-allowed" : ""
-            }`}
+            className="
+              w-full h-11
+              flex items-center justify-center
+              rounded-md!
+              bg-[var(--primary)]!
+              text-white! text-sm
+              hover:brightness-110!
+              transition
+              disabled:opacity-60
+              cursor-pointer
+            "
           >
-            {cargando ? boton.textoCargando || "Cargando..." : boton.texto}
+            {cargando ? boton.textoCargando : boton.texto}
           </button>
 
-          {/* Pie del formulario (ej: "¿Aún no tienes cuenta? Registrarse") */}
+          {/* Pie */}
           {pieFormulario && (
-            <div className="flex mt-3 gap-4">
-              <div className="fle-oca item-gfk gap-w38">
-                <p className="text-white text-xs">
-                  {pieFormulario.pregunta}
-                </p>
-                <Link
-                  className="text-[var(--primary-light)] text-xs cursor-pointer hover:text-[var(--primary)]!"
-                  to={pieFormulario.enlace.to}
-                >
-                  {pieFormulario.enlace.texto}
-                </Link>
-              </div>
+            <div className="flex justify-center gap-1 text-white text-xs">
+              {pieFormulario.pregunta}
+              <Link
+                to={pieFormulario.enlace.to}
+                className="text-[var(--primary-light)] hover:underline"
+              >
+                {pieFormulario.enlace.texto}
+              </Link>
             </div>
           )}
         </form>

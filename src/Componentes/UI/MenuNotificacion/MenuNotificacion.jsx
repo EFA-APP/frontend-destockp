@@ -48,7 +48,9 @@ export const notificacionesFake = [
 
 const MenuNotificacion = () => {
   return (
-    <div className="fixed right-5 top-16 z-50 mt-3 w-screen sm:w-[360px] rounded-sm bg-[var(--fill)] border border-gray-50/40 shadow-md text-white">
+    <div className="fixed right-5 top-12 z-50 mt-3 w-screen sm:w-[360px] rounded-sm           bg-gradient-to-b from-[var(--fill)] to-[var(--fill)]
+          border border-gray-300/70
+          shadow-[0_25px_70px_rgba(209,112,16,.1)] text-white">
       
       {/* HEADER */}
       <div className="flex items-center justify-between px-6 pb-3 pt-4 border-b border-gray-300/10">
