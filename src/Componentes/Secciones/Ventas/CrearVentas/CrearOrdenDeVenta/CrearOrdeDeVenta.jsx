@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { AgregarIcono } from "../../../../../assets/Icons";
 import EncabezadoSeccion from "../../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import FormularioDinamico from "../../../../UI/FormularioReutilizable/FormularioDinamico";

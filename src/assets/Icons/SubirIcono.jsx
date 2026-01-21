@@ -9,8 +9,8 @@ const SubirIcono = ({ size, color }) => {
       viewBox="0 0 24 24"
       fill="none"
       stroke={color || "currentColor"}
-      stroke-width="2"
-      stroke-linecap="round"
+      strokeWidth="2"
+      strokeLinecap="round"
       stroke-linejoin="round"
     >
       <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>

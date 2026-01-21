@@ -1,4 +1,4 @@
-import { InventarioIcono } from "../../assets/Icons";
+import { InventarioIcono } from "../../../assets/Icons";
 
 const productoConfig = {
   title: "Detalle del producto",

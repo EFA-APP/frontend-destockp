@@ -48,3 +48,4 @@ export { default as DocumentoIcono } from "./DocumentoIcono";
 export { default as UsuarioIcono } from "./UsuarioIcono";
 export { default as EmailIcono } from "./EmailIcono";
 export { default as ConfirmarEmailIcono } from "./ConfirmarEmailIcono";
+export { default as ArcaIcono } from "./ArcaIcono";

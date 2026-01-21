@@ -3,15 +3,15 @@ import { useProductos } from "../../../api/hooks/Productos/useProductos";
 import TablaReutilizable from "../../UI/TablaReutilizable/TablaReutilizable";
 import TarjetaInformacion from "../../UI/TarjetaInformacion/TarjetaInformacion";
 import { columnasProductos } from "./ColumnaProductos";
-import productoConfig from "../../Modales/ConfigProducto";
+import productoConfig from "../../Modales/Articulos/ConfigProducto";
 import ModalDetalleGenerico from "../../UI/ModalDetalleBase/ModalDetalleGenerico";
-
+import { accionesReutilizables } from "../../UI/AccionesReutilizables"
+import { accionesProductos } from "./Acciones";
 const TablaProductos = () => {
   const {
     productos,
     busqueda,
     setBusqueda,
-    manejarDetalle,
     manejarEditar,
     manejarEliminar,
   } = useProductos();
@@ -49,6 +49,8 @@ const TablaProductos = () => {
     (total, item) => total + item.pesoTotal,
     0
   );
+
+
 
   return (
     <div className="space-y-4">
@@ -96,10 +98,8 @@ const TablaProductos = () => {
         <TablaReutilizable
           columnas={columnasProductos}
           datos={productos}
-          onVer={handleVerDetalle}
-          onEditar={handleEditar}
-          onEliminar={manejarEliminar}
           mostrarAcciones={true}
+          acciones={accionesProductos({ manejarEliminar, handleVerDetalle, handleEditar })}
           botonAgregar={{
             texto: "Agregar producto",
             ruta: "/panel/inventario/productos/nuevo",

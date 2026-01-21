@@ -4,9 +4,10 @@ import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
 import { columnasFacturas } from "./ColumnaFacturas";
-import facturaConfig from "../../../Modales/ConfigFactura";
 import { useState } from "react";
 import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
+import { accionesFactura } from "./Acciones";
+import facturaConfig from "../../../Modales/Ventas/ConfigFactura";
 
 const TablaFacturas = () => {
   const {
@@ -23,9 +24,6 @@ const TablaFacturas = () => {
     setFechaHasta,
     isBlanco,
     setIsBlanco,
-    manejarDetalle,
-    manejarEditar,
-    manejarEliminar,
   } = useFacturas();
 
   const [modalAbierto, setModalAbierto] = useState(false);
@@ -80,10 +78,7 @@ const TablaFacturas = () => {
           busqueda={busqueda}
           setBusqueda={setBusqueda}
           mostrarAcciones={true}
-          onVer={handleVerDetalle}
-          onEditar={manejarEditar}
-          onEliminar={manejarEliminar}
-          onDescargar={manejarDetalle}
+          acciones={accionesFactura({ handleVerDetalle })}
           placeholderBuscador="Buscar por número o cliente..."
           botonAgregar={{
             texto: "Nueva factura",

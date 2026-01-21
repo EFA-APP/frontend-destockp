@@ -14,7 +14,6 @@ const Articulo = ({
 
   const tieneSubmenu = submenu.length > 0;
   const estaActivado = location.pathname === redireccion;
-
   // Verificar si algún submenú está activo
   const submenuActivo = submenu.some((item) =>
     location.pathname.startsWith(item.redireccion)

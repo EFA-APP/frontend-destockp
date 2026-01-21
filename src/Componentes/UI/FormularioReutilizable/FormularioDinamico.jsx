@@ -22,7 +22,7 @@ const FormularioDinamico = ({
 
   const [formData, setFormData] = useState(() => {
     if (initialData) return initialData;
-
+    console.log(campos)
     const initial = {};
     campos.forEach((field) => {
       if (field.type === "items-table") {
@@ -206,11 +206,11 @@ const FormularioDinamico = ({
   };
 
   const renderField = (field) => {
-    const commonClasses = `bg-gray-500/5! w-full px-2 py-[7px] rounded-md! border-1 bg-[var(--fill2)] text-White! ${
+    const commonClasses = `bg-gray-500/5! w-full px-2 py-[7px] rounded-md! border-1 bg-[var(--fill2)]  ${
       errors[field.name] ? "border-red-400" : "border-gray-300/20!"
     } focus:border-[var(--primary)] focus:outline-none transition-colors placeholder-gray-500 ${
-      field.readOnly ? "text-white! cursor-not-allowed" : "text-white!"
-    }`;
+      field.readOnly ? " cursor-not-allowed" : ""
+    } ${field.defaultValue ? "text-blue-300!" : "text-white!" }`;
 
     switch (field.type) {
       case "textarea":
@@ -453,7 +453,7 @@ const FormularioDinamico = ({
                         : e.target.value
                     )
                   }
-                  className="w-full px-3 py-2 bg-[var(--fill2)] border border-gray-300/20 rounded-md! text-white!"
+                  className={`w-full px-3 py-2 bg-[var(--fill2)] border border-gray-300/20 rounded-md! text-white!  `}
                   placeholder={itemField.placeholder}
                   min={itemField.min}
                   max={itemField.max}

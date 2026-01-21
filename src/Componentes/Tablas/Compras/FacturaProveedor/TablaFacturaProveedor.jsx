@@ -1,9 +1,14 @@
+import { useState } from "react";
 import { useFacturasProveedor } from "../../../../api/hooks/Compras/FacturasProveedor/useFacturaProveedor";
+import { accionesReutilizables } from "../../../UI/AccionesReutilizables";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
+import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
 import Select from "../../../UI/Select/Select";
 import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
+import { accionesFacturaProveedor } from "./Acciones";
 import { columnasFacturasProveedor } from "./ColumnasFacturaProveedor";
+import facturaProveedorConfig from "../../../Modales/Compras/ConfigFacturaProveedor";
 
 const TablaFacturasProveedor = () => {
   const {
@@ -20,10 +25,17 @@ const TablaFacturasProveedor = () => {
     setFechaHasta,
     isBlanco,
     setIsBlanco,
-    manejarDetalle,
-    manejarEditar,
-    manejarEliminar,
+
   } = useFacturasProveedor();
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [seleccionado, setSeleccionado] = useState(null);
+
+  const handleVerDetalle = (articulo) => {
+    setSeleccionado(articulo);
+    setModalAbierto(true);
+  };
+
+
 
   const totalComprado = facturas.reduce((acc, f) => acc + f.total, 0);
 
@@ -53,16 +65,21 @@ const TablaFacturasProveedor = () => {
 
       {/* Tabla */}
       <div className="px-6 py-4 card bg-[var(--fill)] shadow-md rounded-md">
+              {/* Modal de factura */}
+      <ModalDetalleGenerico
+        open={modalAbierto}
+        onClose={() => setModalAbierto(false)}
+        data={seleccionado}
+        {...facturaProveedorConfig}
+        width="w-[420px]"
+      />
         <TablaReutilizable
           columnas={columnasFacturasProveedor}
           datos={facturas}
           mostrarBuscador
           busqueda={busqueda}
           setBusqueda={setBusqueda}
-          onVer={manejarDetalle}
-          onEditar={manejarEditar}
-          onEliminar={manejarEliminar}
-          onDescargar={manejarDetalle}
+          acciones={accionesFacturaProveedor({ handleVerDetalle })}
           mostrarAcciones={true}
           placeholderBuscador="Buscar por número o proveedor..."
           botonAgregar={{

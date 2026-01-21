@@ -1,16 +1,12 @@
 import Articulo from "./Articulo";
 import {
+  ArcaIcono,
   CarritoIcono,
   ColegioIcono,
-  ComprobanteIcono,
   ContableIcono,
-  GastosIcono,
   InicioIcono,
   InventarioIcono,
-  PagosIcono,
   PersonaIcono,
-  ProveedoresIcono,
-  ReporteIcono,
   VentasIcono,
 } from "../../../assets/Icons";
 import { useTamañoBarraLateral } from "../../../store/useTamanoBarraLateral";
@@ -80,16 +76,16 @@ const BarraLateral = () => {
                         submenu={
                           isExpanded
                             ? [
-                                {
-                                  nombre: "Productos",
-                                  redireccion: "/panel/inventario/productos",
-                                },
-                                {
-                                  nombre: "Materia Prima",
-                                  redireccion:
-                                    "/panel/inventario/materia-prima",
-                                },
-                              ]
+                              {
+                                nombre: "Productos",
+                                redireccion: "/panel/inventario/productos",
+                              },
+                              {
+                                nombre: "Materia Prima",
+                                redireccion:
+                                  "/panel/inventario/materia-prima",
+                              },
+                            ]
                             : undefined
                         }
                         isOpen={openItem === "inventario"}
@@ -106,15 +102,15 @@ const BarraLateral = () => {
                         submenu={
                           isExpanded
                             ? [
-                                {
-                                  nombre: "Clientes",
-                                  redireccion: "/panel/contactos/clientes",
-                                },
-                                {
-                                  nombre: "Proveedores",
-                                  redireccion: "/panel/contactos/proveedores",
-                                },
-                              ]
+                              {
+                                nombre: "Clientes",
+                                redireccion: "/panel/contactos/clientes",
+                              },
+                              {
+                                nombre: "Proveedores",
+                                redireccion: "/panel/contactos/proveedores",
+                              },
+                            ]
                             : undefined
                         }
                         isOpen={openItem === "contactos"}
@@ -131,23 +127,23 @@ const BarraLateral = () => {
                         submenu={
                           isExpanded
                             ? [
-                                {
-                                  nombre: "Facturas",
-                                  redireccion: "/panel/ventas/facturas",
-                                },
-                                {
-                                  nombre: "Notas de Créditos",
-                                  redireccion: "/panel/ventas/notas-creditos",
-                                },
-                                {
-                                  nombre: "Notas de Débito",
-                                  redireccion: "/panel/ventas/notas-debitos",
-                                },
-                                {
-                                  nombre: "Orden de venta",
-                                  redireccion: "/panel/ventas/orden-ventas",
-                                },
-                              ]
+                              {
+                                nombre: "Facturas",
+                                redireccion: "/panel/ventas/facturas",
+                              },
+                              {
+                                nombre: "Notas de Créditos",
+                                redireccion: "/panel/ventas/notas-creditos",
+                              },
+                              {
+                                nombre: "Notas de Débito",
+                                redireccion: "/panel/ventas/notas-debitos",
+                              },
+                              {
+                                nombre: "Orden de venta",
+                                redireccion: "/panel/ventas/orden-ventas",
+                              },
+                            ]
                             : undefined
                         }
                         isOpen={openItem === "ventas"}
@@ -164,16 +160,16 @@ const BarraLateral = () => {
                         submenu={
                           isExpanded
                             ? [
-                                {
-                                  nombre: "Facturas de proveedor",
-                                  redireccion:
-                                    "/panel/compras/facturas-proveedores",
-                                },
-                                {
-                                  nombre: "Notas de Créditos",
-                                  redireccion: "/panel/compras/notas-creditos",
-                                },
-                              ]
+                              {
+                                nombre: "Facturas de proveedor",
+                                redireccion:
+                                  "/panel/compras/facturas-proveedores",
+                              },
+                              {
+                                nombre: "Notas de Créditos",
+                                redireccion: "/panel/compras/notas-creditos",
+                              },
+                            ]
                             : undefined
                         }
                         isOpen={openItem === "compras"}
@@ -190,19 +186,19 @@ const BarraLateral = () => {
                         submenu={
                           isExpanded
                             ? [
-                                {
-                                  nombre: "Alumnos",
-                                  redireccion: "/panel/escuela/alumnos",
-                                },
-                                {
-                                  nombre: "Cuotas",
-                                  redireccion: "/panel/escuela/cuotas",
-                                },
-                                {
-                                  nombre: "Recibos",
-                                  redireccion: "/panel/escuela/recibos",
-                                },
-                              ]
+                              {
+                                nombre: "Alumnos",
+                                redireccion: "/panel/escuela/alumnos",
+                              },
+                              {
+                                nombre: "Cuotas",
+                                redireccion: "/panel/escuela/cuotas",
+                              },
+                              {
+                                nombre: "Recibos",
+                                redireccion: "/panel/escuela/recibos",
+                              },
+                            ]
                             : undefined
                         }
                         isOpen={openItem === "colegio"}
@@ -219,33 +215,42 @@ const BarraLateral = () => {
                         submenu={
                           isExpanded
                             ? [
-                                {
-                                  nombre: "Plan de Cuentas",
-                                  redireccion: "/panel/contabilidad/cuentas",
-                                },
-                                {
-                                  nombre: "Asientos",
-                                  redireccion: "/panel/contabilidad/asientos",
-                                },
-                                {
-                                  nombre: "Libro Diario",
-                                  redireccion:
-                                    "/panel/contabilidad/libro-diario",
-                                },
-                                {
-                                  nombre: "Libro Mayor",
-                                  redireccion:
-                                    "/panel/contabilidad/libro-mayor",
-                                },
-                                {
-                                  nombre: "Balance",
-                                  redireccion: "/panel/contabilidad/balance",
-                                },
-                              ]
+                              {
+                                nombre: "Plan de Cuentas",
+                                redireccion: "/panel/contabilidad/cuentas",
+                              },
+                              {
+                                nombre: "Asientos",
+                                redireccion: "/panel/contabilidad/asientos",
+                              },
+                              {
+                                nombre: "Libro Diario",
+                                redireccion:
+                                  "/panel/contabilidad/libro-diario",
+                              },
+                              {
+                                nombre: "Libro Mayor",
+                                redireccion:
+                                  "/panel/contabilidad/libro-mayor",
+                              },
+                              {
+                                nombre: "Balance",
+                                redireccion: "/panel/contabilidad/balance",
+                              },
+                            ]
                             : undefined
                         }
                         isOpen={openItem === "contabilidad"}
                         onToggle={() => toggleItem("contabilidad")}
+                        isCollapsed={!isExpanded}
+                      />
+                    </div>
+
+                    <div onClick={handleArticuloClick}>
+                      <Articulo
+                        nombre={isExpanded ? "Mis Comprobantes AFIP" : ""}
+                        icono={<ArcaIcono size={18} />}
+                        redireccion={"/panel/comprobantes-afip"}
                         isCollapsed={!isExpanded}
                       />
                     </div>

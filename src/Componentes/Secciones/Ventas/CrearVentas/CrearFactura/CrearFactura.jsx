@@ -4,7 +4,10 @@ import { AgregarIcono } from "../../../../../assets/Icons";
 import FormularioDinamico from "../../../../UI/FormularioReutilizable/FormularioDinamico";
 
 
+
 const CrearFactura = () => {
+
+
   const [numeroComprobante] = useState({
     puntoVenta: "00001",
     numero: "00000123",
@@ -347,16 +350,14 @@ const CrearFactura = () => {
 
     if (data.enBlanco === "si") {
       alert(
-        `✓ Factura registrada en ARCA\n\nComprobante: ${
-          facturaCompleta.numeroCompleto
+        `✓ Factura registrada en ARCA\n\nComprobante: ${facturaCompleta.numeroCompleto
         }\nTotal: $${totalesFactura.total.toFixed(
           2
         )}\n\nRevisa la consola para ver los detalles completos.`
       );
     } else {
       alert(
-        `✗ Factura en negro (sin registrar)\n\nComprobante: ${
-          facturaCompleta.numeroCompleto
+        `✗ Factura en negro (sin registrar)\n\nComprobante: ${facturaCompleta.numeroCompleto
         }\nTotal: $${totalesFactura.total.toFixed(
           2
         )}\n\n⚠️ Esta factura NO se envía a ARCA/AFIP`

@@ -36,6 +36,7 @@ import CrearRecibo from "../Componentes/Secciones/Escuela/CrearEscuela/CrearReci
 import CrearAsientos from "../Componentes/Secciones/Contabilidad/CrearContabilidad/CrearAsientos/CrearAsientos";
 import Balance from "../Componentes/Secciones/Contabilidad/Balance/Balance";
 import Inicio from "../Componentes/Secciones/Inicio/Inicio";
+import MisComprobantesAFIP from "../Componentes/Secciones/MisComprobantesAfip/MisComprobantesAFIP";
 
 export default function Router() {
   return (
@@ -119,6 +120,13 @@ export default function Router() {
         <Route path="contabilidad/libro-mayor" element={<LibroMayor />} />
         <Route path="contabilidad/balance" element={<Balance />} />
         <Route path="demo" element={<SistemaContable />} />
+
+
+        {/* MIS COMPROBANTES AFIP */}
+        <Route
+          path="comprobantes-afip"
+          element={<MisComprobantesAFIP />}
+        />
       </Route>
 
       {/* ERROR */}

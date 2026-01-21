@@ -1,6 +1,10 @@
+import { useState } from "react";
 import { useMateriaPrima } from "../../../api/hooks/MateriaPrima/useMateriaPrima";
+import materiaPrimaConfig from "../../Modales/Articulos/ConfigMateriaPrima";
+import ModalDetalleGenerico from "../../UI/ModalDetalleBase/ModalDetalleGenerico";
 import TablaReutilizable from "../../UI/TablaReutilizable/TablaReutilizable";
 import TarjetaInformacion from "../../UI/TarjetaInformacion/TarjetaInformacion";
+import { accionesMateriaPrimas } from "./Acciones";
 import { columnasMateriaPrima } from "./ColumnaMateriaPrima";
 
 const TablaMateriaPrima = () => {
@@ -8,19 +12,42 @@ const TablaMateriaPrima = () => {
     materiaPrima,
     busqueda,
     setBusqueda,
-    manejarDetalle,
     manejarEditar,
     manejarEliminar,
   } = useMateriaPrima();
 
-  // Calcular valor total del inventario
-  const valorTotalInventario = materiaPrima.reduce(
-    (total, item) => total + item.precioTotal,
-    0
-  );
+
+    const [modalAbierto, setModalAbierto] = useState(false);
+    const [materiaPrimaSeleccionada, setMateriaPrimaSeleccionada] = useState(null);
+    const [modoModal, setModoModal] = useState("view");
+  
+    const handleVerDetalle = (materiaPrima) => {
+      setMateriaPrimaSeleccionada(materiaPrima);
+      setModoModal("vista");
+      setModalAbierto(true);
+    };
+  
+    const handleEditar = (materiaPrima) => {
+      setMateriaPrimaSeleccionada(materiaPrima);
+      setModoModal("editar");
+      setModalAbierto(true);
+    };
 
   return (
     <div className="space-y-4">
+      <ModalDetalleGenerico
+        mode={modoModal}
+        open={modalAbierto}
+        onClose={() => setModalAbierto(false)}
+        onSave={(dataEditada) => {
+          manejarEditar(dataEditada);
+          setModalAbierto(false);
+        }}
+        data={materiaPrimaSeleccionada}
+        {...materiaPrimaConfig}
+        width="w-[420px]"
+
+      />
       {/* Card con información del inventario */}
       <div className="grid grid-cols-2 gap-4">
         <TarjetaInformacion
@@ -46,10 +73,8 @@ const TablaMateriaPrima = () => {
         <TablaReutilizable
           columnas={columnasMateriaPrima}
           datos={materiaPrima}
-          onVer={manejarDetalle}
-          onEditar={manejarEditar}
-          onEliminar={manejarEliminar}
           mostrarAcciones={true}
+          acciones={accionesMateriaPrimas({manejarEliminar, handleVerDetalle,  handleEditar})}
           botonAgregar={{
             texto: "Agregar materia prima",
             ruta: "/panel/inventario/materia-prima/nuevo",

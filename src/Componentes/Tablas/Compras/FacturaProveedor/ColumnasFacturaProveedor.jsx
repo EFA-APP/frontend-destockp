@@ -26,7 +26,7 @@ export const columnasFacturasProveedor = [
         ),
     },
     {
-        key: "fecha",
+        key: "fechaEmision",
         etiqueta: "Fecha",
         renderizar: (valor) => (
             <span className="text-sm">
@@ -35,7 +35,7 @@ export const columnasFacturasProveedor = [
         ),
     },
     {
-        key: "proveedor",
+        key: "razonSocial",
         etiqueta: "Proveedor",
         renderizar: (valor) => <span className="font-medium">{valor}</span>,
     },

@@ -61,7 +61,7 @@ const ModalDetalleGenerico = ({
             const editable = section.editable;
             return (
               <div key={idx}>
-                <p className="text-xs text-gray-400">{section.label}</p>
+                <p className="text-xs text-gray-400">{ section.ocultar && !isEdit ? "" :  section.label}</p>
 
                 {isEdit && editable ? (
                   <input
@@ -73,7 +73,7 @@ const ModalDetalleGenerico = ({
                   />
                 ) : (
                   !section.ocultar && (
-                    <p className="text-lg font-semibold">
+                    <p className="text-lg font-semibold ">
                       {data[section.key]}
                     </p>
                   )
