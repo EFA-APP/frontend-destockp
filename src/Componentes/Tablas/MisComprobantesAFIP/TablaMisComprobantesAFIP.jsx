@@ -6,18 +6,12 @@ import { columnasMisComprobantesAFIP } from "./ColumnaComprobantesAFIP";
 import { useMisComprobantesAFIP } from "../../../api/hooks/MisComprobantesAFIP/useMisComprobantesAFIP";
 import { accionesMisComprobantesAFIP } from "./Acciones";
 import { useNavigate } from "react-router-dom";
-
-
+import { DescargarIcono } from "../../../assets/Icons";
 
 const TablaMisComprobantesAFIP = () => {
-  const {
-    comprobantesAFIP,
-    faltantes,
-    cargados,
-  } = useMisComprobantesAFIP();
+  const { comprobantesAFIP, faltantes, cargados } = useMisComprobantesAFIP();
 
-
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const [busqueda, setBusqueda] = useState("");
   const [modalAbierto, setModalAbierto] = useState(false);
@@ -35,10 +29,7 @@ const TablaMisComprobantesAFIP = () => {
   };
 
   // 📊 Métricas
-  const totalImporte = comprobantesAFIP.reduce(
-    (acc, c) => acc + c.total,
-    0
-  );
+  const totalImporte = comprobantesAFIP.reduce((acc, c) => acc + c.total, 0);
 
   const totalFaltantes = faltantes.length;
   const totalCargados = cargados.length;
@@ -82,11 +73,41 @@ const TablaMisComprobantesAFIP = () => {
           columnas={columnasMisComprobantesAFIP}
           datos={comprobantesAFIP}
           mostrarAcciones={true}
-          acciones={accionesMisComprobantesAFIP({ handleVerDetalle, handleGenerarComprobante })}
+          acciones={accionesMisComprobantesAFIP({
+            handleVerDetalle,
+            handleGenerarComprobante,
+          })}
           mostrarBuscador
           busqueda={busqueda}
           setBusqueda={setBusqueda}
           placeholderBuscador="Buscar por proveedor, CUIT o comprobante..."
+          elementosSuperior={
+            <div className="flex items-center justify-center">
+              <button
+                type="button"
+                className="w-auto h-10 px-2 text-left text-violet-400! rounded-md! bg-violet-500/10! flex items-center gap-2 cursor-pointer hover:bg-violet-500/5!"
+                onClick={() =>
+                  document.getElementById("importar-excel").click()
+                }
+              >
+                <DescargarIcono />
+                Importar Excel / CSV
+              </button>
+
+              <input
+                id="importar-excel"
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    console.log("Archivo seleccionado:", file);
+                  }
+                }}
+              />
+            </div>
+          }
         />
       </div>
     </div>

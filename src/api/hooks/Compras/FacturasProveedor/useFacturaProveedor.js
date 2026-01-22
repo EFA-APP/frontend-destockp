@@ -24,6 +24,7 @@ export const useFacturasProveedor = () => {
       origen: "AFIP",
       importado: false,
       observaciones: "",
+      isBlanco: true,
     },
     {
       id: "AFIP-2",
@@ -48,6 +49,7 @@ export const useFacturasProveedor = () => {
       importado: true,
       fechaImportacion: "2025-01-18",
       observaciones: "Importado automáticamente",
+      isBlanco: true,
     },
     {
       id: "AFIP-3",

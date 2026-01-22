@@ -9,9 +9,7 @@ export const columnasMisComprobantesAFIP = [
         <div className="font-medium">
           {fila.tipo} {fila.puntoVenta}-{valor}
         </div>
-        <div className="text-xs text-gray-100/50">
-          CAE: {fila.cae || "—"}
-        </div>
+        <div className="text-xs text-gray-100/50">CAE: {fila.cae || "—"}</div>
       </div>
     ),
   },
@@ -24,16 +22,14 @@ export const columnasMisComprobantesAFIP = [
     renderizar: (valor, fila) => (
       <div>
         <div className="font-medium">{valor}</div>
-        <div className="text-xs text-gray-100/50">
-          CUIT {fila.cuitEmisor}
-        </div>
+        <div className="text-xs text-gray-100/50">CUIT {fila.cuitEmisor}</div>
       </div>
     ),
   },
 
   // 📅 Fecha
   {
-    key: "fecha",
+    key: "fechaEmision",
     etiqueta: "Fecha",
     filtrable: true,
     renderizar: (valor) => (
@@ -74,7 +70,7 @@ export const columnasMisComprobantesAFIP = [
 
       return (
         <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
+          className={`px-2 py-1 rounded-full text-xs border-[.5px] font-medium ${
             estilos[tipo]
           }`}
         >
