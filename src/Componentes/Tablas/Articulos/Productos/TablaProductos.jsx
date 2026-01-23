@@ -1,20 +1,14 @@
 import { useState } from "react";
-import { useProductos } from "../../../api/hooks/Productos/useProductos";
-import TablaReutilizable from "../../UI/TablaReutilizable/TablaReutilizable";
-import TarjetaInformacion from "../../UI/TarjetaInformacion/TarjetaInformacion";
+import { useProductos } from "../../../../api/hooks/Productos/useProductos";
+import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
+import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
+import productoConfig from "../../../Modales/Articulos/ConfigProducto";
+import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
 import { columnasProductos } from "./ColumnaProductos";
-import productoConfig from "../../Modales/Articulos/ConfigProducto";
-import ModalDetalleGenerico from "../../UI/ModalDetalleBase/ModalDetalleGenerico";
-import { accionesReutilizables } from "../../UI/AccionesReutilizables"
-import { accionesProductos } from "./Acciones";
+import { accionesProductos } from "./AccionesProductos";
 const TablaProductos = () => {
-  const {
-    productos,
-    busqueda,
-    setBusqueda,
-    manejarEditar,
-    manejarEliminar,
-  } = useProductos();
+  const { productos, busqueda, setBusqueda, manejarEditar, manejarEliminar } =
+    useProductos();
 
   const [modalAbierto, setModalAbierto] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
@@ -35,22 +29,20 @@ const TablaProductos = () => {
   // Calcular estadísticas
   const valorTotalInventario = productos.reduce(
     (total, item) => total + item.precioTotal,
-    0
+    0,
   );
 
   const totalFrascos = productos.reduce((total, item) => total + item.stock, 0);
 
   const totalPaquetes = productos.reduce(
     (total, item) => total + item.paquetes,
-    0
+    0,
   );
 
   const pesoTotalKg = productos.reduce(
     (total, item) => total + item.pesoTotal,
-    0
+    0,
   );
-
-
 
   return (
     <div className="space-y-4">
@@ -66,7 +58,6 @@ const TablaProductos = () => {
         data={productoSeleccionado}
         {...productoConfig}
         width="w-[420px]"
-
       />
 
       {/* Cards con información del inventario */}
@@ -99,7 +90,11 @@ const TablaProductos = () => {
           columnas={columnasProductos}
           datos={productos}
           mostrarAcciones={true}
-          acciones={accionesProductos({ manejarEliminar, handleVerDetalle, handleEditar })}
+          acciones={accionesProductos({
+            manejarEliminar,
+            handleVerDetalle,
+            handleEditar,
+          })}
           botonAgregar={{
             texto: "Agregar producto",
             ruta: "/panel/inventario/productos/nuevo",

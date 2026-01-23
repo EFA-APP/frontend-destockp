@@ -3,7 +3,7 @@ import { useProveedores } from "../../../../api/hooks/Proveedores/useProveedores
 import proveedorConfig from "../../../Modales/Contactos/ConfigProveedores";
 import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
 import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
-import { accionesProveedor } from "./Acciones";
+import { accionesProveedor } from "./AccionesProveedores";
 import { columnasProveedores } from "./ColumnaProveedores";
 
 const TablaProveedores = () => {
@@ -15,7 +15,6 @@ const TablaProveedores = () => {
     busqueda,
     setBusqueda,
   } = useProveedores();
-
 
   const [modalAbierto, setModalAbierto] = useState(false);
   const [proveedorSeleccionado, setProveedorSeleccionado] = useState(null);
@@ -45,12 +44,15 @@ const TablaProveedores = () => {
         data={proveedorSeleccionado}
         {...proveedorConfig}
         width="w-[420px]"
-
       />
       <TablaReutilizable
         columnas={columnasProveedores}
         datos={proveedores}
-        acciones={accionesProveedor({ manejarEliminar, handleEditar, handleVerDetalle })}
+        acciones={accionesProveedor({
+          manejarEliminar,
+          handleEditar,
+          handleVerDetalle,
+        })}
         mostrarAcciones
         botonAgregar={{
           texto: "Agregar Proveedores",

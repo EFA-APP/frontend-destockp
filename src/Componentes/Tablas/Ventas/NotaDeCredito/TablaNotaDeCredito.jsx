@@ -4,6 +4,11 @@ import Select from "../../../UI/Select/Select";
 import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
 import { columnasNotasCredito } from "./ColumnaNotaDeCredito";
+import { accionesNotaCredito } from "./AccionesNotaCredito";
+import facturaConfig from "../../../Modales/Ventas/ConfigFactura";
+import { useState } from "react";
+import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
+import notaCreditoConfig from "../../../Modales/Ventas/ConfigNotaCredito";
 
 const TablaNotasCredito = () => {
   const {
@@ -20,20 +25,33 @@ const TablaNotasCredito = () => {
     setIsBlanco,
     tipoNotaCredito,
     setTipoNotaCredito,
-    manejarDetalle,
-    manejarEditar,
-    manejarEliminar,
   } = useNotasCredito();
+
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [seleccionado, setSeleccionado] = useState(null);
+
+  const handleVerDetalle = (articulo) => {
+    setSeleccionado(articulo);
+    setModalAbierto(true);
+  };
 
   const totalNotas = notasCredito.reduce(
     (acc, n) => acc + Math.abs(n.total),
-    0
+    0,
   );
 
   const pendientes = notasCredito.filter((n) => n.estado === "emitida").length;
 
   return (
     <div className="space-y-4">
+      <ModalDetalleGenerico
+        open={modalAbierto}
+        onClose={() => setModalAbierto(false)}
+        data={seleccionado}
+        {...notaCreditoConfig}
+        width="w-[420px]"
+      />
+
       {/* Cards */}
       <div className="grid grid-cols-3 gap-4">
         <TarjetaInformacion
@@ -64,11 +82,8 @@ const TablaNotasCredito = () => {
           mostrarBuscador
           busqueda={busqueda}
           setBusqueda={setBusqueda}
-          onVer={manejarDetalle}
-          onEditar={manejarEditar}
-          onEliminar={manejarEliminar}
-          onDescargar={manejarDetalle}
           mostrarAcciones={true}
+          acciones={accionesNotaCredito({ handleVerDetalle })}
           placeholderBuscador="Buscar por nota o cliente..."
           botonAgregar={{
             texto: "Nueva nota de crédito",

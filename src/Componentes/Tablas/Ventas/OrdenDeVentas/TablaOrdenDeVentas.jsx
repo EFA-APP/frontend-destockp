@@ -4,6 +4,10 @@ import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
 import { columnasOrdenesVenta } from "./ColumnaOrdenDeVentas";
+import { accionesOrdenDeVenta } from "./AccionesOrdenDeVenta";
+import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
+import { useState } from "react";
+import ordenDeVentaConfig from "../../../Modales/Ventas/ConfigOrdenDeVenta";
 
 const TablaOrdenDeVentas = () => {
   const {
@@ -16,10 +20,15 @@ const TablaOrdenDeVentas = () => {
     setFechaDesde,
     fechaHasta,
     setFechaHasta,
-    manejarDetalle,
-    manejarEliminar,
-    manejarEditar,
   } = useOrdenesVenta();
+
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [seleccionado, setSeleccionado] = useState(null);
+
+  const handleVerDetalle = (articulo) => {
+    setSeleccionado(articulo);
+    setModalAbierto(true);
+  };
 
   const totalOrdenes = ordenes.reduce((acc, o) => acc + o.total, 0);
 
@@ -27,6 +36,14 @@ const TablaOrdenDeVentas = () => {
 
   return (
     <div className="space-y-4">
+      <ModalDetalleGenerico
+        open={modalAbierto}
+        onClose={() => setModalAbierto(false)}
+        data={seleccionado}
+        {...ordenDeVentaConfig}
+        width="w-[420px]"
+      />
+
       {/* Cards */}
       <div className="grid grid-cols-3 gap-4">
         <TarjetaInformacion
@@ -57,11 +74,8 @@ const TablaOrdenDeVentas = () => {
           mostrarBuscador
           busqueda={busqueda}
           setBusqueda={setBusqueda}
-          onVer={manejarDetalle}
-          onEditar={manejarEditar}
-          onEliminar={manejarEliminar}
-          onDescargar={manejarDetalle}
           mostrarAcciones={true}
+          acciones={accionesOrdenDeVenta({ handleVerDetalle })}
           placeholderBuscador="Buscar por número o cliente..."
           botonAgregar={{
             texto: "Nueva orden",

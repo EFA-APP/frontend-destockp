@@ -6,7 +6,7 @@ import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacio
 import { columnasFacturas } from "./ColumnaFacturas";
 import { useState } from "react";
 import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
-import { accionesFactura } from "./Acciones";
+import { accionesFactura } from "./AccionesFactura";
 import facturaConfig from "../../../Modales/Ventas/ConfigFactura";
 
 const TablaFacturas = () => {

@@ -154,7 +154,7 @@ export const useMateriaPrima = () => {
     (item) =>
       item.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
       item.codigo.toLowerCase().includes(busqueda.toLowerCase()) ||
-      item.descripcion.toLowerCase().includes(busqueda.toLowerCase())
+      item.descripcion.toLowerCase().includes(busqueda.toLowerCase()),
   );
 
   const manejarDetalle = (id) => {

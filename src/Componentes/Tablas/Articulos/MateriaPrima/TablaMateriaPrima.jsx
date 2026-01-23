@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useMateriaPrima } from "../../../api/hooks/MateriaPrima/useMateriaPrima";
-import materiaPrimaConfig from "../../Modales/Articulos/ConfigMateriaPrima";
-import ModalDetalleGenerico from "../../UI/ModalDetalleBase/ModalDetalleGenerico";
-import TablaReutilizable from "../../UI/TablaReutilizable/TablaReutilizable";
-import TarjetaInformacion from "../../UI/TarjetaInformacion/TarjetaInformacion";
-import { accionesMateriaPrimas } from "./Acciones";
+import { useMateriaPrima } from "../../../../api/hooks/MateriaPrima/useMateriaPrima";
+import materiaPrimaConfig from "../../../Modales/Articulos/ConfigMateriaPrima";
+import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
+import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
+import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
+import { accionesMateriaPrimas } from "./AccionesMateriaPrima";
 import { columnasMateriaPrima } from "./ColumnaMateriaPrima";
 
 const TablaMateriaPrima = () => {
@@ -16,22 +16,22 @@ const TablaMateriaPrima = () => {
     manejarEliminar,
   } = useMateriaPrima();
 
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [materiaPrimaSeleccionada, setMateriaPrimaSeleccionada] =
+    useState(null);
+  const [modoModal, setModoModal] = useState("view");
 
-    const [modalAbierto, setModalAbierto] = useState(false);
-    const [materiaPrimaSeleccionada, setMateriaPrimaSeleccionada] = useState(null);
-    const [modoModal, setModoModal] = useState("view");
-  
-    const handleVerDetalle = (materiaPrima) => {
-      setMateriaPrimaSeleccionada(materiaPrima);
-      setModoModal("vista");
-      setModalAbierto(true);
-    };
-  
-    const handleEditar = (materiaPrima) => {
-      setMateriaPrimaSeleccionada(materiaPrima);
-      setModoModal("editar");
-      setModalAbierto(true);
-    };
+  const handleVerDetalle = (materiaPrima) => {
+    setMateriaPrimaSeleccionada(materiaPrima);
+    setModoModal("vista");
+    setModalAbierto(true);
+  };
+
+  const handleEditar = (materiaPrima) => {
+    setMateriaPrimaSeleccionada(materiaPrima);
+    setModoModal("editar");
+    setModalAbierto(true);
+  };
 
   return (
     <div className="space-y-4">
@@ -46,7 +46,6 @@ const TablaMateriaPrima = () => {
         data={materiaPrimaSeleccionada}
         {...materiaPrimaConfig}
         width="w-[420px]"
-
       />
       {/* Card con información del inventario */}
       <div className="grid grid-cols-2 gap-4">
@@ -61,7 +60,7 @@ const TablaMateriaPrima = () => {
             materiaPrima.filter(
               (item) =>
                 (item.unidad === "kg" && item.stock < 20) ||
-                (item.unidad === "unidades" && item.stock < 100)
+                (item.unidad === "unidades" && item.stock < 100),
             ).length
           }
           color={"text-red-400"}
@@ -74,7 +73,11 @@ const TablaMateriaPrima = () => {
           columnas={columnasMateriaPrima}
           datos={materiaPrima}
           mostrarAcciones={true}
-          acciones={accionesMateriaPrimas({manejarEliminar, handleVerDetalle,  handleEditar})}
+          acciones={accionesMateriaPrimas({
+            manejarEliminar,
+            handleVerDetalle,
+            handleEditar,
+          })}
           botonAgregar={{
             texto: "Agregar materia prima",
             ruta: "/panel/inventario/materia-prima/nuevo",

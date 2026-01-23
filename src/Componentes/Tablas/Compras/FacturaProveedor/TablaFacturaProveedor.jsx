@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useFacturasProveedor } from "../../../../api/hooks/Compras/FacturasProveedor/useFacturaProveedor";
-import { accionesReutilizables } from "../../../UI/AccionesReutilizables";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
 import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
 import Select from "../../../UI/Select/Select";
 import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
-import { accionesFacturaProveedor } from "./Acciones";
+import { accionesFacturaProveedor } from "./AccionesFacturaProveedor";
 import { columnasFacturasProveedor } from "./ColumnasFacturaProveedor";
 import facturaProveedorConfig from "../../../Modales/Compras/ConfigFacturaProveedor";
 
@@ -25,7 +24,6 @@ const TablaFacturasProveedor = () => {
     setFechaHasta,
     isBlanco,
     setIsBlanco,
-
   } = useFacturasProveedor();
   const [modalAbierto, setModalAbierto] = useState(false);
   const [seleccionado, setSeleccionado] = useState(null);
@@ -34,8 +32,6 @@ const TablaFacturasProveedor = () => {
     setSeleccionado(articulo);
     setModalAbierto(true);
   };
-
-
 
   const totalComprado = facturas.reduce((acc, f) => acc + f.total, 0);
 
@@ -65,14 +61,14 @@ const TablaFacturasProveedor = () => {
 
       {/* Tabla */}
       <div className="px-6 py-4 card bg-[var(--fill)] shadow-md rounded-md">
-              {/* Modal de factura */}
-      <ModalDetalleGenerico
-        open={modalAbierto}
-        onClose={() => setModalAbierto(false)}
-        data={seleccionado}
-        {...facturaProveedorConfig}
-        width="w-[420px]"
-      />
+        {/* Modal de factura */}
+        <ModalDetalleGenerico
+          open={modalAbierto}
+          onClose={() => setModalAbierto(false)}
+          data={seleccionado}
+          {...facturaProveedorConfig}
+          width="w-[420px]"
+        />
         <TablaReutilizable
           columnas={columnasFacturasProveedor}
           datos={facturas}

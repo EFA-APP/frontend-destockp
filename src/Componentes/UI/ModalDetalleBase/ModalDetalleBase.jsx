@@ -10,10 +10,10 @@ const ModalDetalleBase = ({ open, onClose, children, width = "w-[420px]" }) => {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[999999] flex items-center justify-center">
+    <div className="fixed inset-0 z-[99999999] flex items-center justify-center">
       {/* Overlay */}
       <div
-        className="absolute inset-0  backdrop-blur-sm"
+        className="absolute inset-0  backdrop-blur-sm h-screen"
         onClick={onClose}
       />
 

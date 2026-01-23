@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { useNotasDebito } from "../../../../api/hooks/Ventas/NotaDeDebito/useNotaDeDebito";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
+import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
 import Select from "../../../UI/Select/Select";
 import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
+import { accionesNotaDebito } from "./AccionesNotaDebito";
 import { columnasNotasDebito } from "./ColumnaNotaDeDebito";
+import notaDebitoConfig from "../../../Modales/Ventas/ConfigNotaDebito";
 
 const TablaNotaDeDebito = () => {
   const {
@@ -20,16 +24,29 @@ const TablaNotaDeDebito = () => {
     setIsBlanco,
     tipoNotaDebito,
     setTipoNotaDebito,
-    manejarDetalle,
-    manejarEditar,
-    manejarEliminar,
   } = useNotasDebito();
+
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [seleccionado, setSeleccionado] = useState(null);
+
+  const handleVerDetalle = (articulo) => {
+    setSeleccionado(articulo);
+    setModalAbierto(true);
+  };
 
   const totalNotas = notasDebito.reduce((acc, n) => acc + n.total, 0);
   const emitidas = notasDebito.filter((n) => n.estado === "emitida").length;
 
   return (
     <div className="space-y-4">
+      <ModalDetalleGenerico
+        open={modalAbierto}
+        onClose={() => setModalAbierto(false)}
+        data={seleccionado}
+        {...notaDebitoConfig}
+        width="w-[420px]"
+      />
+
       {/* Cards */}
       <div className="grid grid-cols-3 gap-4">
         <TarjetaInformacion
@@ -60,11 +77,8 @@ const TablaNotaDeDebito = () => {
           mostrarBuscador
           busqueda={busqueda}
           setBusqueda={setBusqueda}
-          onVer={manejarDetalle}
-          onEditar={manejarEditar}
-          onEliminar={manejarEliminar}
-          onDescargar={manejarDetalle}
           mostrarAcciones={true}
+          acciones={accionesNotaDebito({ handleVerDetalle })}
           placeholderBuscador="Buscar por nota, factura o cliente..."
           botonAgregar={{
             texto: "Nueva nota de débito",

@@ -27,8 +27,8 @@ export const columnasMateriaPrima = [
             valor > 50
               ? "text-green-400"
               : valor > 20
-              ? "text-yellow-400"
-              : "text-red-400"
+                ? "text-yellow-400"
+                : "text-red-400"
           }`}
         >
           {valor} {fila.unidad}

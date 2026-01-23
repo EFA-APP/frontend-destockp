@@ -4,7 +4,6 @@ import {
   EditarIcono,
   BorrarIcono,
   ErrorIcono,
-  OrdenDeVentaIcono,
   PagosIcono,
 } from "../../../assets/Icons";
 
@@ -39,9 +38,9 @@ export const accionesReutilizables = {
     ),
   },
 
-  importarAFIP: {
-    key: "importarAFIP",
-    label: "Importar",
+  descargar: {
+    key: "descargar",
+    label: "Descargar",
     icono: (
       <div className="bg-blue-500/10 p-2 rounded-md text-blue-400!">
         <DescargarIcono size={20} />

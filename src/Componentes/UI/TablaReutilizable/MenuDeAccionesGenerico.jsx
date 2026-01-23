@@ -9,12 +9,12 @@ const MenuDeAccionesGenerico = ({ acciones, fila }) => {
         )
         .map((accion) => (
           <button
-            key={accion.key}
+            key={accion.label}
             onClick={() => accion.onClick(fila)}
             title={accion.label}
             className={`
               cursor-pointer
-              px-2 py-2 rounded-md! flex items-center
+               rounded-md! flex items-center
               hover:opacity-80
             `}
           >

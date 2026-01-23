@@ -4,7 +4,7 @@ import TarjetaInformacion from "../../UI/TarjetaInformacion/TarjetaInformacion";
 import ModalDetalleGenerico from "../../UI/ModalDetalleBase/ModalDetalleGenerico";
 import { columnasMisComprobantesAFIP } from "./ColumnaComprobantesAFIP";
 import { useMisComprobantesAFIP } from "../../../api/hooks/MisComprobantesAFIP/useMisComprobantesAFIP";
-import { accionesMisComprobantesAFIP } from "./Acciones";
+import { accionesMisComprobantesAFIP } from "./AccionesMisComprobantesAFIP";
 import { useNavigate } from "react-router-dom";
 import { DescargarIcono } from "../../../assets/Icons";
 
