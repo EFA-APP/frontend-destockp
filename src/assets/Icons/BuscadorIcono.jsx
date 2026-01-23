@@ -1,6 +1,6 @@
 import React from "react";
 
-const BuscadorIcono = ({ props }) => {
+const BuscadorIcono = ({ props, color, size }) => {
   return (
     <svg
       className={`${props}`}
@@ -9,8 +9,8 @@ const BuscadorIcono = ({ props }) => {
       ariaHidden="true"
       role="img"
       class="iconify iconify--solar"
-      width="20"
-      height="20"
+      width={size || "20"}
+      height={size || "20"}
       viewBox="0 0 24 24"
     >
       <defs>
@@ -25,7 +25,7 @@ const BuscadorIcono = ({ props }) => {
           </g>
         </mask>
       </defs>
-      <path fill={"#ffff"} d="M0 0h24v24H0z" mask="url(#iconifyReact20)"></path>
+      <path fill={color || "#ffff"} d="M0 0h24v24H0z" mask="url(#iconifyReact20)"></path>
     </svg>
   );
 };
