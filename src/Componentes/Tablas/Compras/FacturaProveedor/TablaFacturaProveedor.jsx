@@ -3,11 +3,10 @@ import { useFacturasProveedor } from "../../../../api/hooks/Compras/FacturasProv
 import FechaInput from "../../../UI/FechaInput/FechaInput";
 import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
 import Select from "../../../UI/Select/Select";
-import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
+import DataTable from "../../../UI/DataTable/DataTable";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
 import { accionesFacturaProveedor } from "./AccionesFacturaProveedor";
 import { columnasFacturasProveedor } from "./ColumnasFacturaProveedor";
-import facturaProveedorConfig from "../../../Modales/Compras/ConfigFacturaProveedor";
 
 const TablaFacturasProveedor = () => {
   const {
@@ -60,81 +59,71 @@ const TablaFacturasProveedor = () => {
       </div>
 
       {/* Tabla */}
-      <div className="px-6 py-4 card bg-[var(--fill)] shadow-md rounded-md">
-        {/* Modal de factura */}
-        <ModalDetalleGenerico
-          open={modalAbierto}
-          onClose={() => setModalAbierto(false)}
-          data={seleccionado}
-          {...facturaProveedorConfig}
-          width="w-[420px]"
-        />
-        <TablaReutilizable
-          columnas={columnasFacturasProveedor}
-          datos={facturas}
-          mostrarBuscador
-          busqueda={busqueda}
-          setBusqueda={setBusqueda}
-          acciones={accionesFacturaProveedor({ handleVerDetalle })}
-          mostrarAcciones={true}
-          placeholderBuscador="Buscar por número o proveedor..."
-          botonAgregar={{
-            texto: "Nueva factura de proveedor",
-            ruta: "/panel/compras/facturas-proveedores/nueva",
-          }}
-          mostrarFiltros
-          textoFiltros="Filtros avanzados"
-          filtrosElementos={
-            <>
-              <Select
-                valor={tipoFactura}
-                label={"Tipo: "}
-                setValor={setTipoFactura}
-                options={[
-                  { valor: "TODAS", texto: "Todas" },
-                  { valor: "A", texto: "Facturas A" },
-                  { valor: "B", texto: "Facturas B" },
-                  { valor: "C", texto: "Facturas C" },
-                ]}
-              />
+      <DataTable
+        columnas={columnasFacturasProveedor}
+        datos={facturas}
+        mostrarBuscador
+        busqueda={busqueda}
+        setBusqueda={setBusqueda}
+        acciones={accionesFacturaProveedor({ handleVerDetalle })}
+        mostrarAcciones={true}
+        placeholderBuscador="Buscar por número o proveedor..."
+        botonAgregar={{
+          texto: "Nueva factura de proveedor",
+          ruta: "/panel/compras/facturas-proveedores/nueva",
+        }}
+        mostrarFiltros
+        textoFiltros="Filtros avanzados"
+        filtrosElementos={
+          <>
+            <Select
+              valor={tipoFactura}
+              label={"Tipo: "}
+              setValor={setTipoFactura}
+              options={[
+                { valor: "TODAS", texto: "Todas" },
+                { valor: "A", texto: "Facturas A" },
+                { valor: "B", texto: "Facturas B" },
+                { valor: "C", texto: "Facturas C" },
+              ]}
+            />
 
-              <Select
-                valor={estadoFactura}
-                label={"Estado: "}
-                setValor={setEstadoFactura}
-                options={[
-                  { valor: "TODAS", texto: "Todas" },
-                  { valor: "pagada", texto: "Pagadas" },
-                  { valor: "pendiente", texto: "Pendientes" },
-                  { valor: "vencida", texto: "Vencidas" },
-                ]}
-              />
+            <Select
+              valor={estadoFactura}
+              label={"Estado: "}
+              setValor={setEstadoFactura}
+              options={[
+                { valor: "TODAS", texto: "Todas" },
+                { valor: "pagada", texto: "Pagadas" },
+                { valor: "pendiente", texto: "Pendientes" },
+                { valor: "vencida", texto: "Vencidas" },
+              ]}
+            />
 
-              <Select
-                label="Condición fiscal"
-                valor={isBlanco}
-                setValor={setIsBlanco}
-                options={[
-                  { valor: "TODAS", texto: "Todas" },
-                  { valor: "BLANCO", texto: "Registradas" },
-                  { valor: "NEGRO", texto: "No registradas" },
-                ]}
-              />
+            <Select
+              label="Condición fiscal"
+              valor={isBlanco}
+              setValor={setIsBlanco}
+              options={[
+                { valor: "TODAS", texto: "Todas" },
+                { valor: "BLANCO", texto: "Registradas" },
+                { valor: "NEGRO", texto: "No registradas" },
+              ]}
+            />
 
-              <FechaInput
-                label="Desde:"
-                value={fechaDesde}
-                onChange={setFechaDesde}
-              />
-              <FechaInput
-                label="Hasta:"
-                value={fechaHasta}
-                onChange={setFechaHasta}
-              />
-            </>
-          }
-        />
-      </div>
+            <FechaInput
+              label="Desde:"
+              value={fechaDesde}
+              onChange={setFechaDesde}
+            />
+            <FechaInput
+              label="Hasta:"
+              value={fechaHasta}
+              onChange={setFechaHasta}
+            />
+          </>
+        }
+      />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import InicioKPIs from "./InicioKPIs";
 import {
-  CarritoIcono,
+
   PagosIcono,
   ContableIcono,
   PersonaIcono,
@@ -12,48 +12,56 @@ import {
 } from "../../../assets/Icons";
 import EncabezadoSeccion from "../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import { Link } from "react-router-dom";
+import React from "react";
 
-const GlassCard = ({ children, className = "" }) => (
+const DashboardCard = ({ children, className = "", title, icon }) => (
   <div
-    className={`rounded-xl bg-[var(--fill)] p-4 border border-white/5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03)] ${className}`}
+    className={`rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-sm overflow-hidden flex flex-col ${className}`}
   >
-    {children}
-  </div>
-);
-
-const CardHeader = ({ title }) => (
-  <div className="flex justify-between items-center  border-b border-gray-300/10! pb-1">
-    <h2 className="text-md font-medium">{title}</h2>
-    <div className="w-8 h-8 rounded-md bg-black/40 flex items-center justify-center text-gray-400">
-      <BuscadorIcono/>
-    </div>
+    {title && (
+      <div className="px-5 py-3 border-b border-[var(--border-subtle)] flex justify-between items-center bg-[var(--fill-secondary)]/30">
+        <h2 className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">{title}</h2>
+        {icon && (
+          <div className="text-[var(--text-muted)]">
+            {React.isValidElement(icon) ? React.cloneElement(icon, { size: 14 }) : icon}
+          </div>
+        )}
+      </div>
+    )}
+    <div className="p-5 flex-1">{children}</div>
   </div>
 );
 
 
 const Movimiento = ({ icon, concepto, monto, negativo }) => (
-  <li className="flex items-center justify-between gap-3 text-sm">
+  <div className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)] last:border-0 group hover:bg-[var(--surface-hover)] transition-all rounded-xl px-2 -mx-2">
     <div className="flex items-center gap-3">
-      <div className="w-8 h-8 rounded-md bg-black/40 flex items-center justify-center text-xs text-[var(--color-primary)]">
-        {icon}
+      <div className="w-8 h-8 rounded-lg bg-[var(--surface-hover)] flex items-center justify-center text-[10px] font-bold text-[var(--primary)] border border-[var(--border-subtle)] group-hover:border-[var(--primary)]/30 transition-colors">
+        {React.isValidElement(icon) ? React.cloneElement(icon, { size: 14 }) : icon}
       </div>
-      <span className="text-gray-300">{concepto}</span>
+      <div className="flex flex-col">
+        <span className="text-[13px] font-semibold text-[var(--text-primary)]">{concepto}</span>
+        <span className="text-[9px] text-[var(--primary-light)] uppercase font-bold tracking-wider pt-0.5 opacity-80">Referencia de auditoría</span>
+      </div>
     </div>
 
-    <span className={negativo ? "text-red-400" : "text-gray-100"}>
+    <div className={`text-[13px] font-bold tracking-tight ${negativo ? "text-red-500" : "text-[var(--secondary)]"}`}>
       {monto}
-    </span>
-  </li>
+    </div>
+  </div>
 );
 
 
-const QuickButton = ({ icon, label, redirigir }) => (
-  <button className="group bg-[var(--fill)]! hover:bg-[var(--fill)]/10 rounded-md! p-2 text-sm transition flex flex-col items-center gap-2 cursor-pointer">
-    <Link to={redirigir} className="text-[var(--color-primary)] group-hover:scale-110 transition">
-      {icon}
-    </Link>
-    <span>{label}</span>
-  </button>
+const QuickAction = ({ icon, label, redirigir }) => (
+  <Link
+    to={redirigir}
+    className="group flex flex-col items-center justify-center p-4 rounded-xl hover:bg-[var(--surface)] border hover:border-[var(--border-subtle)] border-[var(--primary)]/40 bg-[var(--primary-subtle)] transition-all duration-500 gap-2.5 shadow-sm"
+  >
+    <div className="p-2.5 rounded-md bg-[var(--surface-hover)] group-hover:text-[var(--text-secondary)] text-[var(--primary)] group-hover:scale-105 transition-all duration-300 border border-[var(--border-subtle)]">
+      {React.isValidElement(icon) ? React.cloneElement(icon, { size: 18 }) : icon}
+    </div>
+    <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">{label}</span>
+  </Link>
 );
 
 
@@ -61,82 +69,83 @@ const QuickButton = ({ icon, label, redirigir }) => (
 
 const Inicio = () => {
   return (
-    <div className="p-6 space-y-6 bg-[var(--fill2)] min-h-screen text-gray-200">
+    <div className="p-6 lg:p-10 space-y-8 min-h-screen text-[var(--text-primary)]">
 
       {/* TÍTULO */}
-      <EncabezadoSeccion ruta={"Inicio"} icono={<InicioIcono size={20}/>}/>
+      <EncabezadoSeccion ruta={"Inicio"} icono={<InicioIcono size={20} />} />
 
       {/* KPIs */}
       <InicioKPIs />
 
-      {/* ZONA SUPERIOR */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+      {/* GRID PRINCIPAL */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        {/* ÚLTIMOS MOVIMIENTOS */}
-        <GlassCard className="xl:col-span-1">
-          <CardHeader title="Actividad Reciente" />
+        {/* COLUMNA IZQUIERDA: ACTIVIDAD */}
+        <div className="lg:col-span-8 space-y-6">
+          <DashboardCard title="Actividad Reciente del Sistema" icon={<BuscadorIcono size={18} />}>
+            <div className="space-y-1">
+              <Movimiento icon="FC" concepto="Pago para FC 0001-000023" monto="$6.000,00" />
+              <Movimiento icon="FC" concepto="FC A 0001-0000123" monto="$15.000,00" />
+              <Movimiento icon="FC" concepto="FC A 0001-0000124" monto="$150.000,00" />
+              <Movimiento icon="ND" concepto="ND A 0001-0000034" monto="$500,00" />
+              <Movimiento icon="NC" concepto="NC B 0001-0000098" monto="-$2.500,00" negativo />
+            </div>
 
-          <ul className="space-y-3 mt-3">
-            <Movimiento icon="FC" concepto="Pago para FC 0001-000023" monto="$6.000,00" />
-            <Movimiento icon="FC" concepto="FC A 0001-0000123" monto="$15.000,00" />
-            <Movimiento icon="FC" concepto="FC A 0001-0000124" monto="$150.000,00" />
-            <Movimiento icon="ND" concepto="ND A 0001-0000034" monto="$500,00" />
-            <Movimiento icon="NC" concepto="NC B 0001-0000098" monto="-$2.500,00" negativo />
-          </ul>
-        </GlassCard>
+            <div className="mt-4 flex justify-center">
+              <button className="cursor-pointer text-[12px]! font-bold! px-2.5 py-1.5 rounded-md! bg-[var(--primary-light)]/30! hover:bg-[var(--primary)]/30! text-[var(--primary)]! transition-all border border-[var(--border-subtle)] uppercase tracking-wider">
+                ver historial completo
+              </button>
+            </div>
+          </DashboardCard>
 
-        {/* ACCESOS */}
-        <GlassCard>
-          <CardHeader title="Accesos rápidos" />
+          <DashboardCard title="Rendimiento Mensual" icon={<ListaIcono size={16} />}>
+            <div className="h-56 mt-1 rounded-xl bg-[var(--fill-secondary)]/20 flex items-center justify-center border border-[var(--border-subtle)] text-[var(--text-muted)] text-[9px] font-bold uppercase tracking-[0.2em] opacity-50">
+              Visualización de Datos (Ingresos v Egresos)
+            </div>
 
-          <div className="grid grid-cols-2 gap-3 mt-4">
-            <QuickButton icon={<PagosIcono size={28} />} label="Nueva Compra" redirigir={"/panel/compras/facturas-proveedores/nueva"}/>
-            <QuickButton icon={<ContableIcono size={28} />} label="Nuevo Asiento" redirigir={"/panel/contabilidad/asientos/nuevo"}/>
-            <QuickButton icon={<InventarioIcono size={28} />} label="Productos" redirigir={"/panel/inventario/productos"}/>
-            <QuickButton icon={<PersonaIcono size={28} />} label="Nuevo Cliente" redirigir={"/panel/contactos/clientes/nuevo"}/>
-            <QuickButton icon={<ProveedoresIcono size={28} />} label="Nuevo Proveedor" redirigir={"/panel/contactos/proveedores/nuevo"}/>
-            <QuickButton icon={<ContableIcono size={28} />} label="Plan de Cuentas" redirigir={"/panel/contabilidad/cuentas"}/>
-          </div>
-        </GlassCard>
-        {/* ÚLTIMOS MOVIMIENTOS (SEGUNDA LISTA) */}
-        <GlassCard className="xl:col-span-1">
-          <CardHeader title="Últimos movimientos" />
-
-          <ul className="space-y-3 mt-3 mb-2">
-            <Movimiento icon="FC" concepto="FC A 0001-0000123 - Venta" monto="$15.000,00" />
-            <Movimiento icon="ND" concepto="ND A 0001-0000034" monto="$300,00" />
-            <Movimiento icon="NC" concepto="Descuento por pago anticipado" monto="-$2.500,00" negativo />
-            <Movimiento icon="NC" concepto="Descuento por pago anticipado" monto="$2.500,00"  />
-            <Movimiento icon="FC" concepto="FC A 0001-0000125 - Venta" monto="-$15.500,00" negativo />
-          </ul>
-
-        <div className="flex items-center w-full py-2 border-t border-b border-gray-300/10">
-            <span className="p-[1px] bg-[var(--primary)]/20! text-[var(--primary)]! rounded-[2px] ">
-                <ListaIcono size={20}/>
-            </span>
-          <button className=" cursor-pointer text-xs px-3 transition hover:text-[var(--primary)]!">
-            Ver todos
-          </button>
+            <div className="flex gap-10 mt-6">
+              <div className="flex flex-col gap-1.5">
+                <span className="text-[9px] text-[var(--text-muted)] uppercase font-bold tracking-wider">Total Ingresos</span>
+                <span className="text-xl font-bold text-[var(--secondary)] tracking-tight">$39,100.00</span>
+              </div>
+              <div className="w-px bg-[var(--border-subtle)]" />
+              <div className="flex flex-col gap-1.5">
+                <span className="text-[9px] text-[var(--text-muted)] uppercase font-bold tracking-wider">Total Egresos</span>
+                <span className="text-xl font-bold text-red-500 tracking-tight">$25,900.00</span>
+              </div>
+            </div>
+          </DashboardCard>
         </div>
-        </GlassCard>
-      </div>
 
-      {/* ZONA INFERIOR */}
-      <div className="grid grid-cols-1 gap-4">
+        {/* COLUMNA DERECHA: ACCESOS Y NOTAS */}
+        <div className="lg:col-span-4 space-y-6">
+          <DashboardCard title="Accesos Operativos">
+            <div className="grid grid-cols-2 gap-4">
+              <QuickAction icon={<PagosIcono />} label="Nueva Compra" redirigir={"/panel/compras/facturas-proveedores/nueva"} />
+              <QuickAction icon={<ContableIcono />} label="Nuevo Asiento" redirigir={"/panel/contabilidad/asientos/nuevo"} />
+              <QuickAction icon={<InventarioIcono />} label="Productos" redirigir={"/panel/inventario/productos"} />
+              <QuickAction icon={<PersonaIcono />} label="Nuevo Cliente" redirigir={"/panel/contactos/clientes/nuevo"} />
+              <QuickAction icon={<ProveedoresIcono />} label="Nuevo Proveedor" redirigir={"/panel/contactos/proveedores/nuevo"} />
+              <QuickAction icon={<ContableIcono />} label="Plan de Cuentas" redirigir={"/panel/contabilidad/cuentas"} />
+            </div>
+          </DashboardCard>
 
-        {/* RESUMEN MENSUAL */}
-        <GlassCard className="">
-          <CardHeader title="Resumen mensual" />
+          <DashboardCard title="Notas de Auditoría">
+            <div className="space-y-4">
+              <div className="p-3 rounded-md bg-emerald-500/10 border border-emerald-500/10">
+                <p className="text-xs text-[var(--text-theme)] leading-relaxed">
+                  El sistema ha conciliado correctamente todas las transacciones de las últimas 24 horas. No se requieren acciones manuales.
+                </p>
+              </div>
+              <div className="p-3 rounded-md bg-amber-500/10 border border-amber-500/10">
+                <p className="text-xs text-[var(--text-theme)] leading-relaxed">
+                  Hay 3 facturas de proveedores próximas a vencer en los próximos 2 días. Se recomienda revisión.
+                </p>
+              </div>
+            </div>
+          </DashboardCard>
+        </div>
 
-          <div className="h-40 mt-3 rounded-lg bg-black/40 flex items-center justify-center text-gray-400">
-            Gráfico de ingresos / egresos
-          </div>
-
-          <div className="flex gap-6 mt-4 text-sm">
-            <span className="text-green-400">Ingresos: $39.100</span>
-            <span className="text-red-400">Egresos: $25.900</span>
-          </div>
-        </GlassCard>
       </div>
     </div>
   );

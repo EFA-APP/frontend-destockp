@@ -10,9 +10,8 @@ const Panel = () => {
         {/* ASIDE */}
         <BarraLateral />
         <div
-          className={`transition-all duration-300 ${
-            isExpanded ? "w-[250px]" : "w-[75px]"
-          }`}
+          className={`transition-all duration-300 ${isExpanded ? "w-[250px]" : "w-[75px]"
+            }`}
         />
         <ContenidoPanel />
       </div>

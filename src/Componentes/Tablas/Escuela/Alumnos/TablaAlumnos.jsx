@@ -1,6 +1,7 @@
 import { useAlumnos } from "../../../../api/hooks/Escuela/Alumnos/useAlumnos";
-import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
+import DataTable from "../../../UI/DataTable/DataTable";
 import { columnasAlumnos } from "./ColumnaAlumnos";
+
 const TablaAlumnos = () => {
   const {
     alumnos,
@@ -12,8 +13,8 @@ const TablaAlumnos = () => {
   } = useAlumnos();
 
   return (
-    <div className="px-6 py-4 border-0 card no-inset no-ring bg-[var(--fill)] shadow-md rounded-md">
-      <TablaReutilizable
+    <>
+      <DataTable
         columnas={columnasAlumnos}
         datos={alumnos}
         onVer={manejarDetalle}
@@ -29,7 +30,7 @@ const TablaAlumnos = () => {
         setBusqueda={setBusqueda}
         placeholderBuscador="Ingrese el alumno"
       />
-    </div>
+    </>
   );
 };
 

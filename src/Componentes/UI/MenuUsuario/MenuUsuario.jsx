@@ -1,54 +1,59 @@
 import { Link } from "react-router-dom";
-import { CerrarSesionIcono, ConfiguracionIcono } from "../../../assets/Icons";
+import { CerrarSesionIcono, ConfiguracionIcono, CuentaIcono } from "../../../assets/Icons";
 
 const MenuUsuario = () => {
   return (
-    <div className="shadow-md fixed right-5 top-15 mt-3 z-9 w-auto rounded-sm bg-[var(--fill)] p-2 border border-gray-50/40">
-      <div className="px-1">
-        <div className="flex items-center gap-6 pb-3 border-b border-gray-50/40 mt-5 mb-3">
-          <img
-            src="/man-icon.jpg"
-            alt="User Avatar"
-            className="rounded-full w-8 h-8"
-          />
-          <div className="text-xs!">
-            <h5 className="text-white! font-semibold">
-              José Chocobar ●
-              <span className="ml-[2px] text-green-400">Admin</span>
+    <div className="absolute right-0 top-full mt-2 z-50 w-64 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-lg overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+      {/* Header Info */}
+      <div className="px-4 py-4 border-b border-[var(--border-subtle)] bg-[var(--fill-secondary)]/30">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center h-10 w-10 rounded-xl overflow-hidden border border-[var(--primary)] shadow-sm">
+            <CuentaIcono size={24} color="var(--primary)" />
+          </div>
+          <div className="flex flex-col min-w-0">
+            <h5 className="text-[11px] font-bold text-[var(--text-theme)]! truncate leading-tight">
+              José Chocobar
             </h5>
-            <p className="text-[var(--primary-light)]! ">
+            <span className="text-[9px] font-bold text-[var(--secondary)] uppercase tracking-widest mt-0.5">
+              Administrador
+            </span>
+            <p className="text-[9px] text-[var(--text-muted)] truncate mt-1">
               josechocobar@joseguma.com
             </p>
           </div>
         </div>
       </div>
 
-      <div className="px-2 mb-2">
+      {/* Menu Actions */}
+      <div className="p-2 space-y-1">
         <Link
-          to="/panel/configuracion "
-          className="relative select-none gap-2 text-xs outline-none transition-colors [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 px-3 py-2 flex justify-between items-center  group/link w-full rounded-md cursor-pointer focus:bg-hover flex items-center w-full hover:bg-[var(--primary)]/30"
+          to="/panel/configuracion"
+          className="flex items-center gap-2.5 px-3 py-2 rounded-md text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--primary)] hover:bg-[var(--primary-subtle)] transition-all group"
         >
-          <div className="flex items-center gap-2 w-full text-white">
-            <span>
-              <ConfiguracionIcono size={16} color={"var(--primary)"} />
-            </span>
-            <h5 className="text-xs font-normal!">Configuración</h5>
+          <div className=" p-1.5 rounded-md bg-[var(--surface-hover)] group-hover:bg-transparent transition-colors border border-[var(--border-subtle)] group-hover:border-transparent">
+            <ConfiguracionIcono size={14} className="group-hover:text-[var(--primary)]" />
           </div>
+          <span>Configuración de Cuenta</span>
+        </Link>
+
+        <div className="h-px bg-[var(--border-subtle)] my-1 mx-2" />
+
+        <Link
+          to="/"
+          className="flex items-center gap-2.5 px-3 py-2 rounded-md text-[11px] font-bold text-red-500 hover:bg-red-500/10 transition-all group"
+        >
+          <div className="p-1.5 rounded-md bg-red-500/5 group-hover:bg-transparent transition-colors border border-red-500/10 group-hover:border-transparent">
+            <CerrarSesionIcono size={14} />
+          </div>
+          <span>Finalizar Sesión</span>
         </Link>
       </div>
 
-      <div className="px-2 mb-2">
-        <Link
-          to="/"
-          className="relative select-none gap-2 text-xs outline-none transition-colors [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 px-3 py-2 flex justify-between items-center  group/link w-full rounded-md cursor-pointer focus:bg-hover flex items-center w-full bg-red-700/40 hover:bg-white/20"
-        >
-          <div className="flex items-center gap-2 w-full text-white">
-            <span>
-              <CerrarSesionIcono size={16} />
-            </span>
-            <h5 className="font-normal!">Cerrar Sesión</h5>
-          </div>
-        </Link>
+      {/* Footer Info (Optional but professional) */}
+      <div className="px-4 py-2 bg-[var(--fill-secondary)]/10 border-t border-[var(--border-subtle)]">
+        <p className="text-[8px] text-[var(--text-muted)] uppercase font-bold tracking-tighter text-center">
+          Destockp v1.0.4 — © 2026
+        </p>
       </div>
     </div>
   );

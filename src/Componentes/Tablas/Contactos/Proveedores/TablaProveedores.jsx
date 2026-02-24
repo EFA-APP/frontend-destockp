@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useProveedores } from "../../../../api/hooks/Proveedores/useProveedores";
 import proveedorConfig from "../../../Modales/Contactos/ConfigProveedores";
 import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
-import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
+import DataTable from "../../../UI/DataTable/DataTable";
 import { accionesProveedor } from "./AccionesProveedores";
 import { columnasProveedores } from "./ColumnaProveedores";
 
@@ -32,7 +32,7 @@ const TablaProveedores = () => {
     setModalAbierto(true);
   };
   return (
-    <div className="px-6 py-4 border-0 card no-inset no-ring bg-[var(--fill)]! shadow-md rounded-md">
+    <>
       <ModalDetalleGenerico
         mode={modoModal}
         open={modalAbierto}
@@ -45,7 +45,7 @@ const TablaProveedores = () => {
         {...proveedorConfig}
         width="w-[420px]"
       />
-      <TablaReutilizable
+      <DataTable
         columnas={columnasProveedores}
         datos={proveedores}
         acciones={accionesProveedor({
@@ -63,7 +63,7 @@ const TablaProveedores = () => {
         setBusqueda={setBusqueda}
         placeholderBuscador="Ingrese un proveedor"
       />
-    </div>
+    </>
   );
 };
 

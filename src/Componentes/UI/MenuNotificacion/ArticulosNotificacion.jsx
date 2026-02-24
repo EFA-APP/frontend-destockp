@@ -1,28 +1,33 @@
 import React from 'react'
-import { OrdenDeVentaIcono } from '../../../assets/Icons'
 import { Link } from 'react-router-dom'
 
 const ArticulosNotificacion = ({ redireccion, icono, titulo, descripcion, hora }) => {
     return (
-        <Link to={redireccion} className='relative cursor-default select-none gap-2 rounded-sm text-sm outline-none transition-colors focus:bg-[var(--primary-light)]/90! focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 px-6 py-3 flex justify-between items-center hover:bg-[var(--primary-light)]/10 cursor-pointer group/link w-full'>
-            <div className='flex-shrink-0 rounded-full flex justify-center items-center bg-[var(--primary-opacity-10)]! h-11 w-11'>
-                {icono}
+        <Link
+            to={redireccion}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[var(--primary-subtle)] transition-all group border border-transparent hover:border-[var(--primary)]/10"
+        >
+            {/* Icon Container */}
+            <div className="flex-shrink-0 h-10 w-10 rounded-xl bg-[var(--surface-hover)] flex items-center justify-center border border-[var(--border-subtle)] group-hover:border-[var(--primary)]/20 transition-colors">
+                {React.isValidElement(icono) ? React.cloneElement(icono, { size: 16 }) : icono}
             </div>
-            <div className='ps-4 flex justify-between w-full'>
-                <div className='w-3/4 text-start'>
-                    <h5 className='mb-1 text-15 font-semibold group-hover/link:text-[var(--primary)]!'>
+
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-start gap-2">
+                    <h5 className="text-[11px] font-bold text-[var(--text-theme)]! group-hover:text-[var(--primary)] transition-colors truncate leading-tight">
                         {titulo}
                     </h5>
-                    <p className='text-sm text-bodytext line-clamp-1'>
-                        {descripcion}
-                    </p>
+                    <span className="text-[9px] font-bold text-[var(--text-muted)] whitespace-nowrap pt-0.5 uppercase tracking-tighter">
+                        {hora}
+                    </span>
                 </div>
-                <div className='text-xs block self-start '>
-                    <p>{hora}</p>
-                </div>
+                <p className="text-[10px] text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors line-clamp-1 mt-0.5">
+                    {descripcion}
+                </p>
             </div>
         </Link>
-  )
+    )
 }
 
 export default ArticulosNotificacion

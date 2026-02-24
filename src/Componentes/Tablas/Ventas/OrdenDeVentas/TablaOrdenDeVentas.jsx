@@ -1,13 +1,9 @@
 import { useOrdenesVenta } from "../../../../api/hooks/Ventas/OrdenDeVentas/useOrdenDeVentas";
 import Select from "../../../UI/Select/Select";
-import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
-import FechaInput from "../../../UI/FechaInput/FechaInput";
+import DataTable from "../../../UI/DataTable/DataTable";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
 import { columnasOrdenesVenta } from "./ColumnaOrdenDeVentas";
 import { accionesOrdenDeVenta } from "./AccionesOrdenDeVenta";
-import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
-import { useState } from "react";
-import ordenDeVentaConfig from "../../../Modales/Ventas/ConfigOrdenDeVenta";
 
 const TablaOrdenDeVentas = () => {
   const {
@@ -45,7 +41,7 @@ const TablaOrdenDeVentas = () => {
       />
 
       {/* Cards */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <TarjetaInformacion
           titulo="Total en órdenes"
           color="text-green-400"
@@ -67,57 +63,55 @@ const TablaOrdenDeVentas = () => {
       </div>
 
       {/* Tabla */}
-      <div className="px-6 py-4 card bg-[var(--fill)] shadow-md rounded-md">
-        <TablaReutilizable
-          columnas={columnasOrdenesVenta}
-          datos={ordenes}
-          mostrarBuscador
-          busqueda={busqueda}
-          setBusqueda={setBusqueda}
-          mostrarAcciones={true}
-          acciones={accionesOrdenDeVenta({ handleVerDetalle })}
-          placeholderBuscador="Buscar por número o cliente..."
-          botonAgregar={{
-            texto: "Nueva orden",
-            ruta: "/panel/ventas/orden-ventas/nueva",
-          }}
-          mostrarFiltros
-          textoFiltros="Filtros avanzados"
-          filtrosAbiertosInicial={false}
-          filtrosElementos={
-            <div className="flex flex-wrap gap-4 items-end">
-              {/* Estado */}
-              <Select
-                label="Estado:"
-                valor={estadoOrden}
-                setValor={setEstadoOrden}
-                options={[
-                  { valor: "TODAS", texto: "Todas" },
-                  { valor: "pendiente", texto: "Pendientes" },
-                  { valor: "confirmada", texto: "Confirmadas" },
-                  { valor: "facturada", texto: "Facturadas" },
-                  { valor: "cancelada", texto: "Canceladas" },
-                ]}
-              />
+      <DataTable
+        columnas={columnasOrdenesVenta}
+        datos={ordenes}
+        mostrarBuscador
+        busqueda={busqueda}
+        setBusqueda={setBusqueda}
+        mostrarAcciones={true}
+        acciones={accionesOrdenDeVenta({ handleVerDetalle })}
+        placeholderBuscador="Buscar por número o cliente..."
+        botonAgregar={{
+          texto: "Nueva orden",
+          ruta: "/panel/ventas/orden-ventas/nueva",
+        }}
+        mostrarFiltros
+        textoFiltros="Filtros avanzados"
+        filtrosAbiertosInicial={false}
+        filtrosElementos={
+          <>
+            {/* Estado */}
+            <Select
+              label="Estado:"
+              valor={estadoOrden}
+              setValor={setEstadoOrden}
+              options={[
+                { valor: "TODAS", texto: "Todas" },
+                { valor: "pendiente", texto: "Pendientes" },
+                { valor: "confirmada", texto: "Confirmadas" },
+                { valor: "facturada", texto: "Facturadas" },
+                { valor: "cancelada", texto: "Canceladas" },
+              ]}
+            />
 
-              {/* Fecha */}
-              <FechaInput
-                label="Desde:"
-                value={fechaDesde}
-                onChange={setFechaDesde}
-                size="sm"
-              />
+            {/* Fecha */}
+            <FechaInput
+              label="Desde:"
+              value={fechaDesde}
+              onChange={setFechaDesde}
+              size="sm"
+            />
 
-              <FechaInput
-                label="Hasta:"
-                value={fechaHasta}
-                onChange={setFechaHasta}
-                size="sm"
-              />
-            </div>
-          }
-        />
-      </div>
+            <FechaInput
+              label="Hasta:"
+              value={fechaHasta}
+              onChange={setFechaHasta}
+              size="sm"
+            />
+          </>
+        }
+      />
     </div>
   );
 };

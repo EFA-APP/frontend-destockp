@@ -2,11 +2,11 @@ import BarraNavegacion from "../UI/MenuNavegacion/BarraNavegacion";
 import { Outlet } from "react-router-dom";
 const ContenidoPanel = () => {
   return (
-    <div className="flex flex-col w-full dark:bg-darkgray pr-2">
+    <div className="flex flex-col w-full  pr-2">
       <BarraNavegacion />
 
       {/* CONTENDOR DE VISTAS RELATIVAS */}
-      <div className="bg-[var(--fill)] dark:bg-dark h-auto rounded-[20px]">
+      <div className="bg-[var(--surface-hover)] h-auto rounded-[10px]">
         <Outlet />
       </div>
     </div>

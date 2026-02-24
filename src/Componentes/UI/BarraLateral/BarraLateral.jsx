@@ -53,12 +53,12 @@ const BarraLateral = () => {
         </div>
 
         {/* ITEMS */}
-        <div className="relative h-[calc(100vh-85px)] bg-[var(--fill)]!">
-          <div className="mt-4 space-y-2 border-t pt-2 border-gray-400/10">
+        <div className="relative h-[calc(100vh-85px)]">
+          <div className="mt-4 space-y-2 border-t pt-2 border-[var(--border-subtle)]">
             <div className="min-w-full table">
               <div className="pe-4 rtl:pe-0 rtl:ps-4 list-none">
-                <div className="mt-4 space-y-2 border-t pt-2 first:mt-0 first:border-t-0 first:pt-0 border-ld hide-menu">
-                  <div className="mt-1 flex flex-col">
+                <div className="mt-4 space-y-2 border-t pt-2 first:mt-0 first:border-t-0 first:pt-0 border-[var(--border-subtle)] hide-menu">
+                  <div className="mt-1 flex flex-col  pl-2">
                     <div onClick={handleArticuloClick}>
                       <Articulo
                         nombre={isExpanded ? "Inicio" : ""}

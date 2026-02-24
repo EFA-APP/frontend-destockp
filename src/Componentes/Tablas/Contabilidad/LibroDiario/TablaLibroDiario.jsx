@@ -3,7 +3,7 @@
 import { useLibroDiario } from "../../../../api/hooks/Contabilidad/LibroDiario/useLibroDiario";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
 import Select from "../../../UI/Select/Select";
-import TablaDesplegableDetalle from "../../../UI/TablaDesplegableDetalle/TablaDesplegableDetalle";
+import DataTable from "../../../UI/DataTable/DataTable";
 import { columnasLibroDiario } from "./columnasLibroDiario";
 
 const TablaLibroDiario = () => {
@@ -19,8 +19,8 @@ const TablaLibroDiario = () => {
   } = useLibroDiario();
 
   return (
-    <div className="px-6 py-4 card bg-[var(--fill)] shadow-md rounded-md">
-      <TablaDesplegableDetalle
+    <div className="space-y-4">
+      <DataTable
         columnas={columnasLibroDiario}
         datos={asientos}
         mostrarBuscador={false}
@@ -54,32 +54,28 @@ const TablaLibroDiario = () => {
           </>
         }
         renderDetalle={(asiento) => (
-              <div className="p-4 mx-6 bg-[var(--fill)] rounded-md border border-gray-200/30">
-
+          <div className="p-4 bg-[var(--surface-hover)]/30 rounded-xl border border-[var(--border-subtle)] overflow-hidden">
             <table className="w-full text-xs">
-              <thead className="bg-[var(--fill)] text-white">
-                <tr>
-                  <th className="px-3 py-2 text-left">Cuenta</th>
-                  <th className="px-3 py-2 text-right">Debe</th>
-                  <th className="px-3 py-2 text-right">Haber</th>
+              <thead>
+                <tr className="text-[var(--text-muted)] border-b border-[var(--border-subtle)]">
+                  <th className="px-3 py-2 text-left font-bold uppercase tracking-wider text-[10px]">Cuenta</th>
+                  <th className="px-3 py-2 text-right font-bold uppercase tracking-wider text-[10px]">Debe</th>
+                  <th className="px-3 py-2 text-right font-bold uppercase tracking-wider text-[10px]">Haber</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-[var(--border-subtle)]/50">
                 {asiento?.movimientos?.map((mov) => (
-                  <tr
-                    key={mov.id}
-                    className="border-t border-gray-700/30 text-white"
-                  >
+                  <tr key={mov.id} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                     <td className="px-3 py-2">
-                      <div className="font-mono">{mov.cuenta}</div>
-                      <div className="text-green-400 text-[11px]">
+                      <div className="font-mono font-bold text-[var(--primary)]">{mov.cuenta}</div>
+                      <div className="text-[10px] opacity-70">
                         {mov.nombreCuenta}
                       </div>
                     </td>
-                    <td className="px-3 py-2 text-right">
+                    <td className="px-3 py-2 text-right font-medium">
                       {mov.debe > 0 ? `$${mov.debe.toFixed(2)}` : "—"}
                     </td>
-                    <td className="px-3 py-2 text-right">
+                    <td className="px-3 py-2 text-right font-medium">
                       {mov.haber > 0 ? `$${mov.haber.toFixed(2)}` : "—"}
                     </td>
                   </tr>
@@ -91,43 +87,31 @@ const TablaLibroDiario = () => {
       />
 
       {/* ================= FOOTER CONTABLE ================= */}
-      <div className="mt-6 space-y-2">
+      <div className="mt-2 space-y-2">
         {/* Barra Total Debe / Haber */}
-        <div className="flex items-center justify-between rounded-xl overflow-hidden border border-white/10 bg-gradient-to-r from-orange-600/40 via-[var(--fill2)] to-green-600/40 shadow-inner">
-          <div className="px-4 py-2 font-semibold text-sm text-white">
+        <div className="flex items-center justify-between rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--surface)] shadow-md">
+          <div className="px-4 py-3 font-bold text-[11px] uppercase tracking-wider">
             Total Debe:{" "}
-            <span className="text-[var(--primary)]">
+            <span className="text-[var(--primary)] text-sm ml-2">
               ${totales.debe.toFixed(2)}
             </span>
           </div>
 
-          <div className="px-4 py-2 font-semibold text-sm text-white text-right">
+          <div className="w-[1px] h-8 bg-[var(--border-subtle)]" />
+
+          <div className="px-4 py-3 font-bold text-[11px] uppercase tracking-wider text-right">
             Total Haber:{" "}
-            <span className="text-green-400">${totales.haber.toFixed(2)}</span>
+            <span className="text-green-500 text-sm ml-2">${totales.haber.toFixed(2)}</span>
           </div>
         </div>
 
-        {/* Balance */}
-        <div className="w-full flex justify-center text-center text-sm font-semibold">
-          <div
-            className={`w-[300px] text-white border-b border-t bg-gradient-to-r ${
-              totales.debe === totales.haber
-                ? "border-green-500/30  from-[var(--fill)] via-green-600/40 to-[var(--fill)]"
-                : "border-red-500/30 from-[var(--fill)] via-red-600/15 to-[var(--fill)]"
-            }  py-2`}
-          >
-            Balance:{" "}
-            <span
-              className={
-                totales.debe === totales.haber
-                  ? "text-green-500"
-                  : "text-red-500"
-              }
-            >
-              {totales.debe === totales.haber
-                ? "Balanceado ✓"
-                : "Desbalanceado ✗"}
-            </span>
+        {/* Balance Status */}
+        <div className="flex justify-center">
+          <div className={`px-6 py-1.5 rounded-full border text-[11px] font-bold uppercase tracking-widest ${totales.debe === totales.haber
+            ? "bg-green-500/10 border-green-500/30 text-green-500"
+            : "bg-red-500/10 border-red-500/30 text-red-500"
+            }`}>
+            {totales.debe === totales.haber ? "Balanceado ✓" : "Desbalanceado ✗"}
           </div>
         </div>
       </div>

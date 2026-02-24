@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   BuscadorIcono,
   DesplegadorIcono,
   NotificacionesIcono,
   RefrescarIcono,
 } from "../../../assets/Icons";
+import { Sun, Moon } from "lucide-react";
 
 import MenuUsuario from "../MenuUsuario/MenuUsuario";
 import { Link } from "react-router-dom";
@@ -13,73 +14,80 @@ import MenuNotificacion from "../MenuNotificacion/MenuNotificacion";
 const BarraNavegacion = () => {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [menuAbiertoNotificacion, setMenuAbiertoNotificacion] = useState(false);
+  const [theme, setTheme] = useState(
+    localStorage.getItem("theme") || "light"
+  );
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
 
   return (
-    <header className="sticky top-0 z-[999999] bg-transparent">
-      <nav className="px-2  rounded-none bg-[var(--fill)] py-4 sm:px-6">
-        <div className="mx-auto flex flex-wrap items-center justify-between">
-          <div className="flex gap-0 items-center relative"></div>
+    <header className="sticky top-0 z-[50]">
+      <nav className="px-5 bg-[var(--surface)] border-b border-[var(--border-subtle)] shadow-sm h-14 flex items-center justify-between transition-all duration-300">
+        <div className="flex-1 flex items-center">
+          {/* Lado izquierdo reservado para buscador o breadcrumb si es necesario */}
+        </div>
 
-          {/* OTROS ICONOS */}
-          <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center gap-3">
+          {/* THEME TOGGLE */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg! bg-[var(--surface-hover)] text-[var(--text-theme)]! hover:text-[var(--primary)] transition-all border border-[var(--border-subtle)] cursor-pointer"
+            title={theme === "light" ? "Modo Oscuro" : "Modo Claro"}
+          >
+            {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
+          </button>
 
-            {/* DEMO */}
-            <Link to={"/panel/demo"} className="text-xs p-1 bg-[var(--primary)]/20! text-[var(--primary)]! border-[var(--primary)]/30! rounded-md border">
-              DEMO
-            </Link>
-            {/* DEMO */}
+          {/* DEMO */}
+          <Link to={"/panel/demo"} className="text-[10px] font-bold px-2.5 py-1 bg-[var(--primary-subtle)] text-[var(--primary)] border border-[var(--primary)]/20 rounded-lg uppercase tracking-wider">
+            Demo
+          </Link>
 
-            {/* VERIFICAR SI SE CONECTO A ARCA */}
-            <div className="flex gap-2 justify-center items-center">
-              <span className="cursor-pointer">
-                <RefrescarIcono size={20} color={"gray"} />
+          {/* ARCA STATUS */}
+          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-[var(--surface-hover)] border border-[var(--border-subtle)] group cursor-help">
+            <RefrescarIcono size={16} color="var(--text-muted)" className="group-hover:rotate-180 transition-transform duration-500" />
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Arca:</span>
+            <div className="relative flex items-center">
+              <span className="absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+            </div>
+          </div>
+
+          {/* NOTIFICACIONES */}
+          <div className="relative">
+            <button
+              onClick={() => setMenuAbiertoNotificacion(!menuAbiertoNotificacion)}
+              className="p-2 rounded-lg text-[var(--text-theme)]! hover:text-[var(--primary)]! hover:bg-[var(--primary-subtle)] transition-all relative cursor-pointer"
+            >
+              <NotificacionesIcono size={18} />
+              <span className="absolute -top-1 -right-1 bg-[var(--primary)] text-[9px] font-bold h-4 w-4 flex items-center justify-center text-white rounded-full border-2 border-[var(--surface)]">
+                5
               </span>
-              <p className="text-white text-xs">ARCA:</p>
-              <div className="relative flex justify-center">
-                {/* Pulso */}
-                <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping"></span>
-
-                {/* Punto fijo */}
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400  shadow-green-300"></span>
-              </div>
-            </div>
-            {/* VERIFICAR SI SE CONECTO A ARCA */}
-
-            <div className="relative group/menu">
-              {/* NOTIFICACIONES */}
-              <button 
-                  onClick={() => !setMenuAbiertoNotificacion(!menuAbiertoNotificacion)}
-              >
-                <span className="
-                text-white
-                duration-100
-                hover:text-[var(--primary-light)]!
-                h-10 w-10 rounded-full flex justify-center items-center cursor-pointer">
-                  <NotificacionesIcono />
-                </span>
-                {/* CONTADOR DE NOTIFICACIONES */}
-                <span className="rounded-full absolute end-1 top-1 bg-[var(--primary)] text-[10px] h-4 w-4 flex justify-center items-center text-white">
-                  5
-                </span>
-              </button>
-            </div>
-            {/* PERFIL */}
-            <div className="relative">
-              <div className="flex items-center gap-1 cursor-pointe text-white">
-                <span className="h-8 w-8 hover:text-primary rounded-full flex justify-center items-center group-hover/menu:bg-lightprimary group-hover/menu:text-primary">
-                  <img src="/girl-icon.jpg" alt="" className="rounded-full" />
-                </span>
-                <button
-                  className="text-white! hover:text-[var(--primary)]! cursor-pointer"
-                  onClick={() => !setMenuAbierto(!menuAbierto)}
-                >
-                  <DesplegadorIcono />
-                </button>
-              </div>
-            </div>
-            {/* MENU DESPLEGABLE */}
-            {menuAbierto && <MenuUsuario />}
+            </button>
             {menuAbiertoNotificacion && <MenuNotificacion />}
+          </div>
+
+          <div className="w-px h-6 bg-[var(--border-subtle)] mx-1" />
+
+          {/* PERFIL */}
+          <div className="relative flex items-center gap-2">
+            <div className="flex flex-col items-end hidden sm:flex">
+              <span className="text-[11px] font-bold text-[var(--text-primary)] leading-none">Admin Usuario</span>
+              <span className="text-[9px] text-[var(--text-muted)] font-medium">Administrador</span>
+            </div>
+            <button
+              className="flex items-center gap-2 p-1 rounded-lg hover:bg-[var(--surface-hover)] text-[var(--text-theme)]! hover:text-[var(--primary)]! transition-all cursor-pointer"
+              onClick={() => setMenuAbierto(!menuAbierto)}
+            >
+              <DesplegadorIcono size={14} className={` transition-transform duration-200 ${menuAbierto ? 'rotate-180' : ''}`} />
+            </button>
+            {menuAbierto && <MenuUsuario />}
           </div>
         </div>
       </nav>

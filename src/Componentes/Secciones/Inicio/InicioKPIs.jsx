@@ -5,13 +5,13 @@ import TarjetaKpi from "./TarjetasKpi";
 const InicioKPIs = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-      
+
       <TarjetaKpi
-        icon={<BolsaDeDineroIcono size={16}/>}
+        icon={<BolsaDeDineroIcono size={16} />}
         title="Saldo"
         value="$52.300,50"
         subtitle={
-          <span className="text-white/75">
+          <span className="text-[var(--primary-light)]">
             Caja: $12.300,50 <br />
             Bancos: $40.000,00
           </span>

@@ -11,77 +11,62 @@ const TarjetaKpi = ({
 }) => {
   const trendStyles = {
     up: {
-      glow: "from-green-500/30",
-      line: "stroke-green-400",
-      text: "text-green-400",
+      text: "text-[var(--secondary)]",
+      bg: "bg-[var(--secondary-subtle)]",
+      label: "↑"
     },
     down: {
-      glow: "from-red-500/30",
-      line: "stroke-red-400",
-      text: "text-red-400",
+      text: "text-red-500",
+      bg: "bg-red-500/10",
+      label: "↓"
     },
     neutral: {
-      glow: "from-[var(--color-primary)]/30",
-      line: "stroke-[var(--color-primary)]",
-      text: "text-[var(--color-primary)]",
+      text: "text-[var(--text-muted)]",
+      bg: "bg-white/5",
+      label: "•"
     },
   };
 
   const current = trendStyles[trend || "neutral"];
 
   return (
-    <div className="relative overflow-hidden rounded-xl bg-[var(--fill)] p-4 border border-white/5 shadow-lg">
-      
-      {/* Glow inferior */}
-      <div
-        className={`absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t ${current.glow} to-transparent z-2`}
-      />
+    <div className="relative overflow-hidden rounded-xl bg-[var(--surface)] p-4 border border-[var(--border-subtle)] shadow-sm hover:border-[var(--border-medium)] transition-all">
 
       {/* CONTENIDO */}
-      <div className="relative z-10 space-y-2">
+      <div className="relative z-10 flex flex-col h-full">
         {/* Header */}
-        <div className="flex items-center gap-2 text-sm text-gray-300">
-          <span className="text-[var(--color-primary)]">{icon}</span>
-          <span>{title}</span>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
+            {title}
+          </div>
+          <div className="p-1.5 rounded-lg bg-[var(--surface-hover)] text-[var(--primary)] border border-[var(--border-subtle)]">
+            {React.isValidElement(icon) ? React.cloneElement(icon, { size: 14 }) : icon}
+          </div>
         </div>
 
-        {/* Valor */}
-        <div className="text-2xl font-semibold text-white">
-          {value}
+        {/* Valor y Trend */}
+        <div className="flex items-baseline gap-2 mb-0.5">
+          <div className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
+            {value}
+          </div>
+          {footer && (
+            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${current.bg} ${current.text}`}>
+              {current.label} {footer}
+            </span>
+          )}
         </div>
 
         {/* Subtexto */}
         {subtitle && (
-          <div className="text-sm text-gray-400">
+          <div className="text-[11px] text-[var(--text-secondary)] mt-0.5 leading-relaxed font-medium">
             {subtitle}
           </div>
         )}
 
-        {/* Footer info */}
-        {footer && (
-          <div className={`text-sm ${current.text}`}>
-            {footer}
-          </div>
-        )}
-
-        {/* Línea ondulada */}
-        <svg
-          viewBox="0 0 100 20"
-          className="w-full h-6 mt-2"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0 15 Q 15 5 30 10 T 60 10 T 100 5"
-            fill="none"
-            strokeWidth="2"
-            className={current.line}
-          />
-        </svg>
-
         {/* Acción */}
         {actionLabel && (
-          <div className="flex justify-end">
-            <button className="cursor-pointer text-xs px-3 py-1 rounded-md! bg-[var(--primary)]/20! hover:bg-[var(--primary)]/60! text-white! transition">
+          <div className="mt-auto pt-3 flex justify-end">
+            <button className="cursor-pointer text-[10px]! font-bold! px-2.5 py-1.5 rounded-md! bg-[var(--primary-light)]/30! hover:bg-[var(--primary)]/30! text-[var(--primary)]! transition-all border border-[var(--border-subtle)] uppercase tracking-wider">
               {actionLabel}
             </button>
           </div>

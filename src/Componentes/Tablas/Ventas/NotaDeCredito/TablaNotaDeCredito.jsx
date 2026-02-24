@@ -1,14 +1,8 @@
 import { useNotasCredito } from "../../../../api/hooks/Ventas/NotaDeCredito/useNotaDeCredito";
-import FechaInput from "../../../UI/FechaInput/FechaInput";
-import Select from "../../../UI/Select/Select";
-import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
+import DataTable from "../../../UI/DataTable/DataTable";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
 import { columnasNotasCredito } from "./ColumnaNotaDeCredito";
 import { accionesNotaCredito } from "./AccionesNotaCredito";
-import facturaConfig from "../../../Modales/Ventas/ConfigFactura";
-import { useState } from "react";
-import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
-import notaCreditoConfig from "../../../Modales/Ventas/ConfigNotaCredito";
 
 const TablaNotasCredito = () => {
   const {
@@ -53,7 +47,7 @@ const TablaNotasCredito = () => {
       />
 
       {/* Cards */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <TarjetaInformacion
           titulo="Total acreditado"
           color="text-red-400"
@@ -75,80 +69,78 @@ const TablaNotasCredito = () => {
       </div>
 
       {/* Tabla */}
-      <div className="px-6 py-4 card bg-[var(--fill)] shadow-md rounded-md">
-        <TablaReutilizable
-          columnas={columnasNotasCredito}
-          datos={notasCredito}
-          mostrarBuscador
-          busqueda={busqueda}
-          setBusqueda={setBusqueda}
-          mostrarAcciones={true}
-          acciones={accionesNotaCredito({ handleVerDetalle })}
-          placeholderBuscador="Buscar por nota o cliente..."
-          botonAgregar={{
-            texto: "Nueva nota de crédito",
-            ruta: "/panel/ventas/notas-creditos/nueva",
-          }}
-          mostrarFiltros
-          textoFiltros="Filtros avanzados"
-          filtrosAbiertosInicial={false}
-          filtrosElementos={
-            <div className="flex flex-wrap gap-4 items-end">
-              {/* TIPO NOTA CREDITO */}
-              <Select
-                valor={tipoNotaCredito}
-                label={"Tipo: "}
-                setValor={setTipoNotaCredito}
-                options={[
-                  { valor: "TODAS", texto: "Todas" },
-                  { valor: "A", texto: "Nota Credito A" },
-                  { valor: "B", texto: "Nota Credito B" },
-                  { valor: "C", texto: "Nota Credito C" },
-                ]}
-              />
+      <DataTable
+        columnas={columnasNotasCredito}
+        datos={notasCredito}
+        mostrarBuscador
+        busqueda={busqueda}
+        setBusqueda={setBusqueda}
+        mostrarAcciones={true}
+        acciones={accionesNotaCredito({ handleVerDetalle })}
+        placeholderBuscador="Buscar por nota o cliente..."
+        botonAgregar={{
+          texto: "Nueva nota de crédito",
+          ruta: "/panel/ventas/notas-creditos/nueva",
+        }}
+        mostrarFiltros
+        textoFiltros="Filtros avanzados"
+        filtrosAbiertosInicial={false}
+        filtrosElementos={
+          <>
+            {/* TIPO NOTA CREDITO */}
+            <Select
+              valor={tipoNotaCredito}
+              label={"Tipo: "}
+              setValor={setTipoNotaCredito}
+              options={[
+                { valor: "TODAS", texto: "Todas" },
+                { valor: "A", texto: "Nota Credito A" },
+                { valor: "B", texto: "Nota Credito B" },
+                { valor: "C", texto: "Nota Credito C" },
+              ]}
+            />
 
-              {/* ESTADO */}
-              <Select
-                label="Estado:"
-                valor={estadoNota}
-                setValor={setEstadoNota}
-                options={[
-                  { valor: "TODAS", texto: "Todas" },
-                  { valor: "emitida", texto: "Emitidas" },
-                  { valor: "aplicada", texto: "Aplicadas" },
-                  { valor: "anulada", texto: "Anuladas" },
-                ]}
-              />
+            {/* ESTADO */}
+            <Select
+              label="Estado:"
+              valor={estadoNota}
+              setValor={setEstadoNota}
+              options={[
+                { valor: "TODAS", texto: "Todas" },
+                { valor: "emitida", texto: "Emitidas" },
+                { valor: "aplicada", texto: "Aplicadas" },
+                { valor: "anulada", texto: "Anuladas" },
+              ]}
+            />
 
-              {/* REGISTRO LEGAL */}
-              <Select
-                label="Condición fiscal"
-                valor={isBlanco}
-                setValor={setIsBlanco}
-                options={[
-                  { valor: "TODAS", texto: "Todas" },
-                  { valor: "BLANCO", texto: "Registrada (Fiscal)" },
-                  { valor: "NEGRO", texto: "No registrada" },
-                ]}
-              />
+            {/* REGISTRO LEGAL */}
+            <Select
+              label="Condición fiscal"
+              valor={isBlanco}
+              setValor={setIsBlanco}
+              options={[
+                { valor: "TODAS", texto: "Todas" },
+                { valor: "BLANCO", texto: "Registrada (Fiscal)" },
+                { valor: "NEGRO", texto: "No registrada" },
+              ]}
+            />
 
-              <FechaInput
-                label="Desde:"
-                value={fechaDesde}
-                onChange={setFechaDesde}
-                size="sm"
-              />
+            <FechaInput
+              label="Desde:"
+              value={fechaDesde}
+              onChange={setFechaDesde}
+              size="sm"
+            />
 
-              <FechaInput
-                label="Hasta:"
-                value={fechaHasta}
-                onChange={setFechaHasta}
-                size="sm"
-              />
-            </div>
-          }
-        />
-      </div>
+            <FechaInput
+              label="Hasta:"
+              value={fechaHasta}
+              onChange={setFechaHasta}
+              size="sm"
+            />
+          </>
+        }
+      />
     </div>
   );
 };

@@ -1,13 +1,9 @@
 import { useFacturas } from "../../../../api/hooks/Ventas/Facturas/useFacturas";
 import Select from "../../../UI/Select/Select";
-import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
-import FechaInput from "../../../UI/FechaInput/FechaInput";
+import DataTable from "../../../UI/DataTable/DataTable";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
 import { columnasFacturas } from "./ColumnaFacturas";
-import { useState } from "react";
-import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
 import { accionesFactura } from "./AccionesFactura";
-import facturaConfig from "../../../Modales/Ventas/ConfigFactura";
 
 const TablaFacturas = () => {
   const {
@@ -48,7 +44,7 @@ const TablaFacturas = () => {
       />
 
       {/* Cards */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <TarjetaInformacion
           titulo="Facturación total"
           color="text-green-400"
@@ -70,80 +66,74 @@ const TablaFacturas = () => {
       </div>
 
       {/* Tabla */}
-      <div className="px-6 py-4 card bg-[var(--fill)] shadow-md rounded-md">
-        <TablaReutilizable
-          columnas={columnasFacturas}
-          datos={facturas}
-          mostrarBuscador
-          busqueda={busqueda}
-          setBusqueda={setBusqueda}
-          mostrarAcciones={true}
-          acciones={accionesFactura({ handleVerDetalle })}
-          placeholderBuscador="Buscar por número o cliente..."
-          botonAgregar={{
-            texto: "Nueva factura",
-            ruta: "/panel/ventas/facturas/nueva",
-          }}
-          // 👇 NUEVAS PROPS PARA FILTROS
-          mostrarFiltros={true}
-          textoFiltros="Filtros avanzados"
-          filtrosAbiertosInicial={false} // opcional, por defecto cerrado
-          filtrosElementos={
-            <>
-              {/* Tipo de factura */}
-              <Select
-                valor={tipoFactura}
-                label={"Tipo: "}
-                setValor={setTipoFactura}
-                options={[
-                  { valor: "TODAS", texto: "Todas" },
-                  { valor: "A", texto: "Facturas A" },
-                  { valor: "B", texto: "Facturas B" },
-                  { valor: "C", texto: "Facturas C" },
-                ]}
-              />
+      <DataTable
+        columnas={columnasFacturas}
+        datos={facturas}
+        mostrarBuscador
+        busqueda={busqueda}
+        setBusqueda={setBusqueda}
+        mostrarAcciones={true}
+        acciones={accionesFactura({ handleVerDetalle })}
+        placeholderBuscador="Buscar por número o cliente..."
+        botonAgregar={{
+          texto: "Nueva factura",
+          ruta: "/panel/ventas/facturas/nueva",
+        }}
+        mostrarFiltros={true}
+        textoFiltros="Filtros avanzados"
+        filtrosAbiertosInicial={false}
+        filtrosElementos={
+          <>
+            <Select
+              valor={tipoFactura}
+              label={"Tipo: "}
+              setValor={setTipoFactura}
+              options={[
+                { valor: "TODAS", texto: "Todas" },
+                { valor: "A", texto: "Facturas A" },
+                { valor: "B", texto: "Facturas B" },
+                { valor: "C", texto: "Facturas C" },
+              ]}
+            />
 
-              {/* Estado */}
-              <Select
-                valor={estadoFactura}
-                label={"Estado: "}
-                setValor={setEstadoFactura}
-                options={[
-                  { valor: "TODAS", texto: "Todas" },
-                  { valor: "pagada", texto: "Pagadas" },
-                  { valor: "pendiente", texto: "Pendientes" },
-                  { valor: "vencida", texto: "Vencidas" },
-                ]}
-              />
+            <Select
+              valor={estadoFactura}
+              label={"Estado: "}
+              setValor={setEstadoFactura}
+              options={[
+                { valor: "TODAS", texto: "Todas" },
+                { valor: "pagada", texto: "Pagadas" },
+                { valor: "pendiente", texto: "Pendientes" },
+                { valor: "vencida", texto: "Vencidas" },
+              ]}
+            />
 
-              <Select
-                label="Condición fiscal"
-                valor={isBlanco}
-                setValor={setIsBlanco}
-                options={[
-                  { valor: "TODAS", texto: "Todas" },
-                  { valor: "BLANCO", texto: "Registrada (Fiscal)" },
-                  { valor: "NEGRO", texto: "No registrada" },
-                ]}
-              />
+            <Select
+              label="Condición fiscal"
+              valor={isBlanco}
+              setValor={setIsBlanco}
+              options={[
+                { valor: "TODAS", texto: "Todas" },
+                { valor: "BLANCO", texto: "Registrada (Fiscal)" },
+                { valor: "NEGRO", texto: "No registrada" },
+              ]}
+            />
 
-              {/* Fecha desde */}
-              <FechaInput
-                label="Desde:"
-                value={fechaDesde}
-                onChange={setFechaDesde}
-                size="sm"
-              />
-              <FechaInput
-                label="Hasta:"
-                value={fechaHasta}
-                onChange={setFechaHasta}
-                size="sm"
-              />
-            </>
-          }
-        />
-      </div>
+            <FechaInput
+              label="Desde:"
+              value={fechaDesde}
+              onChange={setFechaDesde}
+              size="sm"
+            />
+            <FechaInput
+              label="Hasta:"
+              value={fechaHasta}
+              onChange={setFechaHasta}
+              size="sm"
+            />
+          </>
+        }
+      />
     </div>
   );
 };

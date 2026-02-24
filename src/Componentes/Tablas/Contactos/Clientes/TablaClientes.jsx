@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useClientes } from "../../../../api/hooks/clientes/useClientes";
 import clienteConfig from "../../../Modales/Contactos/ConfigClientes";
 import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
-import TablaReutilizable from "../../../UI/TablaReutilizable/TablaReutilizable";
+import DataTable from "../../../UI/DataTable/DataTable";
 import { accionesClientes } from "./AccionesClientes";
 import { columnasClientes } from "./ColumnaCliente";
 
@@ -27,7 +27,7 @@ const TablaClientes = () => {
   };
 
   return (
-    <div className="px-6 py-4 border-0 card no-inset no-ring bg-[var(--fill)] shadow-md rounded-md">
+    <>
       <ModalDetalleGenerico
         mode={modoModal}
         open={modalAbierto}
@@ -40,7 +40,7 @@ const TablaClientes = () => {
         {...clienteConfig}
         width="w-[420px]"
       />
-      <TablaReutilizable
+      <DataTable
         columnas={columnasClientes}
         datos={clientes}
         mostrarAcciones={true}
@@ -58,7 +58,7 @@ const TablaClientes = () => {
         setBusqueda={setBusqueda}
         placeholderBuscador="Ingrese la persona"
       />
-    </div>
+    </>
   );
 };
 
