@@ -1,5 +1,6 @@
 import ContenidoPanel from "../Componentes/ContenidoPanel/ContenidoPanel";
 import BarraLateral from "../Componentes/UI/BarraLateral/BarraLateral";
+import BotonConfiguracionFlotante from "../Componentes/UI/BotonConfiguracionFlotante/BotonConfiguracionFlotante";
 import { useTamañoBarraLateral } from "../store/useTamanoBarraLateral";
 
 const Panel = () => {
@@ -14,6 +15,9 @@ const Panel = () => {
             }`}
         />
         <ContenidoPanel />
+
+        {/* Floating Configuration Button */}
+        <BotonConfiguracionFlotante />
       </div>
     </div>
   );

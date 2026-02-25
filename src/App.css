@@ -80,34 +80,7 @@ body {
   --font-weight-bold: 700;
 
 
-    --fill: hsl(210, 20%, 98%);
-  --fill-secondary: hsl(210, 3%, 87%);
-  --surface: hsl(0, 0%, 99%);
-  --surface-hover: hsl(180, 2%, 90%);
-  --surface-active: hsl(210, 3%, 85%);
-  
-  --text-primary: hsl(260, 6%, 10%);
-  --text-secondary: hsl(260, 6%, 35%);
-  --text-muted: hsl(260, 6%, 55%);
-  --text-theme: var(--text-primary);
-  
-  --border-subtle: hsla(0, 0%, 0%, 0.05);
-  --border-medium: hsla(0, 0%, 0%, 0.1);
-  --border-gray: var(--border-medium);
-
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
-  
-}
-
-[data-theme="dark"] {
-
-
-
-
-  /* --- Dark Theme (Default) --- */
-  --fill: hsl(260, 6%, 6%);
+    --fill: hsl(260, 6%, 6%);
   --fill-secondary: hsl(260, 6%, 9%);
   --surface: hsl(260, 6%, 12%);
   --surface-hover: hsl(260, 6%, 16%);
@@ -125,6 +98,7 @@ body {
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
   --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.5);
   --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.6);
+  
 }
 
 /* Fallback / Legacy Variables Sync */

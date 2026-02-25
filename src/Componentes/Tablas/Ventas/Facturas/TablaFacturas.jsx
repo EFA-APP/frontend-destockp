@@ -4,6 +4,11 @@ import DataTable from "../../../UI/DataTable/DataTable";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
 import { columnasFacturas } from "./ColumnaFacturas";
 import { accionesFactura } from "./AccionesFactura";
+import { useState } from "react";
+import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
+import { facturaConfig } from "../../../Modales/Ventas/ConfigFactura";
+import FechaInput from "../../../UI/FechaInput/FechaInput";
+
 
 const TablaFacturas = () => {
   const {

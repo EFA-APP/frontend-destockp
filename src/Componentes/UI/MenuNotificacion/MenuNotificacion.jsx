@@ -48,7 +48,7 @@ export const notificacionesFake = [
 
 const MenuNotificacion = () => {
   return (
-    <div className="absolute right-0 top-full mt-2 z-50 w-screen sm:w-[380px] rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-lg overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+    <div className="absolute right-0 top-full mt-2 z-50 w-screen sm:w-[380px] rounded-md! bg-[var(--surface)] border border-[var(--border-subtle)] shadow-lg overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
 
       {/* HEADER */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-subtle)] bg-[var(--fill-secondary)]/30">
@@ -58,7 +58,7 @@ const MenuNotificacion = () => {
           </h3>
           <span className="text-[9px] text-[var(--text-muted)] mt-0.5 font-medium">Alertas del sistema y avisos</span>
         </div>
-        <span className="inline-flex items-center rounded-lg bg-[var(--primary)] px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-wider">
+        <span className="inline-flex items-center rounded-md! bg-[var(--primary)] px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-wider">
           1 nuevo
         </span>
       </div>
@@ -79,7 +79,7 @@ const MenuNotificacion = () => {
 
       {/* FOOTER */}
       <div className="p-2 border-t border-[var(--border-subtle)] bg-[var(--fill-secondary)]/10">
-        <button className="w-full py-2 text-[10px] font-bold text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors uppercase tracking-widest">
+        <button className="w-full py-2! text-[10px]! font-bold! text-[var(--text-muted)]! hover:text-[var(--primary)]! transition-colors uppercase tracking-widest">
           Ver todas las notificaciones
         </button>
       </div>

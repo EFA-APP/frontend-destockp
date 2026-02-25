@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { X } from "lucide-react";
+import { React, useState } from "react";
 import {
   BorrarIcono,
   AgregarIcono,
@@ -206,11 +205,11 @@ const FormularioDinamico = ({
   };
 
   const renderField = (field) => {
-    const commonClasses = `bg-gray-500/5! w-full px-2 py-[7px] rounded-md! border-1 bg-[var(--fill2)]  ${
-      errors[field.name] ? "border-red-400" : "border-gray-300/20!"
-    } focus:border-[var(--primary)] focus:outline-none transition-colors placeholder-gray-500 ${
-      field.readOnly ? " cursor-not-allowed" : ""
-    } ${field.defaultValue ? "text-blue-300!" : "text-white!" }`;
+    const commonClasses = `w-full px-4 py-2.5 rounded-md! border transition-all duration-300 bg-[var(--surface-hover)]/30! backdrop-blur-sm! ${errors[field.name]
+      ? "border-red-500/50! focus:ring-red-500/10!"
+      : "border-[var(--border-medium)]! focus:border-[var(--primary)]! focus:ring-[var(--primary)]/10!"
+      } focus:ring-4! focus:outline-none placeholder-[var(--text-muted)] ${field.readOnly ? "cursor-not-allowed opacity-60" : "hover:border-[var(--border-medium)]"
+      } ${field.defaultValue ? "text-[var(--primary)]! font-medium!" : "text-[var(--text-primary)]!"}`;
 
     switch (field.type) {
       case "textarea":
@@ -237,7 +236,7 @@ const FormularioDinamico = ({
           >
             {field.options?.map((opt) => (
               <option
-                className="text-[var(--fill)]"
+                className="bg-[var(--surface)] text-[var(--text-primary)]"
                 key={opt.value}
                 value={opt.value}
               >
@@ -266,6 +265,9 @@ const FormularioDinamico = ({
       case "items-table":
         return renderItemsTable(field);
 
+      case "custom":
+        return field.render ? field.render(formData, setFormData) : null;
+
       case "date":
         return (
           <div className="relative">
@@ -288,9 +290,9 @@ const FormularioDinamico = ({
                 input?.showPicker?.();
                 input?.focus();
               }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors cursor-pointer"
             >
-              <CalendarioIcono color={"var(--primary)"} />
+              <CalendarioIcono size={16} color="currentColor" />
             </button>
           </div>
         );
@@ -338,11 +340,11 @@ const FormularioDinamico = ({
                 <div
                   className="
               absolute inset-0 z-30
-              border-2 border-dashed border-[var(--primary)]
-              rounded-md
+              border-2 border-dashed border-[var(--primary)]/30
+              rounded-md!
               opacity-0
               transition-opacity duration-300
-              group-hover/file:opacity-50
+              group-hover/file:opacity-100
             "
                 />
               </div>
@@ -350,19 +352,17 @@ const FormularioDinamico = ({
 
             {/* INFO DEL ARCHIVO */}
             {file && (
-              <div className="relative overflow-hidden z-40 bg-[var(--fill2)] flex flex-col items-start justify-start md:h-20 border border-[var(--fill)] py-2 px-4 mb-4 w-full mx-auto rounded-md shadow-sm">
+              <div className="relative overflow-hidden z-40 bg-[var(--surface-hover)]/50 backdrop-blur-md flex flex-col items-start justify-start md:h-20 border border-[var(--border-subtle)] py-3 px-4 mb-4 w-full mx-auto rounded-md! shadow-sm">
                 <div className="flex justify-between w-full items-center gap-4">
-                  <p className="text-sm font-medium text-white truncate max-w-xs">
+                  <p className="text-sm font-semibold text-[var(--text-primary)] truncate max-w-xs">
                     {file.name}
                   </p>
-
-                  <p className="rounded-lg px-2 py-1 text-xs font-medium text-[var(--primary)] bg-[var(--primary-opacity-10)]  shadow-input">
+                  <p className="rounded-md! px-2 py-1 text-xs font-bold text-[var(--primary)] bg-[var(--primary-subtle)]">
                     {formatSize(file.size)}
                   </p>
                 </div>
-
-                <div className="flex text-sm md:flex-row flex-col items-start md:items-center w-full mt-2 justify-between ">
-                  <p className="px-3 py-1 rounded-md bg-[var(--primary-opacity-10)] text-xs text-[var(--primary)]">
+                <div className="flex text-sm md:flex-row flex-col items-start md:items-center w-full mt-2 justify-between">
+                  <p className="px-3 py-1 rounded-md! bg-[var(--primary-subtle)] text-[var(--primary)] text-[10px] font-bold uppercase tracking-wider">
                     {file.type || "desconocido"}
                   </p>
                 </div>
@@ -412,9 +412,9 @@ const FormularioDinamico = ({
               key={itemField.name}
               className={`${itemField.colSpan}` || "col-span-2"}
             >
-              <label className="block text-xs text-gray-300 mb-1">
+              <label className="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 ml-1">
                 {itemField.label}{" "}
-                {itemField.required && <span className="text-red-400">*</span>}
+                {itemField.required && <span className="text-red-500 font-bold">*</span>}
               </label>
               {itemField.type === "select" ? (
                 <select
@@ -430,7 +430,7 @@ const FormularioDinamico = ({
                         : e.target.value
                     )
                   }
-                  className="w-full px-3 py-2 bg-[var(--fill2)] border border-gray-300/20 rounded-md! text-white!"
+                  className="w-full px-3 py-2 bg-[var(--surface-hover)]/30! backdrop-blur-sm! border! border-[var(--border-medium)]/50! rounded-md! text-[var(--text-primary)]! focus:border-[var(--primary)]! focus:ring-4! focus:ring-[var(--primary)]/10! transition-all duration-300"
                 >
                   {itemField.options?.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -453,7 +453,7 @@ const FormularioDinamico = ({
                         : e.target.value
                     )
                   }
-                  className={`w-full px-3 py-2 bg-[var(--fill2)] border border-gray-300/20 rounded-md! text-white!  `}
+                  className={`w-full px-3 py-2 bg-[var(--surface-hover)]/30! backdrop-blur-sm! border! border-[var(--border-medium)]/50! rounded-md! text-[var(--text-primary)]! focus:border-[var(--primary)]! focus:ring-4! focus:ring-[var(--primary)]/10! transition-all duration-300`}
                   placeholder={itemField.placeholder}
                   min={itemField.min}
                   max={itemField.max}
@@ -466,9 +466,9 @@ const FormularioDinamico = ({
             <button
               type="button"
               onClick={() => addItem(field)}
-              className="w-full  py-2 bg-[var(--primary-opacity-10)]! text-[var(--primary)]! rounded-md! hover:bg-[var(--primary-opacity-10)]/60! hover:text-[var(--primary-light)]! font-medium flex items-center justify-center cursor-pointer"
+              className="w-full py-1 bg-[var(--primary-subtle)]! text-[var(--primary)]! rounded-md! hover:bg-[var(--primary)]! hover:text-white! font-bold text-[10px] uppercase tracking-wider transition-all duration-300 flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md"
             >
-              <AgregarIcono />
+              <AgregarIcono size={16} />
             </button>
           </div>
         </div>
@@ -477,38 +477,38 @@ const FormularioDinamico = ({
         {items.length > 0 && (
           <>
             <div className="overflow-x-auto w-full">
-              <table className="w-full text-md">
-                <thead className="bg-[var(--fill2)] text-gray-300">
-                  <tr>
+              <table className="w-full text-md border-separate border-spacing-y-2">
+                <thead className="text-[var(--text-muted)]">
+                  <tr className="bg-[var(--surface-hover)]/50">
                     {field.tableColumns?.map((col) => (
                       <th
                         key={col.key}
-                        className={`px-3 py-2 ${col.align || "text-left"}`}
+                        className={`px-4 py-3 text-[10px] font-bold uppercase tracking-widest ${col.align || "text-left"}`}
                       >
                         {col.label}
                       </th>
                     ))}
-                    <th className="px-3 py-2"></th>
+                    <th className="px-4 py-3 rounded-r-xl"></th>
                   </tr>
                 </thead>
-                <tbody className="text-white">
+                <tbody className="text-[var(--text-primary)]">
                   {items.map((item) => (
-                    <tr key={item.id} className="border-t border-gray-700">
+                    <tr key={item.id} className="bg-[var(--surface)]/50 backdrop-blur-sm border border-[var(--border-subtle)] hover:bg-[var(--surface-hover)]/30 transition-colors">
                       {field.tableColumns?.map((col) => (
                         <td
                           key={col.key}
-                          className={`px-3 py-2 ${col.align || "text-left"}`}
+                          className={`px-4 py-3 text-sm ${col.align || "text-left"}`}
                         >
                           {col.render ? col.render(item) : item[col.key]}
                         </td>
                       ))}
-                      <td className="px-2 py-2">
+                      <td className="px-4 py-3 text-right">
                         <button
                           type="button"
                           onClick={() => removeItem(field.name, item.id)}
-                          className="text-red-400! hover:text-red-300! hover:bg-red-400/10! bg-red-400/20! p-1 rounded-md! cursor-pointer"
+                          className="p-2 rounded-lg text-red-500 hover:bg-red-500/10 transition-all cursor-pointer"
                         >
-                          <BorrarIcono size={18} />
+                          <BorrarIcono size={16} />
                         </button>
                       </td>
                     </tr>
@@ -519,7 +519,7 @@ const FormularioDinamico = ({
 
             {/* Totales si están definidos */}
             {field.renderTotals && (
-              <div className="border-t-2 border-gray-500/20 pt-4 w-full">
+              <div className="border-t border-[var(--border-subtle)] pt-6 w-full">
                 {field.renderTotals(items)}
               </div>
             )}
@@ -538,11 +538,11 @@ const FormularioDinamico = ({
   }, {});
 
   return (
-    <div className="w-full bg-[var(--fill)] rounded-xl shadow-md overflow-hidden">
+    <div className="w-full bg-[var(--surface)] rounded-md! shadow-md overflow-hidden">
       {/* Header */}
-      <div className="block bg-[var(--primary-opacity-10)] px-6 py-4 md:flex md:flex-col md:items-center md:justify-center">
-        <h2 className="text-2xl font-bold text-white">{titulo}</h2>
-        <p className="text-[var(--primary-light)] mt-1 text-md">{subtitulo}</p>
+      <div className="relative bg-gradient-to-r from-[var(--primary)]/10 to-transparent px-8 py-4 md:flex md:flex-col md:items-center md:justify-center border-b border-[var(--border-subtle)]">
+        <h2 className="text-3xl font-bold text-[var(--text-primary)] tracking-tight">{titulo}</h2>
+        <p className="text-[var(--text-secondary)] mt-1.5 text-base font-medium">{subtitulo}</p>
       </div>
 
       <div className="flex justify-center p-4 ">
@@ -551,16 +551,15 @@ const FormularioDinamico = ({
           {Object.entries(sections).map(([sectionName, sectionFields], idx) => (
             <div key={sectionName} className={idx > 0 ? "mb-3" : "mb-3"}>
               {sectionName !== "default" && (
-                <h3 className="text-md font-semibold bg-[var(--primary)]/5 py-2 px-2 rounded-md text-white border text-center border-[var(--primary)] mb-4 flex items-center gap-1">
-                  {sectionFields[0]?.sectionIcon}
+                <h3 className="text-sm font-bold bg-[var(--primary-subtle)] py-3 px-4 rounded-md! text-[var(--primary)] border border-[var(--primary)]/20 mb-6 flex items-center justify-center gap-2 uppercase tracking-[0.15em]">
+                  {sectionFields[0]?.sectionIcon && React?.cloneElement(sectionFields[0].sectionIcon, { size: 16 })}
                   {sectionName}
                 </h3>
               )}
 
               <div
-                className={`grid grid-cols-1 ${
-                  sectionFields[0]?.cols || "md:grid-cols-2"
-                } gap-4`}
+                className={`grid grid-cols-1 ${sectionFields[0]?.cols || "md:grid-cols-2"
+                  } gap-4`}
               >
                 {sectionFields.map((field) => (
                   <div
@@ -572,16 +571,16 @@ const FormularioDinamico = ({
                     }
                   >
                     {field.type !== "items-table" && (
-                      <label className="block text-xs font-medium text-white mb-2">
+                      <label className="block text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 ml-1">
                         {field.label}{" "}
                         {field.required && (
-                          <span className="text-red-400 text-xs">*</span>
+                          <span className="text-red-500 font-bold">*</span>
                         )}
                       </label>
                     )}
                     <div className="col-span-6">{renderField(field)}</div>
                     {field.type !== "items-table" && errors[field.name] && (
-                      <p className="text-red-400 text-sm mt-1">
+                      <p className="text-red-500 text-xs font-medium mt-1.5 ml-1">
                         {errors[field.name]}
                       </p>
                     )}
@@ -598,24 +597,23 @@ const FormularioDinamico = ({
             </div>
           ))}
           {/* Botones */}
-          <div className="gap-2 pt-2 border-t-2 border-gray-500/20">
-            <div className="flex justify-end ">
+          <div className="mt-8 pt-8 border-t border-[var(--border-subtle)]">
+            <div className="flex justify-end gap-4">
               {onCancel && (
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="flex-1 px-6 py-3 border-2 text-gray-300 font-medium hover:bg-[var(--fill2)] transition-colors flex items-center justify-center gap-2"
+                  className="px-6 py-2.5 rounded-md! border border-[var(--border-medium)] text-[var(--text-secondary)] font-bold text-[10px] uppercase tracking-widest hover:bg-[var(--surface-hover)] transition-all cursor-pointer"
                 >
-                  <X className="w-5 h-5" />
                   {cancelLabel}
                 </button>
               )}
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="w-auto px-6 py-2 rounded-md! bg-[var(--primary)]! text-white! font-medium hover:opacity-90 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 hover:bg-[var(--primary)]/70! cursor-pointer"
+                className="px-8 py-3 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-active)]! text-white! rounded-md! hover:-translate-y-0.5! active:translate-y-0! transition-all! duration-300! shadow-lg! shadow-[var(--primary)]/25! hover:shadow-[var(--primary)]/40! font-bold! text-[11px]! uppercase! tracking-[0.1em]! cursor-pointer! flex items-center gap-2"
               >
-                <GuardarIcono size={18} />
+                <GuardarIcono size={16} />
                 {submitLabel}
               </button>
             </div>

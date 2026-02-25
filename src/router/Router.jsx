@@ -4,6 +4,7 @@ import Panel from "../pages/Panel";
 import IniciarSesion from "../pages/IniciarSesion";
 
 import Configuracion from "../Componentes/Secciones/Configuracion/Configuracion";
+import RolesPermisos from "../Componentes/Secciones/Configuracion/RolesPermisos";
 import Productos from "../Componentes/Secciones/Articulos/Productos/Productos";
 import MateriaPrima from "../Componentes/Secciones/Articulos/MateriaPrima/MateriaPrima";
 import Facturas from "../Componentes/Secciones/Ventas/Facturas/Facturas";
@@ -51,6 +52,7 @@ export default function Router() {
 
         {/* CONFIGURACION */}
         <Route path="configuracion" element={<Configuracion />} />
+        <Route path="configuracion/roles" element={<RolesPermisos />} />
 
         {/* INVENTARIO */}
         <Route path="inventario/productos" element={<Productos />} />

@@ -1,4 +1,5 @@
 import { AgregarIcono } from "../../../../assets/Icons";
+import ContenedorSeccion from "../../../ContenidoPanel/ContenedorSeccion";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import FormularioDinamico from "../../../UI/FormularioReutilizable/FormularioDinamico";
 
@@ -128,9 +129,9 @@ const CrearProductos = () => {
   };
 
   return (
-    <div className="px-3 py-4">
+    <ContenedorSeccion className="px-3 py-4">
       {/* Encabezado */}
-      <div className="card no-inset no-ring bg-[var(--fill2)] shadow-md rounded-md mb-4">
+      <div className="card no-inset no-ring bg-[var(--surface)] shadow-md rounded-md mb-4">
         <EncabezadoSeccion
           ruta={"Crear Producto"}
           icono={<AgregarIcono />}
@@ -147,7 +148,7 @@ const CrearProductos = () => {
         onSubmit={handleSubmit}
         submitLabel="Guardar Producto"
       />
-    </div>
+    </ContenedorSeccion>
   );
 };
 

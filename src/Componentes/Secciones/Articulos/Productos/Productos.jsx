@@ -1,16 +1,19 @@
 import { InventarioIcono } from "../../../../assets/Icons";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import TablaProductos from "../../../Tablas/Articulos/Productos/TablaProductos";
+import ContenedorSeccion from "../../../ContenidoPanel/ContenedorSeccion";
 const Productos = () => {
   return (
-    <div className="px-3 py-4 border-0 card no-inset no-ring bg-[var(--surface-active)] shadow-md rounded-md">
+    <ContenedorSeccion>
+
       <EncabezadoSeccion
         ruta={"Productos"}
         icono={<InventarioIcono size={20} />}
       />
 
       <TablaProductos />
-    </div>
+    </ContenedorSeccion>
+
   );
 };
 

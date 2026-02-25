@@ -7,7 +7,7 @@ const TarjetaInformacion = ({
   icono
 }) => {
   return (
-    <div className="p-4 bg-[var(--surface)] shadow-md rounded-xl border border-[var(--border-subtle)] hover:border-[var(--primary)]/30 transition-all group overflow-hidden relative">
+    <div className="p-4 bg-[var(--surface)] shadow-md rounded-md! border border-[var(--border-subtle)] hover:border-[var(--primary)]/30 transition-all group overflow-hidden relative">
       <div className="flex items-start justify-between">
         <div className="space-y-1 z-10">
           <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
@@ -25,7 +25,7 @@ const TarjetaInformacion = ({
         </div>
 
         {icono && (
-          <div className={`p-2 rounded-lg bg-[var(--fill-secondary)]/10 ${color} group-hover:scale-110 transition-transform`}>
+          <div className={`p-2 rounded-md! bg-[var(--fill-secondary)]/10 ${color} group-hover:scale-110 transition-transform`}>
             {icono}
           </div>
         )}

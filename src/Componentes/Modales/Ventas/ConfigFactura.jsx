@@ -1,6 +1,6 @@
 import { ComprobanteIcono } from "../../../assets/Icons";
 
-const facturaConfig = {
+export const facturaConfig = {
   title: "Detalle de factura",
   icon: <ComprobanteIcono size={18} />,
   sections: [
@@ -17,4 +17,3 @@ const facturaConfig = {
   ],
 };
 
-export default facturaConfig;

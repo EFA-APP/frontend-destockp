@@ -5,7 +5,7 @@ const Select = ({ label, valor, setValor, options }) => {
       <select
         value={valor}
         onChange={(e) => setValor(e.target.value)}
-        className="w-auto px-3 h-8 rounded-md text-sm border-2 bg-orange-500/20 text-orange-400 border-orange-400/30 focus:border-[var(--primary)]"
+        className="w-auto px-3 h-8 rounded-md! text-sm border-2 bg-orange-500/20 text-orange-400 border-orange-400/30 focus:border-[var(--primary)]"
       >
         {options.map((option) => (
           <option

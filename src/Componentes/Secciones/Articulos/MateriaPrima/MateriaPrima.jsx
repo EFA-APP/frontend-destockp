@@ -1,13 +1,14 @@
 import { CanastaIcono } from "../../../../assets/Icons";
 import TablaMateriaPrima from "../../../Tablas/Articulos/MateriaPrima/TablaMateriaPrima";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
+import ContenedorSeccion from "../../../ContenidoPanel/ContenedorSeccion";
 const MateriaPrima = () => {
   return (
-    <div className="px-3 py-4 border-0 card no-inset no-ring bg-[var(--fill2)] shadow-md rounded-md">
+    <ContenedorSeccion>
       <EncabezadoSeccion ruta={"Materia Prima"} icono={<CanastaIcono />} />
 
       <TablaMateriaPrima />
-    </div>
+    </ContenedorSeccion>
   );
 };
 

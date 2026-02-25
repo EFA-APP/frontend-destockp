@@ -1,4 +1,5 @@
 import { AgregarIcono } from "../../../../assets/Icons";
+import ContenedorSeccion from "../../../ContenidoPanel/ContenedorSeccion";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import FormularioDinamico from "../../../UI/FormularioReutilizable/FormularioDinamico";
 
@@ -74,7 +75,7 @@ const CrearClientes = () => {
   };
 
   return (
-    <div className="px-3 py-4">
+    <ContenedorSeccion>
       {/* Encabezado */}
       <div className="card no-inset no-ring bg-[var(--fill2)] shadow-md rounded-md mb-4">
         <EncabezadoSeccion
@@ -93,7 +94,7 @@ const CrearClientes = () => {
         onSubmit={handleSubmit}
         submitLabel="Guardar Cliente"
       />
-    </div>
+    </ContenedorSeccion>
   );
 };
 

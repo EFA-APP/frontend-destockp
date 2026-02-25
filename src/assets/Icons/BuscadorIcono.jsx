@@ -12,10 +12,11 @@ const BuscadorIcono = ({ props, color, size }) => {
       width={size || "20"}
       height={size || "20"}
       viewBox="0 0 24 24"
+      strokeWidth={2}
     >
       <defs>
         <mask id="iconifyReact20">
-          <g fill="none" strokeWidth="1.5">
+          <g fill="none" strokeWidth="2">
             <circle cx="11.5" cy="11.5" r="9.5" stroke="gray"></circle>
             <path
               stroke="#fff"
@@ -25,7 +26,7 @@ const BuscadorIcono = ({ props, color, size }) => {
           </g>
         </mask>
       </defs>
-      <path fill={color || "#ffff"} d="M0 0h24v24H0z" mask="url(#iconifyReact20)"></path>
+      <path strokeWidth={2} fill={color || "#ffff"} d="M0 0h24v24H0z" mask="url(#iconifyReact20)"></path>
     </svg>
   );
 };

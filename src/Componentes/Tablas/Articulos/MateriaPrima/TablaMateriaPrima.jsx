@@ -7,7 +7,7 @@ import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacio
 import { accionesMateriaPrimas } from "./AccionesMateriaPrima";
 import { columnasMateriaPrima } from "./ColumnaMateriaPrima";
 
-import { InventarioIcono, AdvertenciaIcono } from "../../../assets/Icons";
+import { InventarioIcono, AdvertenciaIcono } from "../../../../assets/Icons";
 
 const TablaMateriaPrima = () => {
   const {

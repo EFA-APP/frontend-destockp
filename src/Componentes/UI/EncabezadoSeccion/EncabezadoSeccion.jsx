@@ -10,12 +10,12 @@ const EncabezadoSeccion = ({
 }) => {
   return (
     <div
-      className="rounded-xl p-5 py-2 bg-[var(--surface)]
+      className="rounded-md! p-5 py-2 bg-[var(--surface)]
           border border-[var(--border-subtle)]
           shadow-sm mb-6 flex items-center justify-between"
     >
       <div className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-[var(--primary-subtle)] text-[var(--primary)] border border-[var(--primary)]/10">
+        <div className="p-2 rounded-md! bg-[var(--primary-subtle)] text-[var(--primary)] border border-[var(--primary)]/10">
           {icono}
         </div>
         <div className="flex flex-col">
@@ -28,15 +28,15 @@ const EncabezadoSeccion = ({
         <ol className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest">
           <li >
             <Link
-              className="p-2 rounded-lg  text-[var(--text-secondary)]! hover:text-[var(--primary)]! transition-all border border-[var(--border-subtle)]!"
+              className="p-2 rounded-md!  text-[var(--text-secondary)]! hover:text-[var(--primary)]! transition-all border border-[var(--border-subtle)]!"
               to={`${volver ? redireccionAnterior : "/panel"}`}
             >
-              {volver ? icono : <InicioIcono size={16} />}
+              {volver ? <VolverIcono size={16} /> : <InicioIcono size={16} />}
             </Link>
           </li>
           <li className="text-[var(--text-muted)] opacity-30 px-1">/</li>
           <li>
-            <div className="px-2.5 py-1 rounded-lg bg-[var(--primary-subtle)] text-[var(--primary)] text-[9px] font-bold border border-[var(--primary)]/10">
+            <div className="px-2.5 py-1 rounded-md! bg-[var(--primary-subtle)] text-[var(--primary)] text-[9px] font-bold border border-[var(--primary)]/10">
               {ruta}
             </div>
           </li>

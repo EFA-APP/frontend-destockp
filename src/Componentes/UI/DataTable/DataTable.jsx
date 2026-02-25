@@ -5,7 +5,7 @@ import {
     ErrorIcono,
     FiltroIcono,
 } from "../../../assets/Icons";
-import { ChevronDown, ChevronUp, MoreHorizontal, Eye, Edit, Trash2, Download } from "lucide-react";
+import { ChevronDown, ChevronUp, MoreHorizontal, Eye, Edit, Trash2, Download, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 /* =====================================================
@@ -105,7 +105,7 @@ const DataRow = ({
                 {columnas.map((col, index) => (
                     <td
                         key={col.key}
-                        className={`px-4 py-1 text-[13px] text-[var(--text-primary)] transition-colors ${index === 0 ? 'font-medium' : ''}`}
+                        className={`px-4 py-2.5 text-[13px] text-[var(--text-primary)] transition-colors ${index === 0 ? 'font-medium' : ''}`}
                         onClick={manejarClick}
                     >
                         <div
@@ -230,7 +230,7 @@ const DataTable = ({
                             {botonAgregar && (
                                 <button
                                     onClick={manejarAgregarClick}
-                                    className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)]! text-white! rounded-md! hover:bg-[var(--primary-hover)]! transition-all! shadow-sm! font-bold! text-[11px]! uppercase! tracking-wider! cursor-pointer!"
+                                    className="flex items-center gap-2 px-6 py-2 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-active)]! text-white! rounded-md! hover:-translate-y-0.5! transition-all! duration-300! shadow-lg! shadow-[var(--primary)]/25! hover:shadow-[var(--primary)]/40! font-bold! text-[11px]! uppercase! tracking-wider! cursor-pointer!"
                                 >
                                     <AgregarIcono size={14} />
                                     {botonAgregar.texto || "Nuevo Registro"}
@@ -255,17 +255,26 @@ const DataTable = ({
                             {elementosSuperior}
 
                             {mostrarBuscador && setBusqueda && (
-                                <div className="relative">
+                                <div className="relative group/search">
+                                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--primary)]! group-focus-within/search:text-[var(--primary)]! transition-colors duration-300 z-[25]">
+                                        <BuscadorIcono size={14} color={"var(--primary)"} />
+                                    </div>
                                     <input
                                         type="text"
                                         value={busqueda}
                                         onChange={(e) => setBusqueda(e.target.value)}
-                                        className="w-64 h-9 pl-9 pr-4 rounded-lg bg-[var(--surface)]! border! border-[var(--border-subtle)]! focus:border-[var(--primary)]! focus:ring-1! focus:ring-[var(--primary)]! transition-all! text-[11px]! placeholder:text-[var(--text-muted)]! text-[var(--text-primary)]!"
+                                        className="w-72 h-10 pl-10 rounded-md! bg-[var(--surface)]/40! backdrop-blur-md! border! border-[var(--border-medium)]/50! focus:border-[var(--primary)]! focus:ring-8! focus:ring-[var(--primary)]/5! transition-all! duration-300! text-[13px]! placeholder:text-[var(--text-muted)]! text-[var(--text-primary)]! hover:border-[var(--border-medium)]! shadow-sm!"
                                         placeholder={placeholderBuscador}
                                     />
-                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
-                                        <BuscadorIcono size={14} color="currentColor" />
-                                    </div>
+                                    {busqueda && (
+                                        <button
+                                            onClick={() => setBusqueda("")}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-[var(--surface-hover)] rounded-md! text-[var(--text-muted)] hover:text-[var(--primary)] transition-all cursor-pointer"
+                                            title="Limpiar búsqueda"
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -273,8 +282,32 @@ const DataTable = ({
 
                     {/* PANEL DE FILTROS */}
                     {mostrarFiltros && filtrosAbiertos && (
-                        <div className="p-4 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl shadow-sm animate-in slide-in-from-top-2 duration-300">
-                            <div className="flex flex-wrap gap-4 items-end">{filtrosElementos}</div>
+                        <div className="
+                            relative overflow-hidden
+                            bg-[var(--surface)]/60 backdrop-blur-xl 
+                            border border-[var(--border-subtle)] 
+                            rounded-xl shadow-2xl shadow-[var(--primary)]/5
+                            animate-in slide-in-from-top-4 fade-in duration-500
+                        ">
+                            {/* Header del Panel */}
+                            <div className="flex items-center gap-3 px-5 py-3.5 border-b border-[var(--border-subtle)] bg-[var(--primary)]/5">
+                                <div className="p-1.5 rounded-md bg-[var(--primary-subtle)] text-[var(--primary)]">
+                                    <FiltroIcono size={14} />
+                                </div>
+                                <h4 className="text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--text-primary)]">
+                                    Filtros Avanzados
+                                </h4>
+                            </div>
+
+                            {/* Contenedor de Filtros */}
+                            <div className="p-5">
+                                <div className="flex flex-wrap gap-x-6 gap-y-4 items-end">
+                                    {filtrosElementos}
+                                </div>
+                            </div>
+
+                            {/* Decoración Inferior */}
+                            <div className="h-1 w-full bg-gradient-to-r from-transparent via-[var(--primary)]/20 to-transparent opacity-30" />
                         </div>
                     )}
                 </div>

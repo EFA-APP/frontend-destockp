@@ -69,7 +69,7 @@ const QuickAction = ({ icon, label, redirigir }) => (
 
 const Inicio = () => {
   return (
-    <div className="p-6 lg:p-10 space-y-8 min-h-screen text-[var(--text-primary)]">
+    <div className="p-4 lg:p-8 space-y-6 min-h-screen text-[var(--text-primary)]">
 
       {/* TÍTULO */}
       <EncabezadoSeccion ruta={"Inicio"} icono={<InicioIcono size={20} />} />

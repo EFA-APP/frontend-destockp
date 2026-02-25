@@ -5,10 +5,10 @@ const ArticulosNotificacion = ({ redireccion, icono, titulo, descripcion, hora }
     return (
         <Link
             to={redireccion}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[var(--primary-subtle)] transition-all group border border-transparent hover:border-[var(--primary)]/10"
+            className="flex items-center gap-3 px-4 py-3 rounded-md! hover:bg-[var(--primary-subtle)] transition-all group border border-transparent hover:border-[var(--primary)]/10"
         >
             {/* Icon Container */}
-            <div className="flex-shrink-0 h-10 w-10 rounded-xl bg-[var(--surface-hover)] flex items-center justify-center border border-[var(--border-subtle)] group-hover:border-[var(--primary)]/20 transition-colors">
+            <div className="flex-shrink-0 h-10 w-10 rounded-md! bg-[var(--surface-hover)] flex items-center justify-center border border-[var(--border-subtle)] group-hover:border-[var(--primary)]/20 transition-colors">
                 {React.isValidElement(icono) ? React.cloneElement(icono, { size: 16 }) : icono}
             </div>
 
