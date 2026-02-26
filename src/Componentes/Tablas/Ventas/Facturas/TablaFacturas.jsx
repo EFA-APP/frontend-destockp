@@ -1,4 +1,4 @@
-import { useFacturas } from "../../../../api/hooks/Ventas/Facturas/useFacturas";
+import { useFacturas } from "../../../../Backend/hooks/Ventas/Facturas/useFacturas";
 import Select from "../../../UI/Select/Select";
 import DataTable from "../../../UI/DataTable/DataTable";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";

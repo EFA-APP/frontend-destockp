@@ -1,4 +1,4 @@
-import { useAlumnos } from "../../../../api/hooks/Escuela/Alumnos/useAlumnos";
+import { useAlumnos } from "../../../../Backend/hooks/Escuela/Alumnos/useAlumnos";
 import { AlumnoIcono, CuotasIcono } from "../../../../assets/Icons";
 import TablaCuotas from "../../../Tablas/Escuela/Cuotas/TablaCuotas";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";

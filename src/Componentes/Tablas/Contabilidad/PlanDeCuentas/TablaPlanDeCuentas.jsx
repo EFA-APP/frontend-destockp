@@ -1,4 +1,4 @@
-import { usePlanDeCuentas } from "../../../../api/hooks/Contabilidad/PlanDeCuenta/usePlanDeCuenta";
+import { usePlanDeCuentas } from "../../../../Backend/hooks/Contabilidad/PlanDeCuenta/usePlanDeCuenta";
 import Select from "../../../UI/Select/Select";
 import DataTable from "../../../UI/DataTable/DataTable";
 import { columnasPlanDeCuentas } from "./columnaPlanDeCuentas";

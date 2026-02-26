@@ -1,16 +1,37 @@
 import { useNavigate } from "react-router-dom";
 import FormularioAuth from "../Componentes/UI/FormularioAuth/FormularioAuth";
+import { useIniciarSesion } from "../Backend/Autenticacion/queries/Usuario/useIniciarSesion.query";
+import { useAlertas } from "../store/useAlertas";
 
 const IniciarSesion = () => {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const { mutate: iniciarSesion, isPending, error } = useIniciarSesion();
+  const { agregarAlerta } = useAlertas();
 
-  const handleSubmit = () => {
-      navigate("panel")
-  }
+  const handleSubmit = (valores) => {
+    iniciarSesion(
+      { email: valores.email, contrasena: valores.contrasena },
+      {
+        onSuccess: () => {
+          agregarAlerta({
+            type: "exito",
+            message: "Sesión iniciada correctamente",
+          });
+          navigate("/panel");
+        },
+        onError: (err) => {
+          agregarAlerta({
+            type: "error",
+            message: err?.response?.data?.message || "Correo o contraseña incorrectos",
+          });
+        },
+      }
+    );
+  };
 
   return (
     <FormularioAuth
-      titulo="Inciar Sesión"
+      titulo="Iniciar Sesión"
       descripcion="Accedé al sistema de gestión"
       campos={[
         {
@@ -20,34 +41,27 @@ const IniciarSesion = () => {
           placeholder: "ejemplo@gmail.com",
           enlace: {
             to: "/recuperar-email",
-            texto: "¿Olvidaste tu email?"
-          }
+            texto: "¿Olvidaste tu email?",
+          },
         },
         {
           name: "contrasena",
           label: "Contraseña",
-          type: "text",
+          type: "password",
           placeholder: "**********",
           enlace: {
             to: "/recuperar-contrasena",
-            texto: "¿Olvidaste tu contraseña?"
-          }
+            texto: "¿Olvidaste tu contraseña?",
+          },
         },
       ]}
       onSubmit={handleSubmit}
-      // cargando={cargando}
-      // errores={errores}
+      cargando={isPending}
+      errores={error ? { contrasena: "Credenciales inválidas" } : {}}
       boton={{
         texto: "Iniciar Sesión",
         textoCargando: "Iniciando...",
       }}
-      // pieFormulario={{
-      //   pregunta: "¿?",
-      //   enlace: {
-      //     texto: "Iniciar",
-      //     to: "/iniciar-sesion",
-      //   },
-      // }}
     />
   );
 };

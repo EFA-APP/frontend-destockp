@@ -1,7 +1,7 @@
 import DataTable from "../../../UI/DataTable/DataTable";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
 import { columnasRecibos } from "./ColumnasRecibos";
-import { useRecibos } from "../../../../api/hooks/Escuela/Recibos/useRecibos";
+import { useRecibos } from "../../../../Backend/hooks/Escuela/Recibos/useRecibos";
 
 const TablaRecibos = () => {
   const {

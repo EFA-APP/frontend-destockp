@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMateriaPrima } from "../../../../api/hooks/MateriaPrima/useMateriaPrima";
+import { useMateriaPrima } from "../../../../Backend/hooks/MateriaPrima/useMateriaPrima";
 import materiaPrimaConfig from "../../../Modales/Articulos/ConfigMateriaPrima";
 import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
 import DataTable from "../../../UI/DataTable/DataTable";

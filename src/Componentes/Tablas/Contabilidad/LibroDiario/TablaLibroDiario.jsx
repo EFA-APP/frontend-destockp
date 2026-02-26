@@ -1,6 +1,6 @@
 // TablaLibroDiario.jsx
 
-import { useLibroDiario } from "../../../../api/hooks/Contabilidad/LibroDiario/useLibroDiario";
+import { useLibroDiario } from "../../../../Backend/hooks/Contabilidad/LibroDiario/useLibroDiario";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
 import Select from "../../../UI/Select/Select";
 import DataTable from "../../../UI/DataTable/DataTable";

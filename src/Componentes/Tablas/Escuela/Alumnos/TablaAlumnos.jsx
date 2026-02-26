@@ -1,4 +1,4 @@
-import { useAlumnos } from "../../../../api/hooks/Escuela/Alumnos/useAlumnos";
+import { useAlumnos } from "../../../../Backend/hooks/Escuela/Alumnos/useAlumnos";
 import DataTable from "../../../UI/DataTable/DataTable";
 import { columnasAlumnos } from "./ColumnaAlumnos";
 

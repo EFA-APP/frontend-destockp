@@ -5,7 +5,7 @@ const InputReutilizable = ({ label, tipo }) => {
         {label}
       </label>
       <input
-        className="flex h-8 w-full rounded-md! px-3 py-4 text-sm border-[0.2px]! border-gray-200/10! text-[var(--primary)]! focus:border-[var()]"
+        className="flex h-8 w-full rounded-md! px-3 py-4 text-sm border-[0.2px]! border-gray-200/10! text-[var(--primary)]! focus:border-[var(--primary)]"
         type={tipo}
       />
     </div>

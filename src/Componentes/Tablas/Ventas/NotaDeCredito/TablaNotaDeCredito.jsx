@@ -1,4 +1,4 @@
-import { useNotasCredito } from "../../../../api/hooks/Ventas/NotaDeCredito/useNotaDeCredito";
+import { useNotasCredito } from "../../../../Backend/hooks/Ventas/NotaDeCredito/useNotaDeCredito";
 import DataTable from "../../../UI/DataTable/DataTable";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
 import { columnasNotasCredito } from "./ColumnaNotaDeCredito";

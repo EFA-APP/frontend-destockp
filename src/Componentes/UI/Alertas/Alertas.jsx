@@ -6,15 +6,29 @@ export const Alerta = ({ alerta, onCerrar }) => {
   const Icon = config.icon;
 
   return (
-    <div className={`flex items-start gap-3 p-4 rounded-md! border ${config.bgColor} ${config.borderColor} shadow-sm transition-all`}>
-      <Icon className={`w-5 h-5 ${config.iconColor} flex-shrink-0 mt-0.5`} />
-      <p className={`flex-1 text-sm ${config.textColor}`}>{alerta.message}</p>
+    <div className={`
+      relative overflow-hidden
+      flex items-center gap-3 px-4 py-3
+      bg-[var(--surface-active)] border border-[var(--border-medium)]
+      rounded-md shadow-lg
+      animate-in fade-in slide-in-from-bottom-4 zoom-in-95 duration-300
+      transition-all
+    `}>
+      {/* Indicador lateral de color (Minimalista y formal) */}
+      <div className={`absolute left-0 top-0 bottom-0 w-1 ${config.indicatorColor}`} />
+
+      <Icon className={`w-4 h-4 ${config.iconColor} flex-shrink-0 ml-1`} strokeWidth={2.5} />
+
+      <p className={`!flex-1 !text-[13px] font-medium text-[var(--text-primary)]`}>
+        {alerta.message}
+      </p>
+
       <button
         onClick={onCerrar}
-        className={`${config.iconColor} hover:opacity-70 transition-opacity flex-shrink-0`}
-        ariaLabel="Cerrar alerta"
+        className="!p-1 !rounded hover:bg-[var(--border-medium)] !transition-colors flex-shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer"
+        aria-label="Cerrar alerta"
       >
-        <X className="w-5 h-5 text-red-600" />
+        <X size={14} />
       </button>
     </div>
   );

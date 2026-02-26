@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useProveedores } from "../../../../api/hooks/Proveedores/useProveedores";
+import { useProveedores } from "../../../../Backend/hooks/Proveedores/useProveedores";
 import proveedorConfig from "../../../Modales/Contactos/ConfigProveedores";
 import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
 import DataTable from "../../../UI/DataTable/DataTable";

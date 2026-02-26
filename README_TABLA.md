@@ -98,7 +98,7 @@ export const queryClient = new QueryClient({
 ```javascript
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { queryClient } from "./api/config/queryClient";
+import { queryClient } from "./Backend/config/queryClient";
 
 function App() {
   return (
@@ -335,7 +335,7 @@ import {
   useCrearProducto,
   useActualizarProducto,
   useEliminarProducto,
-} from "../../../api/hooks/useInventarioQuery";
+} from "../../../Backend/hooks/useInventarioQuery";
 
 export const useTablaInventario = () => {
   const [busqueda, setBusqueda] = useState("");
@@ -551,8 +551,8 @@ export default TablaInventario;
 
 ```javascript
 import { useQueryClient } from "@tanstack/react-query";
-import { inventarioKeys } from "../../../api/hooks/useInventarioQuery";
-import { inventarioService } from "../../../api/services/inventarioService";
+import { inventarioKeys } from "../../../Backend/hooks/useInventarioQuery";
+import { inventarioService } from "../../../Backend/services/inventarioService";
 
 const TablaInventario = () => {
   const queryClient = useQueryClient();

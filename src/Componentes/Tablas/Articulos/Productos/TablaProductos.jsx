@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useProductos } from "../../../../api/hooks/Productos/useProductos";
+import { useProductos } from "../../../../Backend/hooks/Productos/useProductos";
 import DataTable from "../../../UI/DataTable/DataTable";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
 import productoConfig from "../../../Modales/Articulos/ConfigProducto";

@@ -5,7 +5,7 @@ export const ContenedorAlerta = () => {
   const { alertas, eliminarAlerta } = useAlertas();
 
   return (
-    <div className="fixed top-16 right-4 z-50 space-y-3 max-w-md w-full">
+    <div className="fixed top-2 left-1/2 -translate-x-1/2 z-[9999] max-w-sm w-full px-4 sm:px-0">
       {alertas.map((alerta) => (
         <Alerta
           key={alerta.id}

@@ -5,11 +5,11 @@ export const useAlertas = create((set) => ({
 
   agregarAlerta: (alerta) => {
     const id = Date.now();
-    set((state) => ({
-      alertas: [...state.alertas, { ...alerta, id }],
+    set(() => ({
+      alertas: [{ ...alerta, id }],
     }));
 
-    if (alert.autoDismiss !== false) {
+    if (alerta.autoDismiss !== false) {
       setTimeout(() => {
         set((state) => ({
           alertas: state.alertas.filter((a) => a.id !== id),

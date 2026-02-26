@@ -1,4 +1,4 @@
-import { useOrdenesVenta } from "../../../../api/hooks/Ventas/OrdenDeVentas/useOrdenDeVentas";
+import { useOrdenesVenta } from "../../../../Backend/hooks/Ventas/OrdenDeVentas/useOrdenDeVentas";
 import Select from "../../../UI/Select/Select";
 import DataTable from "../../../UI/DataTable/DataTable";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";

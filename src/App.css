@@ -95,6 +95,12 @@ body {
   --border-medium: hsla(0, 0%, 100%, 0.12);
   --border-gray: var(--border-medium);
   
+  /* --- Global Colors --- */
+  --success: #10d127;
+  --error: #f43f5e;
+  --warning: #f59e0b;
+  --info: var(--primary);
+
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
   --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.5);
   --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.6);

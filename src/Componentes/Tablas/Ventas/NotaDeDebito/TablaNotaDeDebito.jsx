@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNotasDebito } from "../../../../api/hooks/Ventas/NotaDeDebito/useNotaDeDebito";
+import { useNotasDebito } from "../../../../Backend/hooks/Ventas/NotaDeDebito/useNotaDeDebito";
 import DataTable from "../../../UI/DataTable/DataTable";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
 import { accionesNotaDebito } from "./AccionesNotaDebito";

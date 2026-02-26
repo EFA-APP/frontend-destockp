@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useFacturasProveedor } from "../../../../api/hooks/Compras/FacturasProveedor/useFacturaProveedor";
+import { useFacturasProveedor } from "../../../../Backend/hooks/Compras/FacturasProveedor/useFacturaProveedor";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
 import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
 import Select from "../../../UI/Select/Select";

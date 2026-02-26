@@ -1,4 +1,4 @@
-import { useAsientos } from "../../../../api/hooks/Contabilidad/Asientos/useAsientos";
+import { useAsientos } from "../../../../Backend/hooks/Contabilidad/Asientos/useAsientos";
 import DataTable from "../../../UI/DataTable/DataTable";
 import Select from "../../../UI/Select/Select";
 import { columnasAsientos } from "./columnaAsientos";

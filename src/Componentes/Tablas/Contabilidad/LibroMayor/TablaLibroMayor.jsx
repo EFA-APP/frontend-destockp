@@ -1,4 +1,4 @@
-import { useLibroMayor } from "../../../../api/hooks/Contabilidad/LibroMayor/useLibroMayor";
+import { useLibroMayor } from "../../../../Backend/hooks/Contabilidad/LibroMayor/useLibroMayor";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
 import DataTable from "../../../UI/DataTable/DataTable";
 import { columnasLibroMayor } from "./columnasLibroMayor";

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  DesplegadorIcono,
   NotificacionesIcono,
   RefrescarIcono,
   CerrarSesionIcono,
@@ -8,6 +7,8 @@ import {
 
 import { Link } from "react-router-dom";
 import MenuNotificacion from "../MenuNotificacion/MenuNotificacion";
+import { cerrarSesion } from "../../../Backend/Autenticacion/cerrarSesion";
+import BotonConfiguracion from "../BotonConfiguracion/BotonConfiguracion";
 
 const BarraNavegacion = () => {
   const [menuAbiertoNotificacion, setMenuAbiertoNotificacion] = useState(false);
@@ -65,11 +66,17 @@ const BarraNavegacion = () => {
             </div>
 
             <button
+              onClick={cerrarSesion}
               className="p-2 rounded-md! bg-red-500/5! text-red-500! hover:bg-red-500! hover:text-white! transition-all! duration-300! cursor-pointer! border! border-red-500/20!"
               title="Cerrar Sesión"
             >
               <CerrarSesionIcono size={16} />
             </button>
+          </div>
+
+          {/* CONFIGURACION */}
+          <div className="flex items-center gap-4 ml-2">
+            <BotonConfiguracion />
           </div>
         </div>
       </nav>
