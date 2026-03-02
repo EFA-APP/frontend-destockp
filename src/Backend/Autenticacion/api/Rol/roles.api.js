@@ -1,7 +1,7 @@
 import { axiosInitial } from "../../../config";
 
-export const obtenerRolesApi = async () => {
-    const respuesta = await axiosInitial.get(`/roles`, { showLoader: true });
+export const obtenerRolesApi = async (filtros) => {
+    const respuesta = await axiosInitial.get(`/roles`, { params: filtros, showLoader: false });
     return respuesta.data;
 }
 

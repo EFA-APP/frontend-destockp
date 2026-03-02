@@ -2,7 +2,7 @@ import axios from "axios";
 import useCargadorStore from "../../store/useCargadorStore";
 import { useAlertas } from "../../store/useAlertas";
 import { useAuthStore } from "../Autenticacion/store/authenticacion.store";
-import { cerrarSesion } from "../Autenticacion/cerrarSesion";
+import { cerrarSesion } from "../Autenticacion/store/cerrarSesion";
 
 
 const createAxiosInstance = (baseURL) => {
@@ -63,7 +63,7 @@ const createAxiosInstance = (baseURL) => {
           type: "error",
           msg: "No tiene permisos para generar la petición"
         })
-        cerrarSesion();
+        // cerrarSesion();
       }
 
       return Promise.reject(error);

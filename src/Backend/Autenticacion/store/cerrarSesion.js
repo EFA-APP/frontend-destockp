@@ -1,4 +1,4 @@
-import { useAuthStore } from "./store/authenticacion.store";
+import { useAuthStore } from "./authenticacion.store";
 
 export const cerrarSesion = () => {
   useAuthStore.getState().clearAuth();

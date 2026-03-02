@@ -7,7 +7,7 @@ import {
 
 import { Link } from "react-router-dom";
 import MenuNotificacion from "../MenuNotificacion/MenuNotificacion";
-import { cerrarSesion } from "../../../Backend/Autenticacion/cerrarSesion";
+import { cerrarSesion } from "../../../Backend/Autenticacion/store/cerrarSesion";
 import BotonConfiguracion from "../BotonConfiguracion/BotonConfiguracion";
 
 const BarraNavegacion = () => {

@@ -24,3 +24,18 @@ export const verificarTokenApi = async () => {
   );
   return respuesta.data; 
 }
+
+export const obtenerUsuariosApi = async () => {
+  const respuesta = await axiosInitial.get("/auth/usuarios", { showLoader: true });
+  return respuesta.data;
+};
+
+export const asignarRolApi = async (data) => {
+  const respuesta = await axiosInitial.post("/auth/asignarRol", data, { showLoader: true });
+  return respuesta.data;
+};
+
+export const registrarseApi = async (data) => {
+  const respuesta = await axiosInitial.post("/auth/registrarse", data, { showLoader: true });
+  return respuesta.data;
+};
