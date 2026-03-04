@@ -26,16 +26,16 @@ export const verificarTokenApi = async () => {
 }
 
 export const obtenerUsuariosApi = async () => {
-  const respuesta = await axiosInitial.get("/auth/usuarios", { showLoader: true });
+  const respuesta = await axiosInitial.get("/auth/usuarios", { showLoader: false });
   return respuesta.data;
 };
 
 export const asignarRolApi = async (data) => {
-  const respuesta = await axiosInitial.post("/auth/asignarRol", data, { showLoader: true });
+  const respuesta = await axiosInitial.post("/auth/asignarRol", data, { showLoader: false });
   return respuesta.data;
 };
 
 export const registrarseApi = async (data) => {
-  const respuesta = await axiosInitial.post("/auth/registrarse", data, { showLoader: true });
+  const respuesta = await axiosInitial.post("/auth/registrarse", data, { showLoader: false });
   return respuesta.data;
 };

@@ -4,7 +4,7 @@ import Panel from "../pages/Panel";
 import IniciarSesion from "../pages/IniciarSesion";
 
 import Configuracion from "../Componentes/Secciones/Configuracion/Configuracion";
-import RolesPermisos from "../Componentes/Secciones/Configuracion/RolesPermisos/RolesPermisos";
+import RolesPermisos from "../Componentes/Secciones/Configuracion/RolesPermisos/TablaUsuarioRoles/RolesPermisos";
 import Productos from "../Componentes/Secciones/Articulos/Productos/Productos";
 import MateriaPrima from "../Componentes/Secciones/Articulos/MateriaPrima/MateriaPrima";
 import Facturas from "../Componentes/Secciones/Ventas/Facturas/Facturas";
@@ -38,7 +38,7 @@ import CrearAsientos from "../Componentes/Secciones/Contabilidad/CrearContabilid
 import Balance from "../Componentes/Secciones/Contabilidad/Balance/Balance";
 import Inicio from "../Componentes/Secciones/Inicio/Inicio";
 import MisComprobantesAFIP from "../Componentes/Secciones/MisComprobantesAfip/MisComprobantesAFIP";
-import CrearRolesPermisos from "../Componentes/Secciones/Configuracion/RolesPermisos/CrearRolesPermisos";
+import CrearRolesPermisos from "../Componentes/Secciones/Configuracion/RolesPermisos/CrearRoles/CrearRolesPermisos";
 
 export default function Router() {
   return (
@@ -55,7 +55,7 @@ export default function Router() {
         <Route path="configuracion" element={<Configuracion />} />
         <Route path="configuracion/roles" element={<RolesPermisos />} />
         <Route path="configuracion/roles/nuevo" element={<CrearRolesPermisos />} />
-        <Route path="configuracion/roles/editar/:id" element={<CrearRolesPermisos />} />
+        <Route path="configuracion/roles/editar" element={<CrearRolesPermisos />} />
 
         {/* INVENTARIO */}
         <Route path="inventario/productos" element={<Productos />} />

@@ -1,4 +1,4 @@
-import { accionesReutilizables } from "../../../UI/AccionesReutilizables/accionesReutilizables";
+import { accionesReutilizables } from "../../../../UI/AccionesReutilizables/accionesReutilizables";
 
 export const accionesRolesPermisos = ({
     handleEditar,

@@ -21,7 +21,6 @@ const FormularioDinamico = ({
 
   const [formData, setFormData] = useState(() => {
     if (initialData) return initialData;
-    console.log(campos)
     const initial = {};
     campos.forEach((field) => {
       if (field.type === "items-table") {

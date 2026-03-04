@@ -5,7 +5,7 @@ import {
     ErrorIcono,
     FiltroIcono,
 } from "../../../assets/Icons";
-import { ChevronDown, ChevronUp, MoreHorizontal, Eye, Edit, Trash2, Download, X } from "lucide-react";
+import { ChevronDown, ChevronUp, MoreHorizontal, Eye, Edit, Trash2, Download, X, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 /* =====================================================
@@ -22,7 +22,7 @@ const ActionMenu = ({ fila, acciones, onVer, onEditar, onEliminar, onDescargar, 
                     <button
                         key={i}
                         onClick={() => accion.onClick(fila)}
-                        title={accion.etiqueta}
+                        title={accion.label || accion.etiqueta}
                     >
                         {accion.icono && React.isValidElement(accion.icono) ? React.cloneElement(accion.icono, { size: 14 }) : accion.icono}
                     </button>
@@ -205,6 +205,7 @@ const DataTable = ({
 
     // Otras props
     emptyMessage = "No se encontraron registros en este módulo",
+    loading = false,
     className = ""
 }) => {
     const navigate = useNavigate();
@@ -314,7 +315,25 @@ const DataTable = ({
             )}
 
             {/* TABLA PRINCIPAL */}
-            <div className="w-full overflow-x-auto rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm">
+            <div className="w-full overflow-x-auto rounded-md border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm relative min-h-[200px]">
+                {/* Overlay de Carga Premium */}
+                {loading && (
+                    <div className="absolute inset-0 z-[50] bg-[var(--surface)]/60 backdrop-blur-[2px] flex flex-col items-center justify-center animate-in fade-in duration-300">
+                        <div className="flex flex-col items-center gap-3">
+                            <div className="relative">
+                                <div className="w-12 h-12 rounded-full border-2 border-[var(--primary)]/20 border-t-[var(--primary)] animate-spin" />
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="w-2 h-2 bg-[var(--primary)] rounded-full animate-pulse" />
+                                </div>
+                            </div>
+                            <div className="text-center">
+                                <p className="text-[11px] font-bold text-[var(--text-primary)] uppercase tracking-[0.2em]">Cargando Información</p>
+                                <p className="text-[9px] text-[var(--text-secondary)] uppercase tracking-wider mt-1 opacity-70">Sincronizando con el servidor...</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-[var(--fill-secondary)]/30 border-b border-[var(--border-subtle)]">
@@ -354,9 +373,9 @@ const DataTable = ({
                         ) : (
                             <tr>
                                 <td colSpan={columnas.length + (mostrarAcciones ? 1 : 0)} className="py-20 text-center">
-                                    <div className="flex flex-col items-center gap-3">
-                                        <div className="p-3 rounded-full bg-red-500/5 text-red-400">
-                                            <ErrorIcono size={24} />
+                                    <div className="flex flex-col items-center gap-3" >
+                                        <div className="p-3 rounded-full bg-[var(--surface-hover)] text-[var(--text-muted)] opacity-50">
+                                            <Package size={30} />
                                         </div>
                                         <p className="text-[11px] font-medium text-[var(--text-muted)]">
                                             {emptyMessage}

@@ -413,16 +413,6 @@ body {
   margin-bottom: calc(var(--spacing) * 2);
 }
 
-input {
-  font: inherit;
-  font-feature-settings: inherit;
-  font-variation-settings: inherit;
-  letter-spacing: inherit;
-  color: inherit;
-  opacity: 1;
-  background-color: #0000;
-  border-radius: 0;
-}
 
 .rounded-as8 {
   border-radius: var(--radius-md);
@@ -442,26 +432,6 @@ input {
   font-weight: var(--font-weight-semibold);
 }
 
-button {
-  font: inherit;
-  font-feature-settings: inherit;
-  font-variation-settings: inherit;
-  letter-spacing: inherit;
-  color: inherit;
-  opacity: 1;
-  background-color: #0000;
-  border-radius: 0;
-}
-
-button {
-  -webkit-appearance: button;
-  -moz-appearance: button;
-  appearance: button;
-}
-
-button {
-  cursor: pointer;
-}
 
 .h-\[18px\] {
   height: 18px;

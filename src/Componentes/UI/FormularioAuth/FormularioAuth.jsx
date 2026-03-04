@@ -8,7 +8,7 @@ const iconosPorCampo = {
   usuario: <PersonaIcono color="var(--primary-light)" size={20} />,
   cuit: <DocumentoIcono color="var(--primary-light)" size={20} />,
   confirmarContrasena: <ConfirmarContrasenaIcono color="var(--primary-light)" size={20} />,
-  
+
 };
 
 const FormularioAuth = ({
@@ -24,11 +24,7 @@ const FormularioAuth = ({
 }) => {
   const [valores, setValores] = useState({});
 
-  useEffect(() => {
-    const iniciales = {};
-    campos.forEach((c) => (iniciales[c.name] = ""));
-    setValores(iniciales);
-  }, [campos]);
+
 
   const handleChange = (name, value) => {
     setValores((prev) => ({ ...prev, [name]: value }));

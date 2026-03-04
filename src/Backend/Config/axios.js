@@ -61,7 +61,7 @@ const createAxiosInstance = (baseURL) => {
       if (error.response?.status === 401) {
         agregarAlerta({
           type: "error",
-          msg: "No tiene permisos para generar la petición"
+          message: "No tiene permisos para generar la petición"
         })
         // cerrarSesion();
       }

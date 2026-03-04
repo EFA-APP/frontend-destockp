@@ -28,7 +28,7 @@ export const Alerta = ({ alerta, onCerrar }) => {
         className="!p-1 !rounded hover:bg-[var(--border-medium)] !transition-colors flex-shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer"
         aria-label="Cerrar alerta"
       >
-        <X size={14} />
+        <X size={14} color='white' />
       </button>
     </div>
   );

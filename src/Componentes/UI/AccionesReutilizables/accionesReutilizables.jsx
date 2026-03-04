@@ -5,6 +5,7 @@ import {
   BorrarIcono,
   ErrorIcono,
   PagosIcono,
+  UsuarioIcono,
 } from "../../../assets/Icons";
 
 export const accionesReutilizables = {
@@ -64,6 +65,16 @@ export const accionesReutilizables = {
     icono: (
       <div className="bg-pink-500/10 p-1 rounded-md text-pink-400!">
         <PagosIcono size={18} />
+      </div>
+    ),
+  },
+
+  asignarRol: {
+    key: "asignarRol",
+    label: "Asignar Rol",
+    icono: (
+      <div className="p-1 rounded-md bg-violet-500/10 text-violet-500 hover:bg-violet-500/20 transition-colors cursor-pointer">
+        <UsuarioIcono size={18} />
       </div>
     ),
   },
