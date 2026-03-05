@@ -1,4 +1,4 @@
-import { axiosInitial } from "../../../config";
+import { axiosInitial } from "../../../Config";
 
 export const iniciarSesionApi = async ({ email, contrasena }) => {
   const respuesta = await axiosInitial.post(
@@ -22,7 +22,7 @@ export const verificarTokenApi = async () => {
       showLoader: false,
     }
   );
-  return respuesta.data; 
+  return respuesta.data;
 }
 
 export const obtenerUsuariosApi = async () => {
@@ -39,3 +39,6 @@ export const registrarseApi = async (data) => {
   const respuesta = await axiosInitial.post("/auth/registrarse", data, { showLoader: false });
   return respuesta.data;
 };
+
+
+

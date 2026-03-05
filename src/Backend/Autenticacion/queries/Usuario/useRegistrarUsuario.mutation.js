@@ -4,16 +4,22 @@ import { useAlertas } from "../../../../store/useAlertas";
 
 export const useRegistrarUsuario = () => {
     const queryClient = useQueryClient();
-    const { mostrarAlerta } = useAlertas();
+    const agregarAlerta = useAlertas((state) => state.agregarAlerta);
 
     return useMutation({
         mutationFn: registrarseApi,
         onSuccess: () => {
             queryClient.invalidateQueries(["usuarios"]);
-            mostrarAlerta("Éxito", "Usuario registrado correctamente", "success");
+            agregarAlerta({
+                type: "success",
+                message: "Usuario registrado correctamente",
+            });
         },
         onError: (error) => {
-            mostrarAlerta("Error", error?.response?.data?.message || "Ocurrió un error al registrar el usuario", "error");
+            agregarAlerta({
+                type: "error",
+                message: error?.response?.data?.message || "Ocurrió un error al registrar el usuario",
+            });
         }
     });
 };

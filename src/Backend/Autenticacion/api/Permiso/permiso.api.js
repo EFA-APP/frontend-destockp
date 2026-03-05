@@ -1,4 +1,4 @@
-import { axiosInitial } from "../../../config";
+import { axiosInitial } from "../../../Config";
 
 export const ObtenerPermisosApi = async () => {
     try {

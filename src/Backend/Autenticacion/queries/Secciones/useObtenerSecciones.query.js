@@ -1,15 +1,16 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ObtenerPermisosApi } from "../../api/Permiso/permiso.api";
+import { fetchObtenerSeccionesApi } from "../../api/Secciones/seccion.api";
 import { useAlertas } from "../../../../store/useAlertas";
 
-export const useObtenerPermisos = () => {
+export const useObtenerSeccionesQuery = () => {
     const agregarAlerta = useAlertas((state) => state.agregarAlerta);
-    
+
     const query = useQuery({
-        queryKey: ["permisos"],
-        queryFn: ObtenerPermisosApi,
-        staleTime: 1000 * 60 * 10, // 10 minutos
+        queryKey: ["obtenerSecciones"],
+        queryFn: fetchObtenerSeccionesApi,
+        staleTime: 1000 * 60 * 60, // 1 hour
+        cacheTime: 1000 * 60 * 60 * 2, // 2 hours
     });
 
     const { error, isError } = query;
@@ -18,7 +19,7 @@ export const useObtenerPermisos = () => {
         if (isError && error) {
             agregarAlerta({
                 type: "error",
-                message: error?.response?.data?.message || "Hubo un error al obtener los permisos",
+                message: error?.response?.data?.message || "Hubo un error al obtener las secciones del menú",
             });
         }
     }, [isError, error, agregarAlerta]);

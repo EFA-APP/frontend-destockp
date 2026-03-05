@@ -4,16 +4,24 @@ import { useAlertas } from "../../../../store/useAlertas";
 
 export const useAsignarRol = () => {
     const queryClient = useQueryClient();
-    const { mostrarAlerta } = useAlertas();
+    const agregarAlerta = useAlertas((state) => state.agregarAlerta);
 
     return useMutation({
         mutationFn: asignarRolApi,
         onSuccess: () => {
             queryClient.invalidateQueries(["usuarios"]);
-            mostrarAlerta("Éxito", "Rol asignado correctamente", "success");
+            agregarAlerta({
+                type: "success",
+                message: "Rol asignado correctamente",
+            });
+            // Disparamos la verificación del token para actualizar los datos del usuario logueado (incluyendo permisos)
+            queryClient.refetchQueries({ queryKey: ["verificarToken"] });
         },
         onError: (error) => {
-            mostrarAlerta("Error", error?.response?.data?.message || "Ocurrió un error al asignar el rol", "error");
+            agregarAlerta({
+                type: "error",
+                message: error?.response?.data?.message || "Ocurrió un error al asignar el rol",
+            });
         }
     });
 };

@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
@@ -43,7 +42,7 @@ const Articulo = ({
           <span className={`group-hover:text-[var(--primary)]! border border-[var(--border-subtle)] rounded-lg p-1.5 transition-colors ${estaActivadoOSubmenu
             ? "text-[var(--primary)]! bg-[var(--primary-subtle)] border-[var(--primary)]/20 shadow-sm"
             : "bg-[var(--surface-hover)]/30"
-            }`}>{React.isValidElement(icono) ? React.cloneElement(icono, { size: 14 }) : icono}</span>
+            }`}>{icono}</span>
           <span className={`truncate flex-1 font-semibold ${estaActivadoOSubmenu ? "text-[var(--text-primary)]" : ""}`}>{nombre}</span>
 
           {/* Flecha indicadora si tiene submenú */}

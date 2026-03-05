@@ -1,130 +1,77 @@
 import Articulo from "./Articulo";
-import {
-  ArcaIcono,
-  CarritoIcono,
-  ColegioIcono,
-  ContableIcono,
-  InicioIcono,
-  InventarioIcono,
-  PersonaIcono,
-  VentasIcono,
-} from "../../../assets/Icons";
 import { useTamañoBarraLateral } from "../../../store/useTamanoBarraLateral";
 import { useAuthStore } from "../../../Backend/Autenticacion/store/authenticacion.store";
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 
-const MENU_ITEMS = [
-  {
-    id: "inicio",
-    nombre: "Inicio",
-    icono: <InicioIcono size={18} />,
-    redireccion: "/panel/",
-    permisoRequerido: "Inicio / Dashboard",
-  },
-  {
-    id: "inventario",
-    nombre: "Inventario",
-    icono: <InventarioIcono size={20} />,
-    permisoRequerido: "Inventario (Productos y Materia Prima)",
-    submenu: [
-      { nombre: "Productos", redireccion: "/panel/inventario/productos" },
-      { nombre: "Materia Prima", redireccion: "/panel/inventario/materia-prima" },
-    ],
-  },
-  {
-    id: "contactos",
-    nombre: "Contactos",
-    icono: <PersonaIcono size={20} />,
-    permisoRequerido: "Contactos (Clientes y Proveedores)",
-    submenu: [
-      { nombre: "Clientes", redireccion: "/panel/contactos/clientes" },
-      { nombre: "Proveedores", redireccion: "/panel/contactos/proveedores" },
-    ],
-  },
-  {
-    id: "ventas",
-    nombre: "Ventas",
-    icono: <VentasIcono size={18} />,
-    permisoRequerido: "Ventas y Facturación",
-    submenu: [
-      { nombre: "Facturas", redireccion: "/panel/ventas/facturas" },
-      { nombre: "Notas de Créditos", redireccion: "/panel/ventas/notas-creditos" },
-      { nombre: "Notas de Débito", redireccion: "/panel/ventas/notas-debitos" },
-      { nombre: "Orden de venta", redireccion: "/panel/ventas/orden-ventas" },
-    ],
-  },
-  {
-    id: "compras",
-    nombre: "Compras",
-    icono: <CarritoIcono size={19} />,
-    permisoRequerido: "Compras y Gastos",
-    submenu: [
-      { nombre: "Facturas de proveedor", redireccion: "/panel/compras/facturas-proveedores" },
-      { nombre: "Notas de Créditos", redireccion: "/panel/compras/notas-creditos" },
-    ],
-  },
-  {
-    id: "escuela",
-    nombre: "Escuela",
-    icono: <ColegioIcono size={19} />,
-    permisoRequerido: "Gestión Escolar",
-    submenu: [
-      { nombre: "Alumnos", redireccion: "/panel/escuela/alumnos" },
-      { nombre: "Cuotas", redireccion: "/panel/escuela/cuotas" },
-      { nombre: "Recibos", redireccion: "/panel/escuela/recibos" },
-    ],
-  },
-  {
-    id: "contabilidad",
-    nombre: "Contabilidad",
-    icono: <ContableIcono size={18} />,
-    permisoRequerido: "Contabilidad",
-    submenu: [
-      { nombre: "Plan de Cuentas", redireccion: "/panel/contabilidad/cuentas" },
-      { nombre: "Asientos", redireccion: "/panel/contabilidad/asientos" },
-      { nombre: "Libro Diario", redireccion: "/panel/contabilidad/libro-diario" },
-      { nombre: "Libro Mayor", redireccion: "/panel/contabilidad/libro-mayor" },
-      { nombre: "Balance", redireccion: "/panel/contabilidad/balance" },
-    ],
-  },
-  {
-    id: "afip",
-    nombre: "Mis Comprobantes AFIP",
-    icono: <ArcaIcono size={18} />,
-    redireccion: "/panel/comprobantes-afip",
-    permisoRequerido: "Mis Comprobantes AFIP",
-  },
-];
+import * as Icons from "../../../assets/Icons";
+import { useSeccionesUI } from "../../../Backend/Autenticacion/hooks/Secciones/useSeccionesUI";
+
+// Función para parsear el string del icono que viene del backend (ej: "<InventarioIcono size={20} />")
+const parseIcono = (iconStr) => {
+  if (!iconStr || typeof iconStr !== "string") return iconStr;
+
+  // Extraemos el nombre del componente del tag (ej: "InventarioIcono")
+  const match = iconStr.match(/<(\w+)/);
+  if (match && match[1]) {
+    const IconComponent = Icons[match[1]];
+    // Retornamos el componente con un tamaño por defecto
+    return IconComponent ? <IconComponent size={20} /> : null;
+  }
+
+  return iconStr;
+};
 
 const BarraLateral = () => {
   const { isExpanded, setIsExpanded } = useTamañoBarraLateral();
   const usuario = useAuthStore((state) => state.usuario);
   const [openItem, setOpenItem] = useState(null);
 
-  // Extraemos todos los permisos del usuario de sus roles
-  const permisosUsuario = useMemo(() => {
+  const { secciones: seccionesApi } = useSeccionesUI();
+
+  // Extraemos todos los códigos de sección permitidos del usuario
+  const codigosSeccionPermitidos = useMemo(() => {
+    console.log(usuario)
     if (!usuario?.roles) return [];
 
-    const setPermisos = new Set();
-    console.log(setPermisos)
+    const codigos = new Set();
     usuario.roles.forEach(rol => {
-      // Si el rol tiene permisos ya aplanados
       if (rol.permisos && Array.isArray(rol.permisos)) {
-        rol.permisos.forEach(p => setPermisos.add({ nombre: p.nombre, codigoSeccion: p.codigoSeccion }));
+        rol.permisos.forEach(p => {
+          if (p.codigoSeccion) codigos.add(p.codigoSeccion);
+        });
       }
     });
-    return Array.from(setPermisos);
+    return Array.from(codigos);
   }, [usuario]);
 
-  // Filtramos el menú según los permisos
+
+  // Transformamos y filtramos el menú según los datos de la API y permisos
   const menuFiltrado = useMemo(() => {
-    return MENU_ITEMS.filter(item => {
-      // El ítem de Inicio siempre se muestra, o si el usuario tiene el permiso específico
-      if (item.id === "inicio") return true;
-      return permisosUsuario.includes(item.permisoRequerido);
-    });
-  }, [permisosUsuario]);
+    // Siempre incluimos Inicio
+    const inicioItem = {
+      id: "inicio",
+      nombre: "Inicio",
+      icono: <Icons.InicioIcono size={18} />,
+      redireccion: "/panel/",
+      submenu: []
+    };
+
+    const seccionesFiltradas = seccionesApi
+      .filter(seccion => seccion.activo && codigosSeccionPermitidos.includes(seccion.permisoRequerido))
+      .map(seccion => ({
+        id: seccion.id_seccion,
+        nombre: seccion.nombre,
+        icono: parseIcono(seccion.icono) || <Icons.InicioIcono size={18} />, // Fallback icon
+        redireccion: seccion.redireccion,
+        submenu: seccion.subMenus?.filter(sm => sm.activo).map(sm => ({
+          nombre: sm.nombre,
+          redireccion: sm.redireccion
+        })) || []
+      }));
+
+    return [inicioItem, ...seccionesFiltradas];
+  }, [seccionesApi, codigosSeccionPermitidos]);
 
   const handleArticuloClick = (e, itemId) => {
     if (!isExpanded) {

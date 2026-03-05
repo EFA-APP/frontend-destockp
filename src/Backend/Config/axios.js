@@ -2,7 +2,6 @@ import axios from "axios";
 import useCargadorStore from "../../store/useCargadorStore";
 import { useAlertas } from "../../store/useAlertas";
 import { useAuthStore } from "../Autenticacion/store/authenticacion.store";
-import { cerrarSesion } from "../Autenticacion/store/cerrarSesion";
 
 
 const createAxiosInstance = (baseURL) => {

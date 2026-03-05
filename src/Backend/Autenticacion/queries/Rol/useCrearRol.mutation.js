@@ -4,16 +4,22 @@ import { useAlertas } from "../../../../store/useAlertas";
 
 export const useCrearRol = () => {
     const queryClient = useQueryClient();
-    const { mostrarAlerta } = useAlertas();
+    const agregarAlerta = useAlertas((state) => state.agregarAlerta);
 
     return useMutation({
         mutationFn: crearRolesApi,
         onSuccess: () => {
             queryClient.invalidateQueries(["roles"]);
-            mostrarAlerta("Éxito", "Rol creado correctamente", "success");
+            agregarAlerta({
+                type: "success",
+                message: "Rol creado correctamente",
+            });
         },
         onError: (error) => {
-            mostrarAlerta("Error", error?.response?.data?.message || "Ocurrió un error al crear el rol", "error");
+            agregarAlerta({
+                type: "error",
+                message: error?.response?.data?.message || "Ocurrió un error al crear el rol",
+            });
         }
     });
 };

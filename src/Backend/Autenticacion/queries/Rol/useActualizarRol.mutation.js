@@ -14,6 +14,8 @@ export const useActualizarRol = () => {
                 type: "success",
                 message: "Rol actualizado correctamente",
             });
+
+            queryClient.refetchQueries({ queryKey: ["verificarToken"] });
         },
         onError: (error) => {
             console.error("Error al actualizar rol:", error);
