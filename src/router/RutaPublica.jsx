@@ -1,13 +1,14 @@
-import { Navigate } from "react-router-dom";
-import { useAuthStore } from "../backend/authenticacion/store/authenticacion.store";
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuthStore } from "../Backend/Autenticacion/store/authenticacion.store";
 
-const RutaPublica = ({ children }) => {
-  const usuario = useAuthStore((estado) => estado.usuario);
-  if (usuario) {
+const RutaPublica = () => {
+  const token = useAuthStore((state) => state.token);
+
+  if (token) {
     return <Navigate to="/panel" replace />;
   }
 
-  return children;
+  return <Outlet />;
 };
 
 export default RutaPublica;

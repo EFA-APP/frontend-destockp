@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 
 import * as Icons from "../../../assets/Icons";
 import { useSeccionesUI } from "../../../Backend/Autenticacion/hooks/Secciones/useSeccionesUI";
+import { useUserPermissions } from "../../../Backend/Autenticacion/hooks/useUserPermissions";
 
 // Función para parsear el string del icono que viene del backend (ej: "<InventarioIcono size={20} />")
 const parseIcono = (iconStr) => {
@@ -16,7 +17,7 @@ const parseIcono = (iconStr) => {
   if (match && match[1]) {
     const IconComponent = Icons[match[1]];
     // Retornamos el componente con un tamaño por defecto
-    return IconComponent ? <IconComponent size={20} /> : null;
+    return IconComponent ? <IconComponent size={18} /> : null;
   }
 
   return iconStr;
@@ -28,22 +29,7 @@ const BarraLateral = () => {
   const [openItem, setOpenItem] = useState(null);
 
   const { secciones: seccionesApi } = useSeccionesUI();
-
-  // Extraemos todos los códigos de sección permitidos del usuario
-  const codigosSeccionPermitidos = useMemo(() => {
-    console.log(usuario)
-    if (!usuario?.roles) return [];
-
-    const codigos = new Set();
-    usuario.roles.forEach(rol => {
-      if (rol.permisos && Array.isArray(rol.permisos)) {
-        rol.permisos.forEach(p => {
-          if (p.codigoSeccion) codigos.add(p.codigoSeccion);
-        });
-      }
-    });
-    return Array.from(codigos);
-  }, [usuario]);
+  const { codigosSeccionPermitidos } = useUserPermissions();
 
 
   // Transformamos y filtramos el menú según los datos de la API y permisos
@@ -52,7 +38,7 @@ const BarraLateral = () => {
     const inicioItem = {
       id: "inicio",
       nombre: "Inicio",
-      icono: <Icons.InicioIcono size={18} />,
+      icono: <Icons.InicioIcono size={16} />,
       redireccion: "/panel/",
       submenu: []
     };
@@ -92,48 +78,76 @@ const BarraLateral = () => {
   };
 
   return (
-    <div className="block ">
+    <div className="relative">
       <aside
-        className={`bg-[var(--fill)]! md:bg-transparent! pt-2 fixed transition-all duration-300 ease-in-out start-3 top-0 rtl:pe-4 rtl:ps-0 flex flex-col  z-[99999999] `}
-        onMouseLeave={() => setIsExpanded(false)}
+        className={`hidden md:flex bg-[var(--surface)]/80 backdrop-blur-xl border-r border-[var(--border-subtle)] fixed h-screen transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] z-[99999] flex-col ${isExpanded ? "w-64" : "w-20"
+          }`}
+        onMouseEnter={() => setIsExpanded(true)}
+        onMouseLeave={() => {
+          setIsExpanded(false);
+          setOpenItem(null);
+        }}
       >
-        {/* LOGO */}
-        <div className="flex items-center py-2 px-2">
-          <Link to="/" data-discover="true">
+        {/* LOGO SECTION */}
+        <div className={`flex items-center py-6 px-4 transition-all duration-300 ${isExpanded ? "justify-start" : "justify-center"
+          }`}>
+          <Link to="/" className="relative group/logo">
+            <div className="absolute -inset-1 bg-gradient-to-tr from-[var(--primary)] to-[var(--primary-subtle)] rounded-full blur opacity-25 group-hover/logo:opacity-50 transition duration-300" />
             <img
               alt="logo"
-              className="block w-10 rounded-full"
+              className="relative w-10 h-10 rounded-full border-2 border-white shadow-sm object-contain bg-white"
               src="/efa-logo.png"
             />
           </Link>
+          {isExpanded && (
+            <div className="ml-3 flex flex-col animate-in fade-in slide-in-from-left-2 duration-300">
+              <span className="text-[14px] font-extrabold text-[var(--text-primary)] leading-tight tracking-tight">
+                SISTEMA
+              </span>
+              <span className="text-[10px] text-[var(--text-muted)] font-medium">
+                Panel de Control
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* ITEMS */}
-        <div className="relative h-[calc(100vh-85px)]">
-          <div className="mt-4 space-y-2 border-t pt-2 border-[var(--border-subtle)]">
-            <div className="min-w-full table">
-              <div className="pe-4 rtl:pe-0 rtl:ps-4 list-none">
-                <div className="mt-4 space-y-2 border-t pt-2 first:mt-0 first:border-t-0 first:pt-0 border-[var(--border-subtle)] hide-menu">
-                  <div className="mt-1 flex flex-col pl-2">
-                    {menuFiltrado.map((item) => (
-                      <div key={item.id} onClick={(e) => handleArticuloClick(e, item.id)}>
-                        <Articulo
-                          nombre={isExpanded ? item.nombre : ""}
-                          icono={item.icono}
-                          redireccion={item.redireccion}
-                          submenu={isExpanded ? item.submenu : undefined}
-                          isOpen={openItem === item.id}
-                          onToggle={() => toggleItem(item.id)}
-                          isCollapsed={!isExpanded}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
+        {/* NAVIGATION ITEMS */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar py-4">
+          <nav className="px-3">
+            {menuFiltrado.map((item) => (
+              <div key={item.id} onClick={(e) => handleArticuloClick(e, item.id)}>
+                <Articulo
+                  nombre={item.nombre}
+                  icono={item.icono}
+                  redireccion={item.redireccion}
+                  submenu={item.submenu}
+                  isOpen={openItem === item.id}
+                  onToggle={() => toggleItem(item.id)}
+                  isCollapsed={!isExpanded}
+                />
+              </div>
+            ))}
+          </nav>
+        </div>
+
+        {/* FOOTER / USER INFO SNEAK PEEK (Optional but premium) */}
+        {isExpanded && (
+          <div className="p-4 border-t border-[var(--border-subtle)] animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="bg-[var(--surface-hover)] p-3 rounded-2xl flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center text-white font-bold text-xs">
+                {usuario?.usuario?.split(" ")[0][0] || "U"}
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-[11px] font-bold text-[var(--text-primary)] truncate">
+                  {usuario?.correoElectronico || "Usuario"}
+                </span>
+                <span className="text-[9px] text-[var(--text-muted)] truncate capitalize">
+                  {usuario?.roles?.[0]?.nombre || "Colaborador"}
+                </span>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </aside>
     </div>
   );

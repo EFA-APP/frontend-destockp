@@ -1,26 +1,21 @@
-import { Navigate } from "react-router-dom";
-import { useAuthStore } from "../Backend/hooks/Autenticacion/store/authenticacion.store";
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuthStore } from "../Backend/Autenticacion/store/authenticacion.store";
+import { useUserPermissions } from "../Backend/Autenticacion/hooks/useUserPermissions";
 
-const RutaProtegida = ({ children, rolesPermitidos }) => {
-  const { usuario, token } = useAuthStore();
+const RutaProtegida = ({ permisoRequerido }) => {
+  const token = useAuthStore((state) => state.token);
+  const { tienePermiso } = useUserPermissions();
 
-  // 🔐 No hay sesión
-  if (!token || !usuario) {
+  if (!token) {
     return <Navigate to="/" replace />;
   }
 
-  // 🧑‍💼 Validación de roles
-  if (rolesPermitidos?.length > 0) {
-    const tienePermisos = rolesPermitidos.some((rol) =>
-      usuario.roles?.includes(rol)
-    );
-
-    if (!tienePermisos) {
-      return <Navigate to="/" replace />;
-    }
+  if (!tienePermiso(permisoRequerido)) {
+    // Si está logueado pero no tiene permiso, redirigir al panel principal
+    return <Navigate to="/panel" replace />;
   }
 
-  return children;
+  return <Outlet />;
 };
 
 export default RutaProtegida;

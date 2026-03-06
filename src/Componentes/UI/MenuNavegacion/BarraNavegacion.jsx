@@ -20,17 +20,21 @@ const BarraNavegacion = () => {
   return (
     <header className="sticky top-0 z-[50]">
       <nav className="px-5 bg-[var(--surface)] border-b border-[var(--border-subtle)] shadow-sm h-14 flex items-center justify-between transition-all duration-300">
-        <div className="flex-1 flex items-center">
-          {/* Lado izquierdo reservado para buscador o breadcrumb si es necesario */}
+        <div className="flex-1 flex items-center md:hidden">
+          <Link to="/" className="relative group/logo-mobile">
+            <div className="absolute -inset-1 bg-gradient-to-tr from-[var(--primary)] to-[var(--primary-subtle)] rounded-full blur opacity-25" />
+            <img
+              alt="logo"
+              className="relative w-8 h-8 rounded-full border-2 border-white shadow-sm object-contain bg-white"
+              src="/efa-logo.png"
+            />
+          </Link>
         </div>
+
+        <div></div>
 
         <div className="flex items-center gap-3">
 
-
-          {/* DEMO */}
-          <Link to={"/panel/demo"} className="text-[10px] font-bold px-2.5 py-1 bg-[var(--primary-subtle)] text-[var(--primary)] border border-[var(--primary)]/20 rounded-md! uppercase tracking-wider">
-            Demo
-          </Link>
 
           {/* ARCA STATUS */}
           <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-md! bg-[var(--surface-hover)] border border-[var(--border-subtle)] group cursor-help">
@@ -59,8 +63,8 @@ const BarraNavegacion = () => {
           <div className="w-px h-6 bg-[var(--border-subtle)] mx-1" />
 
           {/* PERFIL */}
-          <div className="flex items-center gap-4 ml-2">
-            <div className="flex flex-col items-end">
+          <div className="flex items-center gap-4 ml-2 ">
+            <div className="flex-col items-end hidden md:flex">
               <span className="text-[11px] font-bold text-[var(--text-primary)] leading-none">José Chocobar</span>
               <span className="text-[9px] text-[var(--secondary)] font-bold uppercase tracking-widest mt-0.5">Administrador</span>
             </div>

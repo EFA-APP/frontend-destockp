@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Error from "../pages/Error";
 import Panel from "../pages/Panel";
 import IniciarSesion from "../pages/IniciarSesion";
@@ -40,98 +40,91 @@ import Inicio from "../Componentes/Secciones/Inicio/Inicio";
 import MisComprobantesAFIP from "../Componentes/Secciones/MisComprobantesAfip/MisComprobantesAFIP";
 import CrearRolesPermisos from "../Componentes/Secciones/Configuracion/RolesPermisos/CrearRoles/CrearRolesPermisos";
 
+import RutaProtegida from "./RutaProtegida";
+import RutaPublica from "./RutaPublica";
+
 export default function Router() {
   return (
     <Routes>
-      {/* LOGIN */}
-      <Route path="/" element={<IniciarSesion />} />
+      {/* 🔓 RUTAS PÚBLICAS (Solo si NO está logueado) */}
+      <Route element={<RutaPublica />}>
+        <Route path="/" element={<IniciarSesion />} />
+      </Route>
 
-      {/* PANEL (LAYOUT) */}
-      <Route path="/panel" element={<Panel />}>
-        {/* LAYOUT INTERNO */}
-        <Route index element={<Inicio />} />
+      {/* 🔐 PANEL (Solo si está logueado) */}
+      <Route element={<RutaProtegida />}>
+        <Route path="/panel" element={<Panel />}>
+          <Route index element={<Inicio />} />
 
-        {/* CONFIGURACION */}
-        <Route path="configuracion" element={<Configuracion />} />
-        <Route path="configuracion/roles" element={<RolesPermisos />} />
-        <Route path="configuracion/roles/nuevo" element={<CrearRolesPermisos />} />
-        <Route path="configuracion/roles/editar" element={<CrearRolesPermisos />} />
+          {/* CONFIGURACION */}
+          <Route element={<RutaProtegida />}>
+            <Route path="configuracion" element={<Configuracion />} />
+            <Route path="configuracion/roles" element={<RolesPermisos />} />
+            <Route path="configuracion/roles/nuevo" element={<CrearRolesPermisos />} />
+            <Route path="configuracion/roles/editar" element={<CrearRolesPermisos />} />
+          </Route>
 
-        {/* INVENTARIO */}
-        <Route path="inventario/productos" element={<Productos />} />
-        <Route path="inventario/productos/nuevo" element={<CrearProductos />} />
-        <Route path="inventario/materia-prima" element={<MateriaPrima />} />
-        <Route
-          path="inventario/materia-prima/nuevo"
-          element={<CrearMateriaPrima />}
-        />
+          {/* INVENTARIO */}
+          <Route element={<RutaProtegida />}>
+            <Route path="inventario/productos" element={<Productos />} />
+            <Route path="inventario/productos/nuevo" element={<CrearProductos />} />
+            <Route path="inventario/materia-prima" element={<MateriaPrima />} />
+            <Route path="inventario/materia-prima/nuevo" element={<CrearMateriaPrima />} />
+          </Route>
 
-        {/* CONTACTOS */}
-        <Route path="contactos/clientes" element={<Clientes />} />
-        <Route path="contactos/clientes/nuevo" element={<CrearClientes />} />
-        <Route path="contactos/proveedores" element={<Proveedores />} />
-        <Route
-          path="contactos/proveedores/nuevo"
-          element={<CrearProveedores />}
-        />
+          {/* CONTACTOS */}
+          <Route element={<RutaProtegida />}>
+            <Route path="contactos/clientes" element={<Clientes />} />
+            <Route path="contactos/clientes/nuevo" element={<CrearClientes />} />
+            <Route path="contactos/proveedores" element={<Proveedores />} />
+            <Route path="contactos/proveedores/nuevo" element={<CrearProveedores />} />
+          </Route>
 
-        {/* VENTAS */}
-        <Route path="ventas/facturas" element={<Facturas />} />
-        <Route path="ventas/facturas/nueva" element={<CrearFactura />} />
-        <Route path="ventas/orden-ventas" element={<OrdenDeVentas />} />
-        <Route
-          path="ventas/orden-ventas/nueva"
-          element={<CrearOrdenDeVentas />}
-        />
-        <Route path="ventas/notas-creditos" element={<NotaDeCredito />} />
-        <Route
-          path="ventas/notas-creditos/nueva"
-          element={<CrearNotaCredito />}
-        />
-        <Route path="ventas/notas-debitos" element={<NotaDeDebito />} />
-        <Route
-          path="ventas/notas-debitos/nueva"
-          element={<CrearNotaDebito />}
-        />
+          {/* VENTAS */}
+          <Route element={<RutaProtegida />}>
+            <Route path="ventas/facturas" element={<Facturas />} />
+            <Route path="ventas/facturas/nueva" element={<CrearFactura />} />
+            <Route path="ventas/orden-ventas" element={<OrdenDeVentas />} />
+            <Route path="ventas/orden-ventas/nueva" element={<CrearOrdenDeVentas />} />
+            <Route path="ventas/notas-creditos" element={<NotaDeCredito />} />
+            <Route path="ventas/notas-creditos/nueva" element={<CrearNotaCredito />} />
+            <Route path="ventas/notas-debitos" element={<NotaDeDebito />} />
+            <Route path="ventas/notas-debitos/nueva" element={<CrearNotaDebito />} />
+          </Route>
 
-        {/* COMPRAS */}
-        <Route
-          path="compras/facturas-proveedores"
-          element={<FacturasProveedor />}
-        />
+          {/* COMPRAS */}
+          <Route element={<RutaProtegida />}>
+            <Route path="compras/facturas-proveedores" element={<FacturasProveedor />} />
+            <Route path="compras/facturas-proveedores/nueva" element={<CrearFacturaProveedor />} />
+          </Route>
 
-        <Route
-          path="compras/facturas-proveedores/nueva"
-          element={<CrearFacturaProveedor />}
-        />
+          {/* ESCUELA */}
+          <Route element={<RutaProtegida />}>
+            <Route path="escuela/alumnos" element={<Alumnos />} />
+            <Route path="escuela/alumnos/nuevo" element={<CrearAlumnos />} />
+            <Route path="escuela/cuotas" element={<Cuotas />} />
+            <Route path="escuela/recibos" element={<Recibos />} />
+            <Route path="escuela/recibos/nuevo" element={<CrearRecibo />} />
+          </Route>
 
-        {/* ESCUELA */}
-        <Route path="escuela/alumnos" element={<Alumnos />} />
-        <Route path="escuela/alumnos/nuevo" element={<CrearAlumnos />} />
-        <Route path="escuela/cuotas" element={<Cuotas />} />
-        <Route path="escuela/recibos" element={<Recibos />} />
-        <Route path="escuela/recibos/nuevo" element={<CrearRecibo />} />
+          {/* CONTABILIDAD */}
+          <Route element={<RutaProtegida />}>
+            <Route path="contabilidad/cuentas" element={<PlanDeCuentas />} />
+            <Route path="contabilidad/cuentas/nueva" element={<CrearPlanDeCuenta />} />
+            <Route path="contabilidad/asientos" element={<Asientos />} />
+            <Route path="contabilidad/asientos/nuevo" element={<CrearAsientos />} />
+            <Route path="contabilidad/libro-diario" element={<LibroDiario />} />
+            <Route path="contabilidad/libro-mayor" element={<LibroMayor />} />
+            <Route path="contabilidad/balance" element={<Balance />} />
+          </Route>
 
-        {/* CONTABILIDAD */}
-        <Route path="contabilidad/cuentas" element={<PlanDeCuentas />} />
-        <Route
-          path="contabilidad/cuentas/nueva"
-          element={<CrearPlanDeCuenta />}
-        />
-        <Route path="contabilidad/asientos" element={<Asientos />} />
-        <Route path="contabilidad/asientos/nuevo" element={<CrearAsientos />} />
+          {/* AFIP */}
+          <Route element={<RutaProtegida />}>
+            <Route path="comprobantes-afip" element={<MisComprobantesAFIP />} />
+          </Route>
 
-        <Route path="contabilidad/libro-diario" element={<LibroDiario />} />
-        <Route path="contabilidad/libro-mayor" element={<LibroMayor />} />
-        <Route path="contabilidad/balance" element={<Balance />} />
-        <Route path="demo" element={<SistemaContable />} />
-
-
-        {/* MIS COMPROBANTES AFIP */}
-        <Route
-          path="comprobantes-afip"
-          element={<MisComprobantesAFIP />}
-        />
+          <Route path="demo" element={<SistemaContable />} />
+        </Route>
       </Route>
 
       {/* ERROR */}

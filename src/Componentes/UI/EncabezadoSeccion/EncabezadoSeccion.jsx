@@ -10,37 +10,60 @@ const EncabezadoSeccion = ({
 }) => {
   return (
     <div
-      className="rounded-md! p-5 py-2 bg-[var(--surface)]
+      className="relative overflow-hidden rounded-2xl p-2 md:p-4 mb-8
+          bg-[var(--surface)]/60 backdrop-blur-xl
           border border-[var(--border-subtle)]
-          shadow-sm mb-6 flex items-center justify-between"
+          shadow-xl shadow-[var(--primary)]/5
+          flex flex-col md:flex-row md:items-center justify-between gap-4
+          animate-in fade-in slide-in-from-top-4 duration-500"
     >
-      <div className="flex items-center gap-3">
-        <div className="p-2 rounded-md! bg-[var(--primary-subtle)] text-[var(--primary)] border border-[var(--primary)]/10">
-          {icono}
+      {/* Efecto de Brillo Interno */}
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+      <div className="flex items-center gap-4">
+        {/* Contenedor del Icono con Degradado */}
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-active)] rounded-xl blur-sm opacity-20 group-hover:opacity-40 transition duration-500" />
+          <div className="relative p-2 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary-active)] text-white shadow-lg shadow-[var(--primary)]/20 border border-white/10">
+            {React.isValidElement(icono) ? React.cloneElement(icono, { size: 20 }) : icono}
+          </div>
         </div>
+
         <div className="flex flex-col">
-          <h1 className="text-base font-bold text-[var(--text-primary)] tracking-tight leading-none">{ruta}</h1>
-          <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-[var(--text-muted)] mt-1 px-0.5">Módulo activo</span>
+          <div className="flex items-center gap-2">
+            <h1 className="text-md md:text-lg font-black text-[var(--text-primary)] tracking-tight leading-none">
+              {ruta}
+            </h1>
+            <span className="hidden md:inline-flex px-2 py-0.5 rounded-full bg-[var(--primary-subtle)] text-[var(--primary)] text-[8px] font-bold uppercase tracking-widest border border-[var(--primary)]/10">
+              Activo
+            </span>
+          </div>
+          <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-[var(--text-muted)] mt-1.5 opacity-70">
+            Gestión de Sistema
+          </span>
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <ol className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest">
-          <li >
-            <Link
-              className="p-2 rounded-md!  text-[var(--text-secondary)]! hover:text-[var(--primary)]! transition-all border border-[var(--border-subtle)]!"
-              to={`${volver ? redireccionAnterior : "/panel"}`}
-            >
-              {volver ? <VolverIcono size={16} /> : <InicioIcono size={16} />}
-            </Link>
-          </li>
-          <li className="text-[var(--text-muted)] opacity-30 px-1">/</li>
-          <li>
-            <div className="px-2.5 py-1 rounded-md! bg-[var(--primary-subtle)] text-[var(--primary)] text-[9px] font-bold border border-[var(--primary)]/10">
-              {ruta}
+      <div className="flex items-center gap-4 hidden md:block">
+        <nav className="flex items-center gap-2 md:gap-3">
+          <Link
+            to={volver ? redireccionAnterior : "/panel"}
+            className="group relative flex items-center justify-center w-10 h-10 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--primary)] hover:border-[var(--primary)]/30 transition-all duration-300 shadow-sm"
+            title={volver ? "Volver" : "Inicio"}
+          >
+            {volver ? <VolverIcono size={20} /> : <InicioIcono size={20} />}
+          </Link>
+
+          <div className="h-6 w-px bg-[var(--border-subtle)] mx-1" />
+
+          <div className="hidden sm:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest bg-[var(--surface-hover)] p-1 pr-3 rounded-xl border border-[var(--border-subtle)]">
+            <div className="w-8 h-8 rounded-lg bg-[var(--primary-subtle)] flex items-center justify-center text-[var(--primary)]">
+              {volver ? <VolverIcono size={14} /> : <InicioIcono size={14} />}
             </div>
-          </li>
-        </ol>
+            <span className="text-[var(--text-muted)] opacity-50">/</span>
+            <span className="text-[var(--primary)]">{ruta}</span>
+          </div>
+        </nav>
       </div>
     </div>
   );
