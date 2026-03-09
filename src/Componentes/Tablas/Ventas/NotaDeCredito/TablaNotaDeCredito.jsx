@@ -3,6 +3,11 @@ import DataTable from "../../../UI/DataTable/DataTable";
 import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
 import { columnasNotasCredito } from "./ColumnaNotaDeCredito";
 import { accionesNotaCredito } from "./AccionesNotaCredito";
+import { useState } from "react";
+import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
+import notaCreditoConfig from "../../../Modales/Ventas/ConfigNotaCredito";
+import Select from "../../../UI/Select/Select";
+import FechaInput from "../../../UI/FechaInput/FechaInput";
 
 const TablaNotasCredito = () => {
   const {
@@ -43,7 +48,7 @@ const TablaNotasCredito = () => {
         onClose={() => setModalAbierto(false)}
         data={seleccionado}
         {...notaCreditoConfig}
-        width="w-[420px]"
+        accentColor="rose"
       />
 
       {/* Cards */}

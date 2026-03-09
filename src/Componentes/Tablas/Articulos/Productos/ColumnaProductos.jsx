@@ -1,20 +1,30 @@
 export const columnasProductos = [
   {
+    key: "codigoSecuencial",
+    etiqueta: "Cód.",
+    filtrable: true,
+    renderizar: (valor) => (
+      <div className="font-mono text-[11px] font-bold text-[var(--primary)] bg-[var(--primary-subtle)]/30 px-2 py-0.5 rounded border border-[var(--primary)]/10 inline-block">
+        #{valor}
+      </div>
+    ),
+  },
+  {
     key: "nombre",
     etiqueta: "Producto",
     filtrable: true,
     renderizar: (valor, fila) => (
       <div className="py-1">
-        <div className="font-bold text-[13px] text-[var(--text-primary)] leading-tight">{valor}</div>
-        <div className="text-[10px] font-medium text-[var(--primary)] uppercase tracking-wider mt-0.5">
-          {fila.sabor} • {fila.pesoUnitario * 1000}g
+        <div className="font-bold text-[13px] text-[var(--text-primary)] leading-tight uppercase">{valor}</div>
+        <div className="text-[10px] font-medium text-[var(--text-muted)] mt-0.5">
+          Unidad: {fila.unidadMedida || "UND"}
         </div>
       </div>
     ),
   },
   {
     key: "stock",
-    etiqueta: "Stock",
+    etiqueta: "Stock Actual",
     filtrable: false,
     renderizar: (valor, fila) => {
       const getStockStyles = (val) => {
@@ -25,48 +35,25 @@ export const columnasProductos = [
 
       return (
         <div className="py-1">
-          <div className="flex items-center gap-2">
-            <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold border ${getStockStyles(valor)}`}>
-              {valor} {fila.unidad}
-            </span>
-          </div>
-          <div className="text-[10px] text-[var(--text-muted)] mt-1 font-medium italic">
-            {fila.paquetes} pqts × {fila.cantidadPorPaquete} un.
-          </div>
+          <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold border ${getStockStyles(valor || 0)}`}>
+            {valor || 0} {fila.unidadMedida}
+          </span>
+          {fila.cantidadPorPaquete > 0 && (
+            <div className="flex flex-col gap-0.5 mt-1.5 font-medium italic">
+              <div className="text-[10px] text-[var(--text-muted)] flex items-center gap-1">
+                <span className="w-1 h-1 bg-[var(--primary)]/30 rounded-full" />
+                Packs: <span className="text-[var(--primary)]/80 ml-0.5">{fila.cantidadDePaquetesActuales} x {fila.cantidadPorPaquete} und.</span>
+              </div>
+              {fila.cantidadSobrante > 0 && (
+                <div className="text-[10px] text-amber-500/80 flex items-center gap-1">
+                  <span className="w-1 h-1 bg-amber-500/30 rounded-full" />
+                  Sobrante: <span className="ml-0.5">{fila.cantidadSobrante} und.</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       );
     },
-  },
-  {
-    key: "pesoTotal",
-    etiqueta: "Peso Acum.",
-    filtrable: false,
-    renderizar: (valor) => (
-      <div className="font-mono text-[11px] font-bold text-[var(--text-secondary)]">
-        {valor.toFixed(1)} <span className="text-[9px] text-[var(--text-muted)] uppercase tracking-tighter ml-0.5">kg</span>
-      </div>
-    ),
-  },
-  {
-    key: "precioUnitario",
-    etiqueta: "P. Unit.",
-    filtrable: false,
-    renderizar: (valor) => (
-      <div className="text-[11px] font-semibold text-[var(--text-primary)]">
-        <span className="text-[9px] text-[var(--text-muted)] mr-0.5">$</span>
-        {valor.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
-      </div>
-    ),
-  },
-  {
-    key: "precioTotal",
-    etiqueta: "Valorización",
-    filtrable: false,
-    renderizar: (valor) => (
-      <div className="text-[12px] font-bold text-green-500">
-        <span className="text-[10px] opacity-70 mr-0.5">$</span>
-        {valor.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-      </div>
-    ),
   },
 ];

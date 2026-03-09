@@ -7,27 +7,22 @@ const productoConfig = {
     {
       label: "Producto",
       key: "nombre",
-      sub: (p) => `Código: ${p.codigo}`,
+      sub: (p) => `Código: ${p.codigoSecuencial}`,
       editable: true,
     },
     {
-      label: "Código",
-      key: "codigo",
+      label: "Unidad",
+      key: "unidadMedida",
       editable: true,
-      ocultar: true,
     }
   ],
   metrics: [
-    { label: "Stock", value: "stock" },
-    { label: "Paquetes", value: "paquetes" },
+    { label: "Stock Total", value: "stock" },
+    { label: "Paquetes", value: "cantidadDePaquetesActuales" },
     {
-      label: "Peso total",
-      value: (p) => `${p.pesoTotal} kg`,
-    },
-    {
-      label: "Valor total",
-      value: (p) => `$${p.precioTotal}`,
-    },
+       label: "Cant. p/ Paquete", 
+       value: "cantidadPorPaquete" 
+    }
   ],
 };
 

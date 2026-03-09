@@ -45,7 +45,6 @@ const TablaFacturas = () => {
         onClose={() => setModalAbierto(false)}
         data={seleccionado}
         {...facturaConfig}
-        width="w-[420px]"
       />
 
       {/* Cards */}

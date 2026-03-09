@@ -1,0 +1,16 @@
+import { axiosInitial } from "../../../Config";
+
+export const ObtenerProductosApi = async (filtros) => {
+    const respuesta = await axiosInitial.get(`/producto/obtener`, { params: filtros, showLoader: false });
+    return respuesta.data;
+}
+
+export const CrearProductoApi = async (data) => {
+    const respuesta = await axiosInitial.post(`/producto/crear`, data, { showLoader: false });
+    return respuesta.data;
+}
+
+export const ActualizarProductoApi = async (codigo, data) => {
+    const respuesta = await axiosInitial.patch(`/producto/actualizar?codigo=${codigo}`, data, { showLoader: false });
+    return respuesta.data;
+}

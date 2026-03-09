@@ -42,7 +42,7 @@ const TablaMisComprobantesAFIP = () => {
         open={modalAbierto}
         onClose={() => setModalAbierto(false)}
         data={comprobanteSeleccionado}
-        width="w-[420px]"
+        accentColor="indigo"
       />
 
       {/* Cards AFIP */}

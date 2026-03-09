@@ -1,20 +1,41 @@
 import { useState } from "react";
-import { useProductos } from "../../../../Backend/hooks/Productos/useProductos";
+import { useProductoUI } from "../../../../Backend/Articulos/hooks/Producto/useProductoUI";
 import DataTable from "../../../UI/DataTable/DataTable";
-import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
 import productoConfig from "../../../Modales/Articulos/ConfigProducto";
 import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
+import ModalConfirmacion from "../../../UI/ModalConfirmacion/ModalConfirmacion";
+import ModalMovimiento from "../../../Modales/Articulos/ModalMovimiento";
+import ModalProduccion from "../../../Modales/Articulos/ModalProduccion";
 import { columnasProductos } from "./ColumnaProductos";
 import { accionesProductos } from "./AccionesProductos";
-import { AdvertenciaIcono, ArcaIcono, CanastaIcono } from "../../../../assets/Icons";
+import { BorrarIcono, HistorialIcono } from "../../../../assets/Icons";
+import ModalDetalleBase from "../../../UI/ModalDetalleBase/ModalDetalleBase";
+import ModalDetalle from "../../../UI/ModalDetalleBase/ModalDetalle";
+import ListaMovimientos from "../../../UI/ListaMovimientos/ListaMovimientos";
 
 const TablaProductos = () => {
-  const { productos, busqueda, setBusqueda, manejarEditar, manejarEliminar } =
-    useProductos();
+  const {
+    productos,
+    busqueda,
+    setBusqueda, 
+    actualizarProducto, 
+    eliminarProducto,
+    cargando,
+    estaEliminando
+  } = useProductoUI();
 
   const [modalAbierto, setModalAbierto] = useState(false);
+  const [modalMovimientoAbierto, setModalMovimientoAbierto] = useState(false);
+  const [modalProduccionAbierto, setModalProduccionAbierto] = useState(false);
+  const [modalHistorialAbierto, setModalHistorialAbierto] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [modoModal, setModoModal] = useState("view");
+
+  const [confirmarEliminar, setConfirmarEliminar] = useState({
+    open: false,
+    codigo: null,
+    nombre: "",
+  });
 
   const handleVerDetalle = (producto) => {
     setProductoSeleccionado(producto);
@@ -28,69 +49,119 @@ const TablaProductos = () => {
     setModalAbierto(true);
   };
 
-  // Calcular estadísticas
-  const valorTotalInventario = productos.reduce(
-    (total, item) => total + item.precioTotal,
-    0,
-  );
+  const handleMovimiento = (producto) => {
+    setProductoSeleccionado(producto);
+    setModalMovimientoAbierto(true);
+  };
 
-  const totalFrascos = productos.reduce((total, item) => total + item.stock, 0);
-  const totalPaquetes = productos.reduce((total, item) => total + item.paquetes, 0);
-  const stockBajoCount = productos.filter((item) => item.stock < 20).length;
+  const handleProduccion = (producto) => {
+    setProductoSeleccionado(producto);
+    setModalProduccionAbierto(true);
+  };
+
+  const handleVerHistorial = (producto) => {
+    setProductoSeleccionado(producto);
+    setModalHistorialAbierto(true);
+  };
+
+  const handleEliminarClick = (codigo, nombre) => {
+    setConfirmarEliminar({
+      open: true,
+      codigo,
+      nombre,
+    });
+  };
+
+  const confirmarEliminacion = async () => {
+    try {
+      await eliminarProducto(confirmarEliminar.codigo);
+      setConfirmarEliminar({ open: false, codigo: null, nombre: "" });
+    } catch (error) {
+      console.error("Error al eliminar:", error);
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Modal Producto */}
       <ModalDetalleGenerico
         mode={modoModal}
         open={modalAbierto}
         onClose={() => setModalAbierto(false)}
-        onSave={(dataEditada) => {
-          manejarEditar(dataEditada);
+        onSave={async (dataEditada) => {
+          const { 
+            codigoSecuencial, 
+            codigoEmpresa, 
+            createdAt, 
+            updatedAt, 
+            id,
+            ...payload 
+          } = dataEditada;
+
+          // Aseguramos tipos numéricos
+          if (payload.stock !== undefined) payload.stock = parseFloat(payload.stock) || 0;
+          if (payload.cantidadPorPaquete !== undefined) payload.cantidadPorPaquete = parseFloat(payload.cantidadPorPaquete) || 0;
+          if (payload.cantidadDePaquetesActuales !== undefined) payload.cantidadDePaquetesActuales = parseFloat(payload.cantidadDePaquetesActuales) || 0;
+
+          await actualizarProducto(productoSeleccionado.codigoSecuencial, payload);
           setModalAbierto(false);
         }}
         data={productoSeleccionado}
         {...productoConfig}
-        width="w-[420px]"
       />
 
-      {/* Cards con información del inventario */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <TarjetaInformacion
-          titulo="Total Stock"
-          color="text-[var(--primary)]"
-          numero={totalFrascos}
-          descripcion={`${totalPaquetes} paquetes cerrados`}
-          icono={<CanastaIcono size={20} />}
-        />
+      <ModalConfirmacion
+        open={confirmarEliminar.open}
+        onClose={() => setConfirmarEliminar({ open: false, codigo: null, nombre: "" })}
+        onConfirm={confirmarEliminacion}
+        titulo="Eliminar Producto"
+        mensaje={`¿Estás seguro de que deseas eliminar "${confirmarEliminar.nombre}"? No aparecerá en el listado activo.`}
+        textoConfirmar={estaEliminando ? "Eliminando..." : "Eliminar"}
+        textoCancelar="Cancelar"
+        icono={<BorrarIcono size={40} className="text-red-500" />}
+        colorConfirmar="bg-red-600!"
+      />
 
-        <TarjetaInformacion
-          titulo="Valor Estimado"
-          color="text-green-500"
-          valorMoneda={true}
-          numero={valorTotalInventario}
-          descripcion="Precio de lista acumulado"
-          icono={<ArcaIcono size={20} />}
-        />
+      <ModalMovimiento 
+        open={modalMovimientoAbierto}
+        onClose={() => setModalMovimientoAbierto(false)}
+        articulo={productoSeleccionado}
+        tipo="PRODUCTO"
+      />
 
-        <TarjetaInformacion
-          titulo="Puntos Críticos"
-          color={stockBajoCount > 0 ? "text-red-500" : "text-[var(--text-muted)]"}
-          numero={stockBajoCount}
-          descripcion="Productos bajo stock mínimo"
-          icono={<AdvertenciaIcono size={20} />}
-        />
-      </div>
+      <ModalProduccion
+        open={modalProduccionAbierto}
+        onClose={() => setModalProduccionAbierto(false)}
+        articulo={productoSeleccionado}
+      />
 
-      {/* Tabla principal */}
+      <ModalDetalleBase 
+        open={modalHistorialAbierto} 
+        onClose={() => setModalHistorialAbierto(false)} 
+      >
+        <ModalDetalle 
+          title={`Historial: ${productoSeleccionado?.nombre}`} 
+          icon={<HistorialIcono size={20} />} 
+          onClose={() => setModalHistorialAbierto(false)}
+        >
+          <ListaMovimientos 
+            codigoArticulo={productoSeleccionado?.codigoSecuencial} 
+            tipoArticulo="PRODUCTO" 
+          />
+        </ModalDetalle>
+      </ModalDetalleBase>
+
       <DataTable
         columnas={columnasProductos}
         datos={productos}
+        loading={cargando}
         mostrarAcciones={true}
         acciones={accionesProductos({
-          manejarEliminar,
+          handleEliminarClick,
           handleVerDetalle,
           handleEditar,
+          handleMovimiento,
+          handleProduccion,
+          handleVerHistorial,
         })}
         botonAgregar={{
           texto: "Nuevo Producto",

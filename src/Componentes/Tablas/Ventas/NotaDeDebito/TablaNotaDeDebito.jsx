@@ -40,7 +40,6 @@ const TablaNotaDeDebito = () => {
         onClose={() => setModalAbierto(false)}
         data={seleccionado}
         {...notaDebitoConfig}
-        width="w-[420px]"
       />
 
       {/* Cards */}

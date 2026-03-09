@@ -37,7 +37,6 @@ const TablaOrdenDeVentas = () => {
         onClose={() => setModalAbierto(false)}
         data={seleccionado}
         {...ordenDeVentaConfig}
-        width="w-[420px]"
       />
 
       {/* Cards */}

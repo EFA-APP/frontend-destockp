@@ -1,9 +1,11 @@
 import { accionesReutilizables } from "../../../UI/AccionesReutilizables/accionesReutilizables";
 
 export const accionesMateriaPrimas = ({
-  manejarEliminar,
+  handleEliminarClick,
   handleVerDetalle,
   handleEditar,
+  handleMovimiento,
+  handleVerHistorial,
 }) => [
   {
     ...accionesReutilizables.verDetalle,
@@ -14,7 +16,17 @@ export const accionesMateriaPrimas = ({
     onClick: handleEditar,
   },
   {
+    ...accionesReutilizables.verHistorial,
+    onClick: handleVerHistorial,
+  },
+  {
+    ...accionesReutilizables.generarMovimientoProducto,
+    onClick: handleMovimiento,
+  },
+  {
     ...accionesReutilizables.eliminar,
-    onClick: (fila) => manejarEliminar(fila.id),
+    onClick: (fila) => {
+      handleEliminarClick(fila.codigoSecuencial, fila.nombre)
+    },
   },
 ];

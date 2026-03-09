@@ -1,8 +1,13 @@
+import { useNavigate } from "react-router-dom";
 import { AgregarIcono } from "../../../../assets/Icons";
+import { useMateriaPrimaUI } from "../../../../Backend/Articulos/hooks/MateriaPrima/useMateriaPrimaUI";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import FormularioDinamico from "../../../UI/FormularioReutilizable/FormularioDinamico";
 
 const CrearMateriaPrima = () => {
+  const navigate = useNavigate();
+  const { crearMateriaPrima, estaCreando } = useMateriaPrimaUI();
+
   const materiaPrimaCampos = [
     // ─────────────────────────────
     // INFORMACIÓN BÁSICA
@@ -12,93 +17,75 @@ const CrearMateriaPrima = () => {
       label: "Nombre",
       type: "text",
       required: true,
-      placeholder: "Nombre de la materia prima",
+      placeholder: "Ej: AZÚCAR, HARINA...",
+      section: "Información Básica",
+    },
+    {
+      name: "tipo",
+      label: "Tipo de Materia Prima",
+      type: "select",
+      required: true,
+      options: [
+        { value: "INSUMO", label: "INSUMO" },
+        { value: "FRUTA", label: "FRUTA" },
+      ],
       section: "Información Básica",
     },
 
     // ─────────────────────────────
-    // STOCK
+    // STOCK Y MEDIDAS
     // ─────────────────────────────
     {
-      name: "unidad",
-      label: "Unidad",
+      name: "unidadMedida",
+      label: "Unidad de Medida",
       type: "select",
       required: true,
       options: [
-        { value: "kg", label: "Kilogramos (kg)" },
-        { value: "g", label: "Gramos (g)" },
-        { value: "l", label: "Litros (l)" },
-        { value: "unidades", label: "Unidades" },
+        { value: "KG", label: "Kilogramos (KG)" },
+        { value: "GR", label: "Gramos (GR)" },
+        { value: "UND", label: "Unidades (UND)" },
+        { value: "LT", label: "Litros (LT)" },
+        { value: "ML", label: "Mililitros (ML)" },
       ],
-      section: "Stock",
-    },
-    {
-      name: "cantidadPorPaquete",
-      label: "Cantidad por Paquete",
-      type: "number",
-      required: true,
-      min: 0.01,
-      step: "0.01",
-      section: "Stock",
-      onChangeCalculate: (data) => ({
-        ...data,
-        stock: data.cantidadPorPaquete * data.paquetes,
-        precioTotal:
-          data.precioUnitario * data.cantidadPorPaquete * data.paquetes,
-      }),
-    },
-    {
-      name: "paquetes",
-      label: "Número de Paquetes",
-      type: "number",
-      required: true,
-      min: 1,
-      section: "Stock",
-      onChangeCalculate: (data) => ({
-        ...data,
-        stock: data.cantidadPorPaquete * data.paquetes,
-        precioTotal:
-          data.precioUnitario * data.cantidadPorPaquete * data.paquetes,
-      }),
+      section: "Stock y Medidas",
     },
     {
       name: "stock",
-      label: "Stock Total",
+      label: "Stock Actual",
       type: "number",
-      readOnly: true,
-      section: "Stock",
-      helpText: "Calculado automáticamente",
-    },
-
-    // ─────────────────────────────
-    // PRECIOS
-    // ─────────────────────────────
-    {
-      name: "precioUnitario",
-      label: "Precio Unitario ($)",
-      type: "number",
-      required: true,
+      required: false,
       min: 0,
       step: "0.01",
-      section: "Precios",
-      onChangeCalculate: (data) => ({
-        ...data,
-        precioTotal: data.precioUnitario * data.stock,
-      }),
+      section: "Stock y Medidas",
+      helpText: "Cantidad física disponible actualmente",
     },
     {
-      name: "precioTotal",
-      label: "Precio Total ($)",
+      name: "cantidadPorPaquete",
+      label: "Cantidad por Paquete (Opcional)",
       type: "number",
-      readOnly: true,
-      section: "Precios",
-      helpText: "Calculado automáticamente",
+      required: false,
+      min: 0,
+      step: "0.01",
+      section: "Stock y Medidas",
+      helpText: "Ej: 1 si es por unidad, o el peso del pack",
     },
   ];
 
-  const handleSubmit = (data) => {
-    console.log(`guardado:`, data);
-    alert(`Materia Prima guardado!\nRevisa la consola.`);
+  const handleSubmit = async (data) => {
+    try {
+      // Limpiamos datos opcionales si son 0 o vacíos
+      const payload = {
+        ...data,
+        activo: true,
+        stock: parseFloat(data.stock) || 0,
+        cantidadPorPaquete: data.cantidadPorPaquete ? parseFloat(data.cantidadPorPaquete) : null
+      };
+      
+      await crearMateriaPrima(payload);
+      navigate("/panel/inventario/materia-prima");
+    } catch (error) {
+      console.error("Error al crear materia prima:", error);
+    }
   };
 
   return (
@@ -115,11 +102,12 @@ const CrearMateriaPrima = () => {
 
       {/* Formulario */}
       <FormularioDinamico
-        titulo="Nuevo Materia Prima"
-        subtitulo="Complete los datos."
+        titulo="Nueva Materia Prima"
+        subtitulo="Defina los parámetros básicos de su insumo."
         campos={materiaPrimaCampos}
         onSubmit={handleSubmit}
-        submitLabel="Guardar Materia Prima"
+        submitLabel={estaCreando ? "Guardando..." : "Guardar Materia Prima"}
+        onCancel={() => navigate("/panel/inventario/materia-prima")}
       />
     </div>
   );

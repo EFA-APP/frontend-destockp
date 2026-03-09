@@ -50,3 +50,8 @@ export { default as EmailIcono } from "./EmailIcono";
 export { default as ConfirmarEmailIcono } from "./ConfirmarEmailIcono";
 export { default as ArcaIcono } from "./ArcaIcono";
 export { default as CargandoIcono } from "./CargandoIcono";
+export { default as ProduccionIcono } from "./ProduccionIcono";
+export { default as CerrarIcono } from "./CerrarIcono";
+export { default as CheckIcono } from "./CheckIcono";
+export { default as MovimientoIcono } from "./MovimientoIcono";
+export {default as HistorialIcono } from "./HistorialIcono";

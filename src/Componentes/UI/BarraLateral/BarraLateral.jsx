@@ -80,7 +80,7 @@ const BarraLateral = () => {
   return (
     <div className="relative">
       <aside
-        className={`hidden md:flex bg-[var(--surface)]/80 backdrop-blur-xl border-r border-[var(--border-subtle)] fixed h-screen transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] z-[99999] flex-col ${isExpanded ? "w-64" : "w-20"
+        className={`hidden md:flex bg-[var(--surface)]/80 backdrop-blur-xl border-r border-[var(--border-subtle)] fixed h-screen transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] z-[99999] flex-col ${isExpanded ? "w-54" : "w-18"
           }`}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => {

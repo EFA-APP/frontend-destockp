@@ -38,7 +38,6 @@ const TablaClientes = () => {
         }}
         data={clienteSeleccionado}
         {...clienteConfig}
-        width="w-[420px]"
       />
       <DataTable
         columnas={columnasClientes}

@@ -157,6 +157,9 @@ const FormularioDinamico = ({
     const newErrors = {};
 
     campos.forEach((field) => {
+      // Saltar validación si el campo está oculto dinámicamente
+      if (field.hidden && field.hidden(formData)) return;
+
       if (field.type === "items-table") {
         // Validar que haya al menos un item si es requerido
         if (
@@ -204,10 +207,12 @@ const FormularioDinamico = ({
   };
 
   const renderField = (field) => {
+    const isReadOnly = typeof field.readOnly === "function" ? field.readOnly(formData) : field.readOnly;
+
     const commonClasses = `w-full px-4 py-2.5 rounded-md! border transition-all duration-300 bg-[var(--surface-hover)]/30! backdrop-blur-sm! ${errors[field.name]
       ? "border-red-500/50! focus:ring-red-500/10!"
       : "border-[var(--border-medium)]! focus:border-[var(--primary)]! focus:ring-[var(--primary)]/10!"
-      } focus:ring-4! focus:outline-none placeholder-[var(--text-muted)] ${field.readOnly ? "cursor-not-allowed opacity-60" : "hover:border-[var(--border-medium)]"
+      } focus:ring-4! focus:outline-none placeholder-[var(--text-muted)] ${isReadOnly ? "cursor-not-allowed opacity-60" : "hover:border-[var(--border-medium)]"
       } ${field.defaultValue ? "text-[var(--primary)]! font-medium!" : "text-[var(--text-primary)]!"}`;
 
     switch (field.type) {
@@ -220,7 +225,7 @@ const FormularioDinamico = ({
             rows={field.rows || 3}
             className={`${commonClasses} resize-none`}
             placeholder={field.placeholder}
-            readOnly={field.readOnly}
+            readOnly={isReadOnly}
           />
         );
 
@@ -231,7 +236,7 @@ const FormularioDinamico = ({
             value={formData[field.name] || ""}
             onChange={handleChange}
             className={`${commonClasses}`}
-            disabled={field.readOnly}
+            disabled={isReadOnly}
           >
             {field.options?.map((opt) => (
               <option
@@ -257,7 +262,7 @@ const FormularioDinamico = ({
             step={field.step || "1"}
             className={commonClasses}
             placeholder={field.placeholder}
-            readOnly={field.readOnly}
+            readOnly={isReadOnly}
           />
         );
 
@@ -276,7 +281,7 @@ const FormularioDinamico = ({
               value={formData[field.name] || ""}
               onChange={handleChange}
               className={`${commonClasses} pr-10`}
-              readOnly={field.readOnly}
+              readOnly={isReadOnly}
             />
 
             {/* Icono calendario */}
@@ -380,7 +385,7 @@ const FormularioDinamico = ({
             onChange={handleChange}
             className={commonClasses}
             placeholder={field.placeholder}
-            readOnly={field.readOnly}
+            readOnly={isReadOnly}
           />
         );
     }
@@ -560,15 +565,19 @@ const FormularioDinamico = ({
                 className={`grid grid-cols-1 ${sectionFields[0]?.cols || "md:grid-cols-2"
                   } gap-4`}
               >
-                {sectionFields.map((field) => (
-                  <div
-                    key={field.name}
-                    className={
-                      field.fullWidth || field.type === "items-table"
-                        ? "md:col-span-2"
-                        : ""
-                    }
-                  >
+                {sectionFields.map((field) => {
+                  // Soporte para ocultar campos dinámicamente
+                  if (field.hidden && field.hidden(formData)) return null;
+
+                  return (
+                    <div
+                      key={field.name}
+                      className={
+                        field.fullWidth || field.type === "items-table"
+                          ? "md:col-span-2"
+                          : ""
+                      }
+                    >
                     {field.type !== "items-table" && (
                       <label className="block text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 ml-1">
                         {field.label}{" "}
@@ -587,11 +596,14 @@ const FormularioDinamico = ({
                       field.helpText &&
                       !errors[field.name] && (
                         <p className="text-[var(--primary-light)] text-xs mt-1">
-                          {field.helpText}
+                          {typeof field.helpText === "function"
+                            ? field.helpText(formData)
+                            : field.helpText}
                         </p>
                       )}
-                  </div>
-                ))}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ))}

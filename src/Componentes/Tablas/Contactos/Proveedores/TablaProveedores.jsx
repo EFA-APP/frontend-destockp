@@ -43,7 +43,6 @@ const TablaProveedores = () => {
         }}
         data={proveedorSeleccionado}
         {...proveedorConfig}
-        width="w-[420px]"
       />
       <DataTable
         columnas={columnasProveedores}

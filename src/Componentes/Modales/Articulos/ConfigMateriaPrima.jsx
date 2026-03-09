@@ -1,50 +1,58 @@
 import { CanastaIcono } from "../../../assets/Icons";
 
 const materiaPrimaConfig = {
-  title: "Detalle del Materia Prima",
+  title: "Detalle de Materia Prima",
   icon: <CanastaIcono size={18} />,
   sections: [
     {
       label: "Materia Prima",
       key: "nombre",
-      sub: (p) => `Código: ${p.codigo}`,
+      sub: (p) => `Cód: #${p.codigoSecuencial}`,
       editable: true,
+      type: "text",
     },
     {
-      label: "Descripción",
-      key: "descripcion",
+      label: "Tipo de Materia Prima",
+      key: "tipo",
       editable: true,
-    },
-    { label: "Stock", key: "stock", editable: true, ocultar: true },
-    { label: "Paquetes", key: "paquetes", editable: true, ocultar: true },
-    { label: "Cant. Paquetes", key: "cantidadPorPaquete", editable: true, ocultar: true },
-    {
-      label: "Precio Unitario",
-      key: "precioUnitario",
-       editable: true, 
-       ocultar: true 
+      type: "select",
+      options: [
+        { value: "INSUMO", label: "INSUMO" },
+        { value: "FRUTA", label: "FRUTA" },
+      ],
     },
     {
-      label: "Precio Total",
-      key: "precioTotal",
+      label: "Unidad de Medida",
+      key: "unidadMedida",
       editable: true,
-      ocultar: true
+      type: "select",
+      options: [
+        { value: "KG", label: "Kilogramos (KG)" },
+        { value: "GR", label: "Gramos (GR)" },
+        { value: "UND", label: "Unidades (UND)" },
+        { value: "LT", label: "Litros (LT)" },
+        { value: "ML", label: "Mililitros (ML)" },
+      ],
+    },
+    { 
+      label: "Stock Actual", 
+      key: "stock", 
+      editable: true, 
+      type: "number",
+      ocultar: true 
+    },
+    { 
+      label: "Cantidad por Paquete", 
+      key: "cantidadPorPaquete", 
+      editable: true, 
+      type: "number",
+      ocultar: true 
     },
   ],
   metrics: [
-    { label: "Stock", value: "stock", editable: true },
-    { label: "Paquetes", value: "paquetes", editable: true },
-    { label: "Cant. Paquetes", value: "cantidadPorPaquete", editable: true },
-    {
-      label: "Precio Unitario",
-      value: (p) => `${p.precioUnitario}`,
-       editable: true
-    },
-    {
-      label: "Precio Total",
-      value: (p) => `$${p.precioTotal}`,
-      editable: true,
-    },
+    { label: "Stock Registrado", value: (p) => `${p.stock} ${p.unidadMedida}` },
+    { label: "Medida Pack", value: (p) => p.cantidadPorPaquete ? `${p.cantidadPorPaquete} ${p.unidadMedida}` : "Individual" },
+    { label: "Categoría", value: "tipo" },
   ],
 };
 

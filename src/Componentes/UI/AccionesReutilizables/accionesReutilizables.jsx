@@ -6,6 +6,9 @@ import {
   ErrorIcono,
   PagosIcono,
   UsuarioIcono,
+  ProduccionIcono,
+  MovimientoIcono,
+  HistorialIcono,
 } from "../../../assets/Icons";
 
 export const accionesReutilizables = {
@@ -75,6 +78,36 @@ export const accionesReutilizables = {
     icono: (
       <div className="p-1 rounded-md bg-violet-500/10 text-violet-500 hover:bg-violet-500/20 transition-colors cursor-pointer">
         <UsuarioIcono size={18} />
+      </div>
+    ),
+  },
+
+  generarMovimientoProducto: {
+    key: "generarMovimientoProducto",
+    label: "Generar Movimiento",
+    icono: (
+      <div className="p-1 rounded-md bg-amber-500/10 text-amber-500! hover:bg-amber-500/20 transition-colors cursor-pointer">
+        <MovimientoIcono size={18} />
+      </div>
+    ),
+  },
+  
+  registrarProduccion: {
+    key: "registrarProduccion",
+    label: "Registrar Producción",
+    icono: (
+      <div className="p-1 rounded-md bg-purple-500/10 text-purple-500! hover:bg-purple-500/20 transition-colors cursor-pointer">
+        <ProduccionIcono size={18} />
+      </div>
+    ),
+  },
+
+  verHistorial: {
+    key: "verHistorial",
+    label: "Ver Historial",
+    icono: (
+      <div className="p-1 rounded-md bg-cyan-500/10 text-cyan-500! hover:bg-cyan-500/20 transition-colors cursor-pointer">
+        <HistorialIcono size={18} />
       </div>
     ),
   },

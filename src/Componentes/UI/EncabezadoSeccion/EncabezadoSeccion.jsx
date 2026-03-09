@@ -58,7 +58,7 @@ const EncabezadoSeccion = ({
 
           <div className="hidden sm:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest bg-[var(--surface-hover)] p-1 pr-3 rounded-xl border border-[var(--border-subtle)]">
             <div className="w-8 h-8 rounded-lg bg-[var(--primary-subtle)] flex items-center justify-center text-[var(--primary)]">
-              {volver ? <VolverIcono size={14} /> : <InicioIcono size={14} />}
+              {volver ? <VolverIcono size={14} /> : React.isValidElement(icono) ? React.cloneElement(icono, { size: 20 }) : icono}
             </div>
             <span className="text-[var(--text-muted)] opacity-50">/</span>
             <span className="text-[var(--primary)]">{ruta}</span>
