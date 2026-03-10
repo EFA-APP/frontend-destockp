@@ -33,39 +33,49 @@ const ModalDetalleGenerico = ({
 
   const themes = {
     amber: {
-      button: "bg-amber-600! hover:bg-amber-500! border-amber-400/20! shadow-amber-900/20!",
-      bullet: "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]",
+      button: "bg-amber-600! hover:bg-amber-500! border-amber-400/20! shadow-amber-900/40!",
+      bullet: "bg-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.6)]",
       subTitle: "text-amber-500 bg-amber-500/10 border-amber-500/20",
       inputFocus: "focus:border-amber-500/50 focus:ring-amber-500/20",
-      cardBg: "bg-amber-500/[0.03] border-amber-500/10 hover:bg-amber-500/[0.06]",
+      cardBg: "bg-gradient-to-br from-amber-500/[0.05] via-transparent to-transparent border-amber-500/10 hover:border-amber-500/30 hover:bg-amber-500/[0.08]",
+      accent: "text-amber-500",
+      glow: "shadow-[0_0_40px_rgba(245,158,11,0.05)]"
     },
     emerald: {
-      button: "bg-emerald-600! hover:bg-emerald-500! border-emerald-400/20! shadow-emerald-900/20!",
-      bullet: "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]",
+      button: "bg-emerald-600! hover:bg-emerald-500! border-emerald-400/20! shadow-emerald-900/40!",
+      bullet: "bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.6)]",
       subTitle: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
       inputFocus: "focus:border-emerald-500/50 focus:ring-emerald-500/20",
-      cardBg: "bg-emerald-500/[0.03] border-emerald-500/10 hover:bg-emerald-500/[0.06]",
+      cardBg: "bg-gradient-to-br from-emerald-500/[0.05] via-transparent to-transparent border-emerald-500/10 hover:border-emerald-500/30 hover:bg-emerald-500/[0.08]",
+      accent: "text-emerald-500",
+      glow: "shadow-[0_0_40px_rgba(16,185,129,0.05)]"
     },
     blue: {
-      button: "bg-blue-600 hover:bg-blue-500 border-blue-400/20 shadow-blue-900/20",
-      bullet: "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]",
+      button: "bg-blue-600 hover:bg-blue-500 border-blue-400/20 shadow-blue-900/40",
+      bullet: "bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)]",
       subTitle: "text-blue-500 bg-blue-500/10 border-blue-500/20",
       inputFocus: "focus:border-blue-500/50 focus:ring-blue-500/20",
-      cardBg: "bg-blue-500/[0.03] border-blue-500/10 hover:bg-blue-500/[0.06]",
+      cardBg: "bg-gradient-to-br from-blue-500/[0.05] via-transparent to-transparent border-blue-500/10 hover:border-blue-500/30 hover:bg-blue-500/[0.08]",
+      accent: "text-blue-500",
+      glow: "shadow-[0_0_40px_rgba(59,130,246,0.05)]"
     },
     rose: {
-      button: "bg-rose-600 hover:bg-rose-500 border-rose-400/20 shadow-rose-900/20",
-      bullet: "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]",
+      button: "bg-rose-600 hover:bg-rose-500 border-rose-400/20 shadow-rose-900/40",
+      bullet: "bg-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.6)]",
       subTitle: "text-rose-500 bg-rose-500/10 border-rose-500/20",
       inputFocus: "focus:border-rose-500/50 focus:ring-rose-500/20",
-      cardBg: "bg-rose-500/[0.03] border-rose-500/10 hover:bg-rose-500/[0.06]",
+      cardBg: "bg-gradient-to-br from-rose-500/[0.05] via-transparent to-transparent border-rose-500/10 hover:border-rose-500/30 hover:bg-rose-500/[0.08]",
+      accent: "text-rose-500",
+      glow: "shadow-[0_0_40px_rgba(244,63,94,0.05)]"
     },
     indigo: {
-      button: "bg-indigo-600 hover:bg-indigo-500 border-indigo-400/20 shadow-indigo-900/20",
-      bullet: "bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]",
+      button: "bg-indigo-600 hover:bg-indigo-500 border-indigo-400/20 shadow-indigo-900/40",
+      bullet: "bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.6)]",
       subTitle: "text-indigo-500 bg-indigo-500/10 border-indigo-500/20",
       inputFocus: "focus:border-indigo-500/50 focus:ring-indigo-500/20",
-      cardBg: "bg-indigo-500/[0.03] border-indigo-500/10 hover:bg-indigo-500/[0.06]",
+      cardBg: "bg-gradient-to-br from-indigo-500/[0.05] via-transparent to-transparent border-indigo-500/10 hover:border-indigo-500/30 hover:bg-indigo-500/[0.08]",
+      accent: "text-indigo-500",
+      glow: "shadow-[0_0_40px_rgba(99,102,241,0.05)]"
     }
   };
 
@@ -97,33 +107,36 @@ const ModalDetalleGenerico = ({
         footer={footer}
         accentColor={accentColor}
       >
-        <div className="space-y-8 animate-in fade-in duration-500">
+        <div className={`space-y-8 animate-in fade-in duration-700 ${theme.glow}`}>
           
           {/* SECCIONES - Grid Layout for View Mode */}
-          <div className={isEdit ? "space-y-6" : "grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6"}>
+          <div className={isEdit ? "space-y-6" : "grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6"}>
             {sections.map((section, idx) => {
               const editable = section.editable;
-              const hasValue = formData[section.key] !== undefined && formData[section.key] !== null && formData[section.key] !== "";
+              const value = formData[section.key];
+              const hasValue = value !== undefined && value !== null && value !== "";
               
               if (section.ocultar && !isEdit) return null;
 
               return (
-                <div key={idx} className={`group/item ${!isEdit ? `${theme.cardBg} border ${theme.cardBorder} rounded-2xl p-4 transition-all duration-300` : ""}`}>
-                  <div className="flex items-center gap-2 mb-2 opacity-30 group-hover/item:opacity-60 transition-opacity">
-                    <div className={`w-1.5 h-1.5 ${theme.bullet} rounded-full`} />
-                    <p className="text-[11px] text-white font-black uppercase tracking-[0.2em] leading-none">
+                <div key={idx} className={`group/item relative overflow-hidden ${!isEdit ? `${theme.cardBg} border rounded-2xl p-5 transition-all duration-500 backdrop-blur-sm` : ""}`}>
+                  {!isEdit && <div className="absolute top-0 right-0 w-24 h-24 bg-white/[0.02] blur-3xl rounded-full -mr-12 -mt-12" />}
+                  
+                  <div className="flex items-center gap-2 mb-3 opacity-40 group-hover/item:opacity-80 transition-opacity">
+                    <div className={`w-2 h-2 ${theme.bullet} rounded-full`} />
+                    <p className="text-[10px] text-white font-black uppercase tracking-[0.2em] leading-none">
                       {section.label}
                     </p>
                   </div>
 
                   {isEdit && editable ? (
-                    <div className="relative animate-in slide-in-from-left-2 duration-300">
+                    <div className="relative animate-in slide-in-from-left-4 duration-500">
                       {section.type === "select" ? (
                         <div className="relative">
                           <select
                             value={formData[section.key] ?? ""}
                             onChange={(e) => handleChange(section.key, e.target.value)}
-                            className={`w-full bg-black/60 border border-white/10 rounded-2xl px-5 py-4 text-[14px] text-white font-bold focus:outline-none ${theme.inputFocus} focus:ring-1 transition-all appearance-none cursor-pointer shadow-inner`}
+                            className={`w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-[14px] text-white font-bold focus:outline-none ${theme.inputFocus} focus:ring-1 transition-all appearance-none cursor-pointer shadow-inner backdrop-blur-md`}
                           >
                             {section.options?.map((opt) => (
                               <option key={opt.value} value={opt.value} className="bg-[#0a0a0a] text-white p-4">
@@ -142,20 +155,20 @@ const ModalDetalleGenerico = ({
                           type={section.type || "text"}
                           value={formData[section.key] ?? ""}
                           onChange={(e) => handleChange(section.key, e.target.value)}
-                          className={`w-full bg-black/60 border border-white/10 rounded-2xl px-5 py-4 text-[14px] text-white font-bold placeholder:text-white/10 focus:outline-none ${theme.inputFocus} focus:ring-1 transition-all shadow-inner`}
+                          className={`w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-[14px] text-white font-bold placeholder:text-white/10 focus:outline-none ${theme.inputFocus} focus:ring-1 transition-all shadow-inner backdrop-blur-md`}
                           placeholder={`Ingresar ${section.label.toLowerCase()}...`}
                         />
                       )}
                     </div>
                   ) : (
-                    <div className="px-1 animate-in zoom-in-95 duration-500">
-                      <p className={`text-[17px] font-bold text-white tracking-tight leading-snug ${!hasValue ? "italic opacity-20" : ""}`}>
-                        {hasValue ? data[section.key] : "No especificado"}
+                    <div className="relative z-10 animate-in zoom-in-95 duration-700">
+                      <p className={`text-[16px] font-black text-white tracking-tight leading-tight group-hover/item:translate-x-1 transition-transform duration-500 ${!hasValue ? "italic opacity-20" : ""}`}>
+                        {hasValue ? value : "No especificado"}
                       </p>
                       
-                      {section.sub && (
-                        <div className={`mt-1.5 inline-flex items-center px-2 py-0.5 ${theme.subTitle} rounded-lg`}>
-                          <p className={`text-[11px] font-black uppercase tracking-wider`}>
+                      {section.sub && hasValue && (
+                        <div className={`mt-3 inline-flex items-center px-2.5 py-1 ${theme.subTitle} rounded-xl shadow-sm`}>
+                          <p className={`text-[10px] font-black uppercase tracking-widest`}>
                             {section.sub(data)}
                           </p>
                         </div>

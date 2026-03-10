@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { AgregarIcono } from "../../../../assets/Icons";
+import { AgregarIcono, ArcaIcono, BalanceIcono } from "../../../../assets/Icons";
 import { useMateriaPrimaUI } from "../../../../Backend/Articulos/hooks/MateriaPrima/useMateriaPrimaUI";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import FormularioDinamico from "../../../UI/FormularioReutilizable/FormularioDinamico";
@@ -10,64 +10,66 @@ const CrearMateriaPrima = () => {
 
   const materiaPrimaCampos = [
     // ─────────────────────────────
-    // INFORMACIÓN BÁSICA
+    // CATEGORIZACIÓN E IDENTIFICACIÓN
     // ─────────────────────────────
     {
       name: "nombre",
-      label: "Nombre",
+      label: "Nombre del Insumo",
       type: "text",
       required: true,
-      placeholder: "Ej: AZÚCAR, HARINA...",
-      section: "Información Básica",
+      placeholder: "Ej: AZÚCAR REFINADA, HARINA 0000...",
+      section: "Identificación de Insumo",
+      sectionIcon: <ArcaIcono />,
     },
     {
       name: "tipo",
-      label: "Tipo de Materia Prima",
+      label: "Categoría de Material",
       type: "select",
       required: true,
       options: [
-        { value: "INSUMO", label: "INSUMO" },
-        { value: "FRUTA", label: "FRUTA" },
+        { value: "INSUMO", label: "INSUMO - Materia prima base" },
+        { value: "FRUTA", label: "FRUTA - Insumo fresco/agrícola" },
       ],
-      section: "Información Básica",
+      section: "Identificación de Insumo",
     },
 
     // ─────────────────────────────
-    // STOCK Y MEDIDAS
+    // GESTIÓN DE EXISTENCIAS
     // ─────────────────────────────
     {
       name: "unidadMedida",
-      label: "Unidad de Medida",
+      label: "Tipo de Magnitud (Unidad)",
       type: "select",
       required: true,
       options: [
-        { value: "KG", label: "Kilogramos (KG)" },
-        { value: "GR", label: "Gramos (GR)" },
-        { value: "UND", label: "Unidades (UND)" },
-        { value: "LT", label: "Litros (LT)" },
-        { value: "ML", label: "Mililitros (ML)" },
+        { value: "KG", label: "Masa: Kilogramos (KG)" },
+        { value: "GR", label: "Masa: Gramos (GR)" },
+        { value: "UND", label: "Conteo: Unidades (UND)" },
+        { value: "LT", label: "Volumen: Litros (LT)" },
+        { value: "ML", label: "Volumen: Mililitros (ML)" },
       ],
-      section: "Stock y Medidas",
+      section: "Control de Stock",
+      sectionIcon: <BalanceIcono />,
     },
     {
       name: "stock",
-      label: "Stock Actual",
+      label: "Existencia Inicial Física",
       type: "number",
       required: false,
       min: 0,
       step: "0.01",
-      section: "Stock y Medidas",
-      helpText: "Cantidad física disponible actualmente",
+      section: "Control de Stock",
+      helpText: "Cantidad real disponible en depósito al momento de creación",
     },
     {
       name: "cantidadPorPaquete",
-      label: "Cantidad por Paquete (Opcional)",
+      label: "Contenido por Envase (Pack)",
       type: "number",
       required: false,
       min: 0,
       step: "0.01",
-      section: "Stock y Medidas",
-      helpText: "Ej: 1 si es por unidad, o el peso del pack",
+      section: "Control de Stock",
+      helpText: "Peso o cantidad neta por cada bulto/pack (Opcional)",
     },
   ];
 
@@ -91,9 +93,9 @@ const CrearMateriaPrima = () => {
   return (
     <div className="px-3 py-4">
       {/* Encabezado */}
-      <div className="card no-inset no-ring bg-[var(--fill2)] shadow-md rounded-md mb-4">
+      <div className="card no-inset no-ring bg-[var(--surface)] shadow-md rounded-md mb-6">
         <EncabezadoSeccion
-          ruta={"Crear Materia Prima"}
+          ruta={"Registro de Insumos"}
           icono={<AgregarIcono />}
           volver={true}
           redireccionAnterior={"/panel/inventario/materia-prima"}
@@ -102,11 +104,11 @@ const CrearMateriaPrima = () => {
 
       {/* Formulario */}
       <FormularioDinamico
-        titulo="Nueva Materia Prima"
-        subtitulo="Defina los parámetros básicos de su insumo."
+        titulo="Alta de Materia Prima"
+        subtitulo="Registre nuevos componentes para su cadena de producción."
         campos={materiaPrimaCampos}
         onSubmit={handleSubmit}
-        submitLabel={estaCreando ? "Guardando..." : "Guardar Materia Prima"}
+        submitLabel={estaCreando ? "Registrando..." : "Confirmar Alta de Material"}
         onCancel={() => navigate("/panel/inventario/materia-prima")}
       />
     </div>
