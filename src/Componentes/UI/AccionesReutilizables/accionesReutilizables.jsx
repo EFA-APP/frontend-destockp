@@ -16,7 +16,7 @@ export const accionesReutilizables = {
     key: "verDetalle",
     label: "Ver detalle",
     icono: (
-      <div className="bg-green-500/10 p-1 rounded-md text-green-400!">
+      <div className="bg-green-500/10 p-1 rounded-md text-green-400! cursor-pointer! hover:bg-green-500/20 transition-colors">
         <OjosIcono size={18} />
       </div>
     ),
@@ -26,7 +26,7 @@ export const accionesReutilizables = {
     key: "editar",
     label: "Editar",
     icono: (
-      <div className="bg-blue-500/10 p-1 rounded-md text-blue-400!">
+      <div className="bg-blue-500/10 p-1 rounded-md text-blue-400! cursor-pointer! hover:bg-blue-500/20 transition-colors">
         <EditarIcono size={18} />
       </div>
     ),
@@ -36,7 +36,7 @@ export const accionesReutilizables = {
     key: "eliminar",
     label: "Eliminar",
     icono: (
-      <div className="bg-red-500/10 p-1 rounded-md text-red-400!">
+      <div className="bg-red-500/10 p-1 rounded-md text-red-400! cursor-pointer! hover:bg-red-500/20 transition-colors">
         <BorrarIcono size={18} />
       </div>
     ),
@@ -46,7 +46,7 @@ export const accionesReutilizables = {
     key: "descargar",
     label: "Descargar",
     icono: (
-      <div className="bg-blue-500/10 p-1 rounded-md text-blue-400!">
+      <div className="bg-blue-500/10 p-1 rounded-md text-blue-400! cursor-pointer! hover:bg-blue-500/20 transition-colors">
         <DescargarIcono size={18} />
       </div>
     ),
@@ -56,7 +56,7 @@ export const accionesReutilizables = {
     key: "marcarObservado",
     label: "Marcar observado",
     icono: (
-      <div className="bg-yellow-500/10 p-1 rounded-md text-yellow-400!">
+      <div className="bg-yellow-500/10 p-1 rounded-md text-yellow-400! cursor-pointer! hover:bg-violet-500/20 transition-colors">
         <ErrorIcono size={18} />
       </div>
     ),
@@ -66,7 +66,7 @@ export const accionesReutilizables = {
     key: "generarComprobante",
     label: "Generar Comporbantes",
     icono: (
-      <div className="bg-pink-500/10 p-1 rounded-md text-pink-400!">
+      <div className="bg-pink-500/10 p-1 rounded-md text-pink-400! cursor-pointer! hover:bg-violet-500/20 transition-colors ">
         <PagosIcono size={18} />
       </div>
     ),
@@ -91,7 +91,7 @@ export const accionesReutilizables = {
       </div>
     ),
   },
-  
+
   registrarProduccion: {
     key: "registrarProduccion",
     label: "Registrar Producción",

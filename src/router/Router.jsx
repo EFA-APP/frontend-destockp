@@ -39,6 +39,7 @@ import Balance from "../Componentes/Secciones/Contabilidad/Balance/Balance";
 import Inicio from "../Componentes/Secciones/Inicio/Inicio";
 import MisComprobantesAFIP from "../Componentes/Secciones/MisComprobantesAfip/MisComprobantesAFIP";
 import CrearRolesPermisos from "../Componentes/Secciones/Configuracion/RolesPermisos/CrearRoles/CrearRolesPermisos";
+import Deposito from "../Componentes/Secciones/Articulos/Deposito/Deposito";
 
 import RutaProtegida from "./RutaProtegida";
 import RutaPublica from "./RutaPublica";
@@ -70,6 +71,7 @@ export default function Router() {
             <Route path="inventario/productos/nuevo" element={<CrearProductos />} />
             <Route path="inventario/materia-prima" element={<MateriaPrima />} />
             <Route path="inventario/materia-prima/nuevo" element={<CrearMateriaPrima />} />
+            <Route path="inventario/depositos" element={<Deposito />} />
           </Route>
 
           {/* CONTACTOS */}
@@ -84,6 +86,7 @@ export default function Router() {
           <Route element={<RutaProtegida />}>
             <Route path="ventas/facturas" element={<Facturas />} />
             <Route path="ventas/facturas/nueva" element={<CrearFactura />} />
+
             <Route path="ventas/orden-ventas" element={<OrdenDeVentas />} />
             <Route path="ventas/orden-ventas/nueva" element={<CrearOrdenDeVentas />} />
             <Route path="ventas/notas-creditos" element={<NotaDeCredito />} />

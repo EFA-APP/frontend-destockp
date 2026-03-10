@@ -65,7 +65,7 @@ const CrearProductos = () => {
         const paq = parseFloat(data.cantidadDePaquetesActuales) || 0;
         const sobrante = parseFloat(data.cantidadSobrante) || 0;
         const stock = (cant * paq) + sobrante;
-        
+
         return {
           ...data,
           stock: stock,
@@ -141,14 +141,17 @@ const CrearProductos = () => {
 
   const handleSubmit = async (data) => {
     try {
+      // Filtramos las propiedades que el backend no permite o que deben renombrarse
+      // eslint-disable-next-line no-unused-vars
+      const { unidadMedidaLegend, cantidadDePaquetesActuales, activo, ...rest } = data;
+
       const payload = {
-        ...data,
+        ...rest,
         unidadMedida: "FRASCO",
         cantidadPorPaquete: parseFloat(data.cantidadPorPaquete) || 0,
-        cantidadDePaquetesActuales: parseFloat(data.cantidadDePaquetesActuales) || 0,
+        cantidadDepaquetesActuales: parseFloat(data.cantidadDePaquetesActuales) || 0, // El backend espera 'p' minúscula
         cantidadSobrante: parseFloat(data.cantidadSobrante) || 0,
         stock: parseFloat(data.stock) || 0,
-        activo: data.activo === "true" || data.activo === true
       };
 
       await crearProducto(payload);

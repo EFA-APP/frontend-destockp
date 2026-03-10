@@ -17,8 +17,8 @@ const TablaProductos = () => {
   const {
     productos,
     busqueda,
-    setBusqueda, 
-    actualizarProducto, 
+    setBusqueda,
+    actualizarProducto,
     eliminarProducto,
     cargando,
     estaEliminando
@@ -88,13 +88,13 @@ const TablaProductos = () => {
         open={modalAbierto}
         onClose={() => setModalAbierto(false)}
         onSave={async (dataEditada) => {
-          const { 
-            codigoSecuencial, 
-            codigoEmpresa, 
-            createdAt, 
-            updatedAt, 
+          const {
+            codigoSecuencial,
+            codigoEmpresa,
+            createdAt,
+            updatedAt,
             id,
-            ...payload 
+            ...payload
           } = dataEditada;
 
           // Aseguramos tipos numéricos
@@ -117,11 +117,11 @@ const TablaProductos = () => {
         mensaje={`¿Estás seguro de que deseas eliminar "${confirmarEliminar.nombre}"? No aparecerá en el listado activo.`}
         textoConfirmar={estaEliminando ? "Eliminando..." : "Eliminar"}
         textoCancelar="Cancelar"
-        icono={<BorrarIcono size={40} className="text-red-500" />}
+        icono={<BorrarIcono size={40} color="text-red-500" />}
         colorConfirmar="bg-red-600!"
       />
 
-      <ModalMovimiento 
+      <ModalMovimiento
         open={modalMovimientoAbierto}
         onClose={() => setModalMovimientoAbierto(false)}
         articulo={productoSeleccionado}
@@ -134,18 +134,18 @@ const TablaProductos = () => {
         articulo={productoSeleccionado}
       />
 
-      <ModalDetalleBase 
-        open={modalHistorialAbierto} 
-        onClose={() => setModalHistorialAbierto(false)} 
+      <ModalDetalleBase
+        open={modalHistorialAbierto}
+        onClose={() => setModalHistorialAbierto(false)}
       >
-        <ModalDetalle 
-          title={`Historial: ${productoSeleccionado?.nombre}`} 
-          icon={<HistorialIcono size={20} />} 
+        <ModalDetalle
+          title={`Historial: ${productoSeleccionado?.nombre}`}
+          icon={<HistorialIcono size={20} />}
           onClose={() => setModalHistorialAbierto(false)}
         >
-          <ListaMovimientos 
-            codigoArticulo={productoSeleccionado?.codigoSecuencial} 
-            tipoArticulo="PRODUCTO" 
+          <ListaMovimientos
+            codigoArticulo={productoSeleccionado?.codigoSecuencial}
+            tipoArticulo="PRODUCTO"
           />
         </ModalDetalle>
       </ModalDetalleBase>

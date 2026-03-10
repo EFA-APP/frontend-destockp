@@ -45,16 +45,20 @@ const BarraLateral = () => {
 
     const seccionesFiltradas = seccionesApi
       .filter(seccion => seccion.activo && codigosSeccionPermitidos.includes(seccion.permisoRequerido))
-      .map(seccion => ({
-        id: seccion.id_seccion,
-        nombre: seccion.nombre,
-        icono: parseIcono(seccion.icono) || <Icons.InicioIcono size={18} />, // Fallback icon
-        redireccion: seccion.redireccion,
-        submenu: seccion.subMenus?.filter(sm => sm.activo).map(sm => ({
+      .map(seccion => {
+        const submenu = seccion.subMenus?.filter(sm => sm.activo).map(sm => ({
           nombre: sm.nombre,
           redireccion: sm.redireccion
-        })) || []
-      }));
+        })) || [];
+
+        return {
+          id: seccion.id_seccion,
+          nombre: seccion.nombre,
+          icono: parseIcono(seccion.icono) || <Icons.InicioIcono size={18} />, // Fallback icon
+          redireccion: seccion.redireccion,
+          submenu
+        };
+      });
 
     return [inicioItem, ...seccionesFiltradas];
   }, [seccionesApi, codigosSeccionPermitidos]);
