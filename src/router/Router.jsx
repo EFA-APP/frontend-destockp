@@ -40,6 +40,7 @@ import Inicio from "../Componentes/Secciones/Inicio/Inicio";
 import MisComprobantesAFIP from "../Componentes/Secciones/MisComprobantesAfip/MisComprobantesAFIP";
 import CrearRolesPermisos from "../Componentes/Secciones/Configuracion/RolesPermisos/CrearRoles/CrearRolesPermisos";
 import Deposito from "../Componentes/Secciones/Articulos/Deposito/Deposito";
+import GestionarDeposito from "../Componentes/Secciones/Articulos/Deposito/GestionarDeposito";
 
 import RutaProtegida from "./RutaProtegida";
 import RutaPublica from "./RutaPublica";
@@ -72,6 +73,8 @@ export default function Router() {
             <Route path="inventario/materia-prima" element={<MateriaPrima />} />
             <Route path="inventario/materia-prima/nuevo" element={<CrearMateriaPrima />} />
             <Route path="inventario/depositos" element={<Deposito />} />
+            <Route path="inventario/depositos/nuevo" element={<GestionarDeposito />} />
+            <Route path="inventario/depositos/editar/:id" element={<GestionarDeposito />} />
           </Route>
 
           {/* CONTACTOS */}

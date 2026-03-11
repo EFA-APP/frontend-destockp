@@ -3,7 +3,7 @@ const InicioIcono = ({ size, color }) => {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
-      ariaHidden="true"
+      aria-hidden="true"
       role="img"
       width={size || "21"}
       height={size || "21"}
