@@ -74,7 +74,7 @@ export default function Router() {
             <Route path="inventario/materia-prima/nuevo" element={<CrearMateriaPrima />} />
             <Route path="inventario/depositos" element={<Deposito />} />
             <Route path="inventario/depositos/nuevo" element={<GestionarDeposito />} />
-            <Route path="inventario/depositos/editar/:id" element={<GestionarDeposito />} />
+            <Route path="inventario/depositos/editar/" element={<GestionarDeposito />} />
           </Route>
 
           {/* CONTACTOS */}

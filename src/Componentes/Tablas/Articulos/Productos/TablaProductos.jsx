@@ -27,9 +27,9 @@ const TablaProductos = () => {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [modalMovimientoAbierto, setModalMovimientoAbierto] = useState(false);
   const [modalProduccionAbierto, setModalProduccionAbierto] = useState(false);
-  const [modalHistorialAbierto, setModalHistorialAbierto] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [modoModal, setModoModal] = useState("view");
+  const [tabInicial, setTabInicial] = useState("info");
 
   const [confirmarEliminar, setConfirmarEliminar] = useState({
     open: false,
@@ -40,12 +40,14 @@ const TablaProductos = () => {
   const handleVerDetalle = (producto) => {
     setProductoSeleccionado(producto);
     setModoModal("vista");
+    setTabInicial("info");
     setModalAbierto(true);
   };
 
   const handleEditar = (producto) => {
     setProductoSeleccionado(producto);
     setModoModal("editar");
+    setTabInicial("info");
     setModalAbierto(true);
   };
 
@@ -61,7 +63,9 @@ const TablaProductos = () => {
 
   const handleVerHistorial = (producto) => {
     setProductoSeleccionado(producto);
-    setModalHistorialAbierto(true);
+    setModoModal("vista");
+    setTabInicial("historial");
+    setModalAbierto(true);
   };
 
   const handleEliminarClick = (codigo, nombre) => {
@@ -91,8 +95,6 @@ const TablaProductos = () => {
           const {
             codigoSecuencial,
             codigoEmpresa,
-            createdAt,
-            updatedAt,
             id,
             ...payload
           } = dataEditada;
@@ -107,7 +109,13 @@ const TablaProductos = () => {
         }}
         data={productoSeleccionado}
         {...productoConfig}
-      />
+        initialTab={tabInicial}
+      >
+        <ListaMovimientos 
+          codigoArticulo={productoSeleccionado?.codigoSecuencial} 
+          tipoArticulo="PRODUCTO" 
+        />
+      </ModalDetalleGenerico>
 
       <ModalConfirmacion
         open={confirmarEliminar.open}
@@ -134,21 +142,6 @@ const TablaProductos = () => {
         articulo={productoSeleccionado}
       />
 
-      <ModalDetalleBase
-        open={modalHistorialAbierto}
-        onClose={() => setModalHistorialAbierto(false)}
-      >
-        <ModalDetalle
-          title={`Historial: ${productoSeleccionado?.nombre}`}
-          icon={<HistorialIcono size={20} />}
-          onClose={() => setModalHistorialAbierto(false)}
-        >
-          <ListaMovimientos
-            codigoArticulo={productoSeleccionado?.codigoSecuencial}
-            tipoArticulo="PRODUCTO"
-          />
-        </ModalDetalle>
-      </ModalDetalleBase>
 
       <DataTable
         columnas={columnasProductos}

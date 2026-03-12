@@ -51,7 +51,18 @@ export const camposDeposito = [
         name: "principal",
         label: "¿Es el Depósito Principal?",
         type: "switch",
+        defaultValue: false,
         required: false,
+        hidden: (data) => !data?.codigoSecuencial,
+        section: "Configuración"
+    },
+    {
+        name: "activo",
+        label: "Depósito Activo",
+        type: "switch",
+        required: false,
+        defaultValue: true,
+        hidden: (data) => !data?.codigoSecuencial,
         section: "Configuración"
     }
 ];

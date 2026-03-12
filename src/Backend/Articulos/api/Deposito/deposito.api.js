@@ -12,7 +12,7 @@ export const CrearDepositoApi = async (data) => {
 
 export const ActualizarDepositoApi = async (codigo, data) => {
     // El gateway espera 'codigo' en la query para el codigoSecuencial
-    const respuesta = await axiosInitial.patch(`/deposito/actualizar?codigo=${codigo}`, data, { showLoader: false });
+    const respuesta = await axiosInitial.patch(`/deposito/actualizar?codigoSecuencial=${codigo}`, data, { showLoader: false });
     return respuesta.data;
 }
 

@@ -26,9 +26,9 @@ const TablaMateriaPrima = () => {
 
   const [modalAbierto, setModalAbierto] = useState(false);
   const [modalMovimientoAbierto, setModalMovimientoAbierto] = useState(false);
-  const [modalHistorialAbierto, setModalHistorialAbierto] = useState(false);
   const [materiaPrimaSeleccionada, setMateriaPrimaSeleccionada] = useState(null);
   const [modoModal, setModoModal] = useState("view");
+  const [tabInicial, setTabInicial] = useState("info");
   
   // Estado para la confirmación de eliminación
   const [confirmarEliminar, setConfirmarEliminar] = useState({
@@ -40,12 +40,14 @@ const TablaMateriaPrima = () => {
   const handleVerDetalle = (materiaPrima) => {
     setMateriaPrimaSeleccionada(materiaPrima);
     setModoModal("vista");
+    setTabInicial("info");
     setModalAbierto(true);
   };
 
   const handleEditar = (materiaPrima) => {
     setMateriaPrimaSeleccionada(materiaPrima);
     setModoModal("editar");
+    setTabInicial("info");
     setModalAbierto(true);
   };
 
@@ -56,7 +58,9 @@ const TablaMateriaPrima = () => {
 
   const handleVerHistorial = (materiaPrima) => {
     setMateriaPrimaSeleccionada(materiaPrima);
-    setModalHistorialAbierto(true);
+    setModoModal("vista");
+    setTabInicial("historial");
+    setModalAbierto(true);
   };
 
   const handleEliminarClick = (codigoSecuencial, nombre) => {
@@ -87,8 +91,6 @@ const TablaMateriaPrima = () => {
           const { 
             codigoSecuencial, 
             codigoEmpresa, 
-            createdAt, 
-            updatedAt, 
             id,
             ...payload 
           } = dataEditada;
@@ -103,7 +105,13 @@ const TablaMateriaPrima = () => {
         }}
         data={materiaPrimaSeleccionada}
         {...materiaPrimaConfig}
-      />
+        initialTab={tabInicial}
+      >
+        <ListaMovimientos 
+          codigoArticulo={materiaPrimaSeleccionada?.codigoSecuencial} 
+          tipoArticulo="MATERIA_PRIMA" 
+        />
+      </ModalDetalleGenerico>
         
 
       {/* Modal de Confirmación de Eliminación Premium */}
@@ -126,21 +134,6 @@ const TablaMateriaPrima = () => {
         tipo="MATERIA_PRIMA"
       />
 
-      <ModalDetalleBase 
-        open={modalHistorialAbierto} 
-        onClose={() => setModalHistorialAbierto(false)} 
-      >
-        <ModalDetalle 
-          title={`Historial: ${materiaPrimaSeleccionada?.nombre}`} 
-          icon={<HistorialIcono size={20} />} 
-          onClose={() => setModalHistorialAbierto(false)}
-        >
-          <ListaMovimientos 
-            codigoArticulo={materiaPrimaSeleccionada?.codigoSecuencial} 
-            tipoArticulo="MATERIA_PRIMA" 
-          />
-        </ModalDetalle>
-      </ModalDetalleBase>
 
       <DataTable
         columnas={columnasMateriaPrima}

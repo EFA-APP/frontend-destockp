@@ -24,12 +24,12 @@ const FormularioDinamico = ({
     const initial = {};
     campos.forEach((field) => {
       if (field.type === "items-table") {
-        initial[field.name] = [];
+        initial[field.name] = field.defaultValue || [];
       } else if (field.type === "number") {
-        initial[field.name] = field.defaultValue || 0;
+        initial[field.name] = field.defaultValue !== undefined ? field.defaultValue : 0;
       } else if (field.type === "select") {
         initial[field.name] =
-          field.defaultValue || field.options?.[0]?.value || "";
+          field.defaultValue !== undefined ? field.defaultValue : (field.options?.[0]?.value || "");
       } else if (field.type === "date") {
         if (!field.defaultValue) {
           const today = new Date();
@@ -40,8 +40,10 @@ const FormularioDinamico = ({
         } else {
           initial[field.name] = field.defaultValue;
         }
+      } else if (field.type === "switch") {
+        initial[field.name] = field.defaultValue !== undefined ? field.defaultValue : false;
       } else {
-        initial[field.name] = field.defaultValue || "";
+        initial[field.name] = field.defaultValue !== undefined ? field.defaultValue : "";
       }
     });
     return initial;
@@ -72,6 +74,8 @@ const FormularioDinamico = ({
 
     if (type === "number") {
       newValue = parseFloat(value) || 0;
+    } else if (type === "checkbox") {
+      newValue = e.target.checked;
     }
 
     setFormData((prev) => {
@@ -202,7 +206,14 @@ const FormularioDinamico = ({
 
   const handleSubmit = () => {
     if (validate()) {
-      onSubmit(formData);
+      // Filtrar campos que están ocultos dinámicamente
+      const filteredData = { ...formData };
+      campos.forEach((field) => {
+        if (field.hidden && field.hidden(formData)) {
+          delete filteredData[field.name];
+        }
+      });
+      onSubmit(filteredData);
     }
   };
 
@@ -375,6 +386,25 @@ const FormularioDinamico = ({
           </div>
         );
       }
+
+      case "switch":
+        return (
+          <div className="flex items-center mt-2 h-10">
+            <label className="relative inline-flex items-center cursor-pointer group">
+              <input
+                type="checkbox"
+                name={field.name}
+                checked={!!formData[field.name]}
+                onChange={handleChange}
+                className="sr-only peer"
+                disabled={isReadOnly}
+              />
+              <div
+                className={`w-11 h-6 bg-[var(--surface-hover)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--primary)]/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--primary)] transition-colors border border-[var(--border-medium)]`}
+              ></div>
+            </label>
+          </div>
+        );
 
       default:
         return (

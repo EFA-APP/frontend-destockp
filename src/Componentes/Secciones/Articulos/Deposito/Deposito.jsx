@@ -1,17 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ContenedorSeccion from "../../../ContenidoPanel/ContenedorSeccion";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
-import DataTable from "../../../UI/DataTable/DataTable";
-import ModalDetalleBase from "../../../UI/ModalDetalleBase/ModalDetalleBase";
-import FormularioDinamico from "../../../UI/FormularioReutilizable/FormularioDinamico";
 import {
     InventarioIcono,
-    ArcaIcono,
     AgregarIcono,
 } from "../../../../assets/Icons";
 import { useDepositoUI } from "../../../../Backend/Articulos/hooks/Deposito/useDepositoUI.jsx";
-import { camposDeposito } from "../../../Tablas/Articulos/Deposito/camposDepositos";
 import TarjetaDeposito from "./TarjetaDeposito.jsx";
 import TablaDepositoStock from "../../../Tablas/Articulos/Deposito/TablaDepositoStock";
 
@@ -23,14 +18,9 @@ const Deposito = () => {
     const {
         depositos,
         cargando,
-        crearDeposito,
-        actualizarDeposito,
-        estaCreando,
-        estaActualizando
     } = useDepositoUI();
     const navigate = useNavigate();
 
-    const [sucursalSeleccionada, setSucursalSeleccionada] = useState(null);
 
     // --- LÓGICA CRUD ---
     const handleNuevaSucursal = () => {
@@ -38,7 +28,7 @@ const Deposito = () => {
     };
 
     const handleEditarSucursal = (suc) => {
-        navigate(`/panel/inventario/depositos/editar/${suc.codigoSecuencial}`);
+        navigate(`/panel/inventario/depositos/editar?codigoSecuencial=${suc.codigoSecuencial}`);
     };
 
 
