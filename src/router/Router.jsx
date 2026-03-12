@@ -44,6 +44,8 @@ import GestionarDeposito from "../Componentes/Secciones/Articulos/Deposito/Gesti
 
 import RutaProtegida from "./RutaProtegida";
 import RutaPublica from "./RutaPublica";
+import GestionProducto from "../Componentes/Secciones/Articulos/Productos/GestionProducto";
+import GestionMateriaPrima from "../Componentes/Secciones/Articulos/MateriaPrima/GestionMateriaPrima";
 
 export default function Router() {
   return (
@@ -70,8 +72,10 @@ export default function Router() {
           <Route element={<RutaProtegida />}>
             <Route path="inventario/productos" element={<Productos />} />
             <Route path="inventario/productos/nuevo" element={<CrearProductos />} />
+            <Route path="inventario/productos/:id/acciones" element={<GestionProducto />} />
             <Route path="inventario/materia-prima" element={<MateriaPrima />} />
             <Route path="inventario/materia-prima/nuevo" element={<CrearMateriaPrima />} />
+            <Route path="inventario/materia-prima/:id/acciones" element={<GestionMateriaPrima />} />
             <Route path="inventario/depositos" element={<Deposito />} />
             <Route path="inventario/depositos/nuevo" element={<GestionarDeposito />} />
             <Route path="inventario/depositos/editar/" element={<GestionarDeposito />} />

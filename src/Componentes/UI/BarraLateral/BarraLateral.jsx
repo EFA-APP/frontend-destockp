@@ -34,15 +34,6 @@ const BarraLateral = () => {
 
   // Transformamos y filtramos el menú según los datos de la API y permisos
   const menuFiltrado = useMemo(() => {
-    // Siempre incluimos Inicio
-    const inicioItem = {
-      id: "inicio",
-      nombre: "Inicio",
-      icono: <Icons.InicioIcono size={16} />,
-      redireccion: "/panel/",
-      submenu: []
-    };
-
     const seccionesFiltradas = seccionesApi
       .filter(seccion => seccion.activo && codigosSeccionPermitidos.includes(seccion.permisoRequerido))
       .map(seccion => {
@@ -60,7 +51,7 @@ const BarraLateral = () => {
         };
       });
 
-    return [inicioItem, ...seccionesFiltradas];
+    return [...seccionesFiltradas];
   }, [seccionesApi, codigosSeccionPermitidos]);
 
   const handleArticuloClick = (e, itemId) => {

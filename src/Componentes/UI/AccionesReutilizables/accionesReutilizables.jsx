@@ -9,6 +9,7 @@ import {
   ProduccionIcono,
   MovimientoIcono,
   HistorialIcono,
+  DetalleIcono,
 } from "../../../assets/Icons";
 
 export const accionesReutilizables = {
@@ -111,4 +112,14 @@ export const accionesReutilizables = {
       </div>
     ),
   },
+
+  gestionar: {
+    key: "gestionar",
+    label: "Gestionar",
+    icono: (
+      <div className="p-1 rounded-md bg-yellow-500/10 text-yellow-500! hover:bg-yellow-500/20 transition-colors cursor-pointer">
+        <DetalleIcono size={18} />
+      </div>
+    ),
+  }
 };

@@ -54,5 +54,6 @@ export { default as ProduccionIcono } from "./ProduccionIcono";
 export { default as CerrarIcono } from "./CerrarIcono";
 export { default as CheckIcono } from "./CheckIcono";
 export { default as MovimientoIcono } from "./MovimientoIcono";
-export {default as HistorialIcono } from "./HistorialIcono";
+export { default as HistorialIcono } from "./HistorialIcono";
 export { default as TelefonoIcono } from "./TelefonoIcono"
+export { default as DetalleIcono } from "./DetalleIcono"

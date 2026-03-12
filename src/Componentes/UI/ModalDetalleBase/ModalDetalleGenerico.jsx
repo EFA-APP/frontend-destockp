@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Metrica from "./Metricas";
 import ModalDetalle from "./ModalDetalle";
 import ModalDetalleBase from "./ModalDetalleBase";
@@ -13,15 +13,17 @@ const ModalDetalleGenerico = ({
   sections = [],
   mode = "view",
   onSave,
-  width = "max-w-[650px]",
+  width = "max-w-[700px]",
   accentColor = "amber",
   children,
   tabs = [
     { id: "info", label: "Información" },
-    { id: "stock", label: "Stock & KPI" },
-    { id: "historial", label: "Historial" }
+    { id: "stock", label: "Estadísticas" },
+    { id: "historial", label: "Bitácora" }
   ],
-  initialTab = "info"
+  initialTab = "info",
+  isStandalone = false,
+  hideTabs = false
 }) => {
   const [formData, setFormData] = useState({});
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -31,10 +33,10 @@ const ModalDetalleGenerico = ({
   }, [data]);
 
   useEffect(() => {
-    if (open) setActiveTab(initialTab);
-  }, [open, initialTab]);
+    if (open || isStandalone) setActiveTab(initialTab);
+  }, [open, isStandalone, initialTab]);
 
-  if (!open || !data) return null;
+  if ((!open && !isStandalone) || !data) return null;
 
   const handleChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -44,188 +46,236 @@ const ModalDetalleGenerico = ({
 
   const themes = {
     amber: {
-      button: "bg-amber-600! hover:bg-amber-500! border-amber-400/20! shadow-amber-900/40!",
-      bullet: "bg-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.6)]",
-      subTitle: "text-amber-500 bg-amber-500/10 border-amber-500/20",
-      inputFocus: "focus:border-amber-500/50 focus:ring-amber-500/20",
-      cardBg: "bg-gradient-to-br from-amber-500/[0.05] via-transparent to-transparent border-amber-500/10 hover:border-amber-500/30 hover:bg-amber-500/[0.08]",
-      accent: "text-amber-500",
-      glow: "shadow-[0_0_40px_rgba(245,158,11,0.05)]",
-      tabActive: "text-amber-500 bg-amber-500/10 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+      accent: "text-amber-500!",
+      bg: "bg-amber-500/10!",
+      border: "border-amber-500/20!",
+      button: "bg-amber-600! hover:bg-amber-500! border-amber-400/20!",
+      input: "focus:border-amber-500/50! focus:ring-amber-500/20!",
+      tabActive: "text-amber-500! bg-amber-500/10! border-amber-500/20!"
     },
     emerald: {
-      button: "bg-emerald-600! hover:bg-emerald-500! border-emerald-400/20! shadow-emerald-900/40!",
-      bullet: "bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.6)]",
-      subTitle: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
-      inputFocus: "focus:border-emerald-500/50 focus:ring-emerald-500/20",
-      cardBg: "bg-gradient-to-br from-emerald-500/[0.05] via-transparent to-transparent border-emerald-500/10 hover:border-emerald-500/30 hover:bg-emerald-500/[0.08]",
-      accent: "text-emerald-500",
-      glow: "shadow-[0_0_40px_rgba(16,185,129,0.05)]",
-      tabActive: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+      accent: "text-emerald-500!",
+      bg: "bg-emerald-500/10!",
+      border: "border-emerald-500/20!",
+      button: "bg-emerald-600! hover:bg-emerald-500! border-emerald-400/20!",
+      input: "focus:border-emerald-500/50! focus:ring-emerald-500/20!",
+      tabActive: "text-emerald-500! bg-emerald-500/10! border-emerald-500/20!"
     },
-    // ... rest of themes updated similarly if needed
+    blue: {
+      accent: "text-blue-500!",
+      bg: "bg-blue-500/10!",
+      border: "border-blue-500/20!",
+      button: "bg-blue-600! hover:bg-blue-500! border-blue-400/20!",
+      input: "focus:border-blue-500/50! focus:ring-blue-500/20!",
+      tabActive: "text-blue-500! bg-blue-500/10! border-blue-500/20!"
+    }
   };
 
   const theme = themes[accentColor] || themes.amber;
 
-  // Filtrar secciones por pestaña si no estamos en edición
-  const filteredSections = isEdit 
-    ? sections 
+  const filteredSections = (isEdit || hideTabs)
+    ? sections
     : sections.filter(s => (s.tab || "info") === activeTab);
 
   const footer = isEdit ? (
-    <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-2">
+    <div className="flex gap-3 w-full animate-in! fade-in! slide-in-from-bottom-2! duration-500! ">
       <button
         onClick={onClose}
-        className="order-2 sm:order-1 flex-1 px-7 py-3.5 rounded-2xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] text-white/50 hover:text-white text-[11px] font-black uppercase tracking-[0.2em] transition-all active:scale-95 shadow-lg"
+        className="flex-1 px-6 py-3 rounded-md! bg-white/[0.03]! border! border-white/10! hover:bg-white/[0.08]! text-white/40! hover:text-white! text-[10px] font-black uppercase tracking-[0.15em] transition-all!"
       >
         Cancelar
       </button>
       <button
         onClick={() => onSave?.(formData)}
-        className={`order-1 sm:order-2 flex-1 px-8 py-3.5 rounded-2xl ${theme.button} text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all shadow-xl active:scale-95 border`}
+        className={`flex-1 px-6 py-3 rounded-md! ${theme.button} text-white! text-[10px] font-black uppercase tracking-[0.15em] transition-all! shadow-xl! active:scale-95!`}
       >
         Guardar Cambios
       </button>
     </div>
   ) : null;
 
-  return (
-    <ModalDetalleBase open={open} onClose={onClose} width={width}>
-      <ModalDetalle
-        title={title}
-        icon={icon}
-        onClose={onClose}
-        footer={footer}
-        accentColor={accentColor}
-      >
-        <div className={`space-y-6 animate-in fade-in duration-700 ${theme.glow}`}>
-          
-          {/* TAB NAVIGATION - Premium Design */}
-          {!isEdit && (
-            <div className="flex items-center gap-1 p-1 bg-white/[0.02] border border-white/5 rounded-2xl backdrop-blur-md">
-              {tabs.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-300 cursor-pointer ${
-                    activeTab === tab.id 
-                      ? theme.tabActive 
-                      : "text-white/30 hover:text-white/60 hover:bg-white/[0.03]"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+  const content = (
+    <ModalDetalle
+      title={title}
+      icon={icon}
+      onClose={onClose}
+      footer={footer}
+      accentColor={accentColor}
+      isStandalone={isStandalone}
+    >
+      <div className="relative space-y-6 pb-2">
+
+        {/* COMPACT CLEAN HEADER */}
+        {!isEdit && (
+          <div className="flex items-center gap-4 p-4 rounded-md! bg-gradient-to-br from-white/[0.02] to-transparent! border! border-white/5! shadow-lg!">
+            <div className={`p-2.5 rounded-md! ${theme.bg} border! ${theme.border} shadow-inner!`}>
+              {icon && React.isValidElement(icon) ? React.cloneElement(icon, { size: 20, color: "white" }) : null}
             </div>
-          )}
+            <div>
+              <div className="flex items-center gap-1.5 mb-0.5 opacity-30">
+                <div className="w-1.5 h-1.5 rounded-full bg-current animate-pulse!" />
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white!">Detalles</span>
+              </div>
+              <h2 className="text-lg font-black text-white! tracking-tight uppercase leading-none mb-1">
+                {data.nombre || title}
+              </h2>
+              <div className="flex items-center gap-2.5">
+                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.05em]">
+                  Código: <span className="text-white/50! font-mono">{data.codigoSecuencial || "N/A"}</span>
+                </p>
+                <div className="w-1 h-1 rounded-full bg-white/10" />
+                <span className={`text-[9px] font-black uppercase tracking-widest ${theme.accent}`}>Activo</span>
+              </div>
+            </div>
+          </div>
+        )}
 
-          {/* TAB CONTENT: SECTIONS */}
-          {(activeTab === "info" || isEdit) && (
-            <div className={`${isEdit ? "space-y-5" : "grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5"}`}>
-              {filteredSections.map((section, idx) => {
-                const editable = section.editable;
-                const value = formData[section.key];
-                const hasValue = value !== undefined && value !== null && value !== "";
-                
-                if (section.ocultar && !isEdit) return null;
+        {/* COMPACT TAB NAVIGATION */}
+        {!isEdit && !hideTabs && (
+          <div className="flex items-center gap-1.5 p-1 bg-black/40! border! border-white/10! rounded-md! shadow-inner!">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex-1 py-2 px-4 rounded-md! text-[9px] font-black uppercase tracking-[0.15em] transition-all! duration-300! relative overflow-hidden! ${activeTab === tab.id
+                  ? theme.tabActive
+                  : "text-white/20! hover:text-white/50!"
+                  }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
 
-                return (
-                  <div key={idx} className={`group/item relative overflow-hidden ${!isEdit ? `${theme.cardBg} border rounded-2xl p-5 transition-all duration-500 backdrop-blur-sm` : ""}`}>
-                    {!isEdit && <div className="absolute top-0 right-0 w-24 h-24 bg-white/[0.02] blur-3xl rounded-full -mr-12 -mt-12 opacity-50" />}
-                    
-                    <div className="flex items-center gap-2 mb-3 opacity-40 group-hover/item:opacity-80 transition-opacity">
-                      <div className={`w-1.5 h-1.5 ${theme.bullet} rounded-full`} />
-                      <p className="text-[9px] text-white font-black uppercase tracking-[0.2em] leading-none">
-                        {section.label}
-                      </p>
-                    </div>
+        {/* METRICS GRID - Compact Style (Hidden in Edit mode) */}
+        {!isEdit && ((activeTab === "stock") || hideTabs) && metrics.length > 0 && (
+          <div className="grid grid-cols-3 gap-3 animate-in! fade-in! slide-in-from-top-3! duration-500!">
+            {metrics.map((m, idx) => (
+              <Metrica
+                key={idx}
+                label={m.label}
+                accentColor={accentColor}
+                value={typeof m.value === "function" ? m.value(data) : data[m.value]}
+              />
+            ))}
+          </div>
+        )}
 
-                    {isEdit && editable ? (
-                      <div className="relative animate-in slide-in-from-left-4 duration-500">
-                        {section.type === "select" ? (
-                          <div className="relative">
-                            <select
-                              value={formData[section.key] ?? ""}
-                              onChange={(e) => handleChange(section.key, e.target.value)}
-                              className={`w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-[14px] text-white font-bold focus:outline-none ${theme.inputFocus} focus:ring-1 transition-all appearance-none cursor-pointer shadow-inner backdrop-blur-md`}
-                            >
-                              {section.options?.map((opt) => (
-                                <option key={opt.value} value={opt.value} className="bg-[#0a0a0a] text-white p-4">
-                                  {opt.label}
-                                </option>
-                              ))}
-                            </select>
-                            <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
-                              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                              </svg>
-                            </div>
-                          </div>
-                        ) : (
+        {/* DATA CONTAINER - Clean Form Style */}
+        {(activeTab === "info" || isEdit || hideTabs) && (
+          <div className={`p-6! rounded-md! border! border-white/5! bg-white/[0.01]! shadow-inner! ${isEdit ? "space-y-4" : "grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6 space-y-0"}`}>
+            {filteredSections.map((section, idx) => {
+              const editable = section.editable;
+              const value = formData[section.key];
+              const hasValue = value !== undefined && value !== null && value !== "";
+
+              if (section.ocultar && !isEdit) return null;
+
+              return (
+                <div key={idx} className={`group/field flex flex-col ${isEdit && section.type === 'textarea' ? 'sm:col-span-2' : ''}`}>
+                  <div className="flex items-center gap-2 mb-1.5 opacity-40 group-hover/field:opacity-100 transition-opacity!">
+                    <div className={`w-0.5 h-2.5 ${theme.bg} rounded-full transition-all! group-hover/field:h-3.5`} />
+                    <p className="text-[8px] font-black uppercase tracking-[0.2em] text-white!">
+                      {section.label}
+                    </p>
+                  </div>
+
+                  {isEdit && editable ? (
+                    <div className="relative group/input">
+                      {section.type === "select" ? (
+                        <select
+                          value={formData[section.key] ?? ""}
+                          onChange={(e) => handleChange(section.key, e.target.value)}
+                          className={`w-full bg-black/60! border! border-white/10! rounded-md! px-3.5 py-2.5 text-[12px] text-white! font-bold transition-all! ${theme.input} focus:outline-none! focus:bg-black!`}
+                        >
+                          {section.options?.map((opt) => (
+                            <option key={opt.value} value={opt.value} className="bg-[#0e0e0e] text-white p-4">
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                      ) : section.type === "textarea" ? (
+                        <textarea
+                          rows={2}
+                          value={formData[section.key] ?? ""}
+                          onChange={(e) => handleChange(section.key, e.target.value)}
+                          className={`w-full bg-black/60! border! border-white/10! rounded-md! px-3.5 py-2.5 text-[12px] text-white! font-bold transition-all! ${theme.input} focus:outline-none! focus:bg-black! resize-none!`}
+                          placeholder={`ENTER_${section.label.toUpperCase()}...`}
+                        />
+                      ) : section.type === "boolean" ? (
+                        <label className={`flex items-center justify-between gap-3 px-3.5 py-2.5 bg-black/40! border! border-white/10! rounded-md! cursor-pointer transition-all! ${theme.input} hover:bg-black/60!`}>
+                          <span className="text-[11px] text-white/50! font-bold uppercase tracking-widest">
+                            Estado: <span className={formData[section.key] ? "text-emerald-500!" : "text-rose-500!"}>{formData[section.key] ? "ACTIVO" : "INACTIVO"}</span>
+                          </span>
                           <input
-                            type={section.type || "text"}
-                            value={formData[section.key] ?? ""}
-                            onChange={(e) => handleChange(section.key, e.target.value)}
-                            className={`w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-[14px] text-white font-bold placeholder:text-white/10 focus:outline-none ${theme.inputFocus} focus:ring-1 transition-all shadow-inner backdrop-blur-md`}
-                            placeholder={`Ingresar ${section.label.toLowerCase()}...`}
+                            type="checkbox"
+                            checked={formData[section.key] ?? false}
+                            onChange={(e) => handleChange(section.key, e.target.checked)}
+                            className={`w-5 h-5 rounded-md! bg-black/60! border-white/20! ${theme.accent} focus:ring-0! transition-all! cursor-pointer!`}
                           />
-                        )}
-                      </div>
-                    ) : (
-                      <div className="relative z-10 animate-in zoom-in-95 duration-700">
-                        <p className={`text-[15px] font-black text-white tracking-tight leading-tight group-hover/item:translate-x-1 transition-transform duration-500 ${!hasValue ? "italic opacity-20" : ""}`}>
-                          {hasValue ? value : "No especificado"}
-                        </p>
-                        
-                        {section.sub && hasValue && (
-                          <div className={`mt-3 inline-flex items-center px-2.5 py-1 ${theme.subTitle} rounded-xl shadow-sm`}>
-                            <p className={`text-[10px] font-black uppercase tracking-widest`}>
+                        </label>
+                      ) : (
+                        <input
+                          type={section.type || "text"}
+                          value={formData[section.key] ?? ""}
+                          onChange={(e) => handleChange(section.key, e.target.value)}
+                          className={`w-full bg-black/60! border! border-white/10! rounded-md! px-3.5 py-2.5 text-[12px] text-white! font-bold transition-all! ${theme.input} focus:outline-none! focus:bg-black!`}
+                          placeholder={`SET_${section.label.toUpperCase()}...`}
+                        />
+                      )}
+                    </div>
+                  ) : (
+                    <div className="relative group/data">
+                      {section.type === "boolean" ? (
+                        <div className="flex items-center">
+                          <div className={`px-2.5 py-1 rounded-md border flex items-center gap-2 ${value ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" : "bg-rose-500/10 border-rose-500/20 text-rose-500"}`}>
+                            <div className={`w-1.5 h-1.5 rounded-full bg-current ${value ? "animate-pulse" : ""}`} />
+                            <span className="text-[10px] font-black uppercase tracking-wider">{value ? "ACTIVO" : "INACTIVO"}</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-3 rounded-md! bg-white/[0.01]! border! border-white/5! transition-all! group-hover/field:bg-white/[0.02]!">
+                          <p className={`text-[13px] font-black text-white! tracking-wide transition-all! ${!hasValue ? "italic opacity-10" : "group-hover/field:pl-1"}`}>
+                            {hasValue ? value : "NULL"}
+                          </p>
+                          {section.sub && hasValue && (
+                            <p className="mt-1 text-[8px] font-bold text-white/15 uppercase tracking-[0.1em] leading-none">
                               {section.sub(data)}
                             </p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
-          {/* TAB CONTENT: STOCK & METRICS */}
-          {((activeTab === "stock" && !isEdit) || (isEdit && metrics.length > 0)) && (
-            <div className="space-y-6 pt-2">
-              <div className="flex items-center gap-3 mb-2 opacity-40">
-                <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                <span className="text-[9px] font-black uppercase tracking-[0.3em] whitespace-nowrap text-[var(--text-theme)]">Indicadores de Stock</span>
-                <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {metrics.map((m, idx) => (
-                  <Metrica
-                    key={idx}
-                    label={m.label}
-                    accentColor={accentColor}
-                    value={
-                      typeof m.value === "function"
-                        ? m.value(data)
-                        : data[m.value]
-                    }
-                  />
-                ))}
-              </div>
+        {/* LOGS / HISTORIAL */}
+        {activeTab === "historial" && !isEdit && !hideTabs && children && (
+          <div className="animate-in! fade-in! slide-in-from-bottom-3! duration-700!">
+            <div className="flex items-center gap-3 mb-4 opacity-20">
+              <div className="h-px flex-1 bg-white/20!" />
+              <span className="text-[9px] font-black text-white! uppercase tracking-[0.3em]">Log_Trace</span>
+              <div className="h-px flex-1 bg-white/20!" />
             </div>
-          )}
-
-          {/* TAB CONTENT: HISTORIAL (CHILDREN) */}
-          {activeTab === "historial" && !isEdit && children && (
-            <div className="pt-2 animate-in slide-in-from-bottom-4 duration-700">
+            <div className="rounded-md! border! border-white/5! bg-black/20! p-4! overflow-hidden">
               {children}
             </div>
-          )}
-        </div>
-      </ModalDetalle>
+          </div>
+        )}
+      </div>
+    </ModalDetalle>
+  );
+
+  if (isStandalone) return content;
+
+  return (
+    <ModalDetalleBase open={open} onClose={onClose} width={width}>
+      {content}
     </ModalDetalleBase>
   );
 };

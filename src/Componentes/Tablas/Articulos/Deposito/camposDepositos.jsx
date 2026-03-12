@@ -53,7 +53,6 @@ export const camposDeposito = [
         type: "switch",
         defaultValue: false,
         required: false,
-        hidden: (data) => !data?.codigoSecuencial,
         section: "Configuración"
     },
     {

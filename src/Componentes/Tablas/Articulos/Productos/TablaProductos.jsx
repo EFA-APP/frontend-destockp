@@ -1,35 +1,22 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useProductoUI } from "../../../../Backend/Articulos/hooks/Producto/useProductoUI";
 import DataTable from "../../../UI/DataTable/DataTable";
-import productoConfig from "../../../Modales/Articulos/ConfigProducto";
-import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
 import ModalConfirmacion from "../../../UI/ModalConfirmacion/ModalConfirmacion";
-import ModalMovimiento from "../../../Modales/Articulos/ModalMovimiento";
-import ModalProduccion from "../../../Modales/Articulos/ModalProduccion";
 import { columnasProductos } from "./ColumnaProductos";
 import { accionesProductos } from "./AccionesProductos";
-import { BorrarIcono, HistorialIcono } from "../../../../assets/Icons";
-import ModalDetalleBase from "../../../UI/ModalDetalleBase/ModalDetalleBase";
-import ModalDetalle from "../../../UI/ModalDetalleBase/ModalDetalle";
-import ListaMovimientos from "../../../UI/ListaMovimientos/ListaMovimientos";
+import { BorrarIcono } from "../../../../assets/Icons";
 
 const TablaProductos = () => {
+  const navigate = useNavigate();
   const {
     productos,
     busqueda,
     setBusqueda,
-    actualizarProducto,
     eliminarProducto,
     cargando,
     estaEliminando
   } = useProductoUI();
-
-  const [modalAbierto, setModalAbierto] = useState(false);
-  const [modalMovimientoAbierto, setModalMovimientoAbierto] = useState(false);
-  const [modalProduccionAbierto, setModalProduccionAbierto] = useState(false);
-  const [productoSeleccionado, setProductoSeleccionado] = useState(null);
-  const [modoModal, setModoModal] = useState("view");
-  const [tabInicial, setTabInicial] = useState("info");
 
   const [confirmarEliminar, setConfirmarEliminar] = useState({
     open: false,
@@ -37,35 +24,10 @@ const TablaProductos = () => {
     nombre: "",
   });
 
-  const handleVerDetalle = (producto) => {
-    setProductoSeleccionado(producto);
-    setModoModal("vista");
-    setTabInicial("info");
-    setModalAbierto(true);
-  };
-
-  const handleEditar = (producto) => {
-    setProductoSeleccionado(producto);
-    setModoModal("editar");
-    setTabInicial("info");
-    setModalAbierto(true);
-  };
-
-  const handleMovimiento = (producto) => {
-    setProductoSeleccionado(producto);
-    setModalMovimientoAbierto(true);
-  };
-
-  const handleProduccion = (producto) => {
-    setProductoSeleccionado(producto);
-    setModalProduccionAbierto(true);
-  };
-
-  const handleVerHistorial = (producto) => {
-    setProductoSeleccionado(producto);
-    setModoModal("vista");
-    setTabInicial("historial");
-    setModalAbierto(true);
+  const handleGestionar = (producto) => {
+    navigate(`/panel/inventario/productos/${producto.codigoSecuencial}/acciones`, {
+      state: { producto, initialTab: "info" }
+    });
   };
 
   const handleEliminarClick = (codigo, nombre) => {
@@ -87,36 +49,6 @@ const TablaProductos = () => {
 
   return (
     <div className="space-y-6">
-      <ModalDetalleGenerico
-        mode={modoModal}
-        open={modalAbierto}
-        onClose={() => setModalAbierto(false)}
-        onSave={async (dataEditada) => {
-          const {
-            codigoSecuencial,
-            codigoEmpresa,
-            id,
-            ...payload
-          } = dataEditada;
-
-          // Aseguramos tipos numéricos
-          if (payload.stock !== undefined) payload.stock = parseFloat(payload.stock) || 0;
-          if (payload.cantidadPorPaquete !== undefined) payload.cantidadPorPaquete = parseFloat(payload.cantidadPorPaquete) || 0;
-          if (payload.cantidadDePaquetesActuales !== undefined) payload.cantidadDePaquetesActuales = parseFloat(payload.cantidadDePaquetesActuales) || 0;
-
-          await actualizarProducto(productoSeleccionado.codigoSecuencial, payload);
-          setModalAbierto(false);
-        }}
-        data={productoSeleccionado}
-        {...productoConfig}
-        initialTab={tabInicial}
-      >
-        <ListaMovimientos 
-          codigoArticulo={productoSeleccionado?.codigoSecuencial} 
-          tipoArticulo="PRODUCTO" 
-        />
-      </ModalDetalleGenerico>
-
       <ModalConfirmacion
         open={confirmarEliminar.open}
         onClose={() => setConfirmarEliminar({ open: false, codigo: null, nombre: "" })}
@@ -129,20 +61,6 @@ const TablaProductos = () => {
         colorConfirmar="bg-red-600!"
       />
 
-      <ModalMovimiento
-        open={modalMovimientoAbierto}
-        onClose={() => setModalMovimientoAbierto(false)}
-        articulo={productoSeleccionado}
-        tipo="PRODUCTO"
-      />
-
-      <ModalProduccion
-        open={modalProduccionAbierto}
-        onClose={() => setModalProduccionAbierto(false)}
-        articulo={productoSeleccionado}
-      />
-
-
       <DataTable
         columnas={columnasProductos}
         datos={productos}
@@ -150,11 +68,7 @@ const TablaProductos = () => {
         mostrarAcciones={true}
         acciones={accionesProductos({
           handleEliminarClick,
-          handleVerDetalle,
-          handleEditar,
-          handleMovimiento,
-          handleProduccion,
-          handleVerHistorial,
+          handleGestionar,
         })}
         botonAgregar={{
           texto: "Nuevo Producto",

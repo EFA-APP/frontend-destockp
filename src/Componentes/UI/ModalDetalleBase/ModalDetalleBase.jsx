@@ -24,7 +24,7 @@ const ModalDetalleBase = ({ open, onClose, children, width = "max-w-[400px]" }) 
           max-h-full md:max-h-[90vh]
           bg-[var(--fill)] shadow-2xl
           animate-in zoom-in-95 duration-300
-          overflow-hidden
+          overflow-hidden rounded-md
         `}
       >
         {/* Contenido scrolleable */}
