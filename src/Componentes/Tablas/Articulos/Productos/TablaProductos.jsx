@@ -5,7 +5,9 @@ import DataTable from "../../../UI/DataTable/DataTable";
 import ModalConfirmacion from "../../../UI/ModalConfirmacion/ModalConfirmacion";
 import { columnasProductos } from "./ColumnaProductos";
 import { accionesProductos } from "./AccionesProductos";
-import { BorrarIcono } from "../../../../assets/Icons";
+import { BorrarIcono, MovimientoIcono } from "../../../../assets/Icons";
+import ModalCargaMasivaMovimientos from "../../../Modales/Articulos/ModalCargaMasivaMovimientos";
+
 
 const TablaProductos = () => {
   const navigate = useNavigate();
@@ -23,6 +25,9 @@ const TablaProductos = () => {
     codigo: null,
     nombre: "",
   });
+
+  const [modalMasivoOpen, setModalMasivoOpen] = useState(false);
+
 
   const handleGestionar = (producto) => {
     navigate(`/panel/inventario/productos/${producto.codigoSecuencial}/acciones`, {
@@ -74,12 +79,28 @@ const TablaProductos = () => {
           texto: "Nuevo Producto",
           ruta: "/panel/inventario/productos/nuevo",
         }}
+        elementosSuperior={(
+          <button
+            onClick={() => setModalMasivoOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-[11px] font-bold text-white uppercase tracking-wider transition-all cursor-pointer"
+          >
+            <MovimientoIcono size={14} />
+            Ajuste de Stock
+          </button>
+        )}
         mostrarBuscador={true}
         busqueda={busqueda}
         setBusqueda={setBusqueda}
         placeholderBuscador="Filtrar por mermelada, código o sabor..."
       />
+
+      <ModalCargaMasivaMovimientos
+        open={modalMasivoOpen}
+        onClose={() => setModalMasivoOpen(false)}
+        tipo="PRODUCTO"
+      />
     </div>
+
   );
 };
 

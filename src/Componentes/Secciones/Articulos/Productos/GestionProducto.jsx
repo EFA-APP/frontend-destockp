@@ -29,7 +29,6 @@ const GestionProducto = () => {
     const tabs = [
         { id: "info", label: "Información", icon: <ComprobanteIcono size={16} /> },
         { id: "editar", label: "Editar", icon: <InventarioIcono size={16} /> },
-        { id: "movimiento", label: "Movimiento", icon: <MovimientoIcono size={16} /> },
         { id: "produccion", label: "Producción", icon: <ProduccionIcono size={16} /> },
         { id: "historial", label: "Historial", icon: <HistorialIcono size={16} /> },
     ];
@@ -139,17 +138,6 @@ const GestionProducto = () => {
                     </div>
                 )}
 
-                {activeTab === "movimiento" && (
-                    <div className="max-w-[800px] mx-auto">
-                        <ModalMovimiento
-                            open={true}
-                            onClose={() => setActiveTab("info")}
-                            articulo={producto}
-                            tipo="PRODUCTO"
-                            isStandalone={true}
-                        />
-                    </div>
-                )}
 
                 {activeTab === "produccion" && (
                     <div className="max-w-[720px] mx-auto">

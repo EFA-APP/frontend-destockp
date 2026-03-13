@@ -28,7 +28,6 @@ const GestionMateriaPrima = () => {
     const tabs = [
         { id: "info", label: "Información", icon: <ComprobanteIcono size={16} /> },
         { id: "editar", label: "Editar", icon: <CanastaIcono size={16} /> },
-        { id: "movimiento", label: "Movimiento", icon: <MovimientoIcono size={16} /> },
         { id: "historial", label: "Historial", icon: <HistorialIcono size={16} /> },
     ];
 
@@ -132,17 +131,6 @@ const GestionMateriaPrima = () => {
                     </div>
                 )}
 
-                {activeTab === "movimiento" && (
-                    <div className="max-w-[800px] mx-auto">
-                        <ModalMovimiento
-                            open={true}
-                            onClose={() => setActiveTab("info")}
-                            articulo={materiaPrima}
-                            tipo="MATERIA_PRIMA"
-                            isStandalone={true}
-                        />
-                    </div>
-                )}
 
                 {activeTab === "historial" && (
                     <div className="max-w-[720px] mx-auto bg-transparent!">

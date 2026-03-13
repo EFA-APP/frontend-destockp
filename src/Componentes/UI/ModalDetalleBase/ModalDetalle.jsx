@@ -1,3 +1,5 @@
+import React from "react";
+
 const ModalDetalle = ({ title, icon, onClose, children, footer, accentColor = "amber", isStandalone = false }) => {
   const colors = {
     amber: {
