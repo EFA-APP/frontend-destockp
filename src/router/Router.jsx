@@ -41,6 +41,10 @@ import MisComprobantesAFIP from "../Componentes/Secciones/MisComprobantesAfip/Mi
 import CrearRolesPermisos from "../Componentes/Secciones/Configuracion/RolesPermisos/CrearRoles/CrearRolesPermisos";
 import Deposito from "../Componentes/Secciones/Articulos/Deposito/Deposito";
 import GestionarDeposito from "../Componentes/Secciones/Articulos/Deposito/GestionarDeposito";
+import HistorialStockPage from "../Componentes/Secciones/Articulos/HistorialStockPage";
+import AjusteStockPage from "../Componentes/Secciones/Articulos/AjusteStockPage";
+import ProduccionPage from "../Componentes/Secciones/Articulos/ProduccionPage";
+import ProduccionReportePage from "../Componentes/Secciones/Articulos/ProduccionReportePage";
 
 import RutaProtegida from "./RutaProtegida";
 import RutaPublica from "./RutaPublica";
@@ -79,6 +83,10 @@ export default function Router() {
             <Route path="inventario/depositos" element={<Deposito />} />
             <Route path="inventario/depositos/nuevo" element={<GestionarDeposito />} />
             <Route path="inventario/depositos/editar/" element={<GestionarDeposito />} />
+            <Route path="inventario/ajuste-stock/:tipo" element={<AjusteStockPage />} />
+            <Route path="inventario/historial-stock/:tipo" element={<HistorialStockPage />} />
+            <Route path="inventario/produccion/:id" element={<ProduccionPage />} />
+            <Route path="inventario/produccion/reporte" element={<ProduccionReportePage />} />
           </Route>
 
           {/* CONTACTOS */}
@@ -133,7 +141,7 @@ export default function Router() {
             <Route path="comprobantes-afip" element={<MisComprobantesAFIP />} />
           </Route>
 
-          <Route path="demo" element={<SistemaContable />} />
+          {/* <Route path="demo" element={<SistemaContable />} /> */}
         </Route>
       </Route>
 

@@ -13,7 +13,7 @@ import {
   MovimientoIcono
 } from "../../../assets/Icons";
 
-const ModalProduccion = ({ open, onClose, articulo, isStandalone = false }) => {
+const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSuccess }) => {
   const { usuario } = useAuthStore();
   const { mutate: crearProduccion, isPending } = useCrearProduccion();
 
@@ -146,6 +146,7 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false }) => {
 
     crearProduccion(payload, {
       onSuccess: () => {
+        if (onSuccess) onSuccess();
         if (!isStandalone) onClose();
         else {
           setFormData({

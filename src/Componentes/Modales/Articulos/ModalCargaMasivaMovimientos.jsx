@@ -50,7 +50,7 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
     if (!searchTerm) return [];
     const term = searchTerm.toLowerCase();
     return allItems
-      .filter(item => 
+      .filter(item =>
         (item.nombre?.toLowerCase().includes(term) || String(item.codigoSecuencial).includes(term)) &&
         !selectedItems.find(selected => selected.codigoSecuencial === item.codigoSecuencial)
       )
@@ -67,14 +67,14 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
   };
 
   const handleUpdateQuantity = (codigo, value) => {
-    setSelectedItems(prev => prev.map(item => 
+    setSelectedItems(prev => prev.map(item =>
       item.codigoSecuencial === codigo ? { ...item, cantidadCarga: value } : item
     ));
   };
 
   const handleSubmit = async () => {
     if (selectedItems.length === 0 || processing) return;
-    
+
     // Validar que todos tengan cantidad
     const invalid = selectedItems.some(item => !item.cantidadCarga || parseFloat(item.cantidadCarga) <= 0);
     if (invalid) return;
@@ -211,7 +211,7 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
           </div>
         ) : (
           selectedItems.map((item) => (
-            <div 
+            <div
               key={item.codigoSecuencial}
               className="group flex items-center gap-4 bg-white/5 hover:bg-white/[0.08] p-4 rounded-2xl border border-white/10 transition-all animate-in slide-in-from-right-4 duration-300"
             >
@@ -239,7 +239,7 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
                     </div>
                   )}
                 </div>
-                
+
                 <button
                   onClick={() => handleRemoveItem(item.codigoSecuencial)}
                   className="p-2 text-white/20 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all"

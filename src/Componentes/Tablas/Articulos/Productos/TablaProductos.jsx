@@ -5,8 +5,8 @@ import DataTable from "../../../UI/DataTable/DataTable";
 import ModalConfirmacion from "../../../UI/ModalConfirmacion/ModalConfirmacion";
 import { columnasProductos } from "./ColumnaProductos";
 import { accionesProductos } from "./AccionesProductos";
-import { BorrarIcono, MovimientoIcono } from "../../../../assets/Icons";
-import ModalCargaMasivaMovimientos from "../../../Modales/Articulos/ModalCargaMasivaMovimientos";
+import { BorrarIcono, MovimientoIcono, HistorialIcono, ProduccionIcono } from "../../../../assets/Icons";
+// import ModalCargaMasivaMovimientos from "../../../Modales/Articulos/ModalCargaMasivaMovimientos";
 
 
 const TablaProductos = () => {
@@ -26,13 +26,17 @@ const TablaProductos = () => {
     nombre: "",
   });
 
-  const [modalMasivoOpen, setModalMasivoOpen] = useState(false);
+  // const [modalMasivoOpen, setModalMasivoOpen] = useState(false);
 
 
   const handleGestionar = (producto) => {
     navigate(`/panel/inventario/productos/${producto.codigoSecuencial}/acciones`, {
       state: { producto, initialTab: "info" }
     });
+  };
+
+  const handleProduccion = (producto) => {
+    navigate(`/panel/inventario/produccion/${producto.codigoSecuencial}`);
   };
 
   const handleEliminarClick = (codigo, nombre) => {
@@ -74,19 +78,36 @@ const TablaProductos = () => {
         acciones={accionesProductos({
           handleEliminarClick,
           handleGestionar,
+          handleProduccion,
         })}
         botonAgregar={{
           texto: "Nuevo Producto",
           ruta: "/panel/inventario/productos/nuevo",
         }}
         elementosSuperior={(
-          <button
-            onClick={() => setModalMasivoOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-[11px] font-bold text-white uppercase tracking-wider transition-all cursor-pointer"
-          >
-            <MovimientoIcono size={14} />
-            Ajuste de Stock
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate("/panel/inventario/ajuste-stock/PRODUCTO")}
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-[11px] font-bold text-white uppercase tracking-wider transition-all cursor-pointer"
+            >
+              <MovimientoIcono size={14} />
+              Ajuste de Stock
+            </button>
+            <button
+              onClick={() => navigate("/panel/inventario/historial-stock/PRODUCTO")}
+              className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border border-[var(--primary)]/20 rounded-md text-[11px] font-bold text-[var(--primary)] uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-amber-500/5 group"
+            >
+              <HistorialIcono size={14} className="group-hover:scale-110 transition-transform" />
+              Historial
+            </button>
+            <button
+              onClick={() => navigate("/panel/inventario/produccion/reporte")}
+              className="flex items-center gap-2 px-4 py-2 bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/20 rounded-md text-[11px] font-bold text-purple-400 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-purple-500/5 group"
+            >
+              <ProduccionIcono size={14} className="group-hover:rotate-12 transition-transform" />
+              Producción
+            </button>
+          </div>
         )}
         mostrarBuscador={true}
         busqueda={busqueda}
@@ -94,11 +115,11 @@ const TablaProductos = () => {
         placeholderBuscador="Filtrar por mermelada, código o sabor..."
       />
 
-      <ModalCargaMasivaMovimientos
+      {/* <ModalCargaMasivaMovimientos
         open={modalMasivoOpen}
         onClose={() => setModalMasivoOpen(false)}
         tipo="PRODUCTO"
-      />
+      /> */}
     </div>
 
   );

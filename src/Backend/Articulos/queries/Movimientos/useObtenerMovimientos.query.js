@@ -10,7 +10,7 @@ export const useObtenerMovimientos = (codigoArticulo, tipoArticulo, fechaInicio,
       fechaInicio,
       fechaFin
     }),
-    enabled: !!codigoArticulo && !!tipoArticulo,
+    enabled: !!tipoArticulo,
     staleTime: 1000 * 60 * 5, // 5 minutos
   });
 };

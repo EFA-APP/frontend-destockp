@@ -7,6 +7,7 @@ const EncabezadoSeccion = ({
   icono,
   volver = false,
   redireccionAnterior,
+  children,
 }) => {
   return (
     <div
@@ -44,7 +45,8 @@ const EncabezadoSeccion = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-4 hidden md:block">
+      <div className="flex items-center gap-4">
+        {children}
         <nav className="flex items-center gap-2 md:gap-3">
           <Link
             to={volver ? redireccionAnterior : "/panel"}

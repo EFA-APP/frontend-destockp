@@ -7,7 +7,6 @@ import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
 import productoConfig from "../../../Modales/Articulos/ConfigProducto";
 import ModalMovimiento from "../../../Modales/Articulos/ModalMovimiento";
-import ModalProduccion from "../../../Modales/Articulos/ModalProduccion";
 import ListaMovimientos from "../../../UI/ListaMovimientos/ListaMovimientos";
 
 const GestionProducto = () => {
@@ -29,7 +28,6 @@ const GestionProducto = () => {
     const tabs = [
         { id: "info", label: "Información", icon: <ComprobanteIcono size={16} /> },
         { id: "editar", label: "Editar", icon: <InventarioIcono size={16} /> },
-        { id: "produccion", label: "Producción", icon: <ProduccionIcono size={16} /> },
         { id: "historial", label: "Historial", icon: <HistorialIcono size={16} /> },
     ];
 
@@ -139,16 +137,7 @@ const GestionProducto = () => {
                 )}
 
 
-                {activeTab === "produccion" && (
-                    <div className="max-w-[720px] mx-auto">
-                        <ModalProduccion
-                            open={true}
-                            onClose={() => setActiveTab("info")}
-                            articulo={producto}
-                            isStandalone={true}
-                        />
-                    </div>
-                )}
+
 
                 {activeTab === "historial" && (
                     <div className="max-w-[720px] mx-auto bg-transparent!">
