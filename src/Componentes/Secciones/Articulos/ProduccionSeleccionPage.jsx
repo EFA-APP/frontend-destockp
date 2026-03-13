@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useObtenerProductos } from "../../../Backend/Articulos/queries/Producto/useObtenerProductos.query";
-import { ProduccionIcono, BuscadorIcono } from "../../../assets/Icons";
+import { ProduccionIcono, BuscadorIcono, PaloDeAmasarIcono } from "../../../assets/Icons";
 import { Hammer, Package, Search, ArrowRight } from "lucide-react";
 import EncabezadoSeccion from "../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import ContenedorSeccion from "../../ContenidoPanel/ContenedorSeccion";
@@ -64,14 +64,14 @@ const ProduccionSeleccionPage = () => {
                         </div>
                     ) : (
                         filteredItems.map((item) => (
-                            <div 
+                            <div
                                 key={item.codigoSecuencial}
                                 onClick={() => navigate(`/panel/inventario/produccion/${item.codigoSecuencial}`)}
                                 className="group bg-[var(--surface)] border border-white/5 hover:border-purple-500/30 rounded-md p-4 flex items-center justify-between transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-purple-500/5 active:scale-[0.98]"
                             >
                                 <div className="flex items-center gap-4">
                                     <div className="w-10 h-10 rounded-md bg-purple-600/10 flex items-center justify-center text-purple-500 border border-purple-500/10 group-hover:bg-purple-600 group-hover:text-white transition-all">
-                                        <Hammer size={18} />
+                                        <PaloDeAmasarIcono size={18} />
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2 mb-0.5">
@@ -95,14 +95,14 @@ const ProduccionSeleccionPage = () => {
                 <div className="bg-purple-600/5 border border-purple-500/10 rounded-md p-6 flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full border border-purple-500/20 flex items-center justify-center bg-purple-500/10 text-purple-500">
-                             <Hammer size={24} />
+                            <PaloDeAmasarIcono size={24} />
                         </div>
                         <div>
                             <h4 className="text-sm font-black text-white uppercase tracking-wider">Módulo de Manufactura</h4>
                             <p className="text-xs text-white/40 max-w-md">Seleccione un artículo terminado para desglosar sus insumos y registrar un nuevo lote en el inventario.</p>
                         </div>
                     </div>
-                    <button 
+                    <button
                         onClick={() => navigate("/panel/inventario/produccion/reporte")}
                         className="px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-[10px] font-black text-white/40 hover:text-white uppercase tracking-[0.2em] transition-all cursor-pointer active:scale-95"
                     >

@@ -58,3 +58,4 @@ export { default as HistorialIcono } from "./HistorialIcono";
 export { default as TelefonoIcono } from "./TelefonoIcono"
 export { default as DetalleIcono } from "./DetalleIcono"
 export { default as UbicacionIcono } from "./UbicacionIcono"
+export { default as PaloDeAmasarIcono } from "./PaloDeAmasarIcono"
