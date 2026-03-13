@@ -101,7 +101,7 @@ const TablaProductos = () => {
               Historial
             </button>
             <button
-              onClick={() => navigate("/panel/inventario/produccion/reporte")}
+              onClick={() => navigate("/panel/inventario/produccion/nueva")}
               className="flex items-center gap-2 px-4 py-2 bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/20 rounded-md text-[11px] font-bold text-purple-400 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-purple-500/5 group"
             >
               <ProduccionIcono size={14} className="group-hover:rotate-12 transition-transform" />

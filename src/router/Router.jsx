@@ -44,6 +44,7 @@ import GestionarDeposito from "../Componentes/Secciones/Articulos/Deposito/Gesti
 import HistorialStockPage from "../Componentes/Secciones/Articulos/HistorialStockPage";
 import AjusteStockPage from "../Componentes/Secciones/Articulos/AjusteStockPage";
 import ProduccionPage from "../Componentes/Secciones/Articulos/ProduccionPage";
+import ProduccionSeleccionPage from "../Componentes/Secciones/Articulos/ProduccionSeleccionPage";
 import ProduccionReportePage from "../Componentes/Secciones/Articulos/ProduccionReportePage";
 
 import RutaProtegida from "./RutaProtegida";
@@ -86,6 +87,7 @@ export default function Router() {
             <Route path="inventario/ajuste-stock/:tipo" element={<AjusteStockPage />} />
             <Route path="inventario/historial-stock/:tipo" element={<HistorialStockPage />} />
             <Route path="inventario/produccion/:id" element={<ProduccionPage />} />
+            <Route path="inventario/produccion/nueva" element={<ProduccionSeleccionPage />} />
             <Route path="inventario/produccion/reporte" element={<ProduccionReportePage />} />
           </Route>
 
