@@ -209,7 +209,7 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
 
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
               {/* Product Insight Card - Premium Glassmorphism */}
-              <div className="md:col-span-5 bg-white/[0.03] border border-white/10 rounded-xl p-4 relative overflow-hidden group hover:border-purple-500/30 transition-all duration-500 shadow-2xl shadow-purple-500/5">
+              <div className="md:col-span-5 bg-white/[0.03] border border-white/10 rounded-md p-4 relative overflow-hidden group hover:border-purple-500/30 transition-all duration-500 shadow-2xl shadow-purple-500/5">
                 <div className="absolute top-0 right-0 p-8 bg-purple-600/10 blur-[60px] rounded-full -mr-10 -mt-10 group-hover:bg-purple-600/20 transition-all duration-700" />
                 
                 <div className="relative z-10 flex flex-col h-full justify-between">
@@ -232,7 +232,7 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
                         <span className="text-[10px] font-bold text-white/85 lowercase font-sans">{articulo.unidadMedida}</span>
                       </div>
                     </div>
-                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-white/85 group-hover:text-purple-500/50 transition-colors">
+                    <div className="w-10 h-10 rounded-md bg-white/5 border border-white/5 flex items-center justify-center text-white/85 group-hover:text-purple-500/50 transition-colors">
                        <ProduccionIcono size={18} />
                     </div>
                   </div>
@@ -241,7 +241,7 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
 
               {/* Action Inputs */}
               <div className="md:col-span-7 space-y-4">
-                <div className="bg-black/20 border border-white/5 rounded-xl p-4 space-y-4">
+                <div className="bg-black/20 border border-white/5 rounded-md p-4 space-y-4">
                   <div className="space-y-2">
                     <label className="text-[9px] font-black text-white/85 uppercase tracking-[0.2em] flex items-center gap-2">
                       <div className="w-1 h-1 rounded-full bg-purple-500" />
@@ -253,7 +253,7 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
                         type="number"
                         step="any"
                         placeholder="0.00"
-                        className="w-full bg-black/40 border border-white/10 group-focus-within/input:border-purple-500/40 rounded-lg py-3 px-4 text-sm font-black text-white focus:outline-none transition-all placeholder:text-white/5 pr-16"
+                        className="w-full bg-black/40 border border-white/10 group-focus-within/input:border-purple-500/40 rounded-md py-3 px-4 text-sm font-black text-white focus:outline-none transition-all placeholder:text-white/5 pr-16"
                         value={formData.cantidadProducida}
                         onChange={(e) => setFormData({ ...formData, cantidadProducida: e.target.value })}
                       />
@@ -270,7 +270,7 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
                     </label>
                     <input
                       placeholder="Escriba una nota para este lote..."
-                      className="w-full bg-black/40 border border-white/10 focus:border-purple-500/20 rounded-lg py-2.5 px-4 text-[11px] font-medium text-white/70 focus:outline-none transition-all placeholder:text-white/5"
+                      className="w-full bg-black/40 border border-white/10 focus:border-purple-500/20 rounded-md py-2.5 px-4 text-[11px] font-medium text-white/70 focus:outline-none transition-all placeholder:text-white/5"
                       value={formData.observacion}
                       onChange={(e) => setFormData({ ...formData, observacion: e.target.value })}
                     />
@@ -287,7 +287,7 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
               <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Desglose de Materia Prima</h4>
             </div>
 
-            <div className="bg-zinc-900/20 border border-white/5 rounded-xl p-5 space-y-4 relative overflow-hidden">
+            <div className="bg-zinc-900/20 border border-white/5 rounded-md p-5 space-y-4 relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-purple-600/[0.02] to-transparent pointer-events-none" />
               
               {/* Add Insumo Header-style UI */}
@@ -297,7 +297,7 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
                     <Layers size={14} />
                   </div>
                   <select
-                    className="w-full bg-black/60 border border-white/10 rounded-lg! py-3 pl-10 pr-10 text-white text-[11px] font-bold focus:outline-none focus:border-purple-500/40 transition-all appearance-none cursor-pointer shadow-inner"
+                    className="w-full bg-black/60 border border-white/10 rounded-md! py-3 pl-10 pr-10 text-white text-[11px] font-bold focus:outline-none focus:border-purple-500/40 transition-all appearance-none cursor-pointer shadow-inner"
                     value={nuevoInsumo.codigoMateriaPrima}
                     onChange={(e) => setNuevoInsumo({ ...nuevoInsumo, codigoMateriaPrima: e.target.value })}
                   >
@@ -318,7 +318,7 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
                     <input
                       type="number"
                       placeholder="0.0"
-                      className={`w-full bg-black/60 border ${excedeStock ? 'border-red-500/50 text-red-400' : 'border-white/10 group-focus-within:border-purple-500/40 text-white'} rounded-lg! py-3 px-4 text-sm font-black focus:outline-none transition-all text-center placeholder:text-white/5 shadow-inner`}
+                      className={`w-full bg-black/60 border ${excedeStock ? 'border-red-500/50 text-red-400' : 'border-white/10 group-focus-within:border-purple-500/40 text-white'} rounded-md! py-3 px-4 text-sm font-black focus:outline-none transition-all text-center placeholder:text-white/5 shadow-inner`}
                       value={nuevoInsumo.cantidad}
                       onChange={(e) => setNuevoInsumo({ ...nuevoInsumo, cantidad: e.target.value })}
                     />
@@ -327,7 +327,7 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
                     type="button"
                     disabled={!nuevoInsumo.codigoMateriaPrima || !nuevoInsumo.cantidad || excedeStock}
                     onClick={handleAgregarInsumo}
-                    className="bg-purple-600 hover:bg-purple-500 disabled:opacity-20 disabled:grayscale text-white px-6 rounded-lg! transition-all active:scale-95 flex items-center justify-center shrink-0 shadow-lg shadow-purple-900/20"
+                    className="bg-purple-600 hover:bg-purple-500 disabled:opacity-20 disabled:grayscale text-white px-6 rounded-md! transition-all active:scale-95 flex items-center justify-center shrink-0 shadow-lg shadow-purple-900/20"
                   >
                     <AgregarIcono size={18} />
                   </button>
@@ -336,7 +336,7 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
 
               {/* REFINED REAL-TIME STOCK INDICATOR - Glassy & High Info Density */}
               {nuevoInsumo.codigoMateriaPrima && (
-                <div className="relative px-4 py-3 rounded-xl bg-white/[0.02] border border-white/10 flex flex-col gap-3 animate-in fade-in zoom-in-95 duration-300">
+                <div className="relative px-4 py-3 rounded-md bg-white/[0.02] border border-white/10 flex flex-col gap-3 animate-in fade-in zoom-in-95 duration-300">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className={`w-1.5 h-1.5 rounded-full ${excedeStock ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'}`} />
@@ -385,7 +385,7 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
               )}
 
               {/* List - Minimalist & Delicate */}
-              <div className="bg-black/40 rounded-xl border border-white/5 overflow-hidden shadow-2xl">
+              <div className="bg-black/40 rounded-md border border-white/5 overflow-hidden shadow-2xl">
                 <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-white/[0.03] border-b border-white/5">
                   <div className="col-span-6 text-[8px] font-black text-white/85 uppercase tracking-[0.2em]">Insumo Seleccionado</div>
                   <div className="col-span-3 text-[8px] font-black text-white/85 uppercase tracking-[0.2em] text-center">Consumo</div>
@@ -413,7 +413,7 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
                           style={{ animationDelay: `${index * 50}ms` }}
                         >
                           <div className="col-span-6 flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-purple-600/5 border border-purple-500/10 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
+                            <div className="w-8 h-8 rounded-md bg-purple-600/5 border border-purple-500/10 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
                               <span className="text-[10px] font-black">{index + 1}</span>
                             </div>
                             <div>
@@ -437,7 +437,7 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
                             <button
                               type="button"
                               onClick={() => handleEliminarInsumo(i.codigoMateriaPrima)}
-                              className="w-7 h-7 flex items-center justify-center rounded-lg bg-red-500/5 hover:bg-red-500/20 text-red-500/20 hover:text-red-500 transition-all border border-white/5 group-hover:opacity-100 sm:opacity-0"
+                              className="w-7 h-7 flex items-center justify-center rounded-md bg-red-500/5 hover:bg-red-500/20 text-red-500/20 hover:text-red-500 transition-all border border-white/5 group-hover:opacity-100 sm:opacity-0"
                             >
                               <BorrarIcono size={12} />
                             </button>
@@ -453,8 +453,8 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
 
           {/* Error UI - Premium Alert */}
           {errorStock && (
-            <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4 flex gap-4 items-center animate-in slide-in-from-top-2 shadow-2xl shadow-red-500/5">
-              <div className="w-10 h-10 bg-red-500/10 rounded-xl text-red-500 shrink-0 flex items-center justify-center border border-red-500/20">
+            <div className="bg-red-500/5 border border-red-500/20 rounded-md p-4 flex gap-4 items-center animate-in slide-in-from-top-2 shadow-2xl shadow-red-500/5">
+              <div className="w-10 h-10 bg-red-500/10 rounded-md text-red-500 shrink-0 flex items-center justify-center border border-red-500/20">
                 <AdvertenciaIcono size={20} />
               </div>
               <div className="flex-1">
@@ -474,7 +474,7 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 order-2 sm:order-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white/85 hover:text-white font-black py-3 rounded-xl transition-all text-[10px] uppercase tracking-[0.2em] active:scale-90"
+            className="flex-1 order-2 sm:order-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white/85 hover:text-white font-black py-3 rounded-md transition-all text-[10px] uppercase tracking-[0.2em] active:scale-90"
           >
             Cancelar Operación
           </button>
@@ -482,7 +482,7 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
         <button
           onClick={handleSubmit}
           disabled={isPending || !formData.cantidadProducida || formData.insumos.length === 0}
-          className={`${isStandalone ? "flex-1" : "flex-[2]"} order-1 sm:order-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed text-white font-black py-3 rounded-xl transition-all text-[10px] uppercase tracking-[0.25em] flex items-center justify-center gap-2.5 shadow-xl shadow-purple-900/20 active:scale-95 group/submit`}
+          className={`${isStandalone ? "flex-1" : "flex-[2]"} order-1 sm:order-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed text-white font-black py-3 rounded-md transition-all text-[10px] uppercase tracking-[0.25em] flex items-center justify-center gap-2.5 shadow-xl shadow-purple-900/20 active:scale-95 group/submit`}
         >
           {isPending ? (
             <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />

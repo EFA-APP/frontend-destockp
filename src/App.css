@@ -88,7 +88,7 @@ body {
   
   --text-primary: hsla(0, 0%, 100%, 0.95);
   --text-secondary: hsla(0, 0%, 100%, 0.6);
-  --text-muted: hsla(0, 0%, 100%, 0.4);
+  --text-muted: hsla(0, 0%, 100%);
   --text-theme: var(--text-primary);
   
   --border-subtle: hsla(0, 0%, 100%, 0.06);

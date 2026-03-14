@@ -5,7 +5,7 @@ import DataTable from "../../../UI/DataTable/DataTable";
 import ModalConfirmacion from "../../../UI/ModalConfirmacion/ModalConfirmacion";
 import { accionesMateriaPrimas } from "./AccionesMateriaPrima";
 import { columnasMateriaPrima } from "./ColumnaMateriaPrima";
-import { BorrarIcono, MovimientoIcono, HistorialIcono } from "../../../../assets/Icons";
+import { BorrarIcono, MovimientoIcono, HistorialIcono, EditarIcono } from "../../../../assets/Icons";
 // import ModalCargaMasivaMovimientos from "../../../Modales/Articulos/ModalCargaMasivaMovimientos";
 
 
@@ -32,6 +32,12 @@ const TablaMateriaPrima = () => {
   const handleGestionar = (materiaPrima) => {
     navigate(`/panel/inventario/materia-prima/${materiaPrima.codigoSecuencial}/acciones`, {
       state: { materiaPrima, initialTab: "info" }
+    });
+  };
+
+  const handleHistorial = (materiaPrima) => {
+    navigate(`/panel/inventario/materia-prima/${materiaPrima.codigoSecuencial}/acciones`, {
+      state: { materiaPrima, initialTab: "historial" }
     });
   };
 
@@ -74,6 +80,7 @@ const TablaMateriaPrima = () => {
         acciones={accionesMateriaPrimas({
           handleEliminarClick,
           handleGestionar,
+          handleHistorial,
         })}
         botonAgregar={{
           texto: "Nueva Materia Prima",
@@ -87,6 +94,13 @@ const TablaMateriaPrima = () => {
             >
               <MovimientoIcono size={14} />
               Ajuste de Stock
+            </button>
+            <button
+              onClick={() => navigate("/panel/inventario/editar/materia-prima")}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 rounded-md text-[11px] font-bold text-blue-400 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-blue-500/5 group"
+            >
+              <EditarIcono size={14} className="group-hover:rotate-12 transition-transform" />
+              Editar Artículo
             </button>
             <button
               onClick={() => navigate("/panel/inventario/historial-stock/MATERIA_PRIMA")}

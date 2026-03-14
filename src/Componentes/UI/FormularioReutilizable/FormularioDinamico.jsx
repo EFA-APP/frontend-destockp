@@ -224,7 +224,7 @@ const FormularioDinamico = ({
       ? "border-red-500/50! focus:ring-red-500/10!"
       : "border-[var(--border-medium)]! focus:border-[var(--primary)]! focus:ring-[var(--primary)]/10!"
       } focus:ring-4! focus:outline-none placeholder-[var(--text-muted)] ${isReadOnly ? "cursor-not-allowed opacity-60" : "hover:border-[var(--border-medium)]"
-      } ${field.defaultValue ? "text-[var(--primary)]! font-medium!" : "text-[var(--text-primary)]!"}`;
+      } ${formData[field.name] || field.defaultValue ? "text-[var(--primary-light)]! font-medium!" : "text-[var(--text-primary)]!"}`;
 
     switch (field.type) {
       case "textarea":

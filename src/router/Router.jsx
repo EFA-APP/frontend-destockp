@@ -46,6 +46,8 @@ import AjusteStockPage from "../Componentes/Secciones/Articulos/AjusteStockPage"
 import ProduccionPage from "../Componentes/Secciones/Articulos/ProduccionPage";
 import ProduccionSeleccionPage from "../Componentes/Secciones/Articulos/ProduccionSeleccionPage";
 import ProduccionReportePage from "../Componentes/Secciones/Articulos/ProduccionReportePage";
+import SeleccionarProductoGestionPage from "../Componentes/Secciones/Articulos/Productos/SeleccionarProductoGestionPage";
+import SeleccionarMateriaPrimaGestionPage from "../Componentes/Secciones/Articulos/MateriaPrima/SeleccionarMateriaPrimaGestionPage";
 
 import RutaProtegida from "./RutaProtegida";
 import RutaPublica from "./RutaPublica";
@@ -89,6 +91,10 @@ export default function Router() {
             <Route path="inventario/produccion/:id" element={<ProduccionPage />} />
             <Route path="inventario/produccion/nueva" element={<ProduccionSeleccionPage />} />
             <Route path="inventario/produccion/reporte" element={<ProduccionReportePage />} />
+            <Route path="inventario/productos/:id/editar" element={<CrearProductos />} />
+            <Route path="inventario/materia-prima/:id/editar" element={<CrearMateriaPrima />} />
+            <Route path="inventario/editar/productos" element={<SeleccionarProductoGestionPage />} />
+            <Route path="inventario/editar/materia-prima" element={<SeleccionarMateriaPrimaGestionPage />} />
           </Route>
 
           {/* CONTACTOS */}

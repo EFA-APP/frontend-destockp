@@ -20,3 +20,8 @@ export const ListarDepositosPorStockApi = async (filtros) => {
     const respuesta = await axiosInitial.get(`/deposito/listarPorStock`, { params: filtros, showLoader: false });
     return respuesta.data;
 }
+
+export const ActualizarDepositoPorStockApi = async (data) => {
+    const respuesta = await axiosInitial.patch(`/stockDeposito`, data, { showLoader: false });
+    return respuesta.data;
+}
