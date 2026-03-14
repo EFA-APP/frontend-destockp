@@ -12,6 +12,7 @@ import {
   DesplegadorIcono,
   MovimientoIcono
 } from "../../../assets/Icons";
+import { Layers } from "lucide-react";
 
 const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSuccess }) => {
   const { usuario } = useAuthStore();
@@ -182,12 +183,12 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
             </div>
             <div>
               <h3 className="text-white font-bold text-sm tracking-tight uppercase">Producción</h3>
-              <p className="text-white/30 text-[8px] uppercase font-black tracking-[0.2em]">Gestión de Lotes</p>
+              <p className="text-white/85 text-[8px] uppercase font-black tracking-[0.2em]">Gestión de Lotes</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-white/20 hover:text-white bg-white/5 hover:bg-white/10 p-1 rounded-md! transition-all active:scale-90"
+            className="text-white/85 hover:text-white bg-white/5 hover:bg-white/10 p-1 rounded-md! transition-all active:scale-90"
           >
             <CerrarIcono size={16} />
           </button>
@@ -198,78 +199,105 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
         <div className={`${isStandalone ? "p-3" : "p-5 md:p-6"} space-y-5`}>
 
           {/* Step 1: Batch Details */}
-          <section className="space-y-3">
-            <div className="flex items-center gap-2 mb-1.5 opacity-50">
-              <span className="flex items-center justify-center w-3.5 h-3.5 rounded-md! bg-purple-600 text-[8px] font-black text-white">1</span>
-              <h4 className="text-[9px] font-black text-white uppercase tracking-widest">Detalles del Lote</h4>
+          <section className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-500">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 opacity-80">
+                <span className="flex items-center justify-center w-5 h-5 rounded-md! bg-purple-600/20 text-purple-400 text-[10px] font-black border border-purple-500/20">01</span>
+                <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Configuración de Lote</h4>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {/* Info Card - Elegant & Compact */}
-              <div className="bg-zinc-900/30 border border-white/5 rounded-md! p-3 relative overflow-hidden group">
-                <div className="relative z-10 space-y-2.5">
-                  <div>
-                    <div className="text-[7px] text-white/20 font-black uppercase tracking-widest mb-0.5">Producto Base</div>
-                    <div className="text-sm font-bold text-white tracking-tight uppercase line-clamp-1">{articulo.nombre}</div>
-                    <div className="text-[7px] text-purple-500/60 font-black mt-0.5 tracking-tighter font-mono uppercase">CODE: #{articulo.codigoSecuencial}</div>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+              {/* Product Insight Card - Premium Glassmorphism */}
+              <div className="md:col-span-5 bg-white/[0.03] border border-white/10 rounded-xl p-4 relative overflow-hidden group hover:border-purple-500/30 transition-all duration-500 shadow-2xl shadow-purple-500/5">
+                <div className="absolute top-0 right-0 p-8 bg-purple-600/10 blur-[60px] rounded-full -mr-10 -mt-10 group-hover:bg-purple-600/20 transition-all duration-700" />
+                
+                <div className="relative z-10 flex flex-col h-full justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
+                      <span className="text-[8px] text-white/85 font-black uppercase tracking-[0.2em]">Producto Base</span>
+                    </div>
+                    <div className="text-base font-bold text-white tracking-tight uppercase leading-tight">{articulo.nombre}</div>
+                    <div className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-white/5 border border-white/5 text-[9px] font-mono font-black text-purple-400/80 uppercase mt-1 tracking-tighter">
+                      SKU: #{articulo.codigoSecuencial?.toString().padStart(4, '0')}
+                    </div>
                   </div>
-                  <div className="pt-2 border-t border-white/5">
-                    <div className="text-[7px] text-white/20 font-black uppercase tracking-widest mb-0.5">Inventario Actual</div>
-                    <div className="text-xs font-black text-white/90">
-                      {articulo.stock || 0}
-                      <span className="text-[8px] font-normal text-white/30 ml-1.5">{articulo.unidadMedida}</span>
+
+                  <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
+                    <div>
+                      <div className="text-[8px] text-white/85 font-black uppercase tracking-[0.2em] mb-1">Stock Disponible</div>
+                      <div className="text-lg font-black text-white flex items-baseline gap-1">
+                        {articulo.stock || 0}
+                        <span className="text-[10px] font-bold text-white/85 lowercase font-sans">{articulo.unidadMedida}</span>
+                      </div>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-white/85 group-hover:text-purple-500/50 transition-colors">
+                       <ProduccionIcono size={18} />
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Main Inputs */}
-              <div className="space-y-3">
-                <div className="space-y-1">
-                  <label className="text-[8px] font-black text-white/40 uppercase tracking-widest ml-1">Cant. Producir</label>
-                  <div className="relative">
-                    <input
-                      required
-                      type="number"
-                      step="any"
-                      placeholder="0.00"
-                      className="w-full bg-black/40 border border-white/10 rounded-md! py-2 px-3 text-white focus:outline-none focus:border-purple-500/40 transition-all text-xs font-bold placeholder:text-white/5"
-                      value={formData.cantidadProducida}
-                      onChange={(e) => setFormData({ ...formData, cantidadProducida: e.target.value })}
-                    />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[7px] font-black text-white/10 uppercase tracking-widest pointer-events-none font-mono">
-                      UNIT
+              {/* Action Inputs */}
+              <div className="md:col-span-7 space-y-4">
+                <div className="bg-black/20 border border-white/5 rounded-xl p-4 space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black text-white/85 uppercase tracking-[0.2em] flex items-center gap-2">
+                      <div className="w-1 h-1 rounded-full bg-purple-500" />
+                      Cantidad a Producir
+                    </label>
+                    <div className="relative group/input">
+                      <input
+                        required
+                        type="number"
+                        step="any"
+                        placeholder="0.00"
+                        className="w-full bg-black/40 border border-white/10 group-focus-within/input:border-purple-500/40 rounded-lg py-3 px-4 text-sm font-black text-white focus:outline-none transition-all placeholder:text-white/5 pr-16"
+                        value={formData.cantidadProducida}
+                        onChange={(e) => setFormData({ ...formData, cantidadProducida: e.target.value })}
+                      />
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded bg-white/5 border border-white/5 text-[8px] font-black text-white/85 uppercase tracking-widest font-mono">
+                        {articulo.unidadMedida || 'UNIT'}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="space-y-1">
-                  <label className="text-[8px] font-black text-white/40 uppercase tracking-widest ml-1">Observación</label>
-                  <input
-                    placeholder="Ref. producción..."
-                    className="w-full bg-black/40 border border-white/10 rounded-md! py-2 px-3 text-white focus:outline-none focus:border-purple-500/40 transition-all text-[10px] font-medium placeholder:text-white/5"
-                    value={formData.observacion}
-                    onChange={(e) => setFormData({ ...formData, observacion: e.target.value })}
-                  />
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black text-white/85 uppercase tracking-[0.2em] flex items-center gap-2">
+                      <div className="w-1 h-1 rounded-full bg-white/20" />
+                      Observación / Referencia
+                    </label>
+                    <input
+                      placeholder="Escriba una nota para este lote..."
+                      className="w-full bg-black/40 border border-white/10 focus:border-purple-500/20 rounded-lg py-2.5 px-4 text-[11px] font-medium text-white/70 focus:outline-none transition-all placeholder:text-white/5"
+                      value={formData.observacion}
+                      onChange={(e) => setFormData({ ...formData, observacion: e.target.value })}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </section>
 
           {/* Step 2: Consumption */}
-          <section className="space-y-4 pt-1">
-            <div className="flex items-center gap-2 mb-1.5 opacity-50">
-              <span className="flex items-center justify-center w-3.5 h-3.5 rounded-md! bg-purple-600 text-[8px] font-black text-white">2</span>
-              <h4 className="text-[9px] font-black text-white uppercase tracking-widest">Insumos Requeridos</h4>
+          <section className="space-y-4 pt-2 animate-in fade-in slide-in-from-bottom-2 duration-700 delay-150">
+            <div className="flex items-center gap-2 opacity-80">
+              <span className="flex items-center justify-center w-5 h-5 rounded-md! bg-purple-600/20 text-purple-400 text-[10px] font-black border border-purple-500/20">02</span>
+              <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Desglose de Materia Prima</h4>
             </div>
 
-            <div className="bg-zinc-900/10 border border-white/5 rounded-md! p-3 space-y-3">
-
-              {/* Add Insumo Flow */}
-              <div className="flex flex-col sm:flex-row gap-2">
-                <div className="flex-1 relative">
+            <div className="bg-zinc-900/20 border border-white/5 rounded-xl p-5 space-y-4 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/[0.02] to-transparent pointer-events-none" />
+              
+              {/* Add Insumo Header-style UI */}
+              <div className="relative flex flex-col md:flex-row gap-3">
+                <div className="flex-1 relative group">
+                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/85 group-focus-within:text-purple-500 transition-colors pointer-events-none">
+                    <Layers size={14} />
+                  </div>
                   <select
-                    className="w-full bg-black/60 border border-white/10 rounded-md! py-2 px-3 text-white text-[10px] focus:outline-none focus:border-purple-500/40 transition-all appearance-none cursor-pointer"
+                    className="w-full bg-black/60 border border-white/10 rounded-lg! py-3 pl-10 pr-10 text-white text-[11px] font-bold focus:outline-none focus:border-purple-500/40 transition-all appearance-none cursor-pointer shadow-inner"
                     value={nuevoInsumo.codigoMateriaPrima}
                     onChange={(e) => setNuevoInsumo({ ...nuevoInsumo, codigoMateriaPrima: e.target.value })}
                   >
@@ -280,17 +308,17 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
                       </option>
                     ))}
                   </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/20">
-                    <DesplegadorIcono size={10} />
+                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-white/85">
+                    <DesplegadorIcono size={12} />
                   </div>
                 </div>
 
-                <div className="flex gap-1.5 overflow-hidden">
-                  <div className="relative w-full sm:w-20">
+                <div className="flex gap-2">
+                  <div className="relative w-full md:w-28 group">
                     <input
                       type="number"
-                      placeholder="Cant."
-                      className={`w-full bg-black/60 border ${excedeStock ? 'border-red-500/50 text-red-400' : 'border-white/10 text-white'} rounded-md! py-2 px-2 text-[10px] font-black focus:outline-none transition-all text-center placeholder:text-white/5`}
+                      placeholder="0.0"
+                      className={`w-full bg-black/60 border ${excedeStock ? 'border-red-500/50 text-red-400' : 'border-white/10 group-focus-within:border-purple-500/40 text-white'} rounded-lg! py-3 px-4 text-sm font-black focus:outline-none transition-all text-center placeholder:text-white/5 shadow-inner`}
                       value={nuevoInsumo.cantidad}
                       onChange={(e) => setNuevoInsumo({ ...nuevoInsumo, cantidad: e.target.value })}
                     />
@@ -299,51 +327,55 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
                     type="button"
                     disabled={!nuevoInsumo.codigoMateriaPrima || !nuevoInsumo.cantidad || excedeStock}
                     onClick={handleAgregarInsumo}
-                    className="bg-purple-600 hover:bg-purple-500 disabled:opacity-20 text-white px-4 rounded-md! transition-all active:scale-95 flex items-center justify-center shrink-0 shadow-md"
+                    className="bg-purple-600 hover:bg-purple-500 disabled:opacity-20 disabled:grayscale text-white px-6 rounded-lg! transition-all active:scale-95 flex items-center justify-center shrink-0 shadow-lg shadow-purple-900/20"
                   >
-                    <AgregarIcono size={16} />
+                    <AgregarIcono size={18} />
                   </button>
                 </div>
               </div>
 
-              {/* REFINED REAL-TIME STOCK INDICATOR */}
+              {/* REFINED REAL-TIME STOCK INDICATOR - Glassy & High Info Density */}
               {nuevoInsumo.codigoMateriaPrima && (
-                <div className="px-3 py-2 rounded-md! bg-black/40! border! border-white/5! flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-1 duration-300">
+                <div className="relative px-4 py-3 rounded-xl bg-white/[0.02] border border-white/10 flex flex-col gap-3 animate-in fade-in zoom-in-95 duration-300">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <div className={`w-1 h-1 rounded-full ${excedeStock ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'}`} />
-                      <span className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Estatus de Material</span>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-1.5 h-1.5 rounded-full ${excedeStock ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'}`} />
+                      <span className="text-[9px] font-black text-white/85 uppercase tracking-[0.2em]">Estatus de Disponibilidad</span>
                     </div>
-                    {excedeStock && (
-                      <div className="flex items-center gap-1 text-red-500 font-bold animate-pulse">
-                        <AdvertenciaIcono size={9} />
-                        <span className="text-[7.5px] uppercase tracking-tighter">Inventario Insuficiente</span>
+                    {excedeStock ? (
+                      <div className="px-2 py-0.5 bg-red-500/10 border border-red-500/20 rounded text-red-500 animate-pulse flex items-center gap-1.5">
+                        <AdvertenciaIcono size={10} />
+                        <span className="text-[8px] font-black uppercase tracking-tight">Inventario Insuficiente</span>
+                      </div>
+                    ) : (
+                      <div className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded text-emerald-500 flex items-center gap-1.5">
+                        <CheckIcono size={10} />
+                        <span className="text-[8px] font-black uppercase tracking-tight">Stock Verificado</span>
                       </div>
                     )}
                   </div>
 
                   <div className="flex items-end justify-between">
-                    <div className="space-y-0.5">
-                      <p className="text-[7px] text-white/10 font-black uppercase tracking-widest leading-none font-mono">Stock Disponible</p>
-                      <p className="text-[11px] font-black text-white/50 font-mono tracking-tighter">
-                        {mpSeleccionada?.stock?.toFixed(1) || 0} <span className="text-[7px] font-normal opacity-40 uppercase">{mpSeleccionada?.unidadMedida}</span>
+                    <div className="space-y-1">
+                      <p className="text-[8px] text-white/85 font-black uppercase tracking-widest leading-none font-mono">Stock en Almacén</p>
+                      <p className="text-sm font-black text-white/70 font-mono tracking-tighter">
+                        {mpSeleccionada?.stock?.toFixed(2) || 0} <span className="text-[9px] font-normal opacity-40 uppercase">{mpSeleccionada?.unidadMedida}</span>
                       </p>
                     </div>
 
-                    <div className="flex items-baseline gap-2">
+                    <div className="flex items-baseline gap-4">
                       <div className="text-right">
-                        <p className="text-[7px] text-white/10 font-black uppercase tracking-widest leading-none font-mono">Restante</p>
-                        <p className={`text-base font-black ${excedeStock ? 'text-red-500' : 'text-emerald-500'} font-mono leading-none tracking-tighter`}>
-                          {(stockDisponibleReal - (parseFloat(nuevoInsumo.cantidad) || 0)).toFixed(1)}
+                        <p className="text-[8px] text-white/85 font-black uppercase tracking-widest leading-none font-mono">Restante Proyectado</p>
+                        <p className={`text-xl font-black ${excedeStock ? 'text-red-500' : 'text-emerald-400'} font-mono leading-none tracking-tighter mt-1`}>
+                          {(stockDisponibleReal - (parseFloat(nuevoInsumo.cantidad) || 0)).toFixed(2)}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Progress Bar Style Indicator - Slimmer */}
-                  <div className="h-0.5 w-full bg-white/5 rounded-full overflow-hidden">
+                  <div className="relative h-1.5 w-full bg-white/5 rounded-full overflow-hidden shadow-inner">
                     <div
-                      className={`h-full transition-all duration-700 ${excedeStock ? 'bg-red-500' : 'bg-emerald-500/30'}`}
+                      className={`h-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(168,85,247,0.3)] ${excedeStock ? 'bg-red-500' : 'bg-gradient-to-r from-purple-600 to-purple-400'}`}
                       style={{
                         width: `${Math.min(100, Math.max(0, ((stockDisponibleReal - (parseFloat(nuevoInsumo.cantidad) || 0)) / (mpSeleccionada?.stock || 1)) * 100))}%`
                       }}
@@ -353,42 +385,59 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
               )}
 
               {/* List - Minimalist & Delicate */}
-              <div className="bg-black/20 rounded-md! border border-white/5 overflow-hidden">
-                <div className="hidden sm:grid grid-cols-12 gap-4 px-3 py-2 bg-white/10 border-b border-white/5">
-                  <div className="col-span-6 text-[7px] font-black text-white/20 uppercase tracking-[0.2em]">Insumo</div>
-                  <div className="col-span-3 text-[7px] font-black text-white/20 uppercase tracking-[0.2em] text-center">Cant.</div>
-                  <div className="col-span-3 text-[7px] font-black text-white/20 uppercase tracking-[0.2em] text-right">Saldo</div>
+              <div className="bg-black/40 rounded-xl border border-white/5 overflow-hidden shadow-2xl">
+                <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-white/[0.03] border-b border-white/5">
+                  <div className="col-span-6 text-[8px] font-black text-white/85 uppercase tracking-[0.2em]">Insumo Seleccionado</div>
+                  <div className="col-span-3 text-[8px] font-black text-white/85 uppercase tracking-[0.2em] text-center">Consumo</div>
+                  <div className="col-span-3 text-[8px] font-black text-white/85 uppercase tracking-[0.2em] text-right">Saldo Final</div>
                 </div>
 
-                <div className="max-h-[160px] overflow-y-auto custom-scrollbar divide-y divide-white/5">
+                <div className="max-h-[220px] overflow-y-auto custom-scrollbar divide-y divide-white/[0.03]">
                   {formData.insumos.length === 0 ? (
-                    <div className="p-6 flex flex-col items-center justify-center text-center opacity-10">
-                      <MovimientoIcono size={28} className="mb-1" />
-                      <p className="text-[8px] uppercase font-black tracking-widest italic">Cargar materiales</p>
+                    <div className="p-10 flex flex-col items-center justify-center text-center">
+                      <div className="w-12 h-12 rounded-full bg-white/[0.02] border border-dashed border-white/10 flex items-center justify-center mb-4 text-white/5 animate-pulse">
+                        <MovimientoIcono size={24} />
+                      </div>
+                      <p className="text-[10px] uppercase font-black tracking-[0.3em] text-white/10 italic">Sin materiales agregados</p>
                     </div>
                   ) : (
-                    formData.insumos.map((i) => {
+                    formData.insumos.map((i, index) => {
                       const mpRef = materiasPrimas.find(m => m.codigoSecuencial === i.codigoMateriaPrima);
                       const stockFinal = (mpRef?.stock || 0) - parseFloat(i.cantidad);
+                      const isLast = index === formData.insumos.length - 1;
 
                       return (
-                        <div key={i.codigoMateriaPrima} className="flex flex-col sm:grid sm:grid-cols-12 gap-1.5 sm:gap-4 px-3 py-2 hover:bg-white/[0.02] transition-colors items-center group">
-                          <div className="col-span-6 w-full flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-purple-500/20" />
-                            <div className="text-[10px] font-bold text-white uppercase line-clamp-1">{i.nombre}</div>
+                        <div 
+                          key={i.codigoMateriaPrima} 
+                          className={`grid grid-cols-12 gap-4 px-4 py-3.5 hover:bg-white/[0.02] transition-all items-center group animate-in fade-in slide-in-from-left-2 duration-300`}
+                          style={{ animationDelay: `${index * 50}ms` }}
+                        >
+                          <div className="col-span-6 flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-purple-600/5 border border-purple-500/10 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
+                              <span className="text-[10px] font-black">{index + 1}</span>
+                            </div>
+                            <div>
+                               <div className="text-[11px] font-bold text-white uppercase tracking-tight line-clamp-1">{i.nombre}</div>
+                               <div className="text-[8px] font-black text-white/85 uppercase tracking-widest">Insumo Base</div>
+                            </div>
                           </div>
-                          <div className="col-span-3 w-full sm:text-center flex items-center sm:justify-center gap-1">
-                            <span className="text-purple-400 font-black text-xs">{i.cantidad}</span>
-                            <span className="text-[8px] font-bold text-white/10 uppercase font-mono">{i.unidad}</span>
+                          
+                          <div className="col-span-3 text-center flex flex-col items-center">
+                            <span className="text-purple-400 font-black text-xs leading-none">{i.cantidad}</span>
+                            <span className="text-[8px] font-bold text-white/20 uppercase font-mono mt-1">{i.unidad}</span>
                           </div>
-                          <div className="col-span-3 w-full flex items-center justify-between sm:justify-end gap-2">
-                            <span className={`text-[10px] font-mono font-black ${stockFinal < 0 ? 'text-red-500' : 'text-white/20'}`}>
-                              {stockFinal.toFixed(1)}
-                            </span>
+
+                          <div className="col-span-3 flex items-center justify-end gap-3">
+                            <div className="text-right">
+                               <div className={`text-[11px] font-mono font-black leading-none ${stockFinal < 0 ? 'text-red-500' : 'text-white/40'}`}>
+                                 {stockFinal.toFixed(2)}
+                               </div>
+                               <div className="text-[7px] font-black text-white/85 uppercase tracking-widest mt-1">Estimado</div>
+                            </div>
                             <button
                               type="button"
                               onClick={() => handleEliminarInsumo(i.codigoMateriaPrima)}
-                              className="p-1 rounded-md! bg-red-500/10! hover:bg-red-500/20! text-red-500/40! hover:text-red-500! transition-all! border border-white/5 opacity-0 group-hover:opacity-100"
+                              className="w-7 h-7 flex items-center justify-center rounded-lg bg-red-500/5 hover:bg-red-500/20 text-red-500/20 hover:text-red-500 transition-all border border-white/5 group-hover:opacity-100 sm:opacity-0"
                             >
                               <BorrarIcono size={12} />
                             </button>
@@ -402,16 +451,16 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
             </div>
           </section>
 
-          {/* Error UI */}
+          {/* Error UI - Premium Alert */}
           {errorStock && (
-            <div className="bg-red-500/5 border border-red-500/20 rounded-md! p-3 flex gap-3 items-start animate-in slide-in-from-top-2 shadow-lg">
-              <div className="p-1 bg-red-500/20 rounded-md! text-red-500 shrink-0">
-                <AdvertenciaIcono size={14} />
+            <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4 flex gap-4 items-center animate-in slide-in-from-top-2 shadow-2xl shadow-red-500/5">
+              <div className="w-10 h-10 bg-red-500/10 rounded-xl text-red-500 shrink-0 flex items-center justify-center border border-red-500/20">
+                <AdvertenciaIcono size={20} />
               </div>
               <div className="flex-1">
-                <h5 className="text-red-500 font-black text-[8px] uppercase tracking-widest mb-0.5">Alerta de Stock</h5>
-                <p className="text-white/50 text-[10px] leading-tight line-clamp-2">
-                  Stock insuficiente para <span className="text-white font-bold">{errorStock.materiaPrima}</span>.
+                <h5 className="text-red-500 font-black text-[9px] uppercase tracking-[0.2em] mb-0.5">Fallo de Validación Operativa</h5>
+                <p className="text-white/60 text-[11px] leading-tight font-medium">
+                  Se requiere mayor disponibilidad para <span className="text-white font-bold">{errorStock.materiaPrima}</span>. Falta: <span className="text-red-400 font-black">{errorStock.faltante.toFixed(2)}</span>
                 </p>
               </div>
             </div>
@@ -420,27 +469,27 @@ const ModalProduccion = ({ open, onClose, articulo, isStandalone = false, onSucc
       </div>
 
       {/* Footer - Final Action */}
-      <div className={`${isStandalone ? "p-3 bg-black/10" : "p-4 md:p-5 bg-[#0a0a0a]"} border-t border-white/5 flex flex-col sm:flex-row gap-2 shrink-0`}>
+      <div className={`${isStandalone ? "p-4 bg-black/20" : "p-5 md:p-6 bg-[#0a0a0a]"} border-t border-white/5 flex flex-col sm:flex-row gap-3 shrink-0`}>
         {!isStandalone && (
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 order-2 sm:order-1 bg-white/5 hover:bg-white/10 border border-white/5 text-white/30 hover:text-white font-black py-2.5 rounded-md! transition-all text-[9px] uppercase tracking-widest active:scale-95"
+            className="flex-1 order-2 sm:order-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white/85 hover:text-white font-black py-3 rounded-xl transition-all text-[10px] uppercase tracking-[0.2em] active:scale-90"
           >
-            Cerrar
+            Cancelar Operación
           </button>
         )}
         <button
           onClick={handleSubmit}
           disabled={isPending || !formData.cantidadProducida || formData.insumos.length === 0}
-          className={`${isStandalone ? "flex-1" : "flex-[2]"} order-1 sm:order-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-20 disabled:cursor-not-allowed text-white font-black py-2.5 rounded-md! transition-all text-[9px] uppercase tracking-[0.15em] flex items-center justify-center gap-2 shadow-lg active:scale-95`}
+          className={`${isStandalone ? "flex-1" : "flex-[2]"} order-1 sm:order-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed text-white font-black py-3 rounded-xl transition-all text-[10px] uppercase tracking-[0.25em] flex items-center justify-center gap-2.5 shadow-xl shadow-purple-900/20 active:scale-95 group/submit`}
         >
           {isPending ? (
-            <div className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+            <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
           ) : (
             <>
-              <CheckIcono size={14} />
-              Registrar Lote
+              <CheckIcono size={16} className="group-hover/submit:scale-125 transition-transform" />
+              Finalizar Registro de Lote
             </>
           )}
         </button>

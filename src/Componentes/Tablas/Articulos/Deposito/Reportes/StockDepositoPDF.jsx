@@ -174,8 +174,7 @@ const StockDepositoPDF = ({ matrizStock, depositos }) => {
                 {/* Minimal Header */}
                 <View style={styles.header}>
                     <View>
-                        <Text style={styles.brand}>DeStockP</Text>
-                        <Text style={styles.reportType}>Global Warehouse Inventory Monitor</Text>
+                        <Text style={styles.reportType}>REPORTE DE DEPOSITOS</Text>
                     </View>
                     <View style={styles.meta}>
                         <Text style={styles.dateLabel}>Generado el</Text>

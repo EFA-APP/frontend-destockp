@@ -77,7 +77,6 @@ const ListaMovimientos = ({ codigoArticulo, tipoArticulo, filtroOrigen = null })
     }
   };
 
-  const labelClasses = "text-[10px] font-bold text-white/30 uppercase tracking-widest mb-1 ml-1";
   const inputClasses = "w-full bg-[var(--surface)] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50 transition-all placeholder:text-white/20 px-4! py-2.5!";
 
   return (

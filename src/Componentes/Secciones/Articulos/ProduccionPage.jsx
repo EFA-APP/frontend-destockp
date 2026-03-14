@@ -67,7 +67,7 @@ const ProduccionPage = () => {
                             <Hammer size={20} />
                         </div>
                         <div>
-                            <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Operación</p>
+                            <p className="text-[10px] font-black text-white/85 uppercase tracking-widest">Operación</p>
                             <h3 className="text-sm font-bold text-white uppercase italic">Registro de Lote</h3>
                         </div>
                     </div>
@@ -77,7 +77,7 @@ const ProduccionPage = () => {
                             <Package size={20} />
                         </div>
                         <div>
-                            <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Existencia</p>
+                            <p className="text-[10px] font-black text-white/85 uppercase tracking-widest">Existencia</p>
                             <h3 className="text-sm font-bold text-white uppercase">{producto?.stock || 0} <span className="text-[10px] opacity-40">{producto?.unidadMedida}</span></h3>
                         </div>
                     </div>
@@ -87,7 +87,7 @@ const ProduccionPage = () => {
                             <Layers size={20} />
                         </div>
                         <div>
-                            <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Referencia</p>
+                            <p className="text-[10px] font-black text-white/85 uppercase tracking-widest">Referencia</p>
                             <h3 className="text-sm font-bold text-white uppercase">SKU: #{producto?.codigoSecuencial?.toString().padStart(3, '0')}</h3>
                         </div>
                     </div>
@@ -110,7 +110,7 @@ const ProduccionPage = () => {
                     </div>
                 </div>
                 
-                <p className="text-center text-[9px] text-white/10 font-bold uppercase tracking-[0.3em] mt-8">
+                <p className="text-center text-[9px] text-white/85 font-bold uppercase tracking-[0.3em] mt-8">
                     Sistema de Gestión de Manufactura DeStockP
                 </p>
             </div>
