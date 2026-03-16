@@ -22,6 +22,6 @@ export const ListarDepositosPorStockApi = async (filtros) => {
 }
 
 export const ActualizarDepositoPorStockApi = async (data) => {
-    const respuesta = await axiosInitial.patch(`/stockDeposito`, data, { showLoader: false });
+    const respuesta = await axiosInitial.patch(`/stockDeposito/actualizar`, data, { showLoader: false });
     return respuesta.data;
 }

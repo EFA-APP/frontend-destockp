@@ -11,7 +11,7 @@ const EncabezadoSeccion = ({
 }) => {
   return (
     <div
-      className="relative overflow-hidden rounded-2xl p-2 md:p-4 mb-8
+      className="relative overflow-hidden rounded-2xl p-2 md:p-4 md:mb-8
           bg-[var(--surface)]/60 backdrop-blur-xl
           border border-[var(--border-subtle)]
           shadow-xl shadow-[var(--primary)]/5
@@ -47,7 +47,7 @@ const EncabezadoSeccion = ({
 
       <div className="flex items-center gap-4">
         {children}
-        <nav className="flex items-center gap-2 md:gap-3">
+        <nav className="hidden sm:flex items-center gap-2 md:gap-3">
           <Link
             to={volver ? redireccionAnterior : "/panel"}
             className="group relative flex items-center justify-center w-10 h-10 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--primary)] hover:border-[var(--primary)]/30 transition-all duration-300 shadow-sm"

@@ -110,7 +110,7 @@ const ListaMovimientos = ({ codigoArticulo, tipoArticulo, filtroOrigen = null })
 
       <div className="flex items-center justify-between mb-6 px-2">
         <h4 className="text-[11px] font-black text-white/20 uppercase tracking-[0.2em] flex items-center gap-2.5">
-          <ProduccionIcono size={12} className="opacity-40" />
+          <ProduccionIcono size={12} color="var(--primary-light)" />
           {tipoArticulo === "PRODUCTO" ? "Movimientos Global de Productos" : "Movimientos Global de Materia Prima"}
         </h4>
         <div className="h-[1px] flex-1 mx-4 bg-gradient-to-r from-white/10 to-transparent" />
@@ -146,13 +146,18 @@ const ListaMovimientos = ({ codigoArticulo, tipoArticulo, filtroOrigen = null })
                   <div className="flex items-center gap-4">
                     <div className={`w-1.5 h-8 rounded-full ${config.bullet} opacity-50`} />
                     <div className="flex flex-col">
-                      <div className="flex items-center gap-2">
-                        <span className={`text-[9px] font-black px-2 py-0.5 rounded border uppercase tracking-widest ${config.estilo}`}>
-                          {mov.tipoMovimiento}
-                        </span>
-                        <span className="text-[10px] text-white/20 font-bold uppercase tracking-widest">
-                          {mov.origenMovimiento?.replace(/_/g, " ")}
-                        </span>
+                      <div className="flex flex-col items-start gap-1">
+                        <div className="text-[11px] text-[var(--primary-light)]">
+                          {mov.nombreArticulo}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-[9px] font-black px-2 py-0.5 rounded border uppercase tracking-widest ${config.estilo}`}>
+                            {mov.tipoMovimiento}
+                          </span>
+                          <span className="text-[10px] text-white/70 font-bold uppercase tracking-widest">
+                            {mov.origenMovimiento?.replace(/_/g, " ")}
+                          </span>
+                        </div>
                       </div>
                       {mov.observacion && (
                         <span className="text-[11px] text-white/40 italic mt-1 line-clamp-1 truncate max-w-[300px]" title={mov.observacion}>

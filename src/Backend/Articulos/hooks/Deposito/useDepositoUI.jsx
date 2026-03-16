@@ -46,20 +46,19 @@ export const useDepositoUI = () => {
             deposito.stockProductos?.forEach(sp => {
                 const prod = sp.producto;
                 const prodNombre = prod?.nombre || sp.nombreProducto;
-                const prodId = sp.codigoProducto;
+                const codigoProducto = sp.codigoProducto;
 
-                if (!productosMap[prodId]) {
-                    productosMap[prodId] = {
-                        id: prodId,
+                if (!productosMap[codigoProducto]) {
+                    productosMap[codigoProducto] = {
+                        codigoProducto: codigoProducto,
                         nombre: prodNombre,
                         unidadMedida: prod?.unidadMedida || "UNIDAD",
-                        sku: prodId ? `PROD-${prodId.toString().padStart(3, '0')}` : 'PROD-N/A',
                         total: 0
                     };
                 }
 
-                productosMap[prodId][`dep_${depCodigo}`] = (productosMap[prodId][`dep_${depCodigo}`] || 0) + (sp.stock || 0);
-                productosMap[prodId].total += (sp.stock || 0);
+                productosMap[codigoProducto][`dep_${depCodigo}`] = (productosMap[codigoProducto][`dep_${depCodigo}`] || 0) + (sp.stock || 0);
+                productosMap[codigoProducto].total += (sp.stock || 0);
             });
         });
 
