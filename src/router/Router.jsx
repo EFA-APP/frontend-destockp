@@ -36,7 +36,8 @@ import Recibos from "../Componentes/Secciones/Escuela/Recibos/Recibos";
 import CrearRecibo from "../Componentes/Secciones/Escuela/CrearEscuela/CrearRecibo/CrearRecibo";
 import CrearAsientos from "../Componentes/Secciones/Contabilidad/CrearContabilidad/CrearAsientos/CrearAsientos";
 import Balance from "../Componentes/Secciones/Contabilidad/Balance/Balance";
-import Inicio from "../Componentes/Secciones/Inicio/Inicio";
+// import Inicio from "../Componentes/Secciones/Inicio/Inicio";
+import Bienvenida from "../Componentes/Secciones/Inicio/Bienvenida";
 import MisComprobantesAFIP from "../Componentes/Secciones/MisComprobantesAfip/MisComprobantesAFIP";
 import CrearRolesPermisos from "../Componentes/Secciones/Configuracion/RolesPermisos/CrearRoles/CrearRolesPermisos";
 import Deposito from "../Componentes/Secciones/Articulos/Deposito/Deposito";
@@ -65,7 +66,7 @@ export default function Router() {
       {/* 🔐 PANEL (Solo si está logueado) */}
       <Route element={<RutaProtegida />}>
         <Route path="/panel" element={<Panel />}>
-          <Route index element={<Navigate to="inventario/productos" replace />} />
+          <Route index element={<Bienvenida />} />
 
           {/* CONFIGURACION */}
           <Route element={<RutaProtegida />}>
