@@ -1,5 +1,5 @@
 import ModalDetalleBase from "../ModalDetalleBase/ModalDetalleBase";
-import { AdvertenciaIcono } from "../../../assets/Icons";
+import { AdvertenciaIcono, BorrarIcono } from "../../../assets/Icons";
 
 const ModalConfirmacion = ({
   open,
@@ -10,7 +10,8 @@ const ModalConfirmacion = ({
   textoConfirmar = "Confirmar",
   textoCancelar = "Cancelar",
   colorConfirmar = "bg-red-600!",
-  icono = <AdvertenciaIcono size={32} className="text-amber-500" />
+  isPending = false,
+  icono = <BorrarIcono size={32} className="text-amber-500" />
 }) => {
   return (
     <ModalDetalleBase open={open} onClose={onClose}>
@@ -37,15 +38,17 @@ const ModalConfirmacion = ({
         <div className="p-6 bg-white/[0.02] border-t border-white/5 flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 px-5 py-3 rounded-2xl! bg-white/5 hover:bg-white/10 text-white font-bold text-sm transition-all active:scale-95 cursor-pointer border border-white/5"
+            disabled={isPending}
+            className="flex-1 px-5 py-3 rounded-2xl! bg-white/5 hover:bg-white/10 text-white font-bold text-sm transition-all active:scale-95 cursor-pointer border border-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {textoCancelar}
           </button>
           <button
             onClick={onConfirm}
-            className={`flex-1 px-5 py-3 rounded-2xl! ${colorConfirmar} hover:brightness-110 text-white font-bold text-sm shadow-lg shadow-red-900/20 transition-all active:scale-95 cursor-pointer`}
+            disabled={isPending}
+            className={`flex-1 px-5 py-3 rounded-2xl! ${colorConfirmar} hover:brightness-110 text-white font-bold text-sm shadow-lg shadow-red-900/20 transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
           >
-            {textoConfirmar}
+            {isPending ? "Procesando..." : textoConfirmar}
           </button>
         </div>
       </div>

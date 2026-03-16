@@ -4,7 +4,7 @@ import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 // Paleta de colores Editorial / High-End
 const THEME = {
     carbon: '#111111',
-    gold: '#C5A02E',
+    gold: '#dd7513ff',
     silver: '#F1F1F1',
     border: '#E0E0E0',
     text: '#333333',
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
         color: THEME.text,
         paddingHorizontal: 8,
     },
-    
+
     // Column widths
     colRef: { width: '12%', borderRight: `0.2pt solid ${THEME.border}`, height: '100%', justifyContent: 'center' },
     colName: { width: '30%', borderRight: `0.2pt solid ${THEME.border}`, height: '100%', justifyContent: 'center' },
@@ -170,7 +170,7 @@ const StockDepositoPDF = ({ matrizStock, depositos }) => {
     return (
         <Document title={`Reporte de Stock_${dateStr}`}>
             <Page size="A4" orientation="landscape" style={styles.page}>
-                
+
                 {/* Minimal Header */}
                 <View style={styles.header}>
                     <View>
@@ -179,7 +179,7 @@ const StockDepositoPDF = ({ matrizStock, depositos }) => {
                     <View style={styles.meta}>
                         <Text style={styles.dateLabel}>Generado el</Text>
                         <Text style={styles.dateValue}>{dateStr} - {timeStr}</Text>
-                        <Text style={[styles.dateLabel, {marginTop: 4}]}>Estado: <Text style={{color: THEME.gold, fontWeight: 'bold'}}>CONSISTENTE</Text></Text>
+                        <Text style={[styles.dateLabel, { marginTop: 4 }]}>Estado: <Text style={{ color: THEME.gold, fontWeight: 'bold' }}>CONSISTENTE</Text></Text>
                     </View>
                 </View>
 
@@ -187,23 +187,23 @@ const StockDepositoPDF = ({ matrizStock, depositos }) => {
                 <View style={styles.dashboard}>
                     <View style={styles.statCard}>
                         <Text style={styles.statLabel}>Nomenclatura Articulos</Text>
-                        <View style={{flexDirection: 'row', alignItems: 'baseline'}}>
+                        <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
                             <Text style={styles.statValue}>{totalArticulos}</Text>
                             <Text style={styles.statUnit}>SKU</Text>
                         </View>
                     </View>
                     <View style={styles.statCard}>
                         <Text style={styles.statLabel}>Existencias Totales</Text>
-                        <View style={{flexDirection: 'row', alignItems: 'baseline'}}>
+                        <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
                             <Text style={styles.statValue}>{totalItems.toLocaleString()}</Text>
                             <Text style={styles.statUnit}>UNIDADES</Text>
                         </View>
                     </View>
-                    <View style={[styles.statCard, {backgroundColor: THEME.carbon}]}>
-                        <Text style={[styles.statLabel, {color: 'rgba(255,255,255,0.4)'}]}>Puntos de Distribución</Text>
-                        <View style={{flexDirection: 'row', alignItems: 'baseline'}}>
-                            <Text style={[styles.statValue, {color: THEME.white}]}>{depositos.length}</Text>
-                            <Text style={[styles.statUnit, {color: THEME.gold}]}>NODOS ACTIVOS</Text>
+                    <View style={[styles.statCard, { backgroundColor: THEME.carbon }]}>
+                        <Text style={[styles.statLabel, { color: 'rgba(255,255,255,0.4)' }]}>Puntos de Distribución</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+                            <Text style={[styles.statValue, { color: THEME.white }]}>{depositos.length}</Text>
+                            <Text style={[styles.statUnit, { color: THEME.gold }]}>NODOS ACTIVOS</Text>
                         </View>
                     </View>
                 </View>
@@ -232,7 +232,7 @@ const StockDepositoPDF = ({ matrizStock, depositos }) => {
                                 <Text style={[styles.cell, styles.nameText]}>{row.nombre}</Text>
                             </View>
                             <View style={styles.colUnit}>
-                                <Text style={[styles.cell, {textAlign: 'center'}]}>{row.unidadMedida}</Text>
+                                <Text style={[styles.cell, { textAlign: 'center' }]}>{row.unidadMedida}</Text>
                             </View>
                             {depositos.map(dep => {
                                 const val = row[`dep_${dep.codigoSecuencial}`] || 0;
@@ -251,9 +251,9 @@ const StockDepositoPDF = ({ matrizStock, depositos }) => {
                 {/* Footer */}
                 <View style={styles.footer} fixed>
                     <Text style={styles.footerText}>DeStockP Warehouse Management System | Documento Reservado</Text>
-                    <Text 
-                        style={styles.footerPage} 
-                        render={({ pageNumber, totalPages }) => `FOLIO ${pageNumber} DE ${totalPages}`} 
+                    <Text
+                        style={styles.footerPage}
+                        render={({ pageNumber, totalPages }) => `FOLIO ${pageNumber} DE ${totalPages}`}
                     />
                 </View>
             </Page>

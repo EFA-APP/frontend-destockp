@@ -1,22 +1,18 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import ContenedorSeccion from "../../../ContenidoPanel/ContenedorSeccion";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import {
-    InventarioIcono,
     AgregarIcono,
-    CheckIcono,
-    ArcaIcono,
     VentasIcono,
     UbicacionIcono,
     DescargarIcono,
 } from "../../../../assets/Icons";
-import { Building2, LayoutGrid, Map, Box } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { useDepositoUI } from "../../../../Backend/Articulos/hooks/Deposito/useDepositoUI.jsx";
 import TarjetaDeposito from "./TarjetaDeposito.jsx";
 import TablaDepositoStock from "../../../Tablas/Articulos/Deposito/TablaDepositoStock";
-import StockDepositoPDF from "../../../Tablas/Articulos/Deposito/Reportes/StockDepositoPDF";
+import StockDepositoPDF from "../../../Reportes/StockDepositoPDF.jsx";
 
 /**
  * Componente Deposito: Gestión de sucursales y stock global.
@@ -25,7 +21,6 @@ const Deposito = () => {
     const {
         depositos,
         matrizStock,
-        dataDepositosRaw,
         cargando,
     } = useDepositoUI();
     const navigate = useNavigate();

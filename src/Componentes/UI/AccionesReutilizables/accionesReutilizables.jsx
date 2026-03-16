@@ -10,6 +10,7 @@ import {
   MovimientoIcono,
   HistorialIcono,
   DetalleIcono,
+  BloquearUsuarioIcono,
 } from "../../../assets/Icons";
 
 export const accionesReutilizables = {
@@ -39,6 +40,16 @@ export const accionesReutilizables = {
     icono: (
       <div className="bg-red-500/10 p-1 rounded-md text-red-400! cursor-pointer! hover:bg-red-500/20 transition-colors">
         <BorrarIcono size={18} />
+      </div>
+    ),
+  },
+
+  bloquear: {
+    key: "bloquear",
+    label: "Bloquear",
+    icono: (
+      <div className="bg-[var(--surface-hover)] p-1 rounded-md text-white! cursor-pointer! hover:bg-[var(--surface)]! transition-colors">
+        <BloquearUsuarioIcono size={18} />
       </div>
     ),
   },

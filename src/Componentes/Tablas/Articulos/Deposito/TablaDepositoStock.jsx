@@ -5,7 +5,7 @@ import { useDepositoUI } from "../../../../Backend/Articulos/hooks/Deposito/useD
 import { generarColumnasStock } from "./ColumnasDepositoStock";
 import { Package, Search, Database, ChevronRight } from "lucide-react";
 
-import DrawerActualizarStock from "../../../Modales/Articulos/DrawerActualizarStock";
+import DrawerActualizarStock from "../../../Modales/Articulos/ModalActualizarStock";
 
 /**
  * Componente TablaDepositoStock: Visualización de la matriz de stock global.
@@ -29,22 +29,22 @@ const TablaDepositoStock = () => {
         setDrawerData({ isOpen: false, fila: null, depositoInicial: null });
     };
 
-    const matrizConAcciones = React.useMemo(() => 
+    const matrizConAcciones = React.useMemo(() =>
         matrizStock.map(fila => ({
             ...fila,
             onActualizarStock: handleAbrirDrawer
         })),
-    [matrizStock]);
+        [matrizStock]);
 
     const columnasStock = React.useMemo(() =>
         generarColumnasStock(dataDepositosRaw),
-    [dataDepositosRaw]);
+        [dataDepositosRaw]);
 
 
     return (
         <React.Fragment>
             <div className="bg-[var(--surface)] border border-white/5 rounded-md shadow-2xl overflow-hidden">
-                
+
                 {/* Table Header */}
                 <div className="px-4 py-4 md:px-6 md:py-5 border-b border-white/5 bg-white/[0.02] flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
@@ -60,7 +60,7 @@ const TablaDepositoStock = () => {
                     {/* Mobile Search - Integrated */}
                     <div className="relative md:w-64">
                         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
-                        <input 
+                        <input
                             type="text"
                             value={busquedaStock}
                             onChange={(e) => setBusquedaStock(e.target.value)}
@@ -97,7 +97,7 @@ const TablaDepositoStock = () => {
                                     <div key={idx} className="relative p-5 bg-[#121212] rounded-2xl border border-white/5 overflow-hidden shadow-xl">
                                         {/* Decorative glow */}
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
-                                        
+
                                         <div className="relative z-10">
                                             {/* Header */}
                                             <div className="flex justify-between items-start mb-5">
@@ -106,10 +106,10 @@ const TablaDepositoStock = () => {
                                                         <Package size={20} className="text-white/50 drop-shadow-md" />
                                                     </div>
                                                     <div className="flex flex-col gap-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] font-mono font-black text-amber-500/90 px-1.5 py-0.5 bg-amber-500/10 rounded-md border border-amber-500/20 shadow-sm">
-                                                            #{row.id?.toString().padStart(3, '0') || '000'}
-                                                        </span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-[10px] font-mono font-black text-amber-500/90 px-1.5 py-0.5 bg-amber-500/10 rounded-md border border-amber-500/20 shadow-sm">
+                                                                #{row.id?.toString().padStart(3, '0') || '000'}
+                                                            </span>
                                                             <span className="text-[9px] font-black text-white/50 uppercase tracking-widest bg-white/5 px-1.5 py-0.5 rounded-md border border-white/5 shadow-sm">
                                                                 {row.unidadMedida}
                                                             </span>
@@ -120,15 +120,15 @@ const TablaDepositoStock = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             {/* Stock Breakdown */}
                                             <div className="bg-black/40 rounded-xl border border-white/5 p-1.5 flex flex-col gap-1 shadow-inner">
                                                 {columnasStock.filter(col => col.key !== 'codigoSecuencial' && col.key !== 'nombreArticulo' && col.key !== 'unidadMedida' && col.key !== 'acciones_stock').map((col, cIdx) => (
-                                                    <div 
+                                                    <div
                                                         key={cIdx}
                                                         onClick={() => {
                                                             const depId = col.key.startsWith('dep_') ? col.key.split('_')[1] : null;
-                                                            if(depId) row.onActualizarStock(row, depId);
+                                                            if (depId) row.onActualizarStock(row, depId);
                                                         }}
                                                         className={`group flex items-center justify-between p-3.5 rounded-lg cursor-pointer transition-all duration-200 active:scale-[0.98] ${row[col.key] > 0 ? 'bg-white/[0.04] hover:bg-white/10 hover:shadow-lg hover:border-amber-500/30 border border-white/5 shadow-sm' : 'hover:bg-white/10 hover:border-white/20 border border-transparent'}`}
                                                     >

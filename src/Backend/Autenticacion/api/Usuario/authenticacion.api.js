@@ -40,5 +40,15 @@ export const registrarseApi = async (data) => {
   return respuesta.data;
 };
 
+export const actualizarEstadoUsuarioApi = async ({ codigoSecuencial, activo }) => {
+  const respuesta = await axiosInitial.patch(`/auth/usuarios/${codigoSecuencial}/estado`, { activo }, { showLoader: false });
+  return respuesta.data;
+};
+
+export const eliminarUsuarioApi = async (codigoSecuencial) => {
+  const respuesta = await axiosInitial.delete(`/auth/usuarios/${codigoSecuencial}`);
+  return respuesta.data;
+};
+
 
 

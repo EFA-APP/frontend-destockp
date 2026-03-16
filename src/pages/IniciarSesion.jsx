@@ -38,11 +38,7 @@ const IniciarSesion = () => {
           name: "email",
           label: "Email",
           type: "text",
-          placeholder: "ejemplo@gmail.com",
-          enlace: {
-            to: "/recuperar-email",
-            texto: "¿Olvidaste tu email?",
-          },
+          placeholder: "ejemplo@gmail.com"
         },
         {
           name: "contrasena",

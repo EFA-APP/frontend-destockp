@@ -67,7 +67,52 @@ const QuickAction = ({ icon, label, redirigir }) => (
 
 
 
+import { useUserPermissions } from "../../../Backend/Autenticacion/hooks/useUserPermissions";
+import { Lock, LogOut } from "lucide-react";
+
 const Inicio = () => {
+  const { codigosSeccionPermitidos, usuario } = useUserPermissions();
+  const tienePermisos = codigosSeccionPermitidos && codigosSeccionPermitidos.length > 0;
+
+  if (!tienePermisos) {
+    return (
+      <div className="p-4 lg:p-8 flex items-center justify-center min-h-[80vh] animate-in fade-in duration-500">
+        <div className="max-w-md w-full bg-[var(--fill)] border border-white/5 rounded-3xl p-8 flex flex-col items-center text-center shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-44 h-44 bg-amber-500/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-44 h-44 bg-[var(--primary)]/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none" />
+
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-500/5 text-amber-500 flex items-center justify-center border border-amber-500/20 mb-6 shadow-xl">
+            <Lock size={30} strokeWidth={2} />
+          </div>
+
+          <h1 className="text-[20px] font-black text-white uppercase tracking-tight">¡Hola, {usuario?.nombre}!</h1>
+          <p className="text-[12px] text-white/40 font-medium mt-2 leading-relaxed">
+            Tu cuenta ha sido registrada con éxito en <span className="text-amber-500 font-black">DeStockP</span>, pero actualmente no posees módulos habilitados.
+          </p>
+
+          <div className="w-full mt-6 py-4 px-5 rounded-2xl bg-white/5 border border-white/5 text-left flex items-start gap-4">
+            <div className="w-8 h-8 rounded-xl bg-[var(--primary)]/20 text-[var(--primary)] flex items-center justify-center border border-[var(--primary)] shrink-0 font-bold">
+              ?
+            </div>
+            <div>
+              <h4 className="text-[11px] font-black text-white uppercase tracking-wider">¿Qué debes hacer?</h4>
+              <p className="text-[10px] text-white/40 font-medium mt-1">
+                Comunícate con los administradores de tu empresa para que configuren los permisos de tu perfil en la Matriz de Accesos.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => { window.localStorage.clear(); window.location.reload(); }}
+            className="flex items-center gap-2 mt-8 px-5 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-[11px] font-bold text-white/60 hover:text-white uppercase tracking-wider transition-all border border-white/5 cursor-pointer active:scale-95"
+          >
+            <LogOut size={14} /> Cerrar Sesión
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 lg:p-8 space-y-6 min-h-screen text-[var(--text-primary)]">
 

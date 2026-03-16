@@ -36,20 +36,6 @@ const MenuConfiguracion = ({ onClose }) => {
                         <span className="text-[8px] font-normal text-[var(--text-muted)] group-hover:text-[var(--primary)]/70 uppercase pt-1">Gestionar cuenta</span>
                     </div>
                 </Link>
-
-                <Link
-                    to="/panel/configuracion/roles"
-                    onClick={onClose}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-md text-[10px] font-bold text-[var(--text-secondary)] hover:text-[var(--primary)] hover:bg-[var(--primary-subtle)] transition-all group"
-                >
-                    <div className="p-1.5 rounded-md bg-[var(--surface-hover)] border border-[var(--border-subtle)] group-hover:border-[var(--primary)]/20 transition-all">
-                        <UsuarioIcono size={14} color="white" />
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="uppercase tracking-widest font-normal text-white">Roles y Permisos</span>
-                        <span className="text-[7px] font-normal text-[var(--text-muted)] group-hover:text-[var(--primary)]/70 uppercase pt-1">Control de accesos</span>
-                    </div>
-                </Link>
             </div>
 
             {/* Footer */}

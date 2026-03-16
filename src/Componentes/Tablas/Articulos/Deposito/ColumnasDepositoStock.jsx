@@ -41,10 +41,10 @@ export const generarColumnasStock = (depositos = []) => {
             etiqueta: dep.nombre,
             renderizar: (v, fila) => {
                 const stock = v || 0;
-                const esCero = stock === 0;
+                const esCero = stock <= 0;
 
                 return (
-                    <div 
+                    <div
                         className="py-1 flex justify-center cursor-pointer group"
                         onClick={() => fila.onActualizarStock && fila.onActualizarStock(fila, dep.codigoSecuencial.toString())}
                         title={`Ajustar stock en ${dep.nombre}`}
@@ -52,7 +52,7 @@ export const generarColumnasStock = (depositos = []) => {
                         <span className={`
                             px-3 py-1.5 rounded-lg border font-black text-[12px] transition-all duration-300
                             group-hover:scale-110 group-active:scale-95
-                            ${esCero 
+                            ${esCero
                                 ? 'bg-red-500/10 text-red-500 border-red-500/20 shadow-[0_0_10px_rgba(239,68,68,0.05)] group-hover:bg-red-500/20 group-hover:shadow-[0_0_15px_rgba(239,68,68,0.2)]'
                                 : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.05)] group-hover:bg-emerald-500/20 group-hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]'}
                         `}>

@@ -25,3 +25,8 @@ export const ActualizarDepositoPorStockApi = async (data) => {
     const respuesta = await axiosInitial.patch(`/stockDeposito/actualizar`, data, { showLoader: false });
     return respuesta.data;
 }
+
+export const TransferirDepositoPorStockApi = async (data) => {
+    const respuesta = await axiosInitial.patch(`/stockDeposito/transferir`, data, { showLoader: false });
+    return respuesta.data;
+}

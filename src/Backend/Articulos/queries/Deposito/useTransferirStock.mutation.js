@@ -1,38 +1,35 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ActualizarDepositoPorStockApi } from "../../api/Deposito/deposito.api";
+import { TransferirDepositoPorStockApi } from "../../api/Deposito/deposito.api";
 import { useAlertas } from "../../../../store/useAlertas";
 
-export const useActualizarStock = () => {
+export const useTransferirStock = () => {
     const queryClient = useQueryClient();
     const agregarAlerta = useAlertas((state) => state.agregarAlerta);
 
     return useMutation({
         mutationFn: async (payload) => {
-            // Payload expected:
-            // { codigoProducto, codigoDeposito, cantidad, codigoUsuario, nombreUsuario, observacion, generarMovimiento }
-            const res = await ActualizarDepositoPorStockApi(payload);
+            const res = await TransferirDepositoPorStockApi(payload);
             return res;
         },
         onSuccess: () => {
-            // Refrescar las tablas de inventario en tiempo real
+            // Refrescar inventario
             queryClient.invalidateQueries(["depositos"]);
-            queryClient.invalidateQueries(["depositosPorStock"]);
+            queryClient.invalidateQueries(["depositosConStock"]); // Asegurar que useDepositosConStock se actualice
+            queryClient.invalidateQueries(["movimientos"]);
             
             agregarAlerta({
                 type: "success",
-                message: "Stock actualizado correctamente",
+                message: "Transferencia realizada con éxito",
             });
         },
         onError: (error) => {
             const errorMsg = error?.response?.data?.message;
-            let messageToDisplay = "Error al actualizar el stock";
+            let messageToDisplay = "Error al transferir el stock";
             
             if (typeof errorMsg === "string") {
                 messageToDisplay = errorMsg;
             } else if (Array.isArray(errorMsg)) {
                 messageToDisplay = errorMsg.map(e => typeof e === 'string' ? e : e.message || JSON.stringify(e)).join(", ");
-            } else if (typeof errorMsg === "object" && errorMsg !== null) {
-                messageToDisplay = errorMsg.message || JSON.stringify(errorMsg);
             }
 
             agregarAlerta({

@@ -18,15 +18,24 @@ const ActionMenu = ({ fila, acciones, onVer, onEditar, onEliminar, onDescargar, 
     if (acciones) {
         return (
             <div className="flex items-center justify-end gap-1">
-                {acciones.map((accion, i) => (
-                    <button
-                        key={i}
-                        onClick={() => accion.onClick(fila)}
-                        title={accion.label || accion.etiqueta}
-                    >
-                        {accion.icono && React.isValidElement(accion.icono) ? React.cloneElement(accion.icono, { size: 14 }) : accion.icono}
-                    </button>
-                ))}
+                {acciones.map((accion, i) => {
+                    const cargando = typeof accion.isLoading === 'function' ? accion.isLoading(fila) : false;
+                    return (
+                        <button
+                            key={i}
+                            onClick={() => !cargando && accion.onClick(fila)}
+                            disabled={cargando}
+                            title={accion.label || accion.etiqueta}
+                            className={`p-1.5 rounded-md hover:bg-[var(--primary-subtle)] text-[var(--text-muted)] hover:text-[var(--primary)] transition-all cursor-pointer border border-transparent hover:border-[var(--primary)]/20 disabled:opacity-50`}
+                        >
+                            {cargando ? (
+                                <div className="w-3.5 h-3.5 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
+                            ) : (
+                                accion.icono && React.isValidElement(accion.icono) ? React.cloneElement(accion.icono, { size: 14 }) : accion.icono
+                            )}
+                        </button>
+                    );
+                })}
             </div>
         );
     }

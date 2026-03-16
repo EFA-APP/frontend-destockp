@@ -13,6 +13,7 @@ export const useCrearProduccion = () => {
       queryClient.invalidateQueries({ queryKey: ["productos"] });
       queryClient.invalidateQueries({ queryKey: ["materias-primas"] });
       queryClient.invalidateQueries({ queryKey: ["movimientos"] });
+      queryClient.invalidateQueries({ queryKey: ["depositosConStock"] });
 
       agregarAlerta({
         type: "success",

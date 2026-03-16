@@ -72,7 +72,6 @@ const TablaProductos = () => {
         mensaje={`¿Estás seguro de que deseas eliminar "${confirmarEliminar.nombre}"? No aparecerá en el listado activo.`}
         textoConfirmar={estaEliminando ? "Eliminando..." : "Eliminar"}
         textoCancelar="Cancelar"
-        icono={<BorrarIcono size={40} color="text-red-500" />}
         colorConfirmar="bg-red-600!"
       />
 
@@ -93,20 +92,13 @@ const TablaProductos = () => {
         }}
         elementosSuperior={(
           <div className="flex items-center gap-2">
-            <button
+            {/* <button
               onClick={() => navigate("/panel/inventario/ajuste-stock/PRODUCTO")}
               className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-[11px] font-bold text-white uppercase tracking-wider transition-all cursor-pointer"
             >
               <MovimientoIcono size={14} />
               Ajustes
-            </button>
-            <button
-              onClick={() => navigate("/panel/inventario/editar/productos")}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 rounded-md text-[11px] font-bold text-blue-400 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-blue-500/5 group"
-            >
-              <EditarIcono size={14} className="group-hover:rotate-12 transition-transform" />
-              Editar
-            </button>
+            </button> */}
             <button
               onClick={() => navigate("/panel/inventario/historial-stock/PRODUCTO")}
               className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border border-[var(--primary)]/20 rounded-md text-[11px] font-bold text-[var(--primary)] uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-amber-500/5 group"
@@ -120,6 +112,13 @@ const TablaProductos = () => {
             >
               <ProduccionIcono size={14} className="group-hover:rotate-12 transition-transform" />
               Producción
+            </button>
+            <button
+              onClick={() => navigate("/panel/inventario/editar/productos")}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 rounded-md text-[11px] font-bold text-blue-400 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-blue-500/5 group"
+            >
+              <EditarIcono size={14} className="group-hover:rotate-12 transition-transform" />
+              Editar
             </button>
           </div>
         )}
