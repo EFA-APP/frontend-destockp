@@ -3,6 +3,7 @@ import { X, Mail, Lock, UserPlus, Shield } from 'lucide-react';
 import { useRegistrarUsuario } from '../../../../../Backend/Autenticacion/queries/Usuario/useRegistrarUsuario.mutation';
 import { useObtenerRoles } from '../../../../../Backend/Autenticacion/queries/Rol/useObtenerRoles.query';
 import { useAsignarRol } from '../../../../../Backend/Autenticacion/queries/Usuario/useAsignarRol.mutation';
+import ModalDetalleBase from '../../../../UI/ModalDetalleBase/ModalDetalleBase';
 
 const ModalCrearUsuario = ({ isOpen, onClose }) => {
     const [form, setForm] = useState({ nombre: '', apellido: '', correoElectronico: '', contrasena: '', codigoRol: '' });
@@ -75,12 +76,8 @@ const ModalCrearUsuario = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center">
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity animate-in fade-in duration-300" onClick={!isPending ? onClose : undefined} />
-
-            {/* Content */}
-            <div className="relative w-full max-w-md bg-[#121212] border border-white/5 rounded-2xl shadow-2xl p-6 flex flex-col gap-6 animate-in zoom-in-95 duration-200">
+        <ModalDetalleBase open={isOpen} onClose={onClose} width="max-w-md">
+            <div className="relative w-full bg-[#121212] p-6 flex flex-col gap-6">
                 
                 {/* Header */}
                 <div className="flex justify-between items-center">
@@ -159,7 +156,7 @@ const ModalCrearUsuario = ({ isOpen, onClose }) => {
                     </button>
                 </form>
             </div>
-        </div>
+        </ModalDetalleBase>
     );
 };
 

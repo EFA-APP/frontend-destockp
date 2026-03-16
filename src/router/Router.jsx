@@ -65,7 +65,7 @@ export default function Router() {
       {/* 🔐 PANEL (Solo si está logueado) */}
       <Route element={<RutaProtegida />}>
         <Route path="/panel" element={<Panel />}>
-          <Route index element={<Inicio />} />
+          <Route index element={<Navigate to="inventario/productos" replace />} />
 
           {/* CONFIGURACION */}
           <Route element={<RutaProtegida />}>

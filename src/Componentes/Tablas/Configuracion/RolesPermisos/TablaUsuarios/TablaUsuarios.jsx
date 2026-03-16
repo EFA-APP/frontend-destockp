@@ -13,7 +13,7 @@ import { UserPlus } from "lucide-react";
  * Tabla de Usuarios con Gestión de Estados y Eliminación.
  */
 const TablaUsuarios = ({ onAsignarRol }) => {
-    const { data: usuariosResponse, isLoading: cargandoUsuarios } = useObtenerUsuarios();
+    const { data: usuariosResponse, isLoading: cargandoUsuarios, refetch } = useObtenerUsuarios();
     const usuarios = Array.isArray(usuariosResponse) ? usuariosResponse : (usuariosResponse?.usuarios || []);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -74,12 +74,17 @@ const TablaUsuarios = ({ onAsignarRol }) => {
                     elementosSuperior={(
                         <button
                             onClick={() => setIsModalOpen(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:to-amber-400 border border-amber-500/20 rounded-md text-[11px] font-bold text-white uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-amber-500/5 group active:scale-95"
+                            className="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:to-amber-400 border border-amber-500/20 rounded-md text-[11px] font-bold text-white uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-amber-500/5 group active:scale-95"
                         >
                             <UserPlus size={14} className="group-hover:rotate-12 transition-transform" />
                             Agregar Usuario
                         </button>
                     )}
+                    mobileFab={{ 
+                        onClick: () => setIsModalOpen(true), 
+                        icono: <UserPlus size={24} /> 
+                    }}
+                    onRefresh={refetch}
                 />
             </div>
 

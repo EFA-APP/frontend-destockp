@@ -187,27 +187,27 @@ const CrearProductos = () => {
         );
     }
 
-  return (
-    <ContenedorSeccion className="px-3 py-4">
-      <div className="card no-inset no-ring bg-[var(--surface)] shadow-md rounded-md mb-6">
-        <EncabezadoSeccion
-          ruta={isEdit ? `Gestión de Catálogo > Editar Producto` : "Gestión de Catálogo"}
-          icono={isEdit ? <EditarIcono /> : <AgregarIcono />}
-          volver={true}
-          redireccionAnterior={isEdit ? -1 : "/panel/inventario/productos"}
-        />
-      </div>
+    return (
+        <ContenedorSeccion className="px-3 py-4">
+            <div className="card no-inset no-ring bg-[var(--surface)] shadow-md rounded-md mb-6">
+                <EncabezadoSeccion
+                    ruta={isEdit ? `Gestión de Catálogo > Editar Producto` : "Gestión de Catálogo"}
+                    icono={isEdit ? <EditarIcono /> : <AgregarIcono />}
+                    volver={true}
+                    redireccionAnterior={isEdit ? -1 : "/panel/inventario/productos"}
+                />
+            </div>
 
-      <FormularioDinamico
-        titulo={isEdit ? "Edición de Producto" : "Alta de Producto"}
-        subtitulo={isEdit ? "Actualice la información técnica y comercial del producto." : "Registre un nuevo producto en el catálogo oficial de la empresa."}
-        campos={camposProductos}
-        initialData={initialData}
-        onSubmit={handleSubmit}
-        submitLabel={isEdit ? (estaActualizando ? "Guardando..." : "Guardar Cambios") : (estaCreando ? "Procesando..." : "Finalizar Alta de Producto")}
-      />
-    </ContenedorSeccion>
-  );
+            <FormularioDinamico
+                titulo={isEdit ? "Edición de Producto" : "Alta de Producto"}
+                subtitulo={isEdit ? "Actualice la información técnica y comercial del producto." : "Registre un nuevo producto en el catálogo oficial de la empresa."}
+                campos={camposProductos}
+                initialData={initialData}
+                onSubmit={handleSubmit}
+                submitLabel={isEdit ? (estaActualizando ? "Guardando..." : "Guardar Cambios") : (estaCreando ? "Procesando..." : "Finalizar Alta de Producto")}
+            />
+        </ContenedorSeccion>
+    );
 };
 
 export default CrearProductos;

@@ -188,51 +188,157 @@ const DataCard = ({
     estaExpandida,
     onToggleExpansion
 }) => {
+    const [actionSheetOpen, setActionSheetOpen] = useState(false);
+
+    // Extraer propiedades para crear botones en el sheet
+    const { acciones, onVer, onEditar, onEliminar, onDescargar, permisos } = accionesProps || {};
+
     return (
-        <div className={`p-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm flex flex-col gap-4 animate-in fade-in duration-300 ${estaExpandida ? 'ring-1 ring-[var(--primary)]/30' : ''}`}>
-            {/* Header de la Tarjeta (Primera Columna + Acciones) */}
-            <div className="flex items-start justify-between gap-3">
-                <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">{columnas[0]?.etiqueta}</span>
-                    <div className="text-[14px] font-bold text-[var(--text-primary)]">
-                        {columnas[0]?.renderizar ? columnas[0].renderizar(fila[columnas[0].key], fila) : fila[columnas[0]?.key]}
+        <>
+            <div className={`p-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm flex flex-col gap-4 animate-in fade-in duration-300 ${estaExpandida ? 'ring-1 ring-[var(--primary)]/30' : ''}`}>
+                {/* Header de la Tarjeta (Primera Columna + Acciones) */}
+                <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">{columnas[0]?.etiqueta}</span>
+                        <div className="text-[14px] font-bold text-[var(--text-primary)]">
+                            {columnas[0]?.renderizar ? columnas[0].renderizar(fila[columnas[0].key], fila) : fila[columnas[0]?.key]}
+                        </div>
                     </div>
+                    {accionesProps && (
+                        <button
+                            onClick={() => setActionSheetOpen(true)}
+                            className="p-2 -mr-1 rounded-full bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/5 hover:border-white/10 transition-all active:scale-95 flex-shrink-0"
+                            title="Ver Acciones"
+                        >
+                            <MoreHorizontal size={18} />
+                        </button>
+                    )}
                 </div>
-                {accionesProps && (
-                    <ActionMenu {...accionesProps} fila={fila} />
+
+                {/* Cuerpo de la Tarjeta (Resto de Columnas) */}
+                <div className="grid grid-cols-2 gap-4 py-2 border-y border-[var(--border-subtle)]/50">
+                    {columnas.slice(1).map((col) => (
+                        <div key={col.key} className="flex flex-col gap-0.5 whitespace-nowrap overflow-hidden text-ellipsis">
+                            <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider truncate">{col.etiqueta}</span>
+                            <div className="text-[12px] text-[var(--text-primary)] truncate">
+                                {col.renderizar ? col.renderizar(fila[col.key], fila) : fila[col.key]}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Footer / Expansión (Si aplica) */}
+                {renderDetalle && (
+                    <div className="flex flex-col gap-2">
+                        <button
+                            onClick={onToggleExpansion}
+                            className="flex items-center gap-2 text-[11px] font-bold text-[var(--primary)] uppercase tracking-wider py-1"
+                        >
+                            {estaExpandida ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                            {estaExpandida ? 'Cerrar Detalles' : 'Ver Detalles'}
+                        </button>
+                        {estaExpandida && (
+                            <div className="p-3 rounded-lg bg-[var(--surface-hover)] border border-[var(--border-subtle)] animate-in slide-in-from-top-2 duration-300">
+                                {renderDetalle(fila)}
+                            </div>
+                        )}
+                    </div>
                 )}
             </div>
 
-            {/* Cuerpo de la Tarjeta (Resto de Columnas) */}
-            <div className="grid grid-cols-2 gap-4 py-2 border-y border-[var(--border-subtle)]/50">
-                {columnas.slice(1).map((col) => (
-                    <div key={col.key} className="flex flex-col gap-0.5">
-                        <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">{col.etiqueta}</span>
-                        <div className="text-[12px] text-[var(--text-primary)] truncate">
-                            {col.renderizar ? col.renderizar(fila[col.key], fila) : fila[col.key]}
+            {/* ACTION SHEET MOBILE NATIVO (Bottom Sheet) */}
+            {actionSheetOpen && accionesProps && (
+                <div className="fixed inset-0 z-[99999] flex flex-col justify-end pointer-events-auto">
+                    {/* Overlay oscuro para fondo */}
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setActionSheetOpen(false)}></div>
+
+                    {/* Drawer Content */}
+                    <div className="relative bg-[#161616] w-full rounded-t-[32px] border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] flex flex-col animate-in slide-in-from-bottom duration-300 pb-safe pb-6">
+
+                        {/* Píldora de arrastre superior */}
+                        <div className="w-full flex justify-center pt-4 pb-3" onClick={() => setActionSheetOpen(false)}>
+                            <div className="w-12 h-1.5 bg-white/20 rounded-full"></div>
+                        </div>
+
+                        <div className="px-6 pb-6">
+                            <div className="flex justify-between items-center mb-5">
+                                <h3 className="text-white/50 text-[11px] font-bold uppercase tracking-widest">Opciones de Registro</h3>
+                                <button onClick={() => setActionSheetOpen(false)} className="p-1.5 rounded-full bg-white/5 text-white/50 hover:bg-white/10 hover:text-white transition-colors">
+                                    <X size={16} />
+                                </button>
+                            </div>
+
+                            <div className="flex flex-col gap-2.5 max-h-[60vh] overflow-y-auto no-scrollbar">
+                                {acciones ? (
+                                    // Acciones personalizadas (Ej: Tabla de Usuarios con Bloquear/Desbloquear)
+                                    acciones.map((accion, i) => {
+                                        const cargando = typeof accion.isLoading === 'function' ? accion.isLoading(fila) : false;
+                                        return (
+                                            <button
+                                                key={i}
+                                                onClick={() => {
+                                                    if (!cargando) {
+                                                        setActionSheetOpen(false);
+                                                        accion.onClick(fila);
+                                                    }
+                                                }}
+                                                disabled={cargando}
+                                                className={`w-full h-14 bg-white/5 border border-white/10 rounded-2xl flex items-center px-5 gap-4 text-white hover:bg-white/10 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100`}
+                                            >
+                                                <div className="w-10 h-10 rounded-full bg-black/30 flex items-center justify-center flex-shrink-0">
+                                                    {cargando ? <div className="w-5 h-5 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" /> : (accion.icono && React.isValidElement(accion.icono) ? React.cloneElement(accion.icono, { size: 18 }) : accion.icono)}
+                                                </div>
+                                                <span className="font-semibold text-sm tracking-wide">{accion.etiqueta || accion.label || "Acción"}</span>
+                                            </button>
+                                        );
+                                    })
+                                ) : (
+                                    // Set estándar (CRUD Básico)
+                                    <>
+                                        {permisos?.ver && onVer && (
+                                            <button onClick={() => { setActionSheetOpen(false); onVer(fila); }} className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl flex items-center px-5 gap-4 text-white hover:bg-white/10 active:scale-[0.98] transition-all">
+                                                <div className="w-10 h-10 rounded-full bg-black/30 flex items-center justify-center flex-shrink-0">
+                                                    <Eye size={18} className="text-white/60" />
+                                                </div>
+                                                <span className="font-semibold text-sm tracking-wide">Ver Resumen</span>
+                                            </button>
+                                        )}
+                                        {permisos?.editar && onEditar && (
+                                            <button onClick={() => { setActionSheetOpen(false); onEditar(fila); }} className="w-full h-14 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center px-5 gap-4 text-amber-500 hover:bg-amber-500/20 active:scale-[0.98] transition-all">
+                                                <div className="w-10 h-10 rounded-full bg-black/30 flex items-center justify-center flex-shrink-0">
+                                                    <Edit size={18} />
+                                                </div>
+                                                <span className="font-semibold text-sm tracking-wide">Editar Registro</span>
+                                            </button>
+                                        )}
+                                        {permisos?.descargar && onDescargar && (
+                                            <button onClick={() => { setActionSheetOpen(false); onDescargar(fila); }} className="w-full h-14 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center px-5 gap-4 text-blue-500 hover:bg-blue-500/20 active:scale-[0.98] transition-all">
+                                                <div className="w-10 h-10 rounded-full bg-black/30 flex items-center justify-center flex-shrink-0">
+                                                    <Download size={18} />
+                                                </div>
+                                                <span className="font-semibold text-sm tracking-wide">Descargar XML/PDF</span>
+                                            </button>
+                                        )}
+                                        {permisos?.eliminar && onEliminar && (
+                                            <button onClick={() => { setActionSheetOpen(false); onEliminar(fila); }} className="w-full h-14 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center px-5 gap-4 text-red-500 hover:bg-red-500/20 active:scale-[0.98] transition-all">
+                                                <div className="w-10 h-10 rounded-full bg-black/30 flex items-center justify-center flex-shrink-0">
+                                                    <Trash2 size={18} />
+                                                </div>
+                                                <span className="font-semibold text-sm tracking-wide">Eliminar Registro</span>
+                                            </button>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+
+                            <button onClick={() => setActionSheetOpen(false)} className="w-full h-12 mt-4 bg-white/5 border border-white/10 rounded-[14px] flex items-center justify-center text-white/50 font-bold uppercase text-[12px] tracking-widest hover:bg-white/10 hover:text-white active:scale-[0.98] transition-all">
+                                Cancelar
+                            </button>
                         </div>
                     </div>
-                ))}
-            </div>
-
-            {/* Footer / Expansión (Si aplica) */}
-            {renderDetalle && (
-                <div className="flex flex-col gap-2">
-                    <button
-                        onClick={onToggleExpansion}
-                        className="flex items-center gap-2 text-[11px] font-bold text-[var(--primary)] uppercase tracking-wider"
-                    >
-                        {estaExpandida ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                        {estaExpandida ? 'Cerrar Detalles' : 'Ver Detalles'}
-                    </button>
-                    {estaExpandida && (
-                        <div className="p-3 rounded-lg bg-[var(--surface-hover)] border border-[var(--border-subtle)] animate-in slide-in-from-top-2 duration-300">
-                            {renderDetalle(fila)}
-                        </div>
-                    )}
                 </div>
             )}
-        </div>
+        </>
     );
 };
 
@@ -256,6 +362,7 @@ const DataTable = ({
     // Header / Toolbar
     botonAgregar = null,
     elementosSuperior = null,
+    mobileFab = null, // <- Nuevo prop para FAB
 
     // Buscador
     busqueda = "",
@@ -272,11 +379,15 @@ const DataTable = ({
     // Otras props
     emptyMessage = "No se encontraron registros en este módulo",
     loading = false,
-    className = ""
+    className = "",
+    onRefresh = null // <- Nuevo prop para Pull to Refresh
 }) => {
     const navigate = useNavigate();
     const [filtrosAbiertos, setFiltrosAbiertos] = useState(filtrosAbiertosInicial);
     const [filaExpandidaId, setFilaExpandidaId] = useState(null);
+    const [pullStart, setPullStart] = useState(null);
+    const [pullOffset, setPullOffset] = useState(0);
+    const [isRefreshingState, setIsRefreshingState] = useState(false);
 
     const manejarAgregarClick = () => {
         if (botonAgregar?.onClick) botonAgregar.onClick();
@@ -287,8 +398,69 @@ const DataTable = ({
         setFilaExpandidaId(prev => prev === id ? null : id);
     };
 
+    const handleTouchStart = (e) => {
+        if (window.scrollY === 0 && !isRefreshingState && onRefresh) {
+            setPullStart(e.touches[0].clientY);
+        }
+    };
+
+    const handleTouchMove = (e) => {
+        if (pullStart === null) return;
+        const currentY = e.touches[0].clientY;
+        const diff = currentY - pullStart;
+        if (diff > 0) {
+            setPullOffset(Math.min(diff * 0.4, 80)); // Escalar fuerza
+        }
+    };
+
+    const handleTouchEnd = () => {
+        if (pullOffset > 50 && onRefresh) {
+            setIsRefreshingState(true);
+            setPullOffset(50);
+            onRefresh().finally(() => {
+                setIsRefreshingState(false);
+                setPullOffset(0);
+                setPullStart(null);
+            });
+        } else {
+            setPullOffset(0);
+            setPullStart(null);
+        }
+    };
+
     return (
-        <div className={`flex flex-col gap-4 ${className}`}>
+        <div
+            className={`flex flex-col gap-4 ${className} relative`}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+        >
+            {/* INDICADOR PULL TO REFRESH */}
+            {pullOffset > 0 && (
+                <div
+                    className="md:hidden absolute top-0 left-0 right-0 flex justify-center pointer-events-none z-[100] transition-transform duration-100 ease-out"
+                    style={{ transform: `translateY(${pullOffset - 50}px)` }}
+                >
+                    <div className="bg-gradient-to-tr from-[var(--primary)] to-[var(--primary-dark)] w-11 h-11 rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.3)] flex items-center justify-center border border-white/10">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className={`text-white ${isRefreshingState ? 'animate-spin' : ''}`}
+                            style={{ transform: !isRefreshingState ? `rotate(${pullOffset * 4}deg)` : undefined }}
+                        >
+                            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                            <polyline points="21 3 21 8 16 8" />
+                        </svg>
+                    </div>
+                </div>
+            )}
             {/* TOOLBAR SUPERIOR */}
             {(botonAgregar || mostrarBuscador || elementosSuperior || mostrarFiltros) && (
                 <div className="flex flex-col gap-3">
@@ -347,6 +519,15 @@ const DataTable = ({
                         </div>
                     </div>
 
+                    {/* BOTÓN FLOTANTE MOBILE (FAB) */}
+                    {mobileFab && (
+                        <button
+                            onClick={mobileFab.onClick}
+                            className="md:hidden fixed bottom-25 right-5 z-[90] w-[56px] h-[56px] rounded-full bg-gradient-to-tr from-[var(--primary-dark)] to-[var(--primary)] hover:to-[var(--primary-subtle)] shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex items-center justify-center text-white/90 cursor-pointer active:scale-90 transition-all border border-white/10"
+                        >
+                            {mobileFab.icono}
+                        </button>
+                    )}
                     {/* PANEL DE FILTROS */}
                     {mostrarFiltros && filtrosAbiertos && (
                         <div className="
