@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useProductoUI } from "../../../../Backend/Articulos/hooks/Producto/useProductoUI";
+import { useObtenerPlantilla } from "../../../../Backend/Articulos/queries/Formularios/useObtenerPlantilla.query";
 import { AgregarIcono, InventarioIcono, BalanceIcono, ConfiguracionIcono, EditarIcono } from "../../../../assets/Icons";
 import ContenedorSeccion from "../../../ContenidoPanel/ContenedorSeccion";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
@@ -15,11 +16,16 @@ const CrearProductos = () => {
     const { crearProducto, actualizarProducto, productos, estaCreando, estaActualizando, cargando } = useProductoUI();
     const [initialData, setInitialData] = useState(location.state?.producto || null);
 
+    // Consultar plantilla dinámica
+    const { data: plantilla } = useObtenerPlantilla("PRODUCTO");
+
     // Si estamos editando y no tenemos data inicial (ej: F5), buscamos el producto
     useEffect(() => {
         if (isEdit && !initialData && productos.length > 0) {
             const found = productos.find(p => String(p.codigoSecuencial) === id);
-            if (found) setInitialData(found);
+            if (found) {
+                setInitialData(found);
+            }
         }
     }, [isEdit, id, productos, initialData]);
 
@@ -46,93 +52,13 @@ const CrearProductos = () => {
             section: "Identificación de Producto",
         },
         {
-            name: "unidadMedidaLegend",
-            type: "custom",
-            section: "Identificación de Producto",
-            fullWidth: true,
-            render: () => (
-                <div className="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-4 flex items-center gap-4 animate-in fade-in slide-in-from-top-2 duration-700">
-                    <div className="flex-shrink-0 w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center border border-amber-500/20">
-                        <InventarioIcono size={20} color="var(--primary)" />
-                    </div>
-                    <div>
-                        <p className="text-[10px] text-amber-500 font-black uppercase tracking-[0.2em] mb-0.5">Configuración de Unidad</p>
-                        <p className="text-[12px] text-white/60 font-medium">Todos los productos se gestionan por defecto en unidad: <span className="text-amber-500 font-bold">FRASCO</span></p>
-                    </div>
-                </div>
-            )
-        },
-
-        // ─────────────────────────────
-        // GESTIÓN DE STOCK
-        // ─────────────────────────────
-        {
-            name: "cantidadPorPaquete",
-            label: "Unidades por Pack",
+            name: "stock",
+            label: "Stock Total Disponible",
             type: "number",
             required: true,
-            min: 1,
+            min: 0,
             section: "Gestión de Inventario",
             sectionIcon: <BalanceIcono />,
-            onChangeCalculate: (data) => {
-                const cant = parseFloat(data.cantidadPorPaquete) || 0;
-                const paq = parseFloat(data.cantidadDePaquetesActuales) || 0;
-                const sobrante = parseFloat(data.cantidadSobrante) || 0;
-                const stock = (cant * paq) + sobrante;
-
-                return {
-                    ...data,
-                    stock: stock,
-                };
-            },
-        },
-        {
-            name: "cantidadDePaquetesActuales",
-            label: "Número de Packs",
-            type: "number",
-            required: true,
-            min: 0,
-            section: "Gestión de Inventario",
-            onChangeCalculate: (data) => {
-                const cant = parseFloat(data.cantidadPorPaquete) || 0;
-                const paq = parseFloat(data.cantidadDePaquetesActuales) || 0;
-                const sobrante = parseFloat(data.cantidadSobrante) || 0;
-                const stock = (cant * paq) + sobrante;
-
-                return {
-                    ...data,
-                    stock: stock,
-                };
-            },
-        },
-        {
-            name: "cantidadSobrante",
-            label: "Unidades Sobrantes",
-            type: "number",
-            required: true,
-            min: 0,
-            section: "Gestión de Inventario",
-            defaultValue: 0,
-            helpText: "Unidades sueltas (no empaquetadas)",
-            onChangeCalculate: (data) => {
-                const cant = parseFloat(data.cantidadPorPaquete) || 0;
-                const paq = parseFloat(data.cantidadDePaquetesActuales) || 0;
-                const sobrante = parseFloat(data.cantidadSobrante) || 0;
-                const stock = (cant * paq) + sobrante;
-
-                return {
-                    ...data,
-                    stock: stock,
-                };
-            },
-        },
-        {
-            name: "stock",
-            label: "Stock Total Estimado",
-            type: "number",
-            readOnly: true,
-            section: "Gestión de Inventario",
-            helpText: (data) => `Cálculo: (${data.cantidadDePaquetesActuales || 0} packs × ${data.cantidadPorPaquete || 0}) + ${data.cantidadSobrante || 0} sobrantes`,
         },
 
         // ─────────────────────────────
@@ -153,19 +79,42 @@ const CrearProductos = () => {
         }
     ];
 
+    const camposDinamicos = Array.isArray(plantilla?.campos) ? plantilla.campos.map(c => ({
+        name: `caracteristicas_${c.name}`,
+        label: c.label,
+        type: c.type || "text",
+        required: c.required || false,
+        placeholder: c.placeholder || "",
+        helpText: c.helpText || "",
+        section: `Atributos Adicionales`,
+        options: c.options || []
+    })) : [];
+
+    const camposTotales = [...camposProductos, ...camposDinamicos];
+
     const handleSubmit = async (data) => {
         try {
             // eslint-disable-next-line no-unused-vars
             const { unidadMedidaLegend, cantidadDePaquetesActuales, id: _, codigoSecuencial, ...rest } = data;
 
+            // Ensamblar Nodo Caracteristicas
+            const caracteristicas = {};
+            if (initialData?.caracteristicas) {
+                Object.assign(caracteristicas, initialData.caracteristicas);
+            }
+            Object.keys(data).forEach(key => {
+                if (key.startsWith("caracteristicas_")) {
+                    const cleanKey = key.replace("caracteristicas_", "");
+                    caracteristicas[cleanKey] = data[key];
+                    delete rest[key]; // 🧹 Limpiar del root para que no pase al Gateway
+                }
+            });
+
             const payload = {
                 ...rest,
-                unidadMedida: "FRASCO",
-                cantidadPorPaquete: parseFloat(data.cantidadPorPaquete) || 0,
-                cantidadDepaquetesActuales: parseFloat(data.cantidadDePaquetesActuales) || 0,
-                cantidadSobrante: parseFloat(data.cantidadSobrante) || 0,
+                unidadMedida: "FRASCO", // 🟢 Re-añadido para validación Enum del Gateway
                 stock: parseFloat(data.stock) || 0,
-                activo: data.activo === "true" || data.activo === true
+                caracteristicas: Object.keys(caracteristicas).length > 0 ? caracteristicas : null
             };
 
             if (isEdit) {
@@ -201,8 +150,14 @@ const CrearProductos = () => {
             <FormularioDinamico
                 titulo={isEdit ? "Edición de Producto" : "Alta de Producto"}
                 subtitulo={isEdit ? "Actualice la información técnica y comercial del producto." : "Registre un nuevo producto en el catálogo oficial de la empresa."}
-                campos={camposProductos}
-                initialData={initialData}
+                campos={camposTotales}
+                initialData={initialData ? {
+                    ...initialData,
+                    ...Object.keys(initialData.caracteristicas || {}).reduce((acc, key) => {
+                        acc[`caracteristicas_${key}`] = initialData.caracteristicas[key];
+                        return acc;
+                    }, {})
+                } : null}
                 onSubmit={handleSubmit}
                 submitLabel={isEdit ? (estaActualizando ? "Guardando..." : "Guardar Cambios") : (estaCreando ? "Procesando..." : "Finalizar Alta de Producto")}
             />
