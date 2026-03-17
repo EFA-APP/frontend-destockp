@@ -38,7 +38,7 @@ import CrearAsientos from "../Componentes/Secciones/Contabilidad/CrearContabilid
 import Balance from "../Componentes/Secciones/Contabilidad/Balance/Balance";
 // import Inicio from "../Componentes/Secciones/Inicio/Inicio";
 import Bienvenida from "../Componentes/Secciones/Inicio/Bienvenida";
-import MisComprobantesAFIP from "../Componentes/Secciones/MisComprobantesAfip/MisComprobantesAFIP";
+import MisComprobantesAFIP from "../Componentes/Secciones/MisComprobantesAFIP/MisComprobantesAFIP";
 import CrearRolesPermisos from "../Componentes/Secciones/Configuracion/RolesPermisos/CrearRoles/CrearRolesPermisos";
 import Deposito from "../Componentes/Secciones/Articulos/Deposito/Deposito";
 import GestionarDeposito from "../Componentes/Secciones/Articulos/Deposito/GestionarDeposito";

@@ -1,5 +1,5 @@
 import createAxiosInstance from "./axios";
 
-const baseUrlInitial = "http://localhost:3000/api"
+const baseUrlInitial = "http://api.bosquesrl.store/"
 
 export const axiosInitial = createAxiosInstance(baseUrlInitial);

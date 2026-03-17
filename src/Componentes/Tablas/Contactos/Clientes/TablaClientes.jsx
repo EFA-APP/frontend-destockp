@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useClientes } from "../../../../Backend/hooks/clientes/useClientes";
+import { useClientes } from "../../../../Backend/hooks/Clientes/useClientes";
 import clienteConfig from "../../../Modales/Contactos/ConfigClientes";
 import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
 import DataTable from "../../../UI/DataTable/DataTable";
