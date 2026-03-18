@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useProductoUI } from "../../../../Backend/Articulos/hooks/Producto/useProductoUI";
 import { AgregarIcono, InventarioIcono, BalanceIcono, ConfiguracionIcono, EditarIcono } from "../../../../assets/Icons";
 import ContenedorSeccion from "../../../ContenidoPanel/ContenedorSeccion";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import FormularioDinamico from "../../../UI/FormularioReutilizable/FormularioDinamico";
+import { ListarConfiguracionCamposApi } from "../../../../Backend/Articulos/api/Producto/producto.api";
 
 const CrearProductos = () => {
     const navigate = useNavigate();
@@ -13,15 +14,46 @@ const CrearProductos = () => {
     const isEdit = !!id;
 
     const { crearProducto, actualizarProducto, productos, estaCreando, estaActualizando, cargando } = useProductoUI();
-    const [initialData, setInitialData] = useState(location.state?.producto || null);
+    const [initialData, setInitialData] = useState(() => {
+        const prod = location.state?.producto;
+        if (!prod) return null;
+        return { ...prod, ...(prod.atributos || {}) }; // Aplanar para FormularioDinamico
+    });
 
     // Si estamos editando y no tenemos data inicial (ej: F5), buscamos el producto
     useEffect(() => {
         if (isEdit && !initialData && productos.length > 0) {
             const found = productos.find(p => String(p.codigoSecuencial) === id);
-            if (found) setInitialData(found);
+            if (found) {
+                setInitialData({ ...found, ...(found.atributos || {}) }); // Aplanar
+            }
         }
     }, [isEdit, id, productos, initialData]);
+
+    const [camposDinamicos, setCamposDinamicos] = useState([]);
+
+    useEffect(() => {
+        const cargarConfigs = async () => {
+            try {
+                const data = await ListarConfiguracionCamposApi('PRODUCTO');
+                const mapeados = data.map(c => ({
+                    name: c.claveCampo,
+                    label: c.nombreCampo,
+                    type: c.tipoDato === 'TEXTO' ? 'text' : 
+                          c.tipoDato === 'NUMERO' ? 'number' : 
+                          c.tipoDato === 'BOOLEANO' ? 'boolean' : 'select',
+                    options: c.opciones ? c.opciones.map(o => ({ value: o, label: o })) : [],
+                    required: c.requerido,
+                    section: "Atributos Adicionales",
+                    sectionIcon: <ConfiguracionIcono />
+                }));
+                setCamposDinamicos(mapeados);
+            } catch (e) {
+                console.error("Error cargando configs dinámicas:", e);
+            }
+        };
+        cargarConfigs();
+    }, []);
 
     // Configuración para PRODUCTOS
     const camposProductos = [
@@ -33,7 +65,6 @@ const CrearProductos = () => {
             label: "Nombre del Producto",
             type: "text",
             required: true,
-            placeholder: "Ej: MERMELADA DE ARÁNDANOS",
             section: "Identificación de Producto",
             sectionIcon: <InventarioIcono />,
         },
@@ -41,7 +72,6 @@ const CrearProductos = () => {
             name: "descripcion",
             label: "Descripción Detallada",
             type: "textarea",
-            placeholder: "Indique especificaciones o notas del producto...",
             fullWidth: true,
             section: "Identificación de Producto",
         },
@@ -153,20 +183,64 @@ const CrearProductos = () => {
         }
     ];
 
+    const camposAMostrar = useMemo(() => {
+        if (camposDinamicos.length > 0) {
+            return [
+                ...camposProductos.filter(c => ["nombre", "descripcion", "stock"].includes(c.name)),
+                ...camposDinamicos
+            ].map(c => {
+                if (c.name === "stock") {
+                    return { ...c, readOnly: false, required: true, helpText: undefined };
+                }
+                return c;
+            });
+        }
+        return [...camposProductos, ...camposDinamicos];
+    }, [camposDinamicos, camposProductos]);
+
     const handleSubmit = async (data) => {
         try {
+            // 1. Extraer atributos dinámicos para agruparlos
+            const atributos = {};
+            camposDinamicos.forEach(c => {
+                if (data[c.name] !== undefined) {
+                    atributos[c.name] = data[c.name];
+                }
+            });
+
             // eslint-disable-next-line no-unused-vars
-            const { unidadMedidaLegend, cantidadDePaquetesActuales, id: _, codigoSecuencial, ...rest } = data;
+            const { 
+                unidadMedidaLegend, 
+                cantidadDePaquetesActuales, 
+                cantidadDepaquetesActuales,
+                cantidadSobrante,
+                codigoEmpresa,
+                createdAt,
+                updatedAt,
+                id: _, 
+                codigoSecuencial, 
+                ...rest 
+            } = data;
+
+            // 2. NUEVO: Purga explícita de 'rest' para evitar fugas duplicadas al Gateway
+            camposDinamicos.forEach(c => {
+                delete rest[c.name];
+            });
 
             const payload = {
                 ...rest,
                 unidadMedida: "FRASCO",
                 cantidadPorPaquete: parseFloat(data.cantidadPorPaquete) || 0,
-                cantidadDepaquetesActuales: parseFloat(data.cantidadDePaquetesActuales) || 0,
-                cantidadSobrante: parseFloat(data.cantidadSobrante) || 0,
                 stock: parseFloat(data.stock) || 0,
-                activo: data.activo === "true" || data.activo === true
+                activo: data.activo === "true" || data.activo === true,
+                atributos 
             };
+
+            // Solo enviar para Creación (No permitido en ActualizarProductoDto)
+            if (!isEdit) {
+                payload.cantidadDepaquetesActuales = parseFloat(data.cantidadDePaquetesActuales) || 0;
+                payload.cantidadSobrante = parseFloat(data.cantidadSobrante) || 0;
+            }
 
             if (isEdit) {
                 await actualizarProducto(id, payload);
@@ -201,7 +275,7 @@ const CrearProductos = () => {
             <FormularioDinamico
                 titulo={isEdit ? "Edición de Producto" : "Alta de Producto"}
                 subtitulo={isEdit ? "Actualice la información técnica y comercial del producto." : "Registre un nuevo producto en el catálogo oficial de la empresa."}
-                campos={camposProductos}
+                campos={camposAMostrar}
                 initialData={initialData}
                 onSubmit={handleSubmit}
                 submitLabel={isEdit ? (estaActualizando ? "Guardando..." : "Guardar Cambios") : (estaCreando ? "Procesando..." : "Finalizar Alta de Producto")}

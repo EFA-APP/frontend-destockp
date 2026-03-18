@@ -48,7 +48,12 @@ export const actualizarEstadoUsuarioApi = async ({ codigoSecuencial, activo }) =
 export const eliminarUsuarioApi = async (codigoSecuencial) => {
   const respuesta = await axiosInitial.delete(`/auth/usuarios/${codigoSecuencial}`);
   return respuesta.data;
+};export const actualizarPerfilApi = async (data) => {
+  const respuesta = await axiosInitial.patch("/auth/perfil", data, { showLoader: true });
+  return respuesta.data;
 };
 
-
-
+export const cambiarContrasenaApi = async (data) => {
+  const respuesta = await axiosInitial.post("/auth/perfil/cambiar-contrasena", data, { showLoader: true });
+  return respuesta.data;
+};

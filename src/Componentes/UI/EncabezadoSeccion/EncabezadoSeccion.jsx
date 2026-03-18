@@ -11,7 +11,7 @@ const EncabezadoSeccion = ({
 }) => {
   return (
     <div
-      className="relative overflow-hidden rounded-2xl p-2 md:p-4 md:mb-8
+      className="relative overflow-hidden rounded-md p-2 md:p-4 md:mb-8
           bg-[var(--surface)]/60 backdrop-blur-xl
           border border-[var(--border-subtle)]
           shadow-xl shadow-[var(--primary)]/5

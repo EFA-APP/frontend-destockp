@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { ListarConfiguracionCamposApi } from "../../../../Backend/Articulos/api/Producto/producto.api";
 import { useNavigate } from "react-router-dom";
 import { useProductoUI } from "../../../../Backend/Articulos/hooks/Producto/useProductoUI";
 import DataTable from "../../../UI/DataTable/DataTable";
 import ModalConfirmacion from "../../../UI/ModalConfirmacion/ModalConfirmacion";
 import { columnasProductos } from "./ColumnaProductos";
 import { accionesProductos } from "./AccionesProductos";
-import { BorrarIcono, MovimientoIcono, HistorialIcono, ProduccionIcono, EditarIcono } from "../../../../assets/Icons";
+import { BorrarIcono, MovimientoIcono, HistorialIcono, ProduccionIcono, EditarIcono, InventarioIcono } from "../../../../assets/Icons";
 // import ModalCargaMasivaMovimientos from "../../../Modales/Articulos/ModalCargaMasivaMovimientos";
 
 
@@ -19,6 +20,84 @@ const TablaProductos = () => {
     cargando,
     estaEliminando
   } = useProductoUI();
+
+  const [camposDinamicos, setCamposDinamicos] = useState([]);
+
+  useEffect(() => {
+    const cargarConfigs = async () => {
+      try {
+        const data = await ListarConfiguracionCamposApi('PRODUCTO');
+        setCamposDinamicos(data);
+      } catch (e) {
+        console.error("Error cargando configs dinámicas:", e);
+      }
+    };
+    cargarConfigs();
+  }, []);
+
+  const columnasAMostrar = useMemo(() => {
+    const estaticasModificadas = columnasProductos.map(col => {
+      if (col.key === "nombre" && camposDinamicos.length > 0) {
+        return {
+          ...col,
+          renderizar: (valor, fila) => (
+            <div className="py-2 group">
+              <div className="flex items-center gap-2">
+                <InventarioIcono size={14} className="text-amber-500/50 group-hover:text-amber-500 transition-colors" />
+                <div className="font-extrabold text-[13px] text-[var(--text-primary)] leading-tight uppercase tracking-tight group-hover:text-[var(--primary)] transition-colors">
+                  {valor}
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 mt-1">
+                {fila.descripcion && (
+                  <span className="text-[10px] text-[var(--text-muted)] truncate max-w-[150px] font-medium opacity-70">
+                    • {fila.descripcion}
+                  </span>
+                )}
+              </div>
+            </div>
+          )
+        };
+      }
+      if (col.key === "stock" && camposDinamicos.length > 0) {
+        return {
+          ...col,
+          renderizar: (valor, fila) => {
+            const getStockConfig = (val) => {
+              if (val > 50) return { color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", glow: "shadow-[0_0_15px_rgba(16,185,129,0.1)]" };
+              if (val > 20) return { color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", glow: "shadow-[0_0_15px_rgba(245,158,11,0.1)]" };
+              return { color: "text-rose-500", bg: "bg-rose-500/10", border: "border-rose-500/20", glow: "shadow-[0_0_15px_rgba(244,63,94,0.1)]" };
+            };
+            const config = getStockConfig(valor || 0);
+
+            return (
+              <div className="py-2">
+                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border backdrop-blur-md ${config.bg} ${config.color} ${config.border} ${config.glow} transition-all duration-300`}>
+                  <span className="text-[12px] font-black tracking-tight">{valor || 0}</span>
+                </div>
+              </div>
+            );
+          }
+        };
+      }
+      return col;
+    });
+
+    const dinamicas = camposDinamicos.map(c => ({
+      key: c.claveCampo,
+      etiqueta: c.nombreCampo,
+      filtrable: true,
+      renderizar: (_, fila) => {
+        const valor = fila.atributos?.[c.claveCampo];
+        return (
+          <div className="text-[12px] text-[var(--text-secondary)] font-bold tracking-tight">
+            {valor === true ? "SÍ" : valor === false ? "NO" : typeof valor === 'number' ? valor : valor || "-"}
+          </div>
+        );
+      }
+    }));
+    return [...estaticasModificadas, ...dinamicas];
+  }, [camposDinamicos]);
 
   const [confirmarEliminar, setConfirmarEliminar] = useState({
     open: false,
@@ -76,7 +155,7 @@ const TablaProductos = () => {
       />
 
       <DataTable
-        columnas={columnasProductos}
+        columnas={columnasAMostrar}
         datos={productos}
         loading={cargando}
         mostrarAcciones={true}
@@ -125,7 +204,7 @@ const TablaProductos = () => {
         mostrarBuscador={true}
         busqueda={busqueda}
         setBusqueda={setBusqueda}
-        placeholderBuscador="Filtrar por mermelada, código o sabor..."
+        placeholderBuscador="Filtrar por producto"
       />
 
       {/* <ModalCargaMasivaMovimientos

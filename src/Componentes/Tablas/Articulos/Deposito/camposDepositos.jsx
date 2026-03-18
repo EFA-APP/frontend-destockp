@@ -4,7 +4,6 @@ export const camposDeposito = [
         label: "Nombre del Depósito",
         type: "text",
         required: true,
-        placeholder: "Ej: Sucursal Oeste",
         section: "Identificación"
     },
     {
@@ -12,7 +11,6 @@ export const camposDeposito = [
         label: "Descripción / Notas",
         type: "textarea",
         required: false,
-        placeholder: "Detalles adicionales del depósito...",
         section: "Identificación"
     },
     {
@@ -20,7 +18,6 @@ export const camposDeposito = [
         label: "Responsable / Encargado",
         type: "text",
         required: false,
-        placeholder: "Nombre completo",
         section: "Contacto"
     },
     {
@@ -28,7 +25,6 @@ export const camposDeposito = [
         label: "Dirección",
         type: "text",
         required: false,
-        placeholder: "Ej: Av. Always Alive 123",
         section: "Ubicación"
     },
     {
@@ -36,7 +32,6 @@ export const camposDeposito = [
         label: "Ciudad / Localidad",
         type: "text",
         required: false,
-        placeholder: "Ej: Buenos Aires",
         section: "Ubicación"
     },
     {
@@ -44,7 +39,6 @@ export const camposDeposito = [
         label: "Teléfono de Contacto",
         type: "text",
         required: false,
-        placeholder: "Ej: +54 9 11...",
         section: "Contacto"
     },
     {
