@@ -31,7 +31,6 @@ const CrearMateriaPrima = () => {
             label: "Nombre del Insumo",
             type: "text",
             required: true,
-            placeholder: "Ej: AZÚCAR REFINADA, HARINA 0000...",
             section: "Identificación de Insumo",
             sectionIcon: <ArcaIcono />,
         },

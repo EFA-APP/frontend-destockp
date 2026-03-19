@@ -47,7 +47,7 @@ const BarraNavegacion = () => {
           </div>
 
           {/* NOTIFICACIONES */}
-          <div className="relative">
+          {/* <div className="relative">
             <button
               onClick={toggleNotificacion}
               className="p-2 rounded-md! text-[var(--text-theme)]! hover:text-[var(--primary)]! hover:bg-[var(--primary-subtle)] transition-all relative cursor-pointer"
@@ -58,7 +58,7 @@ const BarraNavegacion = () => {
               </span>
             </button>
             {menuAbiertoNotificacion && <MenuNotificacion />}
-          </div>
+          </div> */}
 
           <div className="w-px h-6 bg-[var(--border-subtle)] mx-1" />
 
