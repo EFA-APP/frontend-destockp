@@ -31,9 +31,9 @@ export default defineConfig({
   server: {
     port: 5177,
     host: true,
-    allowedHosts: ["bosquesrl.store"],
+    allowedHosts: ["ventryx.fun"],
     hmr: {
-      host: 'bosquesrl.store'
+      host: 'ventryx.fun'
     }
   }
 });
