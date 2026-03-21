@@ -44,8 +44,10 @@ const CrearProductos = () => {
                           c.tipoDato === 'BOOLEANO' ? 'boolean' : 'select',
                     options: c.opciones ? c.opciones.map(o => ({ value: o, label: o })) : [],
                     required: c.requerido,
+                    formula: c.formula,
                     section: "Atributos Adicionales",
                     sectionIcon: <ConfiguracionIcono />
+
                 }));
                 setCamposDinamicos(mapeados);
             } catch (e) {

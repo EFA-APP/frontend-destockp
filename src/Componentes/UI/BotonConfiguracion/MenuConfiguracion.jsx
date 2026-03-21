@@ -4,8 +4,10 @@ import {
     CuentaIcono,
     UsuarioIcono
 } from "../../../assets/Icons";
+import { useAuthStore } from "../../../Backend/Autenticacion/store/authenticacion.store";
 
-const MenuConfiguracion = ({ onClose }) => {
+const MenuConfiguracion = ({ onClose, onOpenVisual }) => {
+    const usuario = useAuthStore((state) => state.usuario);
     return (
         <div className="absolute right-0 top-full mt-2 z-50 w-72 rounded-xl bg-[var(--surface)]/90 backdrop-blur-2xl border border-[var(--border-subtle)] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
             {/* Header */}
@@ -36,6 +38,24 @@ const MenuConfiguracion = ({ onClose }) => {
                         <span className="text-[8px] font-normal text-[var(--text-muted)] group-hover:text-[var(--primary)]/70 uppercase pt-1">Gestionar cuenta</span>
                     </div>
                 </Link>
+
+                {usuario?.roles?.some(r => r.nombre === 'ADMINISTRADOR') && (
+                    <button
+                        onClick={() => {
+                            onClose();
+                            onOpenVisual();
+                        }}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-md text-[10px] font-bold text-[var(--text-secondary)] hover:text-[var(--primary)] hover:bg-[var(--primary-subtle)] transition-all group w-full text-left bg-transparent border-0 cursor-pointer"
+                    >
+                        <div className="p-1.5 rounded-md bg-[var(--surface-hover)] border border-[var(--border-subtle)] group-hover:border-[var(--primary)]/20 transition-all">
+                            <ConfiguracionIcono size={14} color="white" />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="uppercase tracking-widest font-normal text-white">Diseño Empresa</span>
+                            <span className="text-[8px] font-normal text-[var(--text-muted)] group-hover:text-[var(--primary)]/70 uppercase pt-1">Logo y Colores</span>
+                        </div>
+                    </button>
+                )}
             </div>
 
             {/* Footer */}

@@ -56,7 +56,7 @@ const TablaUsuarios = ({ onAsignarRol }) => {
     return (
         <React.Fragment>
             <div className="space-y-4 animate-in fade-in duration-300">
-                <DataTable
+                <DataTable id_tabla="usuarios"
                     datos={usuarios}
                     columnas={columnasUsuarios}
                     titulo="Lista de Usuarios"

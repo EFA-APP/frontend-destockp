@@ -52,7 +52,7 @@ const TablaAsientos = () => {
   );
 
   return (
-    <DataTable
+    <DataTable id_tabla="asientos"
       columnas={columnasAsientos}
       datos={asientos}
       renderDetalle={renderDetalleAsiento}

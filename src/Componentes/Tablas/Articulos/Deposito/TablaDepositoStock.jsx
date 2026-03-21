@@ -73,7 +73,7 @@ const TablaDepositoStock = () => {
                 <div className="p-0 md:p-4">
                     {/* Desktop View: DataTable */}
                     <div className="hidden md:block">
-                        <DataTable
+                        <DataTable 
                             columnas={columnasStock}
                             datos={matrizConAcciones} // <--- FIX: Usar matriz con handlers
                             mostrarBuscador={false} // Custom search above
@@ -84,76 +84,107 @@ const TablaDepositoStock = () => {
                         />
                     </div>
 
-                    {/* Mobile View: Card List */}
-                    <div className="md:hidden">
+                    {/* Mobile View: Premium Designed Cards (REFINED CLARITY & SIZE) */}
+                    <div className="md:hidden flex flex-col gap-5 p-4 pb-28">
                         {cargandoStock ? (
                             <div className="flex flex-col items-center justify-center py-20 gap-4">
                                 <CargandoIcono size={32} className="animate-spin text-amber-500/40" />
                                 <span className="text-[11px] text-white/20 font-bold uppercase tracking-widest">Sincronizando Stock...</span>
                             </div>
                         ) : matrizStock.length > 0 ? (
-                            <div className="flex flex-col gap-3 p-4 pb-24">
-                                {matrizConAcciones.map((row, idx) => (
-                                    <div key={idx} className="relative p-5 bg-[#121212] rounded-2xl border border-white/5 overflow-hidden shadow-xl">
-                                        {/* Decorative glow */}
-                                        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
-
-                                        <div className="relative z-10">
-                                            {/* Header */}
-                                            <div className="flex justify-between items-start mb-5">
-                                                <div className="flex gap-3.5 items-center">
-                                                    <div className="w-11 h-11 rounded-md bg-white/5 flex items-center justify-center border border-white/10 shrink-0 shadow-inner">
-                                                        <Package size={20} className="text-white/50 drop-shadow-md" />
-                                                    </div>
-                                                    <div className="flex flex-col gap-1">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-[10px] font-mono font-black text-amber-500/90 px-1.5 py-0.5 bg-amber-500/10 rounded-md border border-amber-500/20 shadow-sm">
-                                                                #{row.id?.toString().padStart(3, '0') || '000'}
-                                                            </span>
-                                                            <span className="text-[9px] font-black text-white/50 uppercase tracking-widest bg-white/5 px-1.5 py-0.5 rounded-md border border-white/5 shadow-sm">
-                                                                {row.unidadMedida}
-                                                            </span>
-                                                        </div>
-                                                        <span className="text-[15px] font-black text-white leading-tight tracking-tight uppercase drop-shadow-sm">
-                                                            {row.nombreArticulo}
-                                                        </span>
-                                                    </div>
+                            matrizConAcciones.map((row, idx) => (
+                                <div key={idx} className="bg-[#181818] rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${idx * 50}ms` }}>
+                                    
+                                    {/* Product Identity Header */}
+                                    <div className="p-4 bg-gradient-to-br from-white/[0.06] to-transparent border-b border-white/5">
+                                        <div className="flex items-start justify-between gap-4 mb-2">
+                                            <div className="flex flex-col gap-1 min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[9px] font-mono font-black text-amber-500 px-1.5 py-0.5 bg-amber-500/10 rounded border border-amber-500/30 shadow-sm uppercase tracking-tighter">
+                                                        SKU: {row.codigoProducto?.toString().padStart(4, '0') || 'N/A'}
+                                                    </span>
+                                                    <span className="text-[9px] font-black text-white/60 uppercase tracking-widest bg-white/10 px-1.5 py-0.5 rounded border border-white/5">
+                                                        {row.unidadMedida}
+                                                    </span>
+                                                </div>
+                                                <h3 className="text-[16px] font-black text-white leading-[1.2] tracking-tight break-words">
+                                                    {row.nombre}
+                                                </h3>
+                                            </div>
+                                            <div className="shrink-0">
+                                                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shadow-inner text-amber-500/60">
+                                                    <Package size={20} />
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
 
-                                            {/* Stock Breakdown */}
-                                            <div className="bg-black/40 rounded-xl border border-white/5 p-1.5 flex flex-col gap-1 shadow-inner">
-                                                {columnasStock.filter(col => col.key !== 'codigoSecuencial' && col.key !== 'nombreArticulo' && col.key !== 'unidadMedida' && col.key !== 'acciones_stock').map((col, cIdx) => (
+                                    {/* Warehouse Breakdown */}
+                                    <div className="p-3 bg-black/30 flex flex-col gap-1.5">
+                                        <div className="px-1 mb-1">
+                                            <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em] flex items-center gap-2">
+                                                <div className="w-4 h-[1px] bg-white/20" />
+                                                Existencias
+                                            </span>
+                                        </div>
+                                        
+                                        {columnasStock
+                                            .filter(col => col.key !== 'codigoSecuencial' && col.key !== 'nombre' && col.key !== 'nombreArticulo' && col.key !== 'unidadMedida' && col.key !== 'acciones_stock' && col.key !== 'total')
+                                            .map((col, cIdx) => {
+                                                const stock = row[col.key] || 0;
+                                                const tieneStock = stock > 0;
+                                                return (
                                                     <div
                                                         key={cIdx}
                                                         onClick={() => {
                                                             const depId = col.key.startsWith('dep_') ? col.key.split('_')[1] : null;
                                                             if (depId) row.onActualizarStock(row, depId);
                                                         }}
-                                                        className={`group flex items-center justify-between p-3.5 rounded-lg cursor-pointer transition-all duration-200 active:scale-[0.98] ${row[col.key] > 0 ? 'bg-white/[0.04] hover:bg-white/10 hover:shadow-lg hover:border-amber-500/30 border border-white/5 shadow-sm' : 'hover:bg-white/10 hover:border-white/20 border border-transparent'}`}
+                                                        className={`group flex items-center justify-between p-3.5 rounded-xl cursor-pointer transition-all duration-300 active:scale-[0.98] ${tieneStock 
+                                                            ? 'bg-white/5 border border-white/10 shadow-sm' 
+                                                            : 'bg-white/[0.02] border border-transparent opacity-80'}`}
                                                     >
-                                                        <div className="flex items-center gap-3 w-full">
-                                                            <div className={`w-2 h-2 rounded-full shrink-0 transition-colors ${row[col.key] > 0 ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] group-hover:bg-amber-400 group-hover:shadow-[0_0_10px_rgba(251,191,36,0.6)]' : 'bg-white/10 group-hover:bg-white/30'}`} />
-                                                            <span className="text-[11px] font-bold text-white/70 uppercase tracking-widest truncate max-w-[120px] group-hover:text-white transition-colors">
+                                                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                                                            <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${tieneStock ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]' : 'bg-white/10'}`} />
+                                                            <span className={`text-[12px] font-black uppercase tracking-wider truncate transition-colors ${tieneStock ? 'text-white' : 'text-white/80'}`}>
                                                                 {col.etiqueta || col.header}
                                                             </span>
-                                                            <div className="flex-grow border-b border-dashed border-white/10 group-hover:border-white/30 mx-2 transition-colors"></div>
-                                                            <span className={`text-[14px] font-black shrink-0 transition-colors ${row[col.key] > 0 ? 'text-white group-hover:text-amber-400' : 'text-white/20 group-hover:text-white/60'}`}>
-                                                                {row[col.key] || 0}
-                                                            </span>
-                                                            <ChevronRight size={14} className="text-white/10 shrink-0 ml-1 group-hover:text-amber-500 group-hover:translate-x-1 transition-all" />
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="flex flex-col items-end">
+                                                                <span className={`text-[16px] font-black tabular-nums transition-colors leading-none ${tieneStock ? 'text-emerald-400' : 'text-white/10'}`}>
+                                                                    {stock}
+                                                                </span>
+                                                            </div>
+                                                            <ChevronRight size={14} className={`transition-all ${tieneStock ? 'text-emerald-500 group-hover:translate-x-1' : 'text-white/5'}`} />
                                                         </div>
                                                     </div>
-                                                ))}
+                                                );
+                                            })}
+                                    </div>
+
+                                    {/* Global Total Footer - REFINED CLARITY & REDUCED SIZE */}
+                                    <div className="mt-auto p-4 bg-amber-500/10 border-t border-amber-500/20 flex items-center justify-between">
+                                        <div className="flex flex-col">
+                                            <span className="text-[9px] font-black text-amber-500 uppercase tracking-[0.2em] mb-0.5 leading-none">Total Global</span>
+                                            <span className="text-[11px] text-white/90 font-black uppercase tracking-tight">Consolidado</span>
+                                        </div>
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-2xl font-black text-amber-500 tracking-tighter tabular-nums drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]">
+                                                {row.total || 0}
+                                            </span>
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">{row.unidadMedida}</span>
                                             </div>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            ))
                         ) : (
-                            <div className="py-20 flex flex-col items-center justify-center opacity-20">
-                                <Package size={48} strokeWidth={1} />
-                                <span className="text-xs font-bold mt-4">NO SE ENCONTRARON PRODUCTOS</span>
+                            <div className="py-24 flex flex-col items-center justify-center opacity-20 text-center px-10">
+                                <Package size={64} strokeWidth={1} className="mb-4 text-amber-500" />
+                                <span className="text-sm font-black uppercase tracking-[0.3em] text-white">No se registraron productos</span>
+                                <p className="text-[10px] mt-2 normal-case font-medium text-white/60">Ajusta los filtros para ver resultados</p>
                             </div>
                         )}
                     </div>

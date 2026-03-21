@@ -34,6 +34,7 @@ export const generarColumnasStock = (depositos = []) => {
         }
     ];
 
+
     // Columnas dinámicas por cada depósito
     depositos.forEach(dep => {
         columnas.push({
@@ -64,8 +65,6 @@ export const generarColumnasStock = (depositos = []) => {
         });
     });
 
-    // Columna de Acciones General Explicita eliminada para limpiar la vista
-
     // Columna de Total Global
     columnas.push({
         key: "total",
@@ -78,6 +77,9 @@ export const generarColumnasStock = (depositos = []) => {
             </div>
         )
     });
+
+    // Columna de Acciones General Explicita eliminada para limpiar la vista
+
 
     return columnas;
 };

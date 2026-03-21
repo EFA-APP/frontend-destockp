@@ -7,13 +7,11 @@ import { columnasRoles } from "./ColumnaRoles";
 
 const TablaRoles = () => {
     const navigate = useNavigate();
-    const { roles, cargandoRol } = useRolesUI();
-
-
+    const { roles, cargandoRol, eliminarRol } = useRolesUI();
 
     return (
         <div className="animate-in fade-in duration-300">
-            <DataTable
+            <DataTable id_tabla="roles"
                 datos={roles || []}
                 columnas={columnasRoles}
                 titulo="Roles y Permisos"
@@ -29,9 +27,13 @@ const TablaRoles = () => {
                     handleEditar: (rol) => {
                         navigate(`/panel/configuracion/roles/editar`, { state: { rol } })
                     },
-                    manejarEliminar: (rol) => {
+                    manejarEliminar: async (rol) => {
                         if (window.confirm(`¿Está seguro de que desea eliminar el rol "${rol.nombre}"?`)) {
-                            // Logic to delete role
+                            try {
+                                await eliminarRol({ codigo: rol.codigoSecuencial });
+                            } catch (error) {
+                                // Error handled by mutation
+                            }
                         }
                     }
                 })}

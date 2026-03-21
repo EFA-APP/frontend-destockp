@@ -1,21 +1,25 @@
 import { useState } from "react";
 import {
   NotificacionesIcono,
-  RefrescarIcono,
+  // RefrescarIcono,
   CerrarSesionIcono,
+  ConsolaIcono,
 } from "../../../assets/Icons";
 
 import { Link } from "react-router-dom";
-import MenuNotificacion from "../MenuNotificacion/MenuNotificacion";
+// import MenuNotificacion from "../MenuNotificacion/MenuNotificacion";
 import { cerrarSesion } from "../../../Backend/Autenticacion/store/cerrarSesion";
 import BotonConfiguracion from "../BotonConfiguracion/BotonConfiguracion";
+import { useAuthStore } from "../../../Backend/Autenticacion/store/authenticacion.store";
+
 
 const BarraNavegacion = () => {
   const [menuAbiertoNotificacion, setMenuAbiertoNotificacion] = useState(false);
+  const usuario = useAuthStore((state) => state.usuario);
 
-  const toggleNotificacion = () => {
-    setMenuAbiertoNotificacion(!menuAbiertoNotificacion);
-  };
+  // const toggleNotificacion = () => {
+  //   setMenuAbiertoNotificacion(!menuAbiertoNotificacion);
+  // };
 
   return (
     <header className="sticky top-0 z-[50]">
@@ -23,11 +27,17 @@ const BarraNavegacion = () => {
         <div className="flex-1 flex items-center md:hidden">
           <Link to="/" className="relative group/logo-mobile">
             <div className="absolute -inset-1 bg-gradient-to-tr from-[var(--primary)] to-[var(--primary-subtle)] rounded-full blur opacity-25" />
-            <img
-              alt="logo"
-              className="relative w-8 h-8 rounded-full border-2 border-white shadow-sm object-contain bg-white"
-              src="/efa-logo.png"
-            />
+            {
+              usuario?.configuracionVisual?.logoUrl ? (
+                <img
+                  alt="logo"
+                  className="relative w-8 h-8 rounded-full border-2 border-white shadow-sm object-contain bg-white"
+                  src={usuario?.configuracionVisual?.logoUrl}
+                />
+              ) : (
+                <ConsolaIcono size={18} color="var(--primary)" />
+              )
+            }
           </Link>
         </div>
 
@@ -37,14 +47,14 @@ const BarraNavegacion = () => {
 
 
           {/* ARCA STATUS */}
-          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-md! bg-[var(--surface-hover)] border border-[var(--border-subtle)] group cursor-help">
+          {/* <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-md! bg-[var(--surface-hover)] border border-[var(--border-subtle)] group cursor-help">
             <RefrescarIcono size={16} color="var(--text-muted)" className="group-hover:rotate-180 transition-transform duration-500" />
             <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Arca:</span>
             <div className="relative flex items-center">
               <span className="absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
             </div>
-          </div>
+          </div> */}
 
           {/* NOTIFICACIONES */}
           {/* <div className="relative">
@@ -65,8 +75,8 @@ const BarraNavegacion = () => {
           {/* PERFIL */}
           <div className="flex items-center gap-4 ml-2 ">
             <div className="flex-col items-end hidden md:flex">
-              <span className="text-[11px] font-bold text-[var(--text-primary)] leading-none">José Chocobar</span>
-              <span className="text-[9px] text-[var(--secondary)] font-bold uppercase tracking-widest mt-0.5">Administrador</span>
+              <span className="text-[11px] font-bold text-[var(--text-primary)] leading-none">{ `${usuario.nombre.toUpperCase()} ${usuario.apellido.toUpperCase()}` }</span>
+              <span className="text-[9px] text-[var(--secondary)] font-bold uppercase tracking-widest mt-0.5">{usuario.roles?.map((rol) => rol.nombre.toUpperCase()).join(", ")}</span>
             </div>
 
             <button

@@ -20,7 +20,7 @@ const TablaLibroDiario = () => {
 
   return (
     <div className="space-y-4">
-      <DataTable
+      <DataTable id_tabla="librodiario"
         columnas={columnasLibroDiario}
         datos={asientos}
         mostrarBuscador={false}

@@ -74,7 +74,7 @@ const TablaNotasCredito = () => {
       </div>
 
       {/* Tabla */}
-      <DataTable
+      <DataTable id_tabla="notadecredito"
         columnas={columnasNotasCredito}
         datos={notasCredito}
         mostrarBuscador

@@ -19,3 +19,8 @@ export const ListarConfiguracionCamposApi = async (entidad) => {
     const respuesta = await axiosInitial.get(`/producto/configuracion/listar`, { params: { entidad }, showLoader: false });
     return respuesta.data;
 }
+
+export const ImportarProductosApi = async (productos) => {
+    const respuesta = await axiosInitial.post(`/producto/importar`, productos, { showLoader: true });
+    return respuesta.data;
+}

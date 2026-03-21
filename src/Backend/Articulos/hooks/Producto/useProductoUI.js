@@ -33,6 +33,7 @@ export const useProductoUI = (filtrosIniciales = {}) => {
 
     return {
         productos: productosFiltrados,
+        meta: query.data?.meta,
         cargando: query.isLoading,
         error: query.error,
         refetch: query.refetch,

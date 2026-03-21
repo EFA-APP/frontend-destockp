@@ -11,6 +11,7 @@ import {
   HistorialIcono,
   DetalleIcono,
   BloquearUsuarioIcono,
+  DuplicarIcono,
 } from "../../../assets/Icons";
 
 export const accionesReutilizables = {
@@ -30,6 +31,16 @@ export const accionesReutilizables = {
     icono: (
       <div className="bg-blue-500/10 p-1 rounded-md text-blue-400! cursor-pointer! hover:bg-blue-500/20 transition-colors">
         <EditarIcono size={18} />
+      </div>
+    ),
+  },
+
+  duplicar: {
+    key: "duplicar",
+    label: "Duplicar",
+    icono: (
+      <div className="bg-amber-500/10 p-1 rounded-md text-amber-500! cursor-pointer! hover:bg-amber-500/20 transition-colors flex items-center justify-center">
+        <DuplicarIcono size={16} />
       </div>
     ),
   },

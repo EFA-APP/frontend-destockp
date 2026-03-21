@@ -15,7 +15,7 @@ const TablaPlanDeCuentas = () => {
   } = usePlanDeCuentas();
 
   return (
-    <DataTable
+    <DataTable id_tabla="plandecuentas"
       columnas={columnasPlanDeCuentas}
       datos={cuentas}
       /* 🔑 CLAVE PARA EL DESPLIEGUE */

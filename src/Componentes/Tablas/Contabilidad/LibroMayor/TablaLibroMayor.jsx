@@ -15,7 +15,7 @@ const TablaLibroMayor = () => {
   } = useLibroMayor();
 
   return (
-    <DataTable
+    <DataTable id_tabla="libromayor"
       columnas={columnasLibroMayor}
       datos={cuentas}
       mostrarAcciones={true}

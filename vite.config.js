@@ -13,6 +13,9 @@ export default defineConfig({
       short_name: "SG",
       description: "Sistema de Gestión",
       theme_color: "#000000",
+      background_color: "#ffffff", // 🔥 importante para iOS
+      display: "standalone", // 🔥 clave
+      start_url: "/", // 🔥 importante
       icons: [
         {
           src: "/efa-logo.png",
@@ -27,7 +30,7 @@ export default defineConfig({
       ]
     }
   })],
-  base: './',
+  base: '/',
   server: {
     port: 5177,
     host: true,

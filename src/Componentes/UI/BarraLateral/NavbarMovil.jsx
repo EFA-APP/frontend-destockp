@@ -5,6 +5,7 @@ import { useUserPermissions } from "../../../Backend/Autenticacion/hooks/useUser
 import { useSeccionesUI } from "../../../Backend/Autenticacion/hooks/Secciones/useSeccionesUI";
 import * as Icons from "../../../assets/Icons";
 import { ChevronRight, PanelRightClose, LayoutGrid } from "lucide-react";
+import useCargadorStore from "../../../store/useCargadorStore";
 
 // Función para parsear el string del icono que viene del backend
 const parseIcono = (iconStr, size = 20) => {
@@ -22,6 +23,14 @@ const NavbarMovil = () => {
     const location = useLocation();
     const { secciones: seccionesApi } = useSeccionesUI();
     const { codigosSeccionPermitidos } = useUserPermissions();
+    const setCargando = useCargadorStore(estado => estado.setCargando);
+
+    const manejarNavegacion = (ruta) => {
+        if (ruta && ruta !== "#" && location.pathname !== ruta) {
+            setCargando(true);
+        }
+        cerrarMenu();
+    };
 
     const menuFiltrado = useMemo(() => {
         const inicioItem = {
@@ -104,7 +113,7 @@ const NavbarMovil = () => {
                                                     e.preventDefault();
                                                     toggleMenu(item.id);
                                                 } else {
-                                                    cerrarMenu();
+                                                    manejarNavegacion(item.redireccion);
                                                 }
                                             }}
                                         >
@@ -135,7 +144,7 @@ const NavbarMovil = () => {
                                                 ? "bg-[var(--primary)]/10 border-l-[var(--primary)] text-[var(--primary)] font-bold"
                                                 : "border-l-transparent text-[var(--text-muted)] active:bg-[var(--surface-hover)]"
                                                 }`}
-                                            onClick={cerrarMenu}
+                                            onClick={() => manejarNavegacion(sm.redireccion)}
                                         >
                                             <span>{sm.nombre}</span>
                                             <ChevronRight size={16} className="opacity-50" />
@@ -178,7 +187,7 @@ const NavbarMovil = () => {
                                 key={item.id}
                                 to={item.redireccion}
                                 className={`flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all duration-300 relative group active:scale-90 ${isActive ? "text-[var(--primary)]" : "text-[var(--text-muted)]"}`}
-                                onClick={cerrarMenu}
+                                onClick={() => manejarNavegacion(item.redireccion)}
                             >
                                 <div className={`p-1.5 rounded-lg transition-all duration-300 ${isActive ? "bg-[var(--primary)]/15 scale-110 shadow-[0_0_8px_var(--primary-subtle)]" : "group-hover:bg-[var(--surface-hover)]"}`}>
                                     {item.icono}

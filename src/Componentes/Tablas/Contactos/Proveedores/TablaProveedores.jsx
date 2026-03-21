@@ -44,7 +44,7 @@ const TablaProveedores = () => {
         data={proveedorSeleccionado}
         {...proveedorConfig}
       />
-      <DataTable
+      <DataTable id_tabla="proveedores"
         columnas={columnasProveedores}
         datos={proveedores}
         acciones={accionesProveedor({

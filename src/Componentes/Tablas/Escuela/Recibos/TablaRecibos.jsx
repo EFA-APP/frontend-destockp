@@ -93,7 +93,7 @@ const TablaRecibos = () => {
       </div>
 
       {/* Tabla principal */}
-      <DataTable
+      <DataTable id_tabla="recibos"
         columnas={columnasRecibos}
         datos={recibos}
         mostrarBuscador

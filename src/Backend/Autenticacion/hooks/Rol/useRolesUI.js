@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useObtenerRoles } from "../../queries/Rol/useObtenerRoles.query";
 import { useCrearRol } from "../../queries/Rol/useCrearRol.mutation";
 import { useActualizarRol } from "../../queries/Rol/useActualizarRol.mutation";
+import { useEliminarRol } from "../../queries/Rol/useEliminarRol.mutation";
 
 export const useRolesUI = () => {
   const [busquedaRol, setBusquedaRol] = useState({
@@ -24,6 +25,7 @@ export const useRolesUI = () => {
   const rolesQuery = useObtenerRoles(filters);
   const crearRolMutation = useCrearRol();
   const actualizarRolMutation = useActualizarRol();
+  const eliminarRolMutation = useEliminarRol();
 
   return {
     roles: Array.isArray(rolesQuery.data) 
@@ -37,5 +39,7 @@ export const useRolesUI = () => {
     creandoRol: crearRolMutation.isPending,
     actualizarRol: actualizarRolMutation.mutateAsync,
     actualizandoRol: actualizarRolMutation.isPending,
+    eliminarRol: eliminarRolMutation.mutateAsync,
+    eliminandoRol: eliminarRolMutation.isPending,
   };
 };

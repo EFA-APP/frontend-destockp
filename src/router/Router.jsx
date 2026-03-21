@@ -1,63 +1,66 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import Error from "../pages/Error";
-import Panel from "../pages/Panel";
-import IniciarSesion from "../pages/IniciarSesion";
-
-import Configuracion from "../Componentes/Secciones/Configuracion/Configuracion";
-import RolesPermisos from "../Componentes/Secciones/Configuracion/RolesPermisos/TablaUsuarioRoles/RolesPermisos";
-import Productos from "../Componentes/Secciones/Articulos/Productos/Productos";
-import MateriaPrima from "../Componentes/Secciones/Articulos/MateriaPrima/MateriaPrima";
-import Facturas from "../Componentes/Secciones/Ventas/Facturas/Facturas";
-import CrearFactura from "../Componentes/Secciones/Ventas/CrearVentas/CrearFactura/CrearFactura";
-import OrdenDeVentas from "../Componentes/Secciones/Ventas/OrdenDeVentas/OrdenDeVentas";
-import CrearOrdenDeVentas from "../Componentes/Secciones/Ventas/CrearVentas/CrearOrdenDeVenta/CrearOrdeDeVenta";
-import NotaDeCredito from "../Componentes/Secciones/Ventas/NotaDeCredito/NotaDeCredito";
-import CrearNotaCredito from "../Componentes/Secciones/Ventas/CrearVentas/CrearNotaCredito/CrearNotaCredito";
-import NotaDeDebito from "../Componentes/Secciones/Ventas/NotaDeDebito/NotaDeDebito";
-import CrearNotaDebito from "../Componentes/Secciones/Ventas/CrearVentas/CrearNotaDebito/CrearNotaDebito";
-import FacturasProveedor from "../Componentes/Secciones/Compras/FacturaProveedor/FacturaProveedor";
-import CrearFacturaProveedor from "../Componentes/Secciones/Compras/CrearFacturaProveedor/CrearFacturaProveedor";
-import PlanDeCuentas from "../Componentes/Secciones/Contabilidad/PlanDeCuentas/PlanDeCuentas";
-import CrearPlanDeCuenta from "../Componentes/Secciones/Contabilidad/CrearContabilidad/CrearPlanDeCuenta.jsx/CrearPlanDeCuenta";
-import Asientos from "../Componentes/Secciones/Contabilidad/Asientos/Asientos";
-import LibroDiario from "../Componentes/Secciones/Contabilidad/LibroDiario/LibroDiario";
-import LibroMayor from "../Componentes/Secciones/Contabilidad/LibroMayor/LibroMayor";
-import SistemaContable from "../pages/Demo";
-import Alumnos from "../Componentes/Secciones/Escuela/Alumnos/Alumnos";
-import CrearAlumnos from "../Componentes/Secciones/Escuela/CrearEscuela/CrearAlumnos/CrearAlumnos";
-import Clientes from "../Componentes/Secciones/Contactos/Cliente/Clientes";
-import Proveedores from "../Componentes/Secciones/Contactos/Proveedores/Proveedores";
-import CrearProductos from "../Componentes/Secciones/Articulos/CrearArticulos/CrearProductos";
-import CrearMateriaPrima from "../Componentes/Secciones/Articulos/CrearArticulos/CrearMateriaPrima";
-import CrearClientes from "../Componentes/Secciones/Contactos/CrearContactos/CrearClientes";
-import CrearProveedores from "../Componentes/Secciones/Contactos/CrearContactos/CrearProveedores";
-import Cuotas from "../Componentes/Secciones/Escuela/Cuotas/Cuotas";
-import Recibos from "../Componentes/Secciones/Escuela/Recibos/Recibos";
-import CrearRecibo from "../Componentes/Secciones/Escuela/CrearEscuela/CrearRecibo/CrearRecibo";
-import CrearAsientos from "../Componentes/Secciones/Contabilidad/CrearContabilidad/CrearAsientos/CrearAsientos";
-import Balance from "../Componentes/Secciones/Contabilidad/Balance/Balance";
-// import Inicio from "../Componentes/Secciones/Inicio/Inicio";
-import Bienvenida from "../Componentes/Secciones/Inicio/Bienvenida";
-import MisComprobantesAFIP from "../Componentes/Secciones/MisComprobantesAFIP/MisComprobantesAFIP";
-import CrearRolesPermisos from "../Componentes/Secciones/Configuracion/RolesPermisos/CrearRoles/CrearRolesPermisos";
-import Deposito from "../Componentes/Secciones/Articulos/Deposito/Deposito";
-import GestionarDeposito from "../Componentes/Secciones/Articulos/Deposito/GestionarDeposito";
-import HistorialStockPage from "../Componentes/Secciones/Articulos/HistorialStockPage";
-import AjusteStockPage from "../Componentes/Secciones/Articulos/AjusteStockPage";
-import ProduccionPage from "../Componentes/Secciones/Articulos/ProduccionPage";
-import ProduccionSeleccionPage from "../Componentes/Secciones/Articulos/ProduccionSeleccionPage";
-import ProduccionReportePage from "../Componentes/Secciones/Articulos/ProduccionReportePage";
-import SeleccionarProductoGestionPage from "../Componentes/Secciones/Articulos/Productos/SeleccionarProductoGestionPage";
-import SeleccionarMateriaPrimaGestionPage from "../Componentes/Secciones/Articulos/MateriaPrima/SeleccionarMateriaPrimaGestionPage";
+import { lazy, Suspense } from "react";
+import { Routes, Route } from "react-router-dom";
 
 import RutaProtegida from "./RutaProtegida";
 import RutaPublica from "./RutaPublica";
-import GestionProducto from "../Componentes/Secciones/Articulos/Productos/GestionProducto";
-import GestionMateriaPrima from "../Componentes/Secciones/Articulos/MateriaPrima/GestionMateriaPrima";
+
+// Lazy Pages
+const Error = lazy(() => import("../pages/Error"));
+const Panel = lazy(() => import("../pages/Panel"));
+const IniciarSesion = lazy(() => import("../pages/IniciarSesion"));
+
+// Lazy Components/Sections
+const Configuracion = lazy(() => import("../Componentes/Secciones/Configuracion/Configuracion"));
+const RolesPermisos = lazy(() => import("../Componentes/Secciones/Configuracion/RolesPermisos/TablaUsuarioRoles/RolesPermisos"));
+const Productos = lazy(() => import("../Componentes/Secciones/Articulos/Productos/Productos"));
+const MateriaPrima = lazy(() => import("../Componentes/Secciones/Articulos/MateriaPrima/MateriaPrima"));
+const Facturas = lazy(() => import("../Componentes/Secciones/Ventas/Facturas/Facturas"));
+const CrearFactura = lazy(() => import("../Componentes/Secciones/Ventas/CrearVentas/CrearFactura/CrearFactura"));
+const OrdenDeVentas = lazy(() => import("../Componentes/Secciones/Ventas/OrdenDeVentas/OrdenDeVentas"));
+const CrearOrdenDeVentas = lazy(() => import("../Componentes/Secciones/Ventas/CrearVentas/CrearOrdenDeVenta/CrearOrdeDeVenta"));
+const NotaDeCredito = lazy(() => import("../Componentes/Secciones/Ventas/NotaDeCredito/NotaDeCredito"));
+const CrearNotaCredito = lazy(() => import("../Componentes/Secciones/Ventas/CrearVentas/CrearNotaCredito/CrearNotaCredito"));
+const NotaDeDebito = lazy(() => import("../Componentes/Secciones/Ventas/NotaDeDebito/NotaDeDebito"));
+const CrearNotaDebito = lazy(() => import("../Componentes/Secciones/Ventas/CrearVentas/CrearNotaDebito/CrearNotaDebito"));
+const FacturasProveedor = lazy(() => import("../Componentes/Secciones/Compras/FacturaProveedor/FacturaProveedor"));
+const CrearFacturaProveedor = lazy(() => import("../Componentes/Secciones/Compras/CrearFacturaProveedor/CrearFacturaProveedor"));
+const PlanDeCuentas = lazy(() => import("../Componentes/Secciones/Contabilidad/PlanDeCuentas/PlanDeCuentas"));
+const CrearPlanDeCuenta = lazy(() => import("../Componentes/Secciones/Contabilidad/CrearContabilidad/CrearPlanDeCuenta.jsx/CrearPlanDeCuenta"));
+const Asientos = lazy(() => import("../Componentes/Secciones/Contabilidad/Asientos/Asientos"));
+const LibroDiario = lazy(() => import("../Componentes/Secciones/Contabilidad/LibroDiario/LibroDiario"));
+const LibroMayor = lazy(() => import("../Componentes/Secciones/Contabilidad/LibroMayor/LibroMayor"));
+const SistemaContable = lazy(() => import("../pages/Demo"));
+const Alumnos = lazy(() => import("../Componentes/Secciones/Escuela/Alumnos/Alumnos"));
+const CrearAlumnos = lazy(() => import("../Componentes/Secciones/Escuela/CrearEscuela/CrearAlumnos/CrearAlumnos"));
+const Clientes = lazy(() => import("../Componentes/Secciones/Contactos/Cliente/Clientes"));
+const Proveedores = lazy(() => import("../Componentes/Secciones/Contactos/Proveedores/Proveedores"));
+const CrearProductos = lazy(() => import("../Componentes/Secciones/Articulos/CrearArticulos/CrearProductos"));
+const CrearMateriaPrima = lazy(() => import("../Componentes/Secciones/Articulos/CrearArticulos/CrearMateriaPrima"));
+const CrearClientes = lazy(() => import("../Componentes/Secciones/Contactos/CrearContactos/CrearClientes"));
+const CrearProveedores = lazy(() => import("../Componentes/Secciones/Contactos/CrearContactos/CrearProveedores"));
+const Cuotas = lazy(() => import("../Componentes/Secciones/Escuela/Cuotas/Cuotas"));
+const Recibos = lazy(() => import("../Componentes/Secciones/Escuela/Recibos/Recibos"));
+const CrearRecibo = lazy(() => import("../Componentes/Secciones/Escuela/CrearEscuela/CrearRecibo/CrearRecibo"));
+const CrearAsientos = lazy(() => import("../Componentes/Secciones/Contabilidad/CrearContabilidad/CrearAsientos/CrearAsientos"));
+const Balance = lazy(() => import("../Componentes/Secciones/Contabilidad/Balance/Balance"));
+const Bienvenida = lazy(() => import("../Componentes/Secciones/Inicio/Bienvenida"));
+const MisComprobantesAFIP = lazy(() => import("../Componentes/Secciones/MisComprobantesAFIP/MisComprobantesAFIP"));
+const CrearRolesPermisos = lazy(() => import("../Componentes/Secciones/Configuracion/RolesPermisos/CrearRoles/CrearRolesPermisos"));
+const Deposito = lazy(() => import("../Componentes/Secciones/Articulos/Deposito/Deposito"));
+const GestionarDeposito = lazy(() => import("../Componentes/Secciones/Articulos/Deposito/GestionarDeposito"));
+const HistorialStockPage = lazy(() => import("../Componentes/Secciones/Articulos/HistorialStockPage"));
+const AjusteStockPage = lazy(() => import("../Componentes/Secciones/Articulos/AjusteStockPage"));
+const ProduccionPage = lazy(() => import("../Componentes/Secciones/Articulos/ProduccionPage"));
+const ProduccionSeleccionPage = lazy(() => import("../Componentes/Secciones/Articulos/ProduccionSeleccionPage"));
+const ProduccionReportePage = lazy(() => import("../Componentes/Secciones/Articulos/ProduccionReportePage"));
+const GestionProducto = lazy(() => import("../Componentes/Secciones/Articulos/Productos/GestionProducto"));
+const GestionMateriaPrima = lazy(() => import("../Componentes/Secciones/Articulos/MateriaPrima/GestionMateriaPrima"));
+
 
 export default function Router() {
   return (
-    <Routes>
+    <Suspense fallback={<div className="flex justify-center items-center h-screen bg-[var(--surface)] text-[var(--text-muted)]">Cargando...</div>}>
+      <Routes>
       {/* 🔓 RUTAS PÚBLICAS (Solo si NO está logueado) */}
       <Route element={<RutaPublica />}>
         <Route path="/" element={<IniciarSesion />} />
@@ -94,8 +97,6 @@ export default function Router() {
             <Route path="inventario/produccion/reporte" element={<ProduccionReportePage />} />
             <Route path="inventario/productos/:id/editar" element={<CrearProductos />} />
             <Route path="inventario/materia-prima/:id/editar" element={<CrearMateriaPrima />} />
-            <Route path="inventario/editar/productos" element={<SeleccionarProductoGestionPage />} />
-            <Route path="inventario/editar/materia-prima" element={<SeleccionarMateriaPrimaGestionPage />} />
           </Route>
 
           {/* CONTACTOS */}
@@ -157,5 +158,6 @@ export default function Router() {
       {/* ERROR */}
       <Route path="*" element={<Error />} />
     </Routes>
+    </Suspense>
   );
 }

@@ -62,7 +62,7 @@ const TablaOrdenDeVentas = () => {
       </div>
 
       {/* Tabla */}
-      <DataTable
+      <DataTable id_tabla="ordendeventas"
         columnas={columnasOrdenesVenta}
         datos={ordenes}
         mostrarBuscador

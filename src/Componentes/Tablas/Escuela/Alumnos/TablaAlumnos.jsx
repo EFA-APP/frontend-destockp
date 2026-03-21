@@ -14,7 +14,7 @@ const TablaAlumnos = () => {
 
   return (
     <>
-      <DataTable
+      <DataTable id_tabla="alumnos"
         columnas={columnasAlumnos}
         datos={alumnos}
         onVer={manejarDetalle}

@@ -59,7 +59,7 @@ const TablaFacturasProveedor = () => {
       </div>
 
       {/* Tabla */}
-      <DataTable
+      <DataTable id_tabla="facturaproveedor"
         columnas={columnasFacturasProveedor}
         datos={facturas}
         mostrarBuscador

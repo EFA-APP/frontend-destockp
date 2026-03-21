@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { CandadoIcono, ConfirmarContrasenaIcono, DocumentoIcono, EmailIcono, PersonaIcono } from "../../../assets/Icons";
+import { CandadoIcono, ConfirmarContrasenaIcono, ConsolaIcono, DocumentoIcono, EmailIcono, PersonaIcono } from "../../../assets/Icons";
 
 const iconosPorCampo = {
   email: <EmailIcono color="var(--primary-light)" />,
@@ -36,38 +36,85 @@ const FormularioAuth = ({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1b1e22] via-[#15171a] to-[#0a0c0e] relative overflow-hidden">
-      {/* Background glowing effects */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[var(--primary)]/10 rounded-full blur-[100px] pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[var(--primary-light)]/10 rounded-full blur-[100px] pointer-events-none"></div>
+    <div className="min-h-screen flex bg-[#090b0d] text-white overflow-hidden font-[Inter]">
+      
+      {/* PANEL IZQUIERDO: VISUAL / BRANDING */}
+      <div className="hidden md:flex flex-1 relative flex-col justify-between p-16 bg-gradient-to-br from-[#040506] via-[#0d1014] to-[var(--primary)]/10 overflow-hidden border-r border-white/[0.03]">
+        {/* Glows decorativos */}
+        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-[var(--primary)]/15 rounded-full blur-[120px] pointer-events-none animation-pulse" />
+        <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-[var(--primary-light)]/10 rounded-full blur-[150px] pointer-events-none" />
 
-      {/* Card */}
-      <div
-        className="
-          relative z-10
-          w-full max-w-sm
-          rounded-2xl
-          bg-white/[0.03]
-          backdrop-blur-xl
-          border border-white/10
-          shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]
-          px-8 py-10
-        "
-      >
-        {/* Header Section */}
-        <div className="flex items-center gap-5 mb-8">
-          <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--primary)]/20 to-transparent border border-[var(--primary)]/10 flex items-center justify-center p-2.5 shadow-inner">
-            <img src="/efa-logo.png" alt="Logo" className="w-full h-full object-contain filter drop-shadow-sm rounded-full!" />
+        {/* Logo superior */}
+        <div className="flex items-center gap-3 relative z-10">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[var(--primary)] to-[var(--primary-light)] p-0.5 shadow-lg">
+            <div className="w-full h-full bg-[#0d1014] rounded-[10px] flex items-center justify-center">
+              <ConsolaIcono size={28} color="var(--primary-light)" />
+            </div>
           </div>
-          <div className="text-left">
-            <h1 className="text-xl font-black text-[var(--text-primary)] tracking-tight uppercase leading-none mb-1">
-              Iniciar Sesión
-            </h1>
-            <p className="text-[10px] text-[var(--text-muted)] font-bold tracking-[0.2em] uppercase opacity-60">
-              Acceso al Sistema
-            </p>
+          <span className="text-lg font-black tracking-wider bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+            SISTEMA
+          </span>
+        </div>
+
+        {/* Contenido Central */}
+        <div className="relative z-10 max-w-lg">
+          <h1 className="text-5xl font-black tracking-tight leading-[1.1] text-white">
+            Optimiza tu gestión, <br />
+            <span className="bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] bg-clip-text text-transparent">
+              potencia tu negocio.
+            </span>
+          </h1>
+          <p className="mt-4 text-sm text-gray-400 font-medium max-w-sm leading-relaxed">
+            Accede a tu panel de control para gestionar inventario, ventas y métricas en tiempo real de forma inteligente.
+          </p>
+
+          {/* Micro-elementos decorativos (Features) */}
+          <div className="mt-10 grid grid-cols-2 gap-4">
+            <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] backdrop-blur-md">
+              <div className="text-[var(--primary)] font-black text-xl mb-1">99.9%</div>
+              <div className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Disponibilidad</div>
+            </div>
+            <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] backdrop-blur-md">
+              <div className="text-[var(--primary-light)] font-black text-xl mb-1">Rápido</div>
+              <div className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Acceso Seguro</div>
+            </div>
           </div>
         </div>
+
+        {/* Footer */}
+        <div className="relative z-10 text-[10px] text-gray-500 font-medium">
+          © 2026 Todos los derechos reservados. | v1.0.4
+        </div>
+      </div>
+
+      {/* PANEL DERECHO: FORMULARIO */}
+      <div className="flex-1 flex items-center justify-center p-6 md:p-12 relative bg-[#06080a]">
+        
+        {/* Glow decorativo de fondo */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[var(--primary)]/90! rounded-full blur-[100px] pointer-events-none md:hidden" />
+
+        {/* Card Contenedora */}
+        <div className="
+          w-full max-w-sm 
+          bg-[var(--surface)] backdrop-blur-xl 
+          border border-white/[0.10] 
+          rounded-3xl 
+          shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] 
+          p-8 md:p-10
+          animate-in fade-in slide-in-from-bottom-4 duration-500
+        ">
+          {/* Header del Formulario */}
+          <div className="mb-8 text-center md:text-left">
+            <div className="md:hidden flex justify-center mb-4">
+              <ConsolaIcono size={40} color="var(--primary-light)" />
+            </div>
+            <h2 className="text-2xl font-black text-white tracking-tight">
+              {titulo}
+            </h2>
+            <p className="text-xs text-gray-400 mt-1 font-medium">
+              {descripcion || "Ingresa tus credenciales para continuar"}
+            </p>
+          </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {campos.map((campo) => (
@@ -199,6 +246,7 @@ const FormularioAuth = ({
           )}
         </form>
       </div>
+     </div>
     </div>
   );
 };

@@ -68,7 +68,7 @@ const TablaMisComprobantesAFIP = () => {
       </div>
 
       {/* Tabla */}
-      <DataTable
+      <DataTable id_tabla="miscomprobantesafip"
         columnas={columnasMisComprobantesAFIP}
         datos={comprobantesAFIP}
         mostrarAcciones={true}

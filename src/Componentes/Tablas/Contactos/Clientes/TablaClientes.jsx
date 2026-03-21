@@ -39,7 +39,7 @@ const TablaClientes = () => {
         data={clienteSeleccionado}
         {...clienteConfig}
       />
-      <DataTable
+      <DataTable id_tabla="clientes"
         columnas={columnasClientes}
         datos={clientes}
         mostrarAcciones={true}

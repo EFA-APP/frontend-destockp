@@ -29,15 +29,9 @@ const TablaMateriaPrima = () => {
   // const [modalMasivoOpen, setModalMasivoOpen] = useState(false);
 
 
-  const handleGestionar = (materiaPrima) => {
-    navigate(`/panel/inventario/materia-prima/${materiaPrima.codigoSecuencial}/acciones`, {
-      state: { materiaPrima, initialTab: "info" }
-    });
-  };
-
-  const handleHistorial = (materiaPrima) => {
-    navigate(`/panel/inventario/materia-prima/${materiaPrima.codigoSecuencial}/acciones`, {
-      state: { materiaPrima, initialTab: "historial" }
+  const handleEditarClick = (materiaPrima) => {
+    navigate(`/panel/inventario/materia-prima/${materiaPrima.codigoSecuencial}/editar`, {
+      state: { materiaPrima}
     });
   };
 
@@ -72,15 +66,14 @@ const TablaMateriaPrima = () => {
         colorConfirmar="bg-red-600!"
       />
 
-      <DataTable
+      <DataTable id_tabla="materiaprima"
         columnas={columnasMateriaPrima}
         datos={materiasPrimas}
         loading={cargando}
         mostrarAcciones={true}
         acciones={accionesMateriaPrimas({
           handleEliminarClick,
-          handleGestionar,
-          handleHistorial,
+          handleEditarClick,
         })}
         botonAgregar={{
           texto: "Nueva Materia Prima",
@@ -94,13 +87,6 @@ const TablaMateriaPrima = () => {
             >
               <MovimientoIcono size={14} />
               Ajustes
-            </button>
-            <button
-              onClick={() => navigate("/panel/inventario/editar/materia-prima")}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 rounded-md text-[11px] font-bold text-blue-400 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-blue-500/5 group"
-            >
-              <EditarIcono size={14} className="group-hover:rotate-12 transition-transform" />
-              Editar
             </button>
             <button
               onClick={() => navigate("/panel/inventario/historial-stock/MATERIA_PRIMA")}

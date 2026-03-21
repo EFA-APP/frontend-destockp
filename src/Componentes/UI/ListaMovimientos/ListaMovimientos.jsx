@@ -1,9 +1,17 @@
 import { useState } from "react";
 import { useObtenerMovimientos } from "../../../Backend/Articulos/queries/Movimientos/useObtenerMovimientos.query";
-import { CargandoIcono, ProduccionIcono, BorrarIcono } from "../../../assets/Icons";
+import { useEliminarMovimiento } from "../../../Backend/Articulos/queries/Movimientos/useEliminarMovimiento.mutation";
+import { useAuthStore } from "../../../Backend/Autenticacion/store/authenticacion.store";
+import { CargandoIcono, ProduccionIcono, BorrarIcono, DescargarIcono } from "../../../assets/Icons";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import ReporteMovimientosPDF from "./ReporteMovimientosPDF";
 import FechaInput from "../FechaInput/FechaInput";
+import ModalConfirmacion from "../ModalConfirmacion/ModalConfirmacion";
 
 const ListaMovimientos = ({ codigoArticulo, tipoArticulo, filtroOrigen = null }) => {
+  const usuario = useAuthStore((state) => state.usuario);
+  const [movimientoAEliminar, setMovimientoAEliminar] = useState(null);
+  
   const formatDateForInput = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -25,6 +33,8 @@ const ListaMovimientos = ({ codigoArticulo, tipoArticulo, filtroOrigen = null })
     fechaFin
   );
 
+  const { mutate: eliminarMovimiento, isPending: isEliminando } = useEliminarMovimiento();
+
   const movimientos = filtroOrigen 
     ? rawMovimientos?.filter(m => m.origenMovimiento === filtroOrigen)
     : rawMovimientos;
@@ -32,6 +42,18 @@ const ListaMovimientos = ({ codigoArticulo, tipoArticulo, filtroOrigen = null })
   const clearFilters = () => {
     setFechaInicio("");
     setFechaFin("");
+  };
+
+  const handleEliminar = () => {
+    if (!movimientoAEliminar) return;
+    
+    eliminarMovimiento({
+      codigoEmpresa: usuario?.codigoEmpresa,
+      codigoSecuencial: movimientoAEliminar.codigoSecuencial,
+      tipoArticulo: tipoArticulo
+    }, {
+      onSuccess: () => setMovimientoAEliminar(null)
+    });
   };
 
   const formatFecha = (fechaStr) => {
@@ -108,12 +130,44 @@ const ListaMovimientos = ({ codigoArticulo, tipoArticulo, filtroOrigen = null })
         )}
       </div>
 
-      <div className="flex items-center justify-between mb-6 px-2">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 px-2 gap-4">
         <h4 className="text-[11px] font-black text-white/20 uppercase tracking-[0.2em] flex items-center gap-2.5">
           <ProduccionIcono size={12} color="var(--primary-light)" />
-          {tipoArticulo === "PRODUCTO" ? "Movimientos Global de Productos" : "Movimientos Global de Materia Prima"}
+          {tipoArticulo === "PRODUCTO" ? "Historial de Productos" : "Historial de Materia Prima"}
         </h4>
-        <div className="h-[1px] flex-1 mx-4 bg-gradient-to-r from-white/10 to-transparent" />
+        <div className="hidden sm:block h-[1px] flex-1 mx-4 bg-gradient-to-r from-white/10 to-transparent" />
+        
+        {/* PDF Export Button */}
+        {movimientos && movimientos.length > 0 && (
+          <PDFDownloadLink
+            document={
+              <ReporteMovimientosPDF 
+                movimientos={movimientos} 
+                tipoArticulo={tipoArticulo}
+                fechaInicio={fechaInicio}
+                fechaFin={fechaFin}
+              />
+            }
+            fileName={`reporte_${tipoArticulo.toLowerCase()}_${new Date().toISOString().split('T')[0]}.pdf`}
+          >
+            {({ loading, error }) => (
+              <button
+                disabled={loading}
+                className="flex items-center gap-2 px-4 py-2 rounded bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20 transition-all active:scale-95 disabled:opacity-50 cursor-pointer group whitespace-nowrap"
+                title={error ? "Error al generar PDF" : "Descargar Reporte PDF"}
+              >
+                {loading ? (
+                  <CargandoIcono size={14} className="animate-spin" />
+                ) : (
+                  <DescargarIcono size={14} className="group-hover:-translate-y-0.5 transition-transform" />
+                )}
+                <span className="text-[10px] font-black uppercase tracking-wider">
+                  {loading ? "Generando..." : "Descargar Reporte"}
+                </span>
+              </button>
+            )}
+          </PDFDownloadLink>
+        )}
       </div>
 
       {isLoading ? (
@@ -133,7 +187,7 @@ const ListaMovimientos = ({ codigoArticulo, tipoArticulo, filtroOrigen = null })
             return (
               <div key={idx} className="group">
                 {/* Desktop View: Formal Row */}
-                <div className="hidden md:grid grid-cols-[100px_1fr_120px_140px] gap-4 p-4 bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 rounded-md transition-all duration-300 items-center">
+                <div className="hidden md:grid grid-cols-[100px_1fr_120px_140px_auto] gap-4 p-4 bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 rounded-md transition-all duration-300 items-center">
                   <div className="flex flex-col">
                     <span className="text-[10px] text-white/40 font-bold uppercase tracking-tighter mb-1">
                       {formatFecha(mov.fecha).split(',')[0]}
@@ -185,6 +239,17 @@ const ListaMovimientos = ({ codigoArticulo, tipoArticulo, filtroOrigen = null })
                     </span>
                     <span className="text-[9px] text-white/20 font-bold uppercase tracking-[0.2em]">OPERADOR</span>
                   </div>
+
+                  {/* Delete Button Desktop */}
+                  <div className="pl-2">
+                    <button 
+                      onClick={() => setMovimientoAEliminar(mov)}
+                      className="p-2 rounded-md bg-rose-500/5 text-rose-500/30 hover:text-rose-500 hover:bg-rose-500/10 transition-all cursor-pointer group/del"
+                      title="Eliminar movimiento y revertir stock"
+                    >
+                      <BorrarIcono size={16} className="group-hover/del:scale-110 transition-transform" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Mobile View: Premium Card */}
@@ -198,7 +263,7 @@ const ListaMovimientos = ({ codigoArticulo, tipoArticulo, filtroOrigen = null })
                         {formatFecha(mov.fecha)}
                       </span>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right flex items-center gap-4">
                       <div className="text-lg font-black text-white tracking-tighter">
                         <span className={mov.tipoMovimiento === "INGRESO" ? "text-emerald-400" : mov.tipoMovimiento === "EGRESO" ? "text-rose-400" : "text-amber-400"}>
                           {config.simbolo}
@@ -206,6 +271,12 @@ const ListaMovimientos = ({ codigoArticulo, tipoArticulo, filtroOrigen = null })
                         {mov.cantidad}
                         <span className="text-[9px] text-white/30 ml-1 font-bold uppercase">{mov.unidadMedida || "un."}</span>
                       </div>
+                      <button 
+                        onClick={() => setMovimientoAEliminar(mov)}
+                        className="p-2 rounded bg-rose-500/10 text-rose-500"
+                      >
+                        <BorrarIcono size={14} />
+                      </button>
                     </div>
                   </div>
 
@@ -233,6 +304,21 @@ const ListaMovimientos = ({ codigoArticulo, tipoArticulo, filtroOrigen = null })
           })}
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ModalConfirmacion
+        open={!!movimientoAEliminar}
+        onClose={() => setMovimientoAEliminar(null)}
+        onConfirm={handleEliminar}
+        isPending={isEliminando}
+        titulo="Eliminar Movimiento"
+        mensaje={
+          movimientoAEliminar?.origenMovimiento === "PRODUCCION" 
+            ? "⚠️ Este es un movimiento de PRODUCCIÓN. Al eliminarlo se revertirá el stock del producto Y de todas las materias primas utilizadas. ¿Estás seguro?"
+            : `¿Estás seguro de que deseas eliminar este movimiento? El stock de ${movimientoAEliminar?.nombreArticulo} será revertido automáticamente.`
+        }
+        textoConfirmar="Eliminar y Revertir"
+      />
     </div>
   );
 };

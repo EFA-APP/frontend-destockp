@@ -68,23 +68,54 @@ const FormularioDinamico = ({
     }
   };
 
+  const formatNumber = (val) => {
+    if (val === null || val === undefined || val === "") return "";
+    // Usar locale español (punto para miles, coma para decimal)
+    return new Intl.NumberFormat("es-AR").format(val);
+  };
+
+  const parseNumber = (val) => {
+    if (typeof val === "number") return val;
+    // Eliminar puntos de miles y cambiar coma por punto decimal
+    const clean = val.replace(/\./g, "").replace(",", ".");
+    const parsed = parseFloat(clean);
+    return isNaN(parsed) ? 0 : parsed;
+  };
+
   const handleChange = (e) => {
     const { name, value, type } = e.target;
     let newValue = value;
 
-    if (type === "number") {
-      newValue = parseFloat(value) || 0;
+    const field = campos.find((f) => f.name === name);
+
+    if (field?.type === "number") {
+      newValue = parseNumber(value);
     } else if (type === "checkbox") {
       newValue = e.target.checked;
     }
 
     setFormData((prev) => {
-      const updated = { ...prev, [name]: newValue };
+      let updated = { ...prev, [name]: newValue };
 
+      // 1. Ejecutar cálculo específico si existe (legacy/especial)
       const field = campos.find((f) => f.name === name);
       if (field?.onChangeCalculate) {
-        return field.onChangeCalculate(updated, name);
+        updated = field.onChangeCalculate(updated, name);
       }
+
+      // 2. Recalcular todos los campos que tengan fórmulas dinámicas
+      campos.forEach((f) => {
+        if (f.formula) {
+           try {
+             const valorCalculado = evaluateFormula(f.formula, updated);
+             if (updated[f.name] !== valorCalculado) {
+                updated[f.name] = valorCalculado;
+             }
+           } catch (e) {
+             console.error(`Error en formula de ${f.name}:`, e);
+           }
+        }
+      });
 
       return updated;
     });
@@ -93,6 +124,29 @@ const FormularioDinamico = ({
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
+
+  const evaluateFormula = (formula, contexto) => {
+    let expresion = formula;
+    const regex = /\{(\w+)\}/g;
+    let match;
+
+    while ((match = regex.exec(formula)) !== null) {
+      const clave = match[1];
+      const valor = contexto[clave] !== undefined ? contexto[clave] : 0;
+      const valorNum = typeof valor === "number" ? valor : parseFloat(valor) || 0;
+      expresion = expresion.replace(match[0], valorNum);
+    }
+
+    try {
+      // Limpieza básica
+      if (/[^0-9+\-*/().\s]/.test(expresion)) return 0;
+      // eslint-disable-next-line no-eval
+      return eval(expresion);
+    } catch (e) {
+      return 0;
+    }
+  };
+
 
   // Manejo de items en tablas
   const handleItemChange = (tableName, fieldName, value) => {
@@ -142,7 +196,7 @@ const FormularioDinamico = ({
     // Resetear item actual con valores por defecto
     const resetItem = {};
     field.itemFields.forEach((f) => {
-      resetItem[f.name] = f.defaultValue || (f.type === "number" ? 0 : "");
+      resetItem[f.name] = f.defaultValue !== undefined ? f.defaultValue : (f.type === "number" ? 0 : f.type === "boolean" || f.type === "switch" ? false : "");
     });
     setCurrentItems((prev) => ({
       ...prev,
@@ -220,11 +274,11 @@ const FormularioDinamico = ({
   const renderField = (field) => {
     const isReadOnly = typeof field.readOnly === "function" ? field.readOnly(formData) : field.readOnly;
 
-    const commonClasses = `w-full px-4 py-2.5 rounded-md! border transition-all duration-300 bg-[var(--surface-hover)]/30! backdrop-blur-sm! ${errors[field.name]
-      ? "border-red-500/50! focus:ring-red-500/10!"
-      : "border-[var(--border-medium)]! focus:border-[var(--primary)]! focus:ring-[var(--primary)]/10!"
-      } focus:ring-4! focus:outline-none placeholder-[var(--text-muted)] ${isReadOnly ? "cursor-not-allowed opacity-60" : "hover:border-[var(--border-medium)]"
-      } ${formData[field.name] || field.defaultValue ? "text-[var(--primary-light)]! font-medium!" : "text-[var(--text-primary)]!"}`;
+    const commonClasses = `w-full px-5 py-3 md:px-4 md:py-2.5 rounded-xl! border transition-all duration-300 bg-[var(--surface-hover)]/20! backdrop-blur-md! shadow-sm ${errors[field.name]
+      ? "border-red-500/40! focus:ring-red-500/10!"
+      : "border-[var(--border-medium)]/40! focus:border-[var(--primary)]! focus:ring-[var(--primary)]/10!"
+      } focus:ring-4! focus:outline-none placeholder-[var(--text-muted)] ${isReadOnly ? "cursor-not-allowed opacity-60" : "hover:border-[var(--border-medium)]/80 hover:bg-[var(--surface-hover)]/40!"
+      } ${formData[field.name] || field.defaultValue ? "text-[var(--primary-light)]! font-bold!" : "text-[var(--text-primary)]!"}`;
 
     switch (field.type) {
       case "textarea":
@@ -264,13 +318,11 @@ const FormularioDinamico = ({
       case "number":
         return (
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
             name={field.name}
-            value={formData[field.name] || 0}
+            value={formatNumber(formData[field.name])}
             onChange={handleChange}
-            min={field.min}
-            max={field.max}
-            step={field.step || "1"}
             className={commonClasses}
             placeholder={field.placeholder}
             readOnly={isReadOnly}
@@ -387,6 +439,7 @@ const FormularioDinamico = ({
         );
       }
 
+      case "boolean":
       case "switch":
         return (
           <div className="flex items-center mt-2 h-10">
@@ -429,7 +482,7 @@ const FormularioDinamico = ({
     if (Object.keys(currentItem).length === 0) {
       const initial = {};
       field.itemFields.forEach((f) => {
-        initial[f.name] = f.defaultValue || (f.type === "number" ? 0 : "");
+        initial[f.name] = f.defaultValue !== undefined ? f.defaultValue : (f.type === "number" ? 0 : f.type === "boolean" || f.type === "switch" ? false : "");
       });
       setCurrentItems((prev) => ({
         ...prev,
@@ -472,26 +525,42 @@ const FormularioDinamico = ({
                     </option>
                   ))}
                 </select>
+              ) : itemField.type === "boolean" || itemField.type === "switch" ? (
+                <div className="flex items-center h-10">
+                  <label className="relative inline-flex items-center cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={!!currentItem[itemField.name]}
+                      onChange={(e) =>
+                        handleItemChange(field.name, itemField.name, e.target.checked)
+                      }
+                      className="sr-only peer"
+                    />
+                    <div
+                      className={`w-11 h-6 bg-[var(--surface-hover)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--primary)] transition-colors border border-[var(--border-medium)]`}
+                    ></div>
+                  </label>
+                </div>
               ) : (
                 <input
-                  type={itemField.type || "text"}
+                  type={itemField.type === "number" ? "text" : (itemField.type || "text")}
+                  inputMode={itemField.type === "number" ? "numeric" : undefined}
                   value={
-                    currentItem[itemField.name] || itemField.defaultValue || ""
+                    itemField.type === "number" 
+                      ? formatNumber(currentItem[itemField.name])
+                      : currentItem[itemField.name] || itemField.defaultValue || ""
                   }
                   onChange={(e) =>
                     handleItemChange(
                       field.name,
                       itemField.name,
                       itemField.type === "number"
-                        ? parseFloat(e.target.value) || 0
+                        ? parseNumber(e.target.value)
                         : e.target.value
                     )
                   }
                   className={`w-full px-3 py-2 bg-[var(--surface-hover)]/30! backdrop-blur-sm! border! border-[var(--border-medium)]/50! rounded-md! text-[var(--text-primary)]! focus:border-[var(--primary)]! focus:ring-4! focus:ring-[var(--primary)]/10! transition-all duration-300`}
                   placeholder={itemField.placeholder}
-                  min={itemField.min}
-                  max={itemField.max}
-                  step={itemField.step}
                 />
               )}
             </div>
@@ -507,48 +576,79 @@ const FormularioDinamico = ({
           </div>
         </div>
 
-        {/* Tabla de items agregados */}
+        {/* Tabla / Tarjetas de items agregados */}
         {items.length > 0 && (
           <>
-            <div className="overflow-x-auto w-full">
-              <table className="w-full text-md border-separate border-spacing-y-2">
-                <thead className="text-[var(--text-muted)]">
-                  <tr className="bg-[var(--surface-hover)]/50">
-                    {field.tableColumns?.map((col) => (
-                      <th
-                        key={col.key}
-                        className={`px-4 py-3 text-[10px] font-bold uppercase tracking-widest ${col.align || "text-left"}`}
+            {/* Vista Mobile (Card Based) */}
+            <div className="md:hidden space-y-4">
+              {items.map((item, idx) => (
+                <div key={item.id} className="relative p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="flex justify-between items-start mb-4">
+                      <span className="px-3 py-1 rounded-full bg-[var(--primary-subtle)]/50 text-[var(--primary)] text-[9px] font-black uppercase tracking-widest">
+                        Ítem #{idx + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeItem(field.name, item.id)}
+                        className="w-8 h-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center border border-red-500/10 active:scale-90 transition-all"
                       >
-                        {col.label}
-                      </th>
-                    ))}
-                    <th className="px-4 py-3 rounded-r-xl"></th>
-                  </tr>
-                </thead>
-                <tbody className="text-[var(--text-primary)]">
-                  {items.map((item) => (
-                    <tr key={item.id} className="bg-[var(--surface)]/50 backdrop-blur-sm border border-[var(--border-subtle)] hover:bg-[var(--surface-hover)]/30 transition-colors">
+                        <BorrarIcono size={14} />
+                      </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
                       {field.tableColumns?.map((col) => (
-                        <td
-                          key={col.key}
-                          className={`px-4 py-3 text-sm ${col.align || "text-left"}`}
-                        >
-                          {col.render ? col.render(item) : item[col.key]}
-                        </td>
+                        <div key={col.key} className="flex flex-col gap-1">
+                          <span className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-wider opacity-60">{col.label}</span>
+                          <div className="text-[13px] font-bold text-[var(--text-primary)]">
+                            {col.render ? col.render(item) : item[col.key]}
+                          </div>
+                        </div>
                       ))}
-                      <td className="px-4 py-3 text-right">
-                        <button
-                          type="button"
-                          onClick={() => removeItem(field.name, item.id)}
-                          className="p-2 rounded-lg text-red-500 hover:bg-red-500/10 transition-all cursor-pointer"
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Vista Desktop (Tabla Tradicional) */}
+            <div className="hidden md:block overflow-x-auto w-full mt-4">
+                <table className="w-full text-md border-separate border-spacing-y-2">
+                  <thead className="text-[var(--text-muted)]">
+                    <tr className="bg-[var(--surface-hover)]/50">
+                      {field.tableColumns?.map((col) => (
+                        <th
+                          key={col.key}
+                          className={`px-4 py-3 text-[10px] font-bold uppercase tracking-widest ${col.align || "text-left"}`}
                         >
-                          <BorrarIcono size={16} />
-                        </button>
-                      </td>
+                          {col.label}
+                        </th>
+                      ))}
+                      <th className="px-4 py-3 rounded-r-xl"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="text-[var(--text-primary)]">
+                    {items.map((item) => (
+                      <tr key={item.id} className="bg-[var(--surface)]/50 backdrop-blur-sm border border-[var(--border-subtle)] hover:bg-[var(--surface-hover)]/30 transition-colors">
+                        {field.tableColumns?.map((col) => (
+                          <td
+                            key={col.key}
+                            className={`px-4 py-3 text-sm ${col.align || "text-left"}`}
+                          >
+                            {col.render ? col.render(item) : item[col.key]}
+                          </td>
+                        ))}
+                        <td className="px-4 py-3 text-right">
+                          <button
+                            type="button"
+                            onClick={() => removeItem(field.name, item.id)}
+                            className="p-2 rounded-lg text-red-500 hover:bg-red-500/10 transition-all cursor-pointer"
+                          >
+                            <BorrarIcono size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
             </div>
 
             {/* Totales si están definidos */}
@@ -575,7 +675,7 @@ const FormularioDinamico = ({
     <div className="w-full bg-[var(--surface)] rounded-md! shadow-md overflow-hidden">
       {/* Header */}
       <div className="relative bg-gradient-to-r from-[var(--primary)]/10 to-transparent px-8 py-4 md:flex md:flex-col md:items-center md:justify-center border-b border-[var(--border-subtle)]">
-        <h2 className="text-3xl font-bold text-[var(--text-primary)] tracking-tight">{titulo}</h2>
+        <h2 className="text-xl md:text-3xl font-bold text-[var(--text-primary)] tracking-tight">{titulo}</h2>
         <p className="text-[var(--text-secondary)] mt-1.5 text-base font-medium">{subtitulo}</p>
       </div>
 
@@ -638,13 +738,13 @@ const FormularioDinamico = ({
             </div>
           ))}
           {/* Botones */}
-          <div className="mt-8 pt-8 border-t border-[var(--border-subtle)]">
-            <div className="flex justify-end gap-4">
+          <div className="mt-8 pt-8 border-t border-white/5">
+            <div className="flex flex-col md:flex-row justify-end gap-4">
               {onCancel && (
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="px-6 py-2.5 rounded-md! border border-[var(--border-medium)] text-[var(--text-secondary)] font-bold text-[10px] uppercase tracking-widest hover:bg-[var(--surface-hover)] transition-all cursor-pointer"
+                  className="w-full md:w-auto px-8 py-3.5 rounded-xl! border border-white/10 text-[var(--text-muted)] font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-white/5 hover:text-white transition-all cursor-pointer text-center"
                 >
                   {cancelLabel}
                 </button>
@@ -652,9 +752,9 @@ const FormularioDinamico = ({
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="px-8 py-3 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-active)]! text-white! rounded-md! hover:-translate-y-0.5! active:translate-y-0! transition-all! duration-300! shadow-lg! shadow-[var(--primary)]/25! hover:shadow-[var(--primary)]/40! font-bold! text-[11px]! uppercase! tracking-[0.1em]! cursor-pointer! flex items-center gap-2"
+                className="w-full md:w-auto px-10 py-4 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-active)]! text-white! rounded-xl! hover:-translate-y-1! active:translate-y-0.5! transition-all! duration-300! shadow-2xl! shadow-[var(--primary)]/30! hover:shadow-[var(--primary)]/50! font-black! text-[11px]! uppercase! tracking-[0.2em]! cursor-pointer! flex items-center justify-center gap-3 border-t border-white/20"
               >
-                <GuardarIcono size={16} />
+                <GuardarIcono size={18} />
                 {submitLabel}
               </button>
             </div>

@@ -1,22 +1,14 @@
-import { EditarIcono, HistorialIcono } from "../../../../assets/Icons";
 import { accionesReutilizables } from "../../../UI/AccionesReutilizables/accionesReutilizables";
 
 export const accionesMateriaPrimas = ({
   handleEliminarClick,
-  handleGestionar,
-  handleHistorial,
+  handleEditarClick,
 }) => [
     {
-      label: "Editar Artículo",
-      icon: <EditarIcono size={16} />,
-      color: "text-blue-500",
-      onClick: handleGestionar,
-    },
-    {
-      label: "Ver Historial",
-      icon: <HistorialIcono size={16} />,
-      color: "text-amber-500",
-      onClick: handleHistorial,
+      ...accionesReutilizables.editar,
+      onClick: (fila) => {
+        handleEditarClick(fila)
+      },
     },
     {
       ...accionesReutilizables.eliminar,

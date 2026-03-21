@@ -18,5 +18,7 @@ export const useObtenerProductos = (filtros) => {
                 throw error;
             }
         },
+        refetchInterval: 10000, // Refresh every 10 seconds
+        refetchIntervalInBackground: true,
     });
 };

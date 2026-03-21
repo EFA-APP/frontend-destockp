@@ -1,7 +1,5 @@
 import { useUserPermissions } from "../../../Backend/Autenticacion/hooks/useUserPermissions";
-import { LogOut, Package, ShoppingCart, UserCheck, ShieldCheck } from "lucide-react";
-import { Link } from "react-router-dom";
-import React from "react";
+import { LogOut, UserCheck, ShieldCheck } from "lucide-react";
 
 const Bienvenida = () => {
   const { usuario } = useUserPermissions();
@@ -21,7 +19,7 @@ const Bienvenida = () => {
 
         {/* Textos de Bienvenida */}
         <h1 className="text-2xl md:text-4xl font-black text-white px-2">
-          ¡Hola, <span className="bg-gradient-to-r from-[var(--primary)] to-amber-500 bg-clip-text text-transparent">{usuario?.nombre || "Usuario"}</span>!
+          ¡Hola, <span className="bg-gradient-to-r from-[var(--primary)] to-amber-500 bg-clip-text text-transparent">{`${usuario?.nombre.toUpperCase()} ${usuario?.apellido.toUpperCase()}`}</span>!
         </h1>
         <p className="text-[12px] md:text-sm text-[var(--text-secondary)] font-medium mt-3 max-w-md leading-relaxed">
           Bienvenido de vuelta al <span className="text-[var(--primary)] font-black">SISTEMA</span>. ¿Qué operación deseas realizar hoy en el sistema?
@@ -29,7 +27,7 @@ const Bienvenida = () => {
 
         {/* Información de Sesión */}
         <p className="text-[9px] text-[var(--text-muted)] uppercase tracking-wider font-bold mt-8 flex items-center gap-1.5">
-          <UserCheck size={12} className="text-[var(--primary)]" /> Rol Activo: {usuario?.Rol?.nombre || "Operador"}
+          <UserCheck size={12} className="text-[var(--primary)]" /> Rol Activo: {usuario?.roles?.map(rol => rol.nombre).join(", ") || "Operador"}
         </p>
 
         {/* Botón Salir */}

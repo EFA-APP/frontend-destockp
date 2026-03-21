@@ -88,11 +88,19 @@ const BarraLateral = () => {
           }`}>
           <Link to="/" className="relative group/logo">
             <div className="absolute -inset-1 bg-gradient-to-tr from-[var(--primary)] to-[var(--primary-subtle)] rounded-full blur opacity-25 group-hover/logo:opacity-50 transition duration-300" />
-            <img
-              alt="logo"
-              className="relative w-10 h-10 rounded-full border-2 border-white shadow-sm object-contain bg-white"
-              src="/efa-logo.png"
-            />
+            {
+              usuario?.configuracionVisual?.logoUrl ? (
+                <img
+                  alt="logo"
+                  className="relative w-10 h-10 rounded-full border-2 border-white shadow-sm object-contain bg-white"
+                  src={usuario?.configuracionVisual?.logoUrl}
+                />
+              ) : (
+                <div className="flex items-center justify-center relative w-10 h-10 rounded-full border-2 border-[var(--border-subtle)] shadow-sm bg-[var(--surface-hover)]">
+                  <Icons.ConsolaIcono size={18} color="var(--primary)" />
+                </div>
+              )
+            }
           </Link>
           {isExpanded && (
             <div className="ml-3 flex flex-col animate-in fade-in slide-in-from-left-2 duration-300">

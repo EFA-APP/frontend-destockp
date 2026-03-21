@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { X, Mail, Lock, UserPlus, Shield } from 'lucide-react';
 import { useRegistrarUsuario } from '../../../../../Backend/Autenticacion/queries/Usuario/useRegistrarUsuario.mutation';
 import { useObtenerRoles } from '../../../../../Backend/Autenticacion/queries/Rol/useObtenerRoles.query';
-import { useAsignarRol } from '../../../../../Backend/Autenticacion/queries/Usuario/useAsignarRol.mutation';
 import ModalDetalleBase from '../../../../UI/ModalDetalleBase/ModalDetalleBase';
 
 const ModalCrearUsuario = ({ isOpen, onClose }) => {
@@ -11,11 +10,10 @@ const ModalCrearUsuario = ({ isOpen, onClose }) => {
     
     // Mutations & Queries
     const { mutate: registrarUsuario, isPending: isPendingRegistrar } = useRegistrarUsuario();
-    const { mutate: asignarRol, isPending: isPendingAsignar } = useAsignarRol();
     const { data: rolesResponse, isLoading: cargandoRoles } = useObtenerRoles();
 
     const roles = Array.isArray(rolesResponse) ? rolesResponse : (rolesResponse?.data || []);
-    const isPending = isPendingRegistrar || isPendingAsignar;
+    const isPending = isPendingRegistrar;
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -43,31 +41,20 @@ const ModalCrearUsuario = ({ isOpen, onClose }) => {
         const tieneErrores = errores.correoElectronico || errores.contrasena;
         if (!form.nombre.trim() || !form.apellido.trim() || !form.correoElectronico.trim() || !form.contrasena.trim() || !form.codigoRol || tieneErrores) return;
 
-        // 📝 1. Registrar el usuario
+        // 📝 1. Registrar el usuario (incluyendo el rol)
         registrarUsuario(
             {
                 nombre: form.nombre,
                 apellido: form.apellido,
                 correoElectronico: form.correoElectronico,
-                contrasena: form.contrasena
+                contrasena: form.contrasena,
+                codigoRol: Number(form.codigoRol)
             },
             {
-                onSuccess: (nuevoUsuario) => {
-                    // 📝 2. Si se registró bien, asignar el rol con el codigoSecuencial que ahora retorna el backend
-                    if (nuevoUsuario && nuevoUsuario.codigoSecuencial) {
-                        asignarRol({
-                            codigoUsuario: Number(nuevoUsuario.codigoSecuencial),
-                            codigoRol: Number(form.codigoRol)
-                        }, {
-                            onSuccess: () => {
-                                setForm({ nombre: '', apellido: '', correoElectronico: '', contrasena: '', codigoRol: '' });
-                                onClose();
-                            }
-                        });
-                    } else {
-                        // Respaldo por si no devolvía el código (no debería pasar con la fix del backend)
-                        onClose();
-                    }
+                onSuccess: () => {
+                    // Si se registró bien, el backend ya asignó el rol
+                    setForm({ nombre: '', apellido: '', correoElectronico: '', contrasena: '', codigoRol: '' });
+                    onClose();
                 }
             }
         );

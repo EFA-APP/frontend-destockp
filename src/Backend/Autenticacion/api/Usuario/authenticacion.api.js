@@ -57,3 +57,13 @@ export const cambiarContrasenaApi = async (data) => {
   const respuesta = await axiosInitial.post("/auth/perfil/cambiar-contrasena", data, { showLoader: true });
   return respuesta.data;
 };
+
+export const actualizarPreferenciasTablaApi = async (data) => {
+  const respuesta = await axiosInitial.patch("/auth/empresa/preferencias-tabla", data, { showLoader: false });
+  return respuesta.data;
+};
+
+export const actualizarConfiguracionVisualApi = async (data) => {
+  const respuesta = await axiosInitial.patch("/auth/empresa/configuracionVisual", data, { showLoader: true });
+  return respuesta.data;
+};

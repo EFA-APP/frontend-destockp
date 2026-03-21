@@ -19,3 +19,8 @@ export const actualizarRolApi = async (codigo, data) => {
     const respuesta = await axiosInitial.patch(`/roles/actualizar?codigo=${codigo}`, data, { showLoader: false, checkAuth: true });
     return respuesta.data;
 }
+
+export const eliminarRolApi = async (codigo) => {
+    const respuesta = await axiosInitial.delete(`/roles/${codigo}`, { showLoader: false, checkAuth: true });
+    return respuesta.data;
+}

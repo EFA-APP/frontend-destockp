@@ -6,20 +6,57 @@ import DataTable from "../../../UI/DataTable/DataTable";
 import ModalConfirmacion from "../../../UI/ModalConfirmacion/ModalConfirmacion";
 import { columnasProductos } from "./ColumnaProductos";
 import { accionesProductos } from "./AccionesProductos";
-import { BorrarIcono, MovimientoIcono, HistorialIcono, ProduccionIcono, EditarIcono, InventarioIcono } from "../../../../assets/Icons";
+import { HistorialIcono, ProduccionIcono, EditarIcono, InventarioIcono } from "../../../../assets/Icons";
+import { FileSpreadsheet } from "lucide-react";
+import ModalCargaMasivaProductos from "../../../Modales/Articulos/ModalCargaMasivaProductos";
 // import ModalCargaMasivaMovimientos from "../../../Modales/Articulos/ModalCargaMasivaMovimientos";
+const formatVal = (val) => {
+    if (val === null || val === undefined) return "";
+    const parsed = typeof val === 'string' && val.trim() !== '' && !isNaN(val) ? Number(val) : val;
+    if (typeof parsed === 'number' && !isNaN(parsed)) {
+        return new Intl.NumberFormat("es-AR").format(parsed);
+    }
+    return val;
+};
 
 
 const TablaProductos = () => {
   const navigate = useNavigate();
+
+  // Estados locales para filtros API y paginación
+  const [filtros, setFiltros] = useState({ pagina: 1, limite: 10 });
+  const [busquedaInput, setBusquedaInput] = useState("");
+  const [busquedaClave, setBusquedaClave] = useState("nombre"); // 'nombre' o 'codigo'
+
+  // Debounce para aplicar la búsqueda al backend
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFiltros(prev => {
+        const nuevos = { ...prev, pagina: 1 }; // Reset page on new search
+        delete nuevos.buscarPorNombre;
+        delete nuevos.buscarPorCodigo;
+
+        if (busquedaInput) {
+          if (busquedaClave === 'nombre') nuevos.buscarPorNombre = busquedaInput;
+          if (busquedaClave === 'codigo') {
+            const num = Number(busquedaInput);
+            if (!isNaN(num)) nuevos.buscarPorCodigo = num;
+          }
+        }
+        return nuevos;
+      });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [busquedaInput, busquedaClave]);
+
   const {
     productos,
-    busqueda,
-    setBusqueda,
+    meta,
     eliminarProducto,
     cargando,
-    estaEliminando
-  } = useProductoUI();
+    estaEliminando,
+    refetch
+  } = useProductoUI(filtros);
 
   const [camposDinamicos, setCamposDinamicos] = useState([]);
 
@@ -73,7 +110,7 @@ const TablaProductos = () => {
             return (
               <div className="py-2">
                 <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border backdrop-blur-md ${config.bg} ${config.color} ${config.border} ${config.glow} transition-all duration-300`}>
-                  <span className="text-[12px] font-black tracking-tight">{valor || 0}</span>
+                  <span className="text-[12px] font-black tracking-tight">{formatVal(valor || 0)}</span>
                 </div>
               </div>
             );
@@ -91,7 +128,7 @@ const TablaProductos = () => {
         const valor = fila.atributos?.[c.claveCampo];
         return (
           <div className="text-[12px] text-[var(--text-secondary)] font-bold tracking-tight">
-            {valor === true ? "SÍ" : valor === false ? "NO" : typeof valor === 'number' ? valor : valor || "-"}
+            {valor === true ? "SÍ" : valor === false ? "NO" : formatVal(valor) || "-"}
           </div>
         );
       }
@@ -105,7 +142,9 @@ const TablaProductos = () => {
     nombre: "",
   });
 
-  // const [modalMasivoOpen, setModalMasivoOpen] = useState(false);
+  const [modalMasivoOpen, setModalMasivoOpen] = useState(false);
+
+  // const [modalMasivoMovimientosOpen, setModalMasivoMovimientosOpen] = useState(false);
 
 
   const handleGestionar = (producto) => {
@@ -132,6 +171,19 @@ const TablaProductos = () => {
     });
   };
 
+  const handleEditarClick = (item) => {
+    const { codigoSecuencial } = item;
+    navigate(`/panel/inventario/productos/${codigoSecuencial}/editar`, {
+      state: { producto: item }
+    });
+  };
+
+  const handleDuplicarClick = (item) => {
+    navigate(`/panel/inventario/productos/nuevo`, {
+      state: { producto: item }
+    });
+  };
+
   const confirmarEliminacion = async () => {
     try {
       await eliminarProducto(confirmarEliminar.codigo);
@@ -154,64 +206,67 @@ const TablaProductos = () => {
         colorConfirmar="bg-red-600!"
       />
 
-      <DataTable
+      <DataTable id_tabla="productos"
         columnas={columnasAMostrar}
         datos={productos}
         loading={cargando}
+        meta={meta}
+        onPageChange={(pagina) => setFiltros(prev => ({ ...prev, pagina }))}
+        onLimitChange={(limite) => setFiltros(prev => ({ ...prev, limite, pagina: 1 }))}
         mostrarAcciones={true}
         acciones={accionesProductos({
+          handleEditarClick,
           handleEliminarClick,
-          handleGestionar,
-          handleProduccion,
-          handleHistorial,
+          handleDuplicarClick,
         })}
         botonAgregar={{
           texto: "Nuevo Producto",
           ruta: "/panel/inventario/productos/nuevo",
         }}
         elementosSuperior={(
-          <div className="flex items-center gap-2">
-            {/* <button
-              onClick={() => navigate("/panel/inventario/ajuste-stock/PRODUCTO")}
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-[11px] font-bold text-white uppercase tracking-wider transition-all cursor-pointer"
-            >
-              <MovimientoIcono size={14} />
-              Ajustes
-            </button> */}
+          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
             <button
               onClick={() => navigate("/panel/inventario/historial-stock/PRODUCTO")}
-              className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border border-[var(--primary)]/20 rounded-md text-[11px] font-bold text-[var(--primary)] uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-amber-500/5 group"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border border-[var(--primary)]/20 rounded-md text-[11px] font-bold text-[var(--primary)] uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-amber-500/5 group"
             >
               <HistorialIcono size={14} className="group-hover:scale-110 transition-transform" />
               Historial
             </button>
             <button
               onClick={() => navigate("/panel/inventario/produccion/nueva")}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/20 rounded-md text-[11px] font-bold text-purple-400 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-purple-500/5 group"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/20 rounded-md text-[11px] font-bold text-purple-400 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-purple-500/5 group"
             >
               <ProduccionIcono size={14} className="group-hover:rotate-12 transition-transform" />
               Producción
             </button>
             <button
-              onClick={() => navigate("/panel/inventario/editar/productos")}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 rounded-md text-[11px] font-bold text-blue-400 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-blue-500/5 group"
+              onClick={() => setModalMasivoOpen(true)}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 rounded-md text-[11px] font-bold text-emerald-400 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-emerald-500/5 group"
             >
-              <EditarIcono size={14} className="group-hover:rotate-12 transition-transform" />
-              Editar
+              <FileSpreadsheet size={14} className="group-hover:scale-110 transition-transform" />
+              Carga Masiva
             </button>
           </div>
         )}
         mostrarBuscador={true}
-        busqueda={busqueda}
-        setBusqueda={setBusqueda}
-        placeholderBuscador="Filtrar por producto"
+        busqueda={busquedaInput}
+        setBusqueda={setBusquedaInput}
+        opcionesBusqueda={[
+          { label: 'Por Nombre', value: 'nombre' },
+          { label: 'Por Código', value: 'codigo' }
+        ]}
+        busquedaClave={busquedaClave}
+        setBusquedaClave={setBusquedaClave}
+        placeholderBuscador="Escribe para buscar..."
       />
 
-      {/* <ModalCargaMasivaMovimientos
+      <ModalCargaMasivaProductos
         open={modalMasivoOpen}
         onClose={() => setModalMasivoOpen(false)}
-        tipo="PRODUCTO"
-      /> */}
+        onExito={() => {
+          refetch();
+        }}
+      />
     </div>
 
   );
