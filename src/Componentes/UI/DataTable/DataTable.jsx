@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../Backend/Autenticacion/store/authenticacion.store";
 import { useActualizarPreferencias } from "../../../Backend/Autenticacion/queries/Usuario/useActualizarPreferencias.mutation";
 import { TieneAccion } from "../TieneAccion/TieneAccion";
+import { usePermisosDeUsuario } from "../../../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
 
 /* =====================================================
    SUBCOMPONENTES INTERNOS
@@ -501,6 +502,7 @@ const DataTable = ({
 
   const { usuario } = useAuthStore();
   const { mutate: actualizarPreferencias } = useActualizarPreferencias();
+  const { tieneAccion } = usePermisosDeUsuario();
   const esAdmin = usuario?.roles?.some((r) => r.nombre === "ADMINISTRADOR");
 
   // 1. Cargar preferencias o columnas del prop
@@ -568,6 +570,9 @@ const DataTable = ({
   const handleHeaderClick = (e, col) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // Validar permiso antes de abrir el menú de columnas
+    if (!tieneAccion("COLUMNAS")) return;
 
     if (columnaMenuAbierta?.key === col.key) {
       setColumnaMenuAbierta(null);
@@ -703,105 +708,6 @@ const DataTable = ({
                 </button>
               )}
 
-              {/* CONFIGURADOR DE COLUMNAS */}
-              <TieneAccion accion="COLUMNAS">
-                <div className="relative">
-                  <button
-                    onClick={() => setMenuColumnasAbierto(!menuColumnasAbierto)}
-                    className={`flex items-center! gap-2! px-4! py-2! rounded-lg! border! transition-all! text-[11px]! font-bold! uppercase! tracking-wider! cursor-pointer! ${
-                      menuColumnasAbierto
-                        ? "bg-[var(--primary-subtle)]! text-[var(--primary)]! border-[var(--primary)]/30"
-                        : "bg-[var(--surface)]! text-[var(--text-secondary)]! border-[var(--border-subtle)]! hover:bg-[var(--surface-hover)]!"
-                    }`}
-                  >
-                    <ConfiguracionIcono
-                      size={14}
-                      color={
-                        menuColumnasAbierto ? "var(--primary)" : "currentColor"
-                      }
-                    />
-                    Columnas
-                  </button>
-
-                  {menuColumnasAbierto && (
-                    <div className="absolute top-11 left-0 md:left-auto md:right-0 z-[100] bg-[var(--surface)]/95 backdrop-blur-md border border-[var(--border-medium)]/30 rounded-md shadow-lg p-3 w-64 animate-in fade-in slide-in-from-top-1">
-                      <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-[var(--border-subtle)]/50">
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]" />
-                          <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                            Configurar Columnas
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => setMenuColumnasAbierto(false)}
-                          className="text-[var(--text-muted)] hover:text-[var(--text-primary)] p-0.5 rounded-md hover:bg-[var(--surface-hover)] transition-all"
-                        >
-                          <X size={12} />
-                        </button>
-                      </div>
-                      <div className="flex flex-col gap-1 max-h-60 overflow-y-auto no-scrollbar pr-0.5">
-                        {columnasVisibles.map((col, index) => (
-                          <div
-                            key={col.key || index}
-                            className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-[var(--surface-hover)]/30 border border-transparent hover:border-[var(--border-subtle)]/10 transition-all duration-150"
-                          >
-                            <div className="flex items-center gap-2 max-w-[70%]">
-                              <input
-                                type="checkbox"
-                                checked={col.visible !== false}
-                                onChange={() => {
-                                  const nuevas = [...columnasVisibles];
-                                  nuevas[index].visible =
-                                    !nuevas[index].visible;
-                                  setColumnasVisibles(nuevas);
-                                }}
-                                className="rounded-sm border-[var(--border-medium)] text-[var(--primary)] focus:ring-[var(--primary)]/10 cursor-pointer w-3.5 h-3.5"
-                              />
-                              <span className="text-[12px] text-[var(--text-primary)] font-medium truncate">
-                                {col.etiqueta}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-0.5">
-                              <button
-                                disabled={index === 0}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const nuevas = [...columnasVisibles];
-                                  [nuevas[index], nuevas[index - 1]] = [
-                                    nuevas[index - 1],
-                                    nuevas[index],
-                                  ];
-                                  setColumnasVisibles(nuevas);
-                                }}
-                                className="p-1 hover:bg-[var(--primary-subtle)] rounded-md text-[var(--text-muted)] hover:text-[var(--primary)] disabled:opacity-30 disabled:pointer-events-none transition-colors"
-                                title="Subir"
-                              >
-                                <ChevronUp size={12} />
-                              </button>
-                              <button
-                                disabled={index === columnasVisibles.length - 1}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const nuevas = [...columnasVisibles];
-                                  [nuevas[index], nuevas[index + 1]] = [
-                                    nuevas[index + 1],
-                                    nuevas[index],
-                                  ];
-                                  setColumnasVisibles(nuevas);
-                                }}
-                                className="p-1 hover:bg-[var(--primary-subtle)] rounded-md text-[var(--text-muted)] hover:text-[var(--primary)] disabled:opacity-30 disabled:pointer-events-none transition-colors"
-                                title="Bajar"
-                              >
-                                <ChevronDown size={12} />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </TieneAccion>
             </div>
 
             <div className="flex flex-col sm:flex-row flex-wrap items-center gap-3 w-full lg:w-auto lg:ml-auto">
@@ -976,10 +882,12 @@ const DataTable = ({
                   >
                     <div className="flex items-center gap-1.5 select-none">
                       {col.etiqueta}
-                      <ChevronDown
-                        size={12}
-                        className={`opacity-0 group-hover/th:opacity-100 transition-all ${columnaMenuAbierta?.key === col.key ? "rotate-180 opacity-100 text-[var(--primary)]" : ""}`}
-                      />
+                      {tieneAccion("COLUMNAS") && (
+                        <ChevronDown
+                          size={12}
+                          className={`opacity-0 group-hover/th:opacity-100 transition-all ${columnaMenuAbierta?.key === col.key ? "rotate-180 opacity-100 text-[var(--primary)]" : ""}`}
+                        />
+                      )}
                     </div>
 
                     {/* Menú Contextual de Columna */}
