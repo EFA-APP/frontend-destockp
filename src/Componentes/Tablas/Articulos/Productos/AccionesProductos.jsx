@@ -1,21 +1,34 @@
 import { accionesReutilizables } from "../../../UI/AccionesReutilizables/accionesReutilizables";
-import { Copy } from "lucide-react";
 
 export const accionesProductos = ({
   handleEditarClick,
   handleEliminarClick,
   handleDuplicarClick,
+  tieneAccion,
 }) => [
-    {
-      ...accionesReutilizables.editar,
-      onClick: (fila) => handleEditarClick(fila),
-    },
-    {
-      ...accionesReutilizables.duplicar,
-      onClick: (fila) => handleDuplicarClick(fila),
-    },
-    {
-      ...accionesReutilizables.eliminar,
-      onClick: (fila) => handleEliminarClick(fila.codigoSecuencial, fila.nombre),
-    },
-  ];
+  ...(tieneAccion("EDITAR_PRODUCTO")
+    ? [
+        {
+          ...accionesReutilizables.editar,
+          onClick: (fila) => handleEditarClick(fila),
+        },
+      ]
+    : []),
+  ...(tieneAccion("DUPLICAR_PRODUCTO")
+    ? [
+        {
+          ...accionesReutilizables.duplicar,
+          onClick: (fila) => handleDuplicarClick(fila),
+        },
+      ]
+    : []),
+  ...(tieneAccion("ELIMINAR_PRODUCTO")
+    ? [
+        {
+          ...accionesReutilizables.eliminar,
+          onClick: (fila) =>
+            handleEliminarClick(fila.codigoSecuencial, fila.nombre),
+        },
+      ]
+    : []),
+];

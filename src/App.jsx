@@ -7,6 +7,7 @@ import { useVerificarToken } from "./Backend/Autenticacion/queries/Usuario/useVe
 import { useLocation } from "react-router-dom";
 import useCargadorStore from "./store/useCargadorStore";
 import { useAuthStore } from "./Backend/Autenticacion/store/authenticacion.store";
+import { ControladorVersiones } from "./Componentes/ControladorVersiones/ControladorVersiones";
 
 const hexToHsl = (hex) => {
   if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return { h: 0, s: 0, l: 0 };
@@ -74,6 +75,7 @@ export default function App() {
     <>
       <Cargador />
       <ContenedorAlerta />
+      <ControladorVersiones />
       <Router />
     </>
   );

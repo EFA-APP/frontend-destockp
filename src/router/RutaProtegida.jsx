@@ -1,10 +1,10 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuthStore } from "../Backend/Autenticacion/store/authenticacion.store";
-import { useUserPermissions } from "../Backend/Autenticacion/hooks/useUserPermissions";
+import { usePermisosDeUsuario } from "../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
 
 const RutaProtegida = ({ permisoRequerido }) => {
   const token = useAuthStore((state) => state.token);
-  const { tienePermiso } = useUserPermissions();
+  const { tienePermiso } = usePermisosDeUsuario();
 
   if (!token) {
     return <Navigate to="/" replace />;

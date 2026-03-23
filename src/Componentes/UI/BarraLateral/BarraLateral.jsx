@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 import * as Icons from "../../../assets/Icons";
 import { useSeccionesUI } from "../../../Backend/Autenticacion/hooks/Secciones/useSeccionesUI";
-import { useUserPermissions } from "../../../Backend/Autenticacion/hooks/useUserPermissions";
+import { usePermisosDeUsuario } from "../../../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
 
 // Función para parsear el string del icono que viene del backend (ej: "<InventarioIcono size={20} />")
 const parseIcono = (iconStr) => {
@@ -29,25 +29,31 @@ const BarraLateral = () => {
   const [openItem, setOpenItem] = useState(null);
 
   const { secciones: seccionesApi } = useSeccionesUI();
-  const { codigosSeccionPermitidos } = useUserPermissions();
-
+  const { codigosSeccionPermitidos } = usePermisosDeUsuario();
 
   // Transformamos y filtramos el menú según los datos de la API y permisos
   const menuFiltrado = useMemo(() => {
     const seccionesFiltradas = seccionesApi
-      .filter(seccion => seccion.activo && codigosSeccionPermitidos.includes(seccion.permisoRequerido))
-      .map(seccion => {
-        const submenu = seccion.subMenus?.filter(sm => sm.activo).map(sm => ({
-          nombre: sm.nombre,
-          redireccion: sm.redireccion
-        })) || [];
+      .filter(
+        (seccion) =>
+          seccion.activo &&
+          codigosSeccionPermitidos.includes(seccion.permisoRequerido),
+      )
+      .map((seccion) => {
+        const submenu =
+          seccion.subMenus
+            ?.filter((sm) => sm.activo)
+            .map((sm) => ({
+              nombre: sm.nombre,
+              redireccion: sm.redireccion,
+            })) || [];
 
         return {
           id: seccion.id_seccion,
           nombre: seccion.nombre,
           icono: parseIcono(seccion.icono) || <Icons.InicioIcono size={18} />, // Fallback icon
           redireccion: seccion.redireccion,
-          submenu
+          submenu,
         };
       });
 
@@ -75,8 +81,9 @@ const BarraLateral = () => {
   return (
     <div className="relative">
       <aside
-        className={`hidden md:flex bg-[var(--surface)]/80 backdrop-blur-xl border-r border-[var(--border-subtle)] fixed h-screen transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] z-[99999] flex-col ${isExpanded ? "w-54" : "w-18"
-          }`}
+        className={`hidden md:flex bg-[var(--surface)]/80 backdrop-blur-xl border-r border-[var(--border-subtle)] fixed h-screen transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] z-[99999] flex-col ${
+          isExpanded ? "w-54" : "w-18"
+        }`}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => {
           setIsExpanded(false);
@@ -84,28 +91,29 @@ const BarraLateral = () => {
         }}
       >
         {/* LOGO SECTION */}
-        <div className={`flex items-center py-6 px-4 transition-all duration-300 ${isExpanded ? "justify-start" : "justify-center"
-          }`}>
+        <div
+          className={`flex items-center py-6 px-4 transition-all duration-300 ${
+            isExpanded ? "justify-start" : "justify-center"
+          }`}
+        >
           <Link to="/" className="relative group/logo">
             <div className="absolute -inset-1 bg-gradient-to-tr from-[var(--primary)] to-[var(--primary-subtle)] rounded-full blur opacity-25 group-hover/logo:opacity-50 transition duration-300" />
-            {
-              usuario?.configuracionVisual?.logoUrl ? (
-                <img
-                  alt="logo"
-                  className="relative w-10 h-10 rounded-full border-2 border-white shadow-sm object-contain bg-white"
-                  src={usuario?.configuracionVisual?.logoUrl}
-                />
-              ) : (
-                <div className="flex items-center justify-center relative w-10 h-10 rounded-full border-2 border-[var(--border-subtle)] shadow-sm bg-[var(--surface-hover)]">
-                  <Icons.ConsolaIcono size={18} color="var(--primary)" />
-                </div>
-              )
-            }
+            {usuario?.configuracionVisual?.logoUrl ? (
+              <img
+                alt="logo"
+                className="relative w-10 h-10 rounded-full border-2 border-white shadow-sm object-contain bg-white"
+                src={usuario?.configuracionVisual?.logoUrl}
+              />
+            ) : (
+              <div className="flex items-center justify-center relative w-10 h-10 rounded-full border-2 border-[var(--border-subtle)] shadow-sm bg-[var(--surface-hover)]">
+                <Icons.ConsolaIcono size={18} color="var(--primary)" />
+              </div>
+            )}
           </Link>
           {isExpanded && (
             <div className="ml-3 flex flex-col animate-in fade-in slide-in-from-left-2 duration-300">
               <span className="text-[14px] font-extrabold text-[var(--text-primary)] leading-tight tracking-tight">
-                SISTEMA
+                {usuario?.nombreEmpresa || "SISTEMA"}
               </span>
               <span className="text-[10px] text-[var(--text-muted)] font-medium">
                 Panel de Control
@@ -118,7 +126,10 @@ const BarraLateral = () => {
         <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar py-4">
           <nav className="px-3">
             {menuFiltrado.map((item) => (
-              <div key={item.id} onClick={(e) => handleArticuloClick(e, item.id)}>
+              <div
+                key={item.id}
+                onClick={(e) => handleArticuloClick(e, item.id)}
+              >
                 <Articulo
                   nombre={item.nombre}
                   icono={item.icono}

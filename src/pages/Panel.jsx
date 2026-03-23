@@ -13,8 +13,9 @@ const Panel = () => {
 
         {/* SPACER (Only on Desktop) */}
         <div
-          className={`hidden md:block transition-all duration-300 ${isExpanded ? "w-[250px]" : "w-[75px]"
-            }`}
+          className={`hidden md:block transition-all duration-300 ${
+            isExpanded ? "w-[250px]" : "w-[75px]"
+          }`}
         />
 
         {/* MOBILE NAVBAR */}
