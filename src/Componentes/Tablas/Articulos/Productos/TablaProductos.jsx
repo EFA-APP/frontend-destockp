@@ -14,6 +14,7 @@ import {
 import { FileSpreadsheet } from "lucide-react";
 import ModalCargaMasivaProductos from "../../../Modales/Articulos/ModalCargaMasivaProductos";
 import { usePermisosDeUsuario } from "../../../../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
+import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
 // import ModalCargaMasivaMovimientos from "../../../Modales/Articulos/ModalCargaMasivaMovimientos";
 const formatVal = (val) => {
   if (val === null || val === undefined) return "";
@@ -242,18 +243,15 @@ const TablaProductos = () => {
           handleDuplicarClick,
           tieneAccion,
         })}
-        botonAgregar={
-          tieneAccion("CREAR_PRODUCTO")
-            ? {
-                texto: "Nuevo Producto",
-                ruta: "/panel/inventario/productos/nuevo",
-              }
-            : null
-        }
+        botonAgregar={{
+          texto: "Nuevo Producto",
+          ruta: "/panel/inventario/productos/nuevo",
+          tieneAccion: "CREAR_PRODUCTO",
+        }}
         elementosSuperior={
           <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
             {/* HISTORIAL */}
-            {tieneAccion("HISTORIAL_PRODUCTO") && (
+            <TieneAccion accion="HISTORIAL_PRODUCTO">
               <button
                 onClick={() =>
                   navigate("/panel/inventario/historial-stock/PRODUCTO")
@@ -266,10 +264,10 @@ const TablaProductos = () => {
                 />
                 Historial
               </button>
-            )}
+            </TieneAccion>
 
             {/* PRODUCCION */}
-            {tieneAccion("PRODUCCION_PRODUCTO") && (
+            <TieneAccion accion="PRODUCCION_PRODUCTO">
               <button
                 onClick={() => navigate("/panel/inventario/produccion/nueva")}
                 className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/20 rounded-md text-[11px] font-bold text-purple-400 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-purple-500/5 group"
@@ -280,10 +278,10 @@ const TablaProductos = () => {
                 />
                 Producción
               </button>
-            )}
+            </TieneAccion>
 
             {/* CARGA MASIVA */}
-            {tieneAccion("CARGA_MASIVA_PRODUCTO") && (
+            <TieneAccion accion="CARGA_MASIVA_PRODUCTO">
               <button
                 onClick={() => setModalMasivoOpen(true)}
                 className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 rounded-md text-[11px] font-bold text-emerald-400 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-emerald-500/5 group"
@@ -294,7 +292,7 @@ const TablaProductos = () => {
                 />
                 Carga Masiva
               </button>
-            )}
+            </TieneAccion>
           </div>
         }
         mostrarBuscador={true}

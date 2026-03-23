@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useDepositos } from "../../queries/Deposito/useDepositos.query";
 import { useCrearDeposito } from "../../queries/Deposito/useCrearDeposito.mutation";
 import { useActualizarDeposito } from "../../queries/Deposito/useActualizarDeposito.mutation";
+import { useEliminarDeposito } from "../../queries/Deposito/useEliminarDeposito.mutation";
 import { useDepositosConStock } from "../../queries/Deposito/useDepositosConStock.query";
 
 /**
@@ -18,6 +19,7 @@ export const useDepositoUI = () => {
     // Mutaciones
     const mutationCrear = useCrearDeposito();
     const mutationActualizar = useActualizarDeposito();
+    const mutationEliminar = useEliminarDeposito();
 
     // Filtrado local de depósitos (para las cards)
     const depositosFiltrados = useMemo(() => {
@@ -82,8 +84,10 @@ export const useDepositoUI = () => {
 
         crearDeposito: mutationCrear.mutateAsync,
         actualizarDeposito: (codigo, data) => mutationActualizar.mutateAsync({ codigo, data }),
+        eliminarDeposito: (codigo, borrarStockProducto) => mutationEliminar.mutateAsync({ codigo, borrarStockProducto }),
 
         estaCreando: mutationCrear.isPending,
         estaActualizando: mutationActualizar.isPending,
+        estaEliminando: mutationEliminar.isPending,
     };
 };

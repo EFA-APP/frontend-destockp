@@ -26,10 +26,13 @@ const FormularioDinamico = ({
       if (field.type === "items-table") {
         initial[field.name] = field.defaultValue || [];
       } else if (field.type === "number") {
-        initial[field.name] = field.defaultValue !== undefined ? field.defaultValue : 0;
+        initial[field.name] =
+          field.defaultValue !== undefined ? field.defaultValue : 0;
       } else if (field.type === "select") {
         initial[field.name] =
-          field.defaultValue !== undefined ? field.defaultValue : (field.options?.[0]?.value || "");
+          field.defaultValue !== undefined
+            ? field.defaultValue
+            : field.options?.[0]?.value || "";
       } else if (field.type === "date") {
         if (!field.defaultValue) {
           const today = new Date();
@@ -41,9 +44,11 @@ const FormularioDinamico = ({
           initial[field.name] = field.defaultValue;
         }
       } else if (field.type === "switch") {
-        initial[field.name] = field.defaultValue !== undefined ? field.defaultValue : false;
+        initial[field.name] =
+          field.defaultValue !== undefined ? field.defaultValue : false;
       } else {
-        initial[field.name] = field.defaultValue !== undefined ? field.defaultValue : "";
+        initial[field.name] =
+          field.defaultValue !== undefined ? field.defaultValue : "";
       }
     });
     return initial;
@@ -106,14 +111,14 @@ const FormularioDinamico = ({
       // 2. Recalcular todos los campos que tengan fórmulas dinámicas
       campos.forEach((f) => {
         if (f.formula) {
-           try {
-             const valorCalculado = evaluateFormula(f.formula, updated);
-             if (updated[f.name] !== valorCalculado) {
-                updated[f.name] = valorCalculado;
-             }
-           } catch (e) {
-             console.error(`Error en formula de ${f.name}:`, e);
-           }
+          try {
+            const valorCalculado = evaluateFormula(f.formula, updated);
+            if (updated[f.name] !== valorCalculado) {
+              updated[f.name] = valorCalculado;
+            }
+          } catch (e) {
+            console.error(`Error en formula de ${f.name}:`, e);
+          }
         }
       });
 
@@ -133,20 +138,27 @@ const FormularioDinamico = ({
     while ((match = regex.exec(formula)) !== null) {
       const clave = match[1];
       const valor = contexto[clave] !== undefined ? contexto[clave] : 0;
-      const valorNum = typeof valor === "number" ? valor : parseFloat(valor) || 0;
-      expresion = expresion.replace(match[0], valorNum);
+
+      let valorNum;
+      if (valor === true || valor === "true" || valor === "on") {
+        valorNum = 1;
+      } else if (valor === false || valor === "false" || valor === "off") {
+        valorNum = 0;
+      } else {
+        valorNum = typeof valor === "number" ? valor : parseFloat(valor) || 0;
+      }
+      expresion = expresion.replaceAll(match[0], valorNum);
     }
 
     try {
-      // Limpieza básica
-      if (/[^0-9+\-*/().\s]/.test(expresion)) return 0;
+      // Limpieza básica (permitiendo ? : > < = ! & |)
+      if (/[^0-9+\-*/().\s?:><=!&|]/.test(expresion)) return 0;
       // eslint-disable-next-line no-eval
       return eval(expresion);
     } catch (e) {
       return 0;
     }
   };
-
 
   // Manejo de items en tablas
   const handleItemChange = (tableName, fieldName, value) => {
@@ -196,7 +208,14 @@ const FormularioDinamico = ({
     // Resetear item actual con valores por defecto
     const resetItem = {};
     field.itemFields.forEach((f) => {
-      resetItem[f.name] = f.defaultValue !== undefined ? f.defaultValue : (f.type === "number" ? 0 : f.type === "boolean" || f.type === "switch" ? false : "");
+      resetItem[f.name] =
+        f.defaultValue !== undefined
+          ? f.defaultValue
+          : f.type === "number"
+            ? 0
+            : f.type === "boolean" || f.type === "switch"
+              ? false
+              : "";
     });
     setCurrentItems((prev) => ({
       ...prev,
@@ -272,13 +291,20 @@ const FormularioDinamico = ({
   };
 
   const renderField = (field) => {
-    const isReadOnly = typeof field.readOnly === "function" ? field.readOnly(formData) : field.readOnly;
+    const isReadOnly =
+      typeof field.readOnly === "function"
+        ? field.readOnly(formData)
+        : field.readOnly;
 
-    const commonClasses = `w-full px-5 py-3 md:px-4 md:py-2.5 rounded-xl! border transition-all duration-300 bg-[var(--surface-hover)]/20! backdrop-blur-md! shadow-sm ${errors[field.name]
-      ? "border-red-500/40! focus:ring-red-500/10!"
-      : "border-[var(--border-medium)]/40! focus:border-[var(--primary)]! focus:ring-[var(--primary)]/10!"
-      } focus:ring-4! focus:outline-none placeholder-[var(--text-muted)] ${isReadOnly ? "cursor-not-allowed opacity-60" : "hover:border-[var(--border-medium)]/80 hover:bg-[var(--surface-hover)]/40!"
-      } ${formData[field.name] || field.defaultValue ? "text-[var(--primary-light)]! font-bold!" : "text-[var(--text-primary)]!"}`;
+    const commonClasses = `w-full px-5 py-3 md:px-4 md:py-2.5 rounded-xl! border transition-all duration-300 bg-[var(--surface-hover)]/20! backdrop-blur-md! shadow-sm ${
+      errors[field.name]
+        ? "border-red-500/40! focus:ring-red-500/10!"
+        : "border-[var(--border-medium)]/40! focus:border-[var(--primary)]! focus:ring-[var(--primary)]/10!"
+    } focus:ring-4! focus:outline-none placeholder-[var(--text-muted)] ${
+      isReadOnly
+        ? "cursor-not-allowed opacity-60"
+        : "hover:border-[var(--border-medium)]/80 hover:bg-[var(--surface-hover)]/40!"
+    } ${formData[field.name] || field.defaultValue ? "text-[var(--primary-light)]! font-bold!" : "text-[var(--text-primary)]!"}`;
 
     switch (field.type) {
       case "textarea":
@@ -352,7 +378,7 @@ const FormularioDinamico = ({
               type="button"
               onClick={() => {
                 const input = document.querySelector(
-                  `input[name="${field.name}"]`
+                  `input[name="${field.name}"]`,
                 );
                 input?.showPicker?.();
                 input?.focus();
@@ -482,7 +508,14 @@ const FormularioDinamico = ({
     if (Object.keys(currentItem).length === 0) {
       const initial = {};
       field.itemFields.forEach((f) => {
-        initial[f.name] = f.defaultValue !== undefined ? f.defaultValue : (f.type === "number" ? 0 : f.type === "boolean" || f.type === "switch" ? false : "");
+        initial[f.name] =
+          f.defaultValue !== undefined
+            ? f.defaultValue
+            : f.type === "number"
+              ? 0
+              : f.type === "boolean" || f.type === "switch"
+                ? false
+                : "";
       });
       setCurrentItems((prev) => ({
         ...prev,
@@ -501,7 +534,9 @@ const FormularioDinamico = ({
             >
               <label className="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 ml-1">
                 {itemField.label}{" "}
-                {itemField.required && <span className="text-red-500 font-bold">*</span>}
+                {itemField.required && (
+                  <span className="text-red-500 font-bold">*</span>
+                )}
               </label>
               {itemField.type === "select" ? (
                 <select
@@ -514,7 +549,7 @@ const FormularioDinamico = ({
                       itemField.name,
                       itemField.type === "number"
                         ? parseFloat(e.target.value) || 0
-                        : e.target.value
+                        : e.target.value,
                     )
                   }
                   className="w-full px-3 py-2 bg-[var(--surface-hover)]/30! backdrop-blur-sm! border! border-[var(--border-medium)]/50! rounded-md! text-[var(--text-primary)]! focus:border-[var(--primary)]! focus:ring-4! focus:ring-[var(--primary)]/10! transition-all duration-300"
@@ -525,14 +560,19 @@ const FormularioDinamico = ({
                     </option>
                   ))}
                 </select>
-              ) : itemField.type === "boolean" || itemField.type === "switch" ? (
+              ) : itemField.type === "boolean" ||
+                itemField.type === "switch" ? (
                 <div className="flex items-center h-10">
                   <label className="relative inline-flex items-center cursor-pointer group">
                     <input
                       type="checkbox"
                       checked={!!currentItem[itemField.name]}
                       onChange={(e) =>
-                        handleItemChange(field.name, itemField.name, e.target.checked)
+                        handleItemChange(
+                          field.name,
+                          itemField.name,
+                          e.target.checked,
+                        )
                       }
                       className="sr-only peer"
                     />
@@ -543,12 +583,20 @@ const FormularioDinamico = ({
                 </div>
               ) : (
                 <input
-                  type={itemField.type === "number" ? "text" : (itemField.type || "text")}
-                  inputMode={itemField.type === "number" ? "numeric" : undefined}
+                  type={
+                    itemField.type === "number"
+                      ? "text"
+                      : itemField.type || "text"
+                  }
+                  inputMode={
+                    itemField.type === "number" ? "numeric" : undefined
+                  }
                   value={
-                    itemField.type === "number" 
+                    itemField.type === "number"
                       ? formatNumber(currentItem[itemField.name])
-                      : currentItem[itemField.name] || itemField.defaultValue || ""
+                      : currentItem[itemField.name] ||
+                        itemField.defaultValue ||
+                        ""
                   }
                   onChange={(e) =>
                     handleItemChange(
@@ -556,7 +604,7 @@ const FormularioDinamico = ({
                       itemField.name,
                       itemField.type === "number"
                         ? parseNumber(e.target.value)
-                        : e.target.value
+                        : e.target.value,
                     )
                   }
                   className={`w-full px-3 py-2 bg-[var(--surface-hover)]/30! backdrop-blur-sm! border! border-[var(--border-medium)]/50! rounded-md! text-[var(--text-primary)]! focus:border-[var(--primary)]! focus:ring-4! focus:ring-[var(--primary)]/10! transition-all duration-300`}
@@ -582,28 +630,33 @@ const FormularioDinamico = ({
             {/* Vista Mobile (Card Based) */}
             <div className="md:hidden space-y-4">
               {items.map((item, idx) => (
-                <div key={item.id} className="relative p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div
+                  key={item.id}
+                  className="relative p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-300"
+                >
                   <div className="flex justify-between items-start mb-4">
-                      <span className="px-3 py-1 rounded-full bg-[var(--primary-subtle)]/50 text-[var(--primary)] text-[9px] font-black uppercase tracking-widest">
-                        Ítem #{idx + 1}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => removeItem(field.name, item.id)}
-                        className="w-8 h-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center border border-red-500/10 active:scale-90 transition-all"
-                      >
-                        <BorrarIcono size={14} />
-                      </button>
+                    <span className="px-3 py-1 rounded-full bg-[var(--primary-subtle)]/50 text-[var(--primary)] text-[9px] font-black uppercase tracking-widest">
+                      Ítem #{idx + 1}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeItem(field.name, item.id)}
+                      className="w-8 h-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center border border-red-500/10 active:scale-90 transition-all"
+                    >
+                      <BorrarIcono size={14} />
+                    </button>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                      {field.tableColumns?.map((col) => (
-                        <div key={col.key} className="flex flex-col gap-1">
-                          <span className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-wider opacity-60">{col.label}</span>
-                          <div className="text-[13px] font-bold text-[var(--text-primary)]">
-                            {col.render ? col.render(item) : item[col.key]}
-                          </div>
+                    {field.tableColumns?.map((col) => (
+                      <div key={col.key} className="flex flex-col gap-1">
+                        <span className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-wider opacity-60">
+                          {col.label}
+                        </span>
+                        <div className="text-[13px] font-bold text-[var(--text-primary)]">
+                          {col.render ? col.render(item) : item[col.key]}
                         </div>
-                      ))}
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
@@ -611,44 +664,47 @@ const FormularioDinamico = ({
 
             {/* Vista Desktop (Tabla Tradicional) */}
             <div className="hidden md:block overflow-x-auto w-full mt-4">
-                <table className="w-full text-md border-separate border-spacing-y-2">
-                  <thead className="text-[var(--text-muted)]">
-                    <tr className="bg-[var(--surface-hover)]/50">
-                      {field.tableColumns?.map((col) => (
-                        <th
-                          key={col.key}
-                          className={`px-4 py-3 text-[10px] font-bold uppercase tracking-widest ${col.align || "text-left"}`}
-                        >
-                          {col.label}
-                        </th>
-                      ))}
-                      <th className="px-4 py-3 rounded-r-xl"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-[var(--text-primary)]">
-                    {items.map((item) => (
-                      <tr key={item.id} className="bg-[var(--surface)]/50 backdrop-blur-sm border border-[var(--border-subtle)] hover:bg-[var(--surface-hover)]/30 transition-colors">
-                        {field.tableColumns?.map((col) => (
-                          <td
-                            key={col.key}
-                            className={`px-4 py-3 text-sm ${col.align || "text-left"}`}
-                          >
-                            {col.render ? col.render(item) : item[col.key]}
-                          </td>
-                        ))}
-                        <td className="px-4 py-3 text-right">
-                          <button
-                            type="button"
-                            onClick={() => removeItem(field.name, item.id)}
-                            className="p-2 rounded-lg text-red-500 hover:bg-red-500/10 transition-all cursor-pointer"
-                          >
-                            <BorrarIcono size={16} />
-                          </button>
-                        </td>
-                      </tr>
+              <table className="w-full text-md border-separate border-spacing-y-2">
+                <thead className="text-[var(--text-muted)]">
+                  <tr className="bg-[var(--surface-hover)]/50">
+                    {field.tableColumns?.map((col) => (
+                      <th
+                        key={col.key}
+                        className={`px-4 py-3 text-[10px] font-bold uppercase tracking-widest ${col.align || "text-left"}`}
+                      >
+                        {col.label}
+                      </th>
                     ))}
-                  </tbody>
-                </table>
+                    <th className="px-4 py-3 rounded-r-xl"></th>
+                  </tr>
+                </thead>
+                <tbody className="text-[var(--text-primary)]">
+                  {items.map((item) => (
+                    <tr
+                      key={item.id}
+                      className="bg-[var(--surface)]/50 backdrop-blur-sm border border-[var(--border-subtle)] hover:bg-[var(--surface-hover)]/30 transition-colors"
+                    >
+                      {field.tableColumns?.map((col) => (
+                        <td
+                          key={col.key}
+                          className={`px-4 py-3 text-sm ${col.align || "text-left"}`}
+                        >
+                          {col.render ? col.render(item) : item[col.key]}
+                        </td>
+                      ))}
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          type="button"
+                          onClick={() => removeItem(field.name, item.id)}
+                          className="p-2 rounded-lg text-red-500 hover:bg-red-500/10 transition-all cursor-pointer"
+                        >
+                          <BorrarIcono size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
             {/* Totales si están definidos */}
@@ -675,8 +731,12 @@ const FormularioDinamico = ({
     <div className="w-full bg-[var(--surface)] rounded-md! shadow-md overflow-hidden">
       {/* Header */}
       <div className="relative bg-gradient-to-r from-[var(--primary)]/10 to-transparent px-8 py-4 md:flex md:flex-col md:items-center md:justify-center border-b border-[var(--border-subtle)]">
-        <h2 className="text-xl md:text-3xl font-bold text-[var(--text-primary)] tracking-tight">{titulo}</h2>
-        <p className="text-[var(--text-secondary)] mt-1.5 text-base font-medium">{subtitulo}</p>
+        <h2 className="text-xl md:text-3xl font-bold text-[var(--text-primary)] tracking-tight">
+          {titulo}
+        </h2>
+        <p className="text-[var(--text-secondary)] mt-1.5 text-base font-medium">
+          {subtitulo}
+        </p>
       </div>
 
       <div className="flex justify-center p-4 ">
@@ -686,14 +746,18 @@ const FormularioDinamico = ({
             <div key={sectionName} className={idx > 0 ? "mb-3" : "mb-3"}>
               {sectionName !== "default" && (
                 <h3 className="text-sm font-bold bg-[var(--primary-subtle)] py-3 px-4 rounded-md! text-[var(--primary)] border border-[var(--primary)]/20 mb-6 flex items-center justify-center gap-2 uppercase tracking-[0.15em]">
-                  {sectionFields[0]?.sectionIcon && React?.cloneElement(sectionFields[0].sectionIcon, { size: 16 })}
+                  {sectionFields[0]?.sectionIcon &&
+                    React?.cloneElement(sectionFields[0].sectionIcon, {
+                      size: 16,
+                    })}
                   {sectionName}
                 </h3>
               )}
 
               <div
-                className={`grid grid-cols-1 ${sectionFields[0]?.cols || "md:grid-cols-2"
-                  } gap-4`}
+                className={`grid grid-cols-1 ${
+                  sectionFields[0]?.cols || "md:grid-cols-2"
+                } gap-4`}
               >
                 {sectionFields.map((field) => {
                   // Soporte para ocultar campos dinámicamente
@@ -708,29 +772,29 @@ const FormularioDinamico = ({
                           : ""
                       }
                     >
-                    {field.type !== "items-table" && (
-                      <label className="block text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 ml-1">
-                        {field.label}{" "}
-                        {field.required && (
-                          <span className="text-red-500 font-bold">*</span>
-                        )}
-                      </label>
-                    )}
-                    <div className="col-span-6">{renderField(field)}</div>
-                    {field.type !== "items-table" && errors[field.name] && (
-                      <p className="text-red-500 text-xs font-medium mt-1.5 ml-1">
-                        {errors[field.name]}
-                      </p>
-                    )}
-                    {field.type !== "items-table" &&
-                      field.helpText &&
-                      !errors[field.name] && (
-                        <p className="text-[var(--primary-light)] text-xs mt-1">
-                          {typeof field.helpText === "function"
-                            ? field.helpText(formData)
-                            : field.helpText}
+                      {field.type !== "items-table" && (
+                        <label className="block text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 ml-1">
+                          {field.label}{" "}
+                          {field.required && (
+                            <span className="text-red-500 font-bold">*</span>
+                          )}
+                        </label>
+                      )}
+                      <div className="col-span-6">{renderField(field)}</div>
+                      {field.type !== "items-table" && errors[field.name] && (
+                        <p className="text-red-500 text-xs font-medium mt-1.5 ml-1">
+                          {errors[field.name]}
                         </p>
                       )}
+                      {field.type !== "items-table" &&
+                        field.helpText &&
+                        !errors[field.name] && (
+                          <p className="text-[var(--primary-light)] text-xs mt-1">
+                            {typeof field.helpText === "function"
+                              ? field.helpText(formData)
+                              : field.helpText}
+                          </p>
+                        )}
                     </div>
                   );
                 })}

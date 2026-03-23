@@ -30,3 +30,8 @@ export const TransferirDepositoPorStockApi = async (data) => {
     const respuesta = await axiosInitial.patch(`/stockDeposito/transferir`, data, { showLoader: false });
     return respuesta.data;
 }
+
+export const EliminarDepositoApi = async (codigo, borrarStockProducto) => {
+    const respuesta = await axiosInitial.patch(`/deposito/eliminar?codigoSecuencial=${codigo}`, { borrarStockProducto }, { showLoader: false });
+    return respuesta.data;
+}

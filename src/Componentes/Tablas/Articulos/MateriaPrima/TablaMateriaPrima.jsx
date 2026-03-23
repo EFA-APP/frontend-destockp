@@ -5,9 +5,14 @@ import DataTable from "../../../UI/DataTable/DataTable";
 import ModalConfirmacion from "../../../UI/ModalConfirmacion/ModalConfirmacion";
 import { accionesMateriaPrimas } from "./AccionesMateriaPrima";
 import { columnasMateriaPrima } from "./ColumnaMateriaPrima";
-import { BorrarIcono, MovimientoIcono, HistorialIcono, EditarIcono } from "../../../../assets/Icons";
+import {
+  BorrarIcono,
+  MovimientoIcono,
+  HistorialIcono,
+  EditarIcono,
+} from "../../../../assets/Icons";
+import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
 // import ModalCargaMasivaMovimientos from "../../../Modales/Articulos/ModalCargaMasivaMovimientos";
-
 
 const TablaMateriaPrima = () => {
   const navigate = useNavigate();
@@ -17,7 +22,7 @@ const TablaMateriaPrima = () => {
     setBusqueda,
     eliminarMateriaPrima,
     cargando,
-    estaEliminando
+    estaEliminando,
   } = useMateriaPrimaUI();
 
   const [confirmarEliminar, setConfirmarEliminar] = useState({
@@ -28,11 +33,13 @@ const TablaMateriaPrima = () => {
 
   // const [modalMasivoOpen, setModalMasivoOpen] = useState(false);
 
-
   const handleEditarClick = (materiaPrima) => {
-    navigate(`/panel/inventario/materia-prima/${materiaPrima.codigoSecuencial}/editar`, {
-      state: { materiaPrima}
-    });
+    navigate(
+      `/panel/inventario/materia-prima/${materiaPrima.codigoSecuencial}/editar`,
+      {
+        state: { materiaPrima },
+      },
+    );
   };
 
   const handleEliminarClick = (codigo, nombre) => {
@@ -56,7 +63,9 @@ const TablaMateriaPrima = () => {
     <div className="space-y-6">
       <ModalConfirmacion
         open={confirmarEliminar.open}
-        onClose={() => setConfirmarEliminar({ open: false, codigo: null, nombre: "" })}
+        onClose={() =>
+          setConfirmarEliminar({ open: false, codigo: null, nombre: "" })
+        }
         onConfirm={confirmarEliminacion}
         titulo="Archivar Materia Prima"
         mensaje={`¿Estás seguro de que deseas eliminar "${confirmarEliminar.nombre}"? No aparecerá en el listado activo.`}
@@ -66,7 +75,8 @@ const TablaMateriaPrima = () => {
         colorConfirmar="bg-red-600!"
       />
 
-      <DataTable id_tabla="materiaprima"
+      <DataTable
+        id_tabla="materiaprima"
         columnas={columnasMateriaPrima}
         datos={materiasPrimas}
         loading={cargando}
@@ -78,25 +88,37 @@ const TablaMateriaPrima = () => {
         botonAgregar={{
           texto: "Nueva Materia Prima",
           ruta: "/panel/inventario/materia-prima/nuevo",
+          tieneAccion: "CREAR_MATERIAPRIMA",
         }}
-        elementosSuperior={(
+        elementosSuperior={
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigate("/panel/inventario/ajuste-stock/MATERIA_PRIMA")}
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-[11px] font-bold text-white uppercase tracking-wider transition-all cursor-pointer"
-            >
-              <MovimientoIcono size={14} />
-              Ajustes
-            </button>
-            <button
-              onClick={() => navigate("/panel/inventario/historial-stock/MATERIA_PRIMA")}
-              className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border border-[var(--primary)]/20 rounded-md text-[11px] font-bold text-[var(--primary)] uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-amber-500/5 group"
-            >
-              <HistorialIcono size={14} className="group-hover:scale-110 transition-transform" />
-              Historial
-            </button>
+            <TieneAccion accion="AJUSTE_STOCK_MATERIAPRIMA">
+              <button
+                onClick={() =>
+                  navigate("/panel/inventario/ajuste-stock/MATERIA_PRIMA")
+                }
+                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-[11px] font-bold text-white uppercase tracking-wider transition-all cursor-pointer"
+              >
+                <MovimientoIcono size={14} />
+                Ajustes
+              </button>
+            </TieneAccion>
+            <TieneAccion accion="HISTORIAL_MATERIAPRIMA">
+              <button
+                onClick={() =>
+                  navigate("/panel/inventario/historial-stock/MATERIA_PRIMA")
+                }
+                className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border border-[var(--primary)]/20 rounded-md text-[11px] font-bold text-[var(--primary)] uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-amber-500/5 group"
+              >
+                <HistorialIcono
+                  size={14}
+                  className="group-hover:scale-110 transition-transform"
+                />
+                Historial
+              </button>
+            </TieneAccion>
           </div>
-        )}
+        }
         mostrarBuscador={true}
         busqueda={busqueda}
         setBusqueda={setBusqueda}
@@ -109,7 +131,6 @@ const TablaMateriaPrima = () => {
         tipo="MATERIA_PRIMA"
       /> */}
     </div>
-
   );
 };
 

@@ -12,7 +12,10 @@ export const ControladorVersiones = () => {
 
   useEffect(() => {
     const consultarEstado = async () => {
-      if (window.location.pathname.includes("/")) return;
+      if (!window.location.pathname.includes("/panel")) {
+        setMostrarModal(false);
+        return;
+      }
 
       try {
         const response = await axiosInitial.get("/version/ultima", {
@@ -45,7 +48,9 @@ export const ControladorVersiones = () => {
   const handleRecargar = async () => {
     setCargando(true);
     try {
-      await axiosInitial.post("/version/usuario/actualizado");
+      await axiosInitial.post("/version/usuario/actualizado", {
+        showLoader: false,
+      });
       window.location.reload();
     } catch (error) {
       console.error("[Version] Error al registrar actualización:", error);

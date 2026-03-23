@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import ContenedorSeccion from "../../../ContenidoPanel/ContenedorSeccion";
@@ -8,7 +9,7 @@ import {
     UbicacionIcono,
     DescargarIcono,
 } from "../../../../assets/Icons";
-import { Building2 } from "lucide-react";
+import { Building2, Trash2 } from "lucide-react";
 import { useDepositoUI } from "../../../../Backend/Articulos/hooks/Deposito/useDepositoUI.jsx";
 import TarjetaDeposito from "./TarjetaDeposito.jsx";
 import TablaDepositoStock from "../../../Tablas/Articulos/Deposito/TablaDepositoStock";
@@ -18,15 +19,37 @@ import StockDepositoPDF from "../../../Reportes/StockDepositoPDF.jsx";
  * Componente Deposito: Gestión de sucursales y stock global.
  */
 const Deposito = () => {
+    const [depositoAEliminar, setDepositoAEliminar] = useState(null);
+    const [borrarStock, setBorrarStock] = useState(false);
+    const [procesando, setProcesando] = useState(false);
     const {
         depositos,
         matrizStock,
         cargando,
+        eliminarDeposito,
     } = useDepositoUI();
     const navigate = useNavigate();
 
     const handleNuevaSucursal = () => {
         navigate("/panel/inventario/depositos/nuevo");
+    };
+
+    const handleEliminarSucursal = async (suc) => {
+        setDepositoAEliminar(suc);
+    };
+
+    const handleConfirmarEliminar = async () => {
+        if (!depositoAEliminar) return;
+        setProcesando(true);
+        try {
+            await eliminarDeposito(depositoAEliminar.codigoSecuencial, borrarStock);
+            setDepositoAEliminar(null);
+            setBorrarStock(false);
+        } catch (e) {
+            // Error se muestra en Alertas
+        } finally {
+            setProcesando(false);
+        }
     };
 
     const handleEditarSucursal = (suc) => {
@@ -74,6 +97,7 @@ const Deposito = () => {
                                     key={suc.codigoSecuencial}
                                     suc={suc}
                                     onEdit={handleEditarSucursal}
+                                    onDelete={handleEliminarSucursal}
                                 />
                             ))
                         )}
@@ -109,6 +133,63 @@ const Deposito = () => {
                     <TablaDepositoStock />
                 </section>
             </div>
+
+            {/* Modal de Confirmación para Eliminar */}
+            {depositoAEliminar && (
+                <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-[var(--surface)] border border-white/10 rounded-md max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="flex flex-col items-center text-center">
+                            <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+                                <Trash2 className="text-red-400" size={24} />
+                            </div>
+                            <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2">
+                                ¿Eliminar Depósito?
+                            </h3>
+                            <p className="text-sm text-white/60 mb-6">
+                                Esta acción eliminará el depósito <strong className="text-white">{depositoAEliminar.nombre}</strong> y todo su historial de stock local.
+                            </p>
+
+                            {/* Checkbox para borrar stock general */}
+                            <label className="flex items-center gap-3 w-full bg-white/5 p-4 rounded-md border border-white/5 hover:border-white/10 transition-all cursor-pointer mb-6 group/check">
+                                <input
+                                    type="checkbox"
+                                    checked={borrarStock}
+                                    onChange={(e) => setBorrarStock(e.target.checked)}
+                                    className="rounded border-white/20 bg-black/40 text-[var(--primary)] focus:ring-[var(--primary)]/20 cursor-pointer"
+                                />
+                                <div className="text-left">
+                                    <span className="text-xs font-bold text-white block group-hover/check:text-[var(--primary)] transition-colors">
+                                        ¿Limpiar stock productos?
+                                    </span>
+                                    <span className="text-[10px] text-white/40 block mt-0.5">
+                                        Si activas esto, se reseteará a 0 el stock global de todos los productos.
+                                    </span>
+                                </div>
+                            </label>
+
+                            <div className="flex gap-3 w-full">
+                                <button
+                                    onClick={() => {
+                                        setDepositoAEliminar(null);
+                                        setBorrarStock(false);
+                                    }}
+                                    disabled={procesando}
+                                    className="flex-1 px-4 py-2.5 bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-wider rounded-md transition-all cursor-pointer disabled:opacity-50"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={handleConfirmarEliminar}
+                                    disabled={procesando}
+                                    className="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white font-bold text-xs uppercase tracking-wider rounded-md transition-all cursor-pointer shadow-lg shadow-red-500/10 flex items-center justify-center gap-2 disabled:opacity-50"
+                                >
+                                    {procesando ? "Borrando..." : "Confirmar"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </ContenedorSeccion>
     );
 };
