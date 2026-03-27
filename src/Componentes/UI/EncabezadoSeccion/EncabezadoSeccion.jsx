@@ -5,6 +5,7 @@ import React from "react";
 const EncabezadoSeccion = ({
   ruta,
   icono,
+  otroIcono,
   volver = false,
   redireccionAnterior,
   children,
@@ -26,7 +27,9 @@ const EncabezadoSeccion = ({
         <div className="relative group">
           <div className="absolute -inset-1 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-active)] rounded-xl blur-sm opacity-20 group-hover:opacity-40 transition duration-500" />
           <div className="relative p-2 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary-active)] text-white shadow-lg shadow-[var(--primary)]/20 border border-white/10">
-            {React.isValidElement(icono) ? React.cloneElement(icono, { size: 20 }) : icono}
+            {React.isValidElement(icono)
+              ? React.cloneElement(icono, { size: 20 })
+              : icono}
           </div>
         </div>
 
@@ -56,11 +59,27 @@ const EncabezadoSeccion = ({
             {volver ? <VolverIcono size={20} /> : <InicioIcono size={20} />}
           </Link>
 
+          {otroIcono && (
+            <Link
+              to={otroIcono.ruta}
+              className="group relative flex items-center justify-center w-10 h-10 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--primary)] hover:border-[var(--primary)]/30 transition-all duration-300 shadow-sm"
+              title={otroIcono.titulo}
+            >
+              {otroIcono.icono}
+            </Link>
+          )}
+
           <div className="h-6 w-px bg-[var(--border-subtle)] mx-1" />
 
           <div className="hidden sm:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest bg-[var(--surface-hover)] p-1 pr-3 rounded-xl border border-[var(--border-subtle)]">
             <div className="w-8 h-8 rounded-lg bg-[var(--primary-subtle)] flex items-center justify-center text-[var(--primary)]">
-              {volver ? <VolverIcono size={14} /> : React.isValidElement(icono) ? React.cloneElement(icono, { size: 20 }) : icono}
+              {volver ? (
+                <VolverIcono size={14} />
+              ) : React.isValidElement(icono) ? (
+                React.cloneElement(icono, { size: 20 })
+              ) : (
+                icono
+              )}
             </div>
             <span className="text-[var(--text-muted)] opacity-50">/</span>
             <span className="text-[var(--primary)]">{ruta}</span>

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { ListarConfiguracionCamposApi } from "../../../../Backend/Articulos/api/Producto/producto.api";
 import { useNavigate } from "react-router-dom";
 import { useProductoUI } from "../../../../Backend/Articulos/hooks/Producto/useProductoUI";
+import { usePersistentState } from "../../../../hooks/usePersistentState";
 import DataTable from "../../../UI/DataTable/DataTable";
 import ModalConfirmacion from "../../../UI/ModalConfirmacion/ModalConfirmacion";
 import { columnasProductos } from "./ColumnaProductos";
@@ -33,8 +34,9 @@ const TablaProductos = () => {
   const { tieneAccion } = usePermisosDeUsuario("ARTICULOS");
   // Estados locales para filtros API y paginación
   const [filtros, setFiltros] = useState({ pagina: 1, limite: 10 });
-  const [busquedaInput, setBusquedaInput] = useState("");
-  const [busquedaClave, setBusquedaClave] = useState("nombre"); // 'nombre' o 'codigo'
+  // Estados persistentes para búsqueda
+  const [busquedaInput, setBusquedaInput] = usePersistentState("productos_busqueda_input", "");
+  const [busquedaClave, setBusquedaClave] = usePersistentState("productos_busqueda_clave", "nombre"); // 'nombre' o 'codigo'
 
   // Debounce para aplicar la búsqueda al backend
   useEffect(() => {

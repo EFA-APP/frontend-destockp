@@ -1,6 +1,6 @@
 import React from "react";
 import DataTable from "../../../UI/DataTable/DataTable";
-import { ArcaIcono, CargandoIcono } from "../../../../assets/Icons";
+import { CargandoIcono } from "../../../../assets/Icons";
 import { useDepositoUI } from "../../../../Backend/Articulos/hooks/Deposito/useDepositoUI.jsx";
 import { generarColumnasStock } from "./ColumnasDepositoStock";
 import { Package, Search, Database, ChevronRight } from "lucide-react";
@@ -11,13 +11,34 @@ import DrawerActualizarStock from "../../../Modales/Articulos/ModalActualizarSto
  * Componente TablaDepositoStock: Visualización de la matriz de stock global.
  */
 const TablaDepositoStock = () => {
-  const {
-    matrizStock,
-    dataDepositosRaw,
-    cargandoStock,
-    busquedaStock,
-    setBusquedaStock,
-  } = useDepositoUI();
+  const [filtros, setFiltros] = React.useState({ pagina: 1, limite: 10 });
+  const [busquedaInput, setBusquedaInput] = React.useState("");
+  const [busquedaClave, setBusquedaClave] = React.useState("nombre"); // 'nombre' o 'codigo'
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setFiltros((prev) => {
+        const nuevos = { ...prev, pagina: 1 }; // Resetear página con nueva búsqueda
+        delete nuevos.buscarPorNombre;
+        delete nuevos.buscarPorCodigo;
+
+        if (busquedaInput) {
+          if (busquedaClave === "nombre") {
+            nuevos.buscarPorNombre = busquedaInput;
+          }
+          if (busquedaClave === "codigo") {
+            const num = Number(busquedaInput);
+            if (!isNaN(num)) nuevos.buscarPorCodigo = num;
+          }
+        }
+        return nuevos;
+      });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [busquedaInput, busquedaClave]);
+
+  const { matrizStock, dataDepositosRaw, cargandoStock, meta } =
+    useDepositoUI(filtros);
 
   const [drawerData, setDrawerData] = React.useState({
     isOpen: false,
@@ -66,43 +87,77 @@ const TablaDepositoStock = () => {
             </div>
           </div>
 
-          {/* Mobile Search - Integrated */}
-          <div className="relative md:w-64">
-            <Search
-              size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20"
-            />
-            <input
-              type="text"
-              value={busquedaStock}
-              onChange={(e) => setBusquedaStock(e.target.value)}
-              placeholder="Filtrar por nombre o código..."
-              className="w-full bg-black/20 border border-white/10 rounded-md pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50 transition-all"
-            />
-          </div>
+          {/* Buscador integrado en DataTable */}
         </div>
 
         <div className="p-0 md:p-4">
           {/* Desktop View: DataTable */}
           <div className="hidden md:block">
             <DataTable
+              id_tabla="stock_deposito"
               columnas={columnasStock}
-              datos={matrizConAcciones} // <--- FIX: Usar matriz con handlers
-              mostrarBuscador={false} // Custom search above
-              placeholderBuscador="Filtrar productos..."
+              datos={matrizConAcciones}
+              mostrarBuscador={true}
+              busqueda={busquedaInput}
+              setBusqueda={setBusquedaInput}
+              opcionesBusqueda={[
+                { label: "Por Nombre", value: "nombre" },
+                { label: "Por Código", value: "codigo" },
+              ]}
+              busquedaClave={busquedaClave}
+              setBusquedaClave={setBusquedaClave}
+              placeholderBuscador="Escribe para buscar..."
               mostrarAcciones={false}
               className="border-none shadow-none"
-              cargando={cargandoStock}
+              loading={cargandoStock}
+              meta={meta}
+              onPageChange={(p) =>
+                setFiltros((prev) => ({ ...prev, pagina: p }))
+              }
+              onLimitChange={(l) =>
+                setFiltros((prev) => ({ ...prev, limite: l, pagina: 1 }))
+              }
             />
           </div>
 
           {/* Mobile View: Premium Designed Cards (REFINED CLARITY & SIZE) */}
           <div className="md:hidden flex flex-col gap-5 p-4 pb-28">
+            {/* Buscador Mobile */}
+            <div className="flex flex-col gap-3 bg-[#181818]/60 backdrop-blur-md p-4 rounded-2xl border border-white/5 shadow-xl">
+              <div className="flex gap-2">
+                <select
+                  value={busquedaClave}
+                  onChange={(e) => setBusquedaClave(e.target.value)}
+                  className="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs font-bold text-white/80 focus:outline-none focus:border-[var(--primary)]/50 appearance-none cursor-pointer"
+                >
+                  <option value="nombre" className="bg-[#181818]">
+                    Nombre
+                  </option>
+                  <option value="codigo" className="bg-[#181818]">
+                    Código
+                  </option>
+                </select>
+                <div className="relative flex-1">
+                  <Search
+                    size={14}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30"
+                  />
+                  <input
+                    type="text"
+                    value={busquedaInput}
+                    onChange={(e) => setBusquedaInput(e.target.value)}
+                    placeholder="Escribe para buscar..."
+                    className="w-full bg-black/30 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white focus:outline-none focus:border-[var(--primary)]/50 transition-all font-medium placeholder:text-white/20"
+                  />
+                </div>
+              </div>
+            </div>
+
             {cargandoStock ? (
               <div className="flex flex-col items-center justify-center py-20 gap-4">
                 <CargandoIcono
                   size={32}
-                  className="animate-spin text-amber-500/40"
+                  className="animate-spin text-[var(--primary)]/40"
                 />
                 <span className="text-[11px] text-white/20 font-bold uppercase tracking-widest">
                   Sincronizando Stock...
@@ -120,8 +175,7 @@ const TablaDepositoStock = () => {
                     <div className="flex items-start justify-between gap-4 mb-2">
                       <div className="flex flex-col gap-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-[9px] font-mono font-black text-amber-500 px-1.5 py-0.5 bg-amber-500/10 rounded border border-amber-500/30 shadow-sm uppercase tracking-tighter">
-                            SKU:{" "}
+                          <span className="text-[9px] font-mono font-black text-[var(--primary)] px-1.5 py-0.5 bg-[var(--primary)]/10 rounded border border-[var(--primary)]/30 shadow-sm uppercase tracking-tighter">
                             {row.codigoProducto?.toString().padStart(4, "0") ||
                               "N/A"}
                           </span>
@@ -132,9 +186,16 @@ const TablaDepositoStock = () => {
                         <h3 className="text-[16px] font-black text-white leading-[1.2] tracking-tight break-words">
                           {row.nombre}
                         </h3>
+                        <span className="text-[9px] font-black text-white/60 uppercase tracking-widest py-0.5 flex justify-start items-center gap-2">
+                          <ChevronRight
+                            size={14}
+                            className={`transition-all text-[var(--primary-light)] group-hover:translate-x-1`}
+                          />
+                          <p className="text-white/60">{row.descripcion}</p>
+                        </span>
                       </div>
                       <div className="shrink-0">
-                        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shadow-inner text-amber-500/60">
+                        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shadow-inner text-[var(--primary)]/60">
                           <Package size={20} />
                         </div>
                       </div>
@@ -205,28 +266,6 @@ const TablaDepositoStock = () => {
                         );
                       })}
                   </div>
-
-                  {/* Global Total Footer - REFINED CLARITY & REDUCED SIZE */}
-                  <div className="mt-auto p-4 bg-amber-500/10 border-t border-amber-500/20 flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <span className="text-[9px] font-black text-amber-500 uppercase tracking-[0.2em] mb-0.5 leading-none">
-                        Total Global
-                      </span>
-                      <span className="text-[11px] text-white/90 font-black uppercase tracking-tight">
-                        Consolidado
-                      </span>
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-black text-amber-500 tracking-tighter tabular-nums drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]">
-                        {row.total || 0}
-                      </span>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">
-                          {row.unidadMedida}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               ))
             ) : (
@@ -234,7 +273,7 @@ const TablaDepositoStock = () => {
                 <Package
                   size={64}
                   strokeWidth={1}
-                  className="mb-4 text-amber-500"
+                  className="mb-4 text-[var(--primary)]"
                 />
                 <span className="text-sm font-black uppercase tracking-[0.3em] text-white">
                   No se registraron productos
@@ -242,6 +281,34 @@ const TablaDepositoStock = () => {
                 <p className="text-[10px] mt-2 normal-case font-medium text-white/60">
                   Ajusta los filtros para ver resultados
                 </p>
+              </div>
+            )}
+
+            {/* Paginación Mobile */}
+            {meta && (
+              <div className="flex flex-col items-center gap-3 mt-4 pt-4 border-t border-white/5">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                  Total: {meta.total} registros
+                </p>
+                <div className="flex items-center gap-1.5 bg-[#181818] border border-white/10 rounded-lg p-1">
+                  <button
+                    disabled={!meta.prev}
+                    onClick={() => setPagina(meta.prev)}
+                    className="p-1 rounded text-white/60 hover:bg-white/5 disabled:opacity-30 transition-all font-bold text-[11px] px-3"
+                  >
+                    Anterior
+                  </button>
+                  <span className="text-[11px] font-black text-white px-2">
+                    {meta.currentPage} / {meta.lastPage || 1}
+                  </span>
+                  <button
+                    disabled={!meta.next}
+                    onClick={() => setPagina(meta.next)}
+                    className="p-1 rounded text-white/60 hover:bg-white/5 disabled:opacity-30 transition-all font-bold text-[11px] px-3"
+                  >
+                    Siguiente
+                  </button>
+                </div>
               </div>
             )}
           </div>

@@ -1,8 +1,6 @@
-import React, { useState } from "react";
 import { MapPin, Settings2, Trash2, Building2 } from "lucide-react";
 import {
   PersonaIcono,
-  CheckIcono,
   TelefonoIcono,
   VentasIcono,
 } from "../../../../assets/Icons";
@@ -32,15 +30,28 @@ const TarjetaDeposito = ({ suc, onEdit, onDelete }) => {
       };
 
   return (
-    <div className="group relative bg-[var(--surface)] border border-white/5 rounded-md p-4 transition-all duration-500 hover:shadow-2xl hover:border-white/10 overflow-hidden flex flex-col h-full active:scale-[0.98] cursor-default">
+    <div className="group relative bg-[var(--surface)] border border-white/5 rounded-md p-4 transition-all duration-500 hover:shadow-2xl hover:border-white/10 flex flex-col h-full active:scale-[0.98] cursor-default w-auto">
       {/* Mobile Layout (Horizontal) / Desktop Layout (Vertical) */}
       <div className="flex flex-row md:flex-col gap-4 flex-grow relative z-10">
         {/* Icon Section */}
-        <div className="flex flex-col items-center justify-start gap-2">
+        <div className="relative flex flex-col items-center justify-start gap-2">
           <div
             className={`w-14 h-14 md:w-16 md:h-16 rounded-md bg-black/40 flex items-center justify-center border ${config.border} transition-all duration-500 group-hover:scale-105 ${config.glow}`}
           >
             <Building2 size={24} className={config.text} strokeWidth={1.5} />
+          </div>
+
+          <div className="absolute top-0 right-0">
+            <button
+              onClick={() => onDelete(suc)}
+              className=" text-red-400 hover:text-red-300 font-bold text-[11px] uppercase tracking-widest transition-all cursor-pointer active:scale-[0.98] group/delete"
+              title="Eliminar Depósito"
+            >
+              <Trash2
+                size={15}
+                className="opacity-60 group-hover/delete:opacity-100 transition-all duration-300"
+              />
+            </button>
           </div>
         </div>
 
@@ -111,18 +122,7 @@ const TarjetaDeposito = ({ suc, onEdit, onDelete }) => {
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => onDelete(suc)}
-            className="flex items-center gap-2.5 px-3 py-2.5 bg-red-500/10 hover:bg-red-500/30 text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/40 rounded-md font-bold text-[11px] uppercase tracking-widest transition-all cursor-pointer active:scale-[0.98] group/delete"
-            title="Eliminar Depósito"
-          >
-            <Trash2
-              size={13}
-              className="opacity-60 group-hover/delete:opacity-100 transition-all duration-300"
-            />
-          </button>
-
+        <div className="flex items-center gap-2 ml-2">
           <button
             onClick={() => onEdit(suc)}
             className="flex items-center gap-2.5 px-5 py-2.5 bg-white/5 hover:bg-white/[0.08] text-white/60 hover:text-white border border-white/10 hover:border-white/20 rounded-md font-bold text-[11px] uppercase tracking-widest transition-all cursor-pointer active:scale-95 group/edit"

@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
+import { usePersistentState } from "../../../../hooks/usePersistentState";
 
 export const useAlumnos = () => {
   const [alumnos, setAlumnos] = useState([
@@ -249,7 +250,7 @@ export const useAlumnos = () => {
     },
   ]);
 
-  const [busqueda, setBusqueda] = useState("");
+  const [busqueda, setBusqueda] = usePersistentState("alumnos_busqueda", "");
 
   // 🗓️ Fecha actual (simular para pruebas)
   const fechaActual = new Date("2024-04-02"); // Cambia esto para simular diferentes fechas

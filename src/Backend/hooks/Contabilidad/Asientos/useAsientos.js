@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { usePersistentState } from "../../../../hooks/usePersistentState";
 
 export const useAsientos = () => {
-  const [asientos, setAsientos] = useState([
+  const [asientos, setAsientos] = usePersistentState("asientos", [
     // ========== ASIENTO 1: Cobro de cuota escolar ==========
     {
       id: 1,
@@ -241,7 +242,7 @@ export const useAsientos = () => {
     },
   ]);
 
-  const [busqueda, setBusqueda] = useState("");
+  const [busqueda, setBusqueda] = usePersistentState("asientos_busqueda", "");
   const [origen, setOrigen] = useState("TODOS");
 
   const asientosFiltrados = asientos.filter((a) => {

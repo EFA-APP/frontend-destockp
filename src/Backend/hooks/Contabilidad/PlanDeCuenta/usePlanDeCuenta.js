@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useState, useMemo } from "react";
+import { usePersistentState } from "../../../../hooks/usePersistentState";
 
 /* =====================================================
    MOCK BACKEND (lista plana como vendría de la API)
@@ -195,7 +196,7 @@ export const usePlanDeCuentas = () => {
   const [rawCuentas, setRawCuentas] = useState(CUENTAS_BACKEND);
 
   // filtros de UI
-  const [busqueda, setBusqueda] = useState("");
+  const [busqueda, setBusqueda] = usePersistentState("plan_de_cuentas_busqueda", "");
   const [tipo, setTipo] = useState("TODOS");
 
   // estructura lista para la tabla

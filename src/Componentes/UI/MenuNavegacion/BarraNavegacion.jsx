@@ -1,10 +1,12 @@
 import { useState } from "react";
 import {
   NotificacionesIcono,
-  // RefrescarIcono,
+  RefrescarIcono,
   CerrarSesionIcono,
   ConsolaIcono,
 } from "../../../assets/Icons";
+import { useArcaStore } from "../../../store/useArcaStore";
+import { useEffect } from "react";
 
 import { Link } from "react-router-dom";
 // import MenuNotificacion from "../MenuNotificacion/MenuNotificacion";
@@ -12,10 +14,17 @@ import { cerrarSesion } from "../../../Backend/Autenticacion/store/cerrarSesion"
 import BotonConfiguracion from "../BotonConfiguracion/BotonConfiguracion";
 import { useAuthStore } from "../../../Backend/Autenticacion/store/authenticacion.store";
 
-
 const BarraNavegacion = () => {
   const [menuAbiertoNotificacion, setMenuAbiertoNotificacion] = useState(false);
   const usuario = useAuthStore((state) => state.usuario);
+  const { conectado, verificarSesion, cargando } = useArcaStore();
+
+  // Verificación automática de sesión ARCA (AFIP)
+  useEffect(() => {
+    if (usuario && !conectado && !cargando) {
+      verificarSesion(usuario);
+    }
+  }, [usuario, conectado, cargando, verificarSesion]);
 
   // const toggleNotificacion = () => {
   //   setMenuAbiertoNotificacion(!menuAbiertoNotificacion);
@@ -27,34 +36,51 @@ const BarraNavegacion = () => {
         <div className="flex-1 flex items-center md:hidden">
           <Link to="/" className="relative group/logo-mobile">
             <div className="absolute -inset-1 bg-gradient-to-tr from-[var(--primary)] to-[var(--primary-subtle)] rounded-full blur opacity-25" />
-            {
-              usuario?.configuracionVisual?.logoUrl ? (
-                <img
-                  alt="logo"
-                  className="relative w-8 h-8 rounded-full border-2 border-white shadow-sm object-contain bg-white"
-                  src={usuario?.configuracionVisual?.logoUrl}
-                />
-              ) : (
-                <ConsolaIcono size={18} color="var(--primary)" />
-              )
-            }
+            {usuario?.configuracionVisual?.logoUrl ? (
+              <img
+                alt="logo"
+                className="relative w-8 h-8 rounded-full border-2 border-white shadow-sm object-contain bg-white"
+                src={usuario?.configuracionVisual?.logoUrl}
+              />
+            ) : (
+              <ConsolaIcono size={18} color="var(--primary)" />
+            )}
           </Link>
         </div>
 
         <div></div>
 
         <div className="flex items-center gap-3">
-
-
           {/* ARCA STATUS */}
-          {/* <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-md! bg-[var(--surface-hover)] border border-[var(--border-subtle)] group cursor-help">
-            <RefrescarIcono size={16} color="var(--text-muted)" className="group-hover:rotate-180 transition-transform duration-500" />
-            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Arca:</span>
-            <div className="relative flex items-center">
-              <span className="absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+          {(usuario?.conexionArca || usuario?.configuracionArca?.activo) && (
+            <div
+              className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[var(--surface-hover)] border border-[var(--border-subtle)] group"
+              title={
+                conectado
+                  ? "Sesión ARCA Activa"
+                  : "Sesión ARCA Inactiva / Error"
+              }
+            >
+              <button
+                onClick={() => verificarSesion(usuario)}
+                disabled={cargando}
+                className={`text-[var(--text-muted)] hover:text-[var(--primary)] transition-all duration-300 ${cargando ? "animate-spin" : "group-hover:rotate-180"}`}
+              >
+                <RefrescarIcono size={14} />
+              </button>
+              <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest hidden sm:inline">
+                ARCA:
+              </span>
+              <div className="relative flex items-center">
+                {conectado && (
+                  <span className="absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
+                )}
+                <span
+                  className={`relative inline-flex h-2 w-2 rounded-full ${conectado ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-red-500"}`}
+                ></span>
+              </div>
             </div>
-          </div> */}
+          )}
 
           {/* NOTIFICACIONES */}
           {/* <div className="relative">
@@ -75,8 +101,14 @@ const BarraNavegacion = () => {
           {/* PERFIL */}
           <div className="flex items-center gap-4 ml-2 ">
             <div className="flex-col items-end hidden md:flex">
-              <span className="text-[11px] font-bold text-[var(--text-primary)] leading-none">{ `${usuario.nombre.toUpperCase()} ${usuario.apellido.toUpperCase()}` }</span>
-              <span className="text-[9px] text-[var(--secondary)] font-bold uppercase tracking-widest mt-0.5">{usuario.roles?.map((rol) => rol.nombre.toUpperCase()).join(", ")}</span>
+              <span className="text-[11px] font-bold text-[var(--text-primary)] leading-none">{`${usuario.nombre.toUpperCase()} ${usuario.apellido.toUpperCase()}`}</span>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[9px] text-[var(--secondary)] font-bold uppercase tracking-widest">
+                  {usuario.roles
+                    ?.map((rol) => rol.nombre.toUpperCase())
+                    .join(", ")}
+                </span>
+              </div>
             </div>
 
             <button

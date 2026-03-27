@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usePersistentState } from "../../../../hooks/usePersistentState";
 
 export const useOrdenesVenta = () => {
   const [ordenes, setOrdenes] = useState([
@@ -44,7 +45,7 @@ export const useOrdenesVenta = () => {
   const [estadoOrden, setEstadoOrden] = useState("TODAS");
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
-  const [busqueda, setBusqueda] = useState("");
+  const [busqueda, setBusqueda] = usePersistentState("orden_de_ventas_busqueda", "");
 
   const ordenesFiltradas = ordenes.filter((o) => {
     const coincideBusqueda =

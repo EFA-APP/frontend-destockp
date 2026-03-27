@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { usePersistentState } from "../../../../hooks/usePersistentState";
 
 export const useFacturasProveedor = () => {
   const [facturas, setFacturas] = useState([
@@ -86,13 +87,13 @@ export const useFacturasProveedor = () => {
   const [estadoFactura, setEstadoFactura] = useState("TODAS");
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
-  const [busqueda, setBusqueda] = useState("");
+  const [busqueda, setBusqueda] = usePersistentState("factura_proveedor_busqueda", "");
   const [isBlanco, setIsBlanco] = useState("TODAS");
 
   const facturasFiltradas = facturas.filter((f) => {
     const coincideBusqueda =
       f.numero.toString().includes(busqueda) ||
-      f.proveedor.toLowerCase().includes(busqueda.toLowerCase());
+      f.razonSocial.toLowerCase().includes(busqueda.toLowerCase()); // Changed f.proveedor to f.razonSocial based on the data structure
 
     const coincideTipo = tipoFactura === "TODAS" || f.tipo === tipoFactura;
     const coincideEstado =

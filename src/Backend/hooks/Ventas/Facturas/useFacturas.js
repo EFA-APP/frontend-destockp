@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usePersistentState } from "../../../../hooks/usePersistentState";
 
 export const useFacturas = () => {
   const [facturas, setFacturas] = useState([
@@ -66,7 +67,7 @@ export const useFacturas = () => {
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
 
-  const [busqueda, setBusqueda] = useState("");
+  const [busqueda, setBusqueda] = usePersistentState("facturas_busqueda", "");
   const [isBlanco, setIsBlanco] = useState("TODAS");
 
   const facturasFiltradas = facturas.filter((f) => {

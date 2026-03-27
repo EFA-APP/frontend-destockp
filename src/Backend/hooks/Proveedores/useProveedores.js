@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usePersistentState } from "../../../hooks/usePersistentState";
 
 export const useProveedores = () => {
   const [proveedores, setProveedores] = useState([
@@ -30,7 +31,7 @@ export const useProveedores = () => {
     },
   ]);
 
-  const [busqueda, setBusqueda] = useState("");
+  const [busqueda, setBusqueda] = usePersistentState("proveedores_busqueda", "");
 
   const proveedoresFiltrados = proveedores.filter((p) => {
     const texto = busqueda.toLowerCase();

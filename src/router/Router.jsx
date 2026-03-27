@@ -30,27 +30,7 @@ const CrearFactura = lazy(
   () =>
     import("../Componentes/Secciones/Ventas/CrearVentas/CrearFactura/CrearFactura"),
 );
-const OrdenDeVentas = lazy(
-  () => import("../Componentes/Secciones/Ventas/OrdenDeVentas/OrdenDeVentas"),
-);
-const CrearOrdenDeVentas = lazy(
-  () =>
-    import("../Componentes/Secciones/Ventas/CrearVentas/CrearOrdenDeVenta/CrearOrdeDeVenta"),
-);
-const NotaDeCredito = lazy(
-  () => import("../Componentes/Secciones/Ventas/NotaDeCredito/NotaDeCredito"),
-);
-const CrearNotaCredito = lazy(
-  () =>
-    import("../Componentes/Secciones/Ventas/CrearVentas/CrearNotaCredito/CrearNotaCredito"),
-);
-const NotaDeDebito = lazy(
-  () => import("../Componentes/Secciones/Ventas/NotaDeDebito/NotaDeDebito"),
-);
-const CrearNotaDebito = lazy(
-  () =>
-    import("../Componentes/Secciones/Ventas/CrearVentas/CrearNotaDebito/CrearNotaDebito"),
-);
+
 const FacturasProveedor = lazy(
   () =>
     import("../Componentes/Secciones/Compras/FacturaProveedor/FacturaProveedor"),
@@ -76,7 +56,6 @@ const LibroDiario = lazy(
 const LibroMayor = lazy(
   () => import("../Componentes/Secciones/Contabilidad/LibroMayor/LibroMayor"),
 );
-const SistemaContable = lazy(() => import("../pages/Demo"));
 const Alumnos = lazy(
   () => import("../Componentes/Secciones/Escuela/Alumnos/Alumnos"),
 );
@@ -271,22 +250,6 @@ export default function Router() {
             <Route element={<RutaProtegida />}>
               <Route path="ventas/facturas" element={<Facturas />} />
               <Route path="ventas/facturas/nueva" element={<CrearFactura />} />
-
-              <Route path="ventas/orden-ventas" element={<OrdenDeVentas />} />
-              <Route
-                path="ventas/orden-ventas/nueva"
-                element={<CrearOrdenDeVentas />}
-              />
-              <Route path="ventas/notas-creditos" element={<NotaDeCredito />} />
-              <Route
-                path="ventas/notas-creditos/nueva"
-                element={<CrearNotaCredito />}
-              />
-              <Route path="ventas/notas-debitos" element={<NotaDeDebito />} />
-              <Route
-                path="ventas/notas-debitos/nueva"
-                element={<CrearNotaDebito />}
-              />
             </Route>
 
             {/* COMPRAS */}

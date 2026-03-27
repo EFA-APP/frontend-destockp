@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { usePersistentState } from "../../../../hooks/usePersistentState";
 import { useObtenerProductos } from "../../queries/Producto/useObtenerProductos.query";
 import { useCrearProducto } from "../../queries/Producto/useCrearProducto.mutation";
 import { useActualizarProducto } from "../../queries/Producto/useActualizarProducto.mutation";
@@ -8,7 +9,7 @@ import { useEliminarProducto } from "../../queries/Producto/useEliminarProducto.
  * Hook de UI para centralizar la lógica de Productos.
  */
 export const useProductoUI = (filtrosIniciales = {}) => {
-    const [busqueda, setBusqueda] = useState("");
+    const [busqueda, setBusqueda] = usePersistentState("producto_ui_busqueda", "");
 
     // Query para obtener los datos desde la API
     const query = useObtenerProductos(filtrosIniciales);

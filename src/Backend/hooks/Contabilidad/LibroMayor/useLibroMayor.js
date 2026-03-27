@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
+import { usePersistentState } from "../../../../hooks/usePersistentState";
 
 export const useLibroMayor = () => {
   const [asientos, setAsientos] = useState([]);
   const [fechaDesde, setFechaDesde] = useState("2025-01-01");
   const [fechaHasta, setFechaHasta] = useState("2025-01-31");
-  const [busqueda, setBusqueda] = useState("");
+  const [busqueda, setBusqueda] = usePersistentState("libro_mayor_busqueda", "");
 
   useEffect(() => {
     setAsientos([

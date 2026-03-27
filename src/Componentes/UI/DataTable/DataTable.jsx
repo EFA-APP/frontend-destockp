@@ -499,6 +499,26 @@ const DataTable = ({
   );
   const [menuColumnasAbierto, setMenuColumnasAbierto] = useState(false);
   const [columnaMenuAbierta, setColumnaMenuAbierta] = useState(null); // { key: string, x: number, y: number }
+  const tableRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      if (columnaMenuAbierta) {
+        setColumnaMenuAbierta(null);
+      }
+    };
+
+    const container = tableRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+    }
+    window.addEventListener("scroll", handleScroll, true); // capture phase helps with nested scrolls
+
+    return () => {
+      if (container) container.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [columnaMenuAbierta]);
 
   const { usuario } = useAuthStore();
   const { mutate: actualizarPreferencias } = useActualizarPreferencias();
@@ -583,7 +603,7 @@ const DataTable = ({
     setColumnaMenuAbierta({
       key: col.key,
       x: rect.left,
-      y: rect.bottom + window.scrollY,
+      y: rect.bottom, // <- Removed window.scrollY as element uses fixed positioning
       etiqueta: col.etiqueta,
     });
   };
@@ -846,7 +866,10 @@ const DataTable = ({
       </div>
 
       {/* TABLA PRINCIPAL (ESCRITORIO) */}
-      <div className="hidden md:block w-full overflow-x-auto rounded-md border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm relative min-h-[200px]">
+      <div
+        ref={tableRef}
+        className="hidden md:block w-full overflow-x-auto rounded-md border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm relative min-h-[200px]"
+      >
         {/* Overlay de Carga Premium */}
         {loading && (
           <div className="absolute inset-0 z-[50] bg-[var(--surface)]/60 backdrop-blur-[2px] flex flex-col items-center justify-center animate-in fade-in duration-300">

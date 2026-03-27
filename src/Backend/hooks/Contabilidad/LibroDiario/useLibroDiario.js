@@ -1,9 +1,11 @@
 // useLibroDiario.js
 import { useEffect, useMemo, useState } from "react";
+import { usePersistentState } from "../../../../hooks/usePersistentState";
 
 export const useLibroDiario = () => {
   const [loading, setLoading] = useState(false);
   const [asientos, setAsientos] = useState([]);
+  const [busqueda, setBusqueda] = usePersistentState("libro_diario_busqueda", "");
 
   const [fechaDesde, setFechaDesde] = useState("2025-01-01");
   const [fechaHasta, setFechaHasta] = useState("2025-01-31");

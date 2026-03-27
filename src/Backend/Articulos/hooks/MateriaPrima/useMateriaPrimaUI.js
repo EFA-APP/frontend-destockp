@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { usePersistentState } from "../../../../hooks/usePersistentState";
 import { useObtenerMateriasPrimas } from "../../queries/MateriaPrima/useObtenerMateriasPrimas.query";
 import { useCrearMateriaPrima } from "../../queries/MateriaPrima/useCrearMateriaPrima.mutation";
 import { useActualizarMateriaPrima } from "../../queries/MateriaPrima/useActualizarMateriaPrima.mutation";
@@ -9,7 +10,7 @@ import { useEliminarMateriaPrima } from "../../queries/MateriaPrima/useEliminarM
  * Proporciona acceso a los datos filtrados y todas las operaciones CRUD.
  */
 export const useMateriaPrimaUI = (filtrosIniciales = {}) => {
-    const [busqueda, setBusqueda] = useState("");
+    const [busqueda, setBusqueda] = usePersistentState("materia_prima_busqueda", "");
 
     // Query para obtener los datos desde la API
     const query = useObtenerMateriasPrimas(filtrosIniciales);

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usePersistentState } from "../../../hooks/usePersistentState";
 
 export const useClientes = () => {
   const [clientes, setClientes] = useState([
@@ -26,7 +27,7 @@ export const useClientes = () => {
     },
   ]);
 
-  const [busqueda, setBusqueda] = useState("");
+  const [busqueda, setBusqueda] = usePersistentState("clientes_busqueda", "");
   const [tipoFiltro, setTipoFiltro] = useState("TODOS"); // TODOS | VENTA | ALUMNO
 
   const clientesFiltrados = clientes.filter((c) => {

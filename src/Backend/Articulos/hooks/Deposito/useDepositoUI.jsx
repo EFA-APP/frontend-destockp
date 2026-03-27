@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { usePersistentState } from "../../../../hooks/usePersistentState";
 import { useDepositos } from "../../queries/Deposito/useDepositos.query";
 import { useCrearDeposito } from "../../queries/Deposito/useCrearDeposito.mutation";
 import { useActualizarDeposito } from "../../queries/Deposito/useActualizarDeposito.mutation";
@@ -8,86 +9,100 @@ import { useDepositosConStock } from "../../queries/Deposito/useDepositosConStoc
 /**
  * Hook de UI para centralizar la lógica de Depósitos.
  */
-export const useDepositoUI = () => {
-    const [busqueda, setBusqueda] = useState("");
-    const [busquedaStock, setBusquedaStock] = useState("");
+export const useDepositoUI = (filtros = {}) => {
+  const [busqueda, setBusqueda] = usePersistentState("deposito_ui_busqueda", "");
 
-    // Query para obtener los datos desde la API
-    const query = useDepositos();
-    const queryStock = useDepositosConStock({ nombre: busquedaStock });
+  // Query para obtener los datos desde la API
+  const query = useDepositos();
+  const queryStock = useDepositosConStock(filtros);
 
-    // Mutaciones
-    const mutationCrear = useCrearDeposito();
-    const mutationActualizar = useActualizarDeposito();
-    const mutationEliminar = useEliminarDeposito();
+  // Mutaciones
+  const mutationCrear = useCrearDeposito();
+  const mutationActualizar = useActualizarDeposito();
+  const mutationEliminar = useEliminarDeposito();
 
-    // Filtrado local de depósitos (para las cards)
-    const depositosFiltrados = useMemo(() => {
-        const data = Array.isArray(query.data) ? query.data : (Array.isArray(query.data?.data) ? query.data.data : []);
+  // Filtrado local de depósitos (para las cards)
+  const depositosFiltrados = useMemo(() => {
+    const data = (
+      Array.isArray(query.data)
+        ? query.data
+        : Array.isArray(query.data?.data)
+          ? query.data.data
+          : []
+    ).filter((d) => d.activo !== false);
 
-        if (!busqueda) return data;
+    if (!busqueda) return data;
 
-        const termino = busqueda.toLowerCase();
-        return data.filter(d =>
-            d.nombre?.toLowerCase().includes(termino) ||
-            d.descripcion?.toLowerCase().includes(termino) ||
-            d.responsable?.toLowerCase().includes(termino) ||
-            String(d.codigoSecuencial || "").toLowerCase().includes(termino)
-        );
-    }, [query.data, busqueda]);
+    const termino = busqueda.toLowerCase();
+    return data.filter(
+      (d) =>
+        d.nombre?.toLowerCase().includes(termino) ||
+        d.descripcion?.toLowerCase().includes(termino) ||
+        d.responsable?.toLowerCase().includes(termino) ||
+        String(d.codigoSecuencial || "")
+          .toLowerCase()
+          .includes(termino),
+    );
+  }, [query.data, busqueda]);
 
-    // Procesamiento de datos para la matriz de stock
-    const matrizStock = useMemo(() => {
-        const data = Array.isArray(queryStock.data) ? queryStock.data : [];
+  // Procesamiento de datos para la matriz de stock (Recorriendo Productos)
+  const matrizStock = useMemo(() => {
+    const data = Array.isArray(queryStock.data?.data)
+      ? queryStock.data.data
+      : [];
 
-        const productosMap = {};
+    const productosMap = {};
 
-        data.forEach(deposito => {
-            const depCodigo = deposito.codigoSecuencial;
+    data.forEach((producto) => {
+      const prodCodigo = producto.codigoSecuencial;
 
-            deposito.stockProductos?.forEach(sp => {
-                const prod = sp.producto;
-                const prodNombre = prod?.nombre || sp.nombreProducto;
-                const codigoProducto = sp.codigoProducto;
+      if (!productosMap[prodCodigo]) {
+        productosMap[prodCodigo] = {
+          codigoProducto: prodCodigo,
+          nombre: producto.nombre,
+          unidadMedida: producto.unidadMedida || "UNIDAD",
+          sku: producto.sku,
+          descripcion: producto.descripcion,
+        };
+      }
 
-                if (!productosMap[codigoProducto]) {
-                    productosMap[codigoProducto] = {
-                        codigoProducto: codigoProducto,
-                        nombre: prodNombre,
-                        unidadMedida: prod?.unidadMedida || "UNIDAD",
-                        total: 0
-                    };
-                }
+      producto.stockPorDeposito?.forEach((sp) => {
+        const depCodigo = sp.codigoDeposito;
+        productosMap[prodCodigo][`dep_${depCodigo}`] =
+          (productosMap[prodCodigo][`dep_${depCodigo}`] || 0) + (sp.stock || 0);
+      });
+    });
 
-                productosMap[codigoProducto][`dep_${depCodigo}`] = (productosMap[codigoProducto][`dep_${depCodigo}`] || 0) + (sp.stock || 0);
-                productosMap[codigoProducto].total += (sp.stock || 0);
-            });
-        });
+    return Object.values(productosMap);
+  }, [queryStock.data]);
 
-        return Object.values(productosMap);
-    }, [queryStock.data]);
+  return {
+    depositos: depositosFiltrados,
+    cargando: query.isLoading,
+    error: query.error,
+    refetch: query.refetch,
 
-    return {
-        depositos: depositosFiltrados,
-        cargando: query.isLoading,
-        error: query.error,
-        refetch: query.refetch,
+    matrizStock,
+    dataDepositosRaw: (Array.isArray(query.data)
+      ? query.data
+      : Array.isArray(query.data?.data)
+        ? query.data.data
+        : []
+    ).filter((d) => d.activo !== false),
+    cargandoStock: queryStock.isLoading || queryStock.isFetching, // <- Added isFetching for loader during search
 
-        matrizStock,
-        dataDepositosRaw: queryStock.data,
-        cargandoStock: queryStock.isLoading,
+    busqueda,
+    setBusqueda,
+    meta: queryStock.data?.meta,
 
-        busqueda,
-        setBusqueda,
-        busquedaStock,
-        setBusquedaStock,
+    crearDeposito: mutationCrear.mutateAsync,
+    actualizarDeposito: (codigo, data) =>
+      mutationActualizar.mutateAsync({ codigo, data }),
+    eliminarDeposito: (codigo, borrarStockProducto) =>
+      mutationEliminar.mutateAsync({ codigo, borrarStockProducto }),
 
-        crearDeposito: mutationCrear.mutateAsync,
-        actualizarDeposito: (codigo, data) => mutationActualizar.mutateAsync({ codigo, data }),
-        eliminarDeposito: (codigo, borrarStockProducto) => mutationEliminar.mutateAsync({ codigo, borrarStockProducto }),
-
-        estaCreando: mutationCrear.isPending,
-        estaActualizando: mutationActualizar.isPending,
-        estaEliminando: mutationEliminar.isPending,
-    };
+    estaCreando: mutationCrear.isPending,
+    estaActualizando: mutationActualizar.isPending,
+    estaEliminando: mutationEliminar.isPending,
+  };
 };

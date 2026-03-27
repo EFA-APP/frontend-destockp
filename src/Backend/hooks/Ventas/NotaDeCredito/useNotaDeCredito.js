@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usePersistentState } from "../../../../hooks/usePersistentState";
 
 export const useNotasCredito = () => {
   const [notasCredito, setNotasCredito] = useState([
@@ -46,7 +47,7 @@ export const useNotasCredito = () => {
   const [isBlanco, setIsBlanco] = useState("TODAS");
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
-  const [busqueda, setBusqueda] = useState("");
+  const [busqueda, setBusqueda] = usePersistentState("nota_de_credito_busqueda", "");
 
   const notasFiltradas = notasCredito.filter((n) => {
     const coincideBusqueda =

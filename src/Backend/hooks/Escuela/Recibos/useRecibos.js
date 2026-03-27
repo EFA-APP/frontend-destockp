@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { usePersistentState } from "../../../../hooks/usePersistentState";
 
 export const useRecibos = () => {
   // 📋 Datos de ejemplo - En producción vendrían de una API
@@ -189,7 +190,7 @@ export const useRecibos = () => {
   ]);
 
   // 🔍 Estados de filtrado
-  const [busqueda, setBusqueda] = useState("");
+  const [busqueda, setBusqueda] = usePersistentState("recibos_busqueda", "");
   const [metodoPago, setMetodoPago] = useState("TODOS");
   const [estadoRecibo, setEstadoRecibo] = useState("TODOS");
   const [fechaDesde, setFechaDesde] = useState("");

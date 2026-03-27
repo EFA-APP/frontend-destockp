@@ -7,6 +7,8 @@ import { Link } from "react-router-dom";
 import * as Icons from "../../../assets/Icons";
 import { useSeccionesUI } from "../../../Backend/Autenticacion/hooks/Secciones/useSeccionesUI";
 import { usePermisosDeUsuario } from "../../../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
+import { useArcaStore } from "../../../store/useArcaStore";
+import { useEffect } from "react";
 
 // Función para parsear el string del icono que viene del backend (ej: "<InventarioIcono size={20} />")
 const parseIcono = (iconStr) => {
@@ -30,6 +32,14 @@ const BarraLateral = () => {
 
   const { secciones: seccionesApi } = useSeccionesUI();
   const { codigosSeccionPermitidos } = usePermisosDeUsuario();
+  const { conectado, verificarSesion, cargando } = useArcaStore();
+
+  // Verificación automática de sesión ARCA (AFIP)
+  useEffect(() => {
+    if (usuario && !conectado && !cargando) {
+      verificarSesion(usuario);
+    }
+  }, [usuario, conectado, cargando, verificarSesion]);
 
   // Transformamos y filtramos el menú según los datos de la API y permisos
   const menuFiltrado = useMemo(() => {
@@ -112,11 +122,13 @@ const BarraLateral = () => {
           </Link>
           {isExpanded && (
             <div className="ml-3 flex flex-col animate-in fade-in slide-in-from-left-2 duration-300">
-              <span className="text-[14px] font-extrabold text-[var(--text-primary)] leading-tight tracking-tight">
-                {usuario?.nombreEmpresa || "SISTEMA"}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[14px] font-extrabold text-[var(--text-primary)] leading-tight tracking-tight">
+                  {usuario?.nombreEmpresa || "SISTEMA"}
+                </span>
+              </div>
               <span className="text-[10px] text-[var(--text-muted)] font-medium">
-                Panel de Control
+                {conectado ? "Conexión ARCA Activa" : "Panel de Control"}
               </span>
             </div>
           )}

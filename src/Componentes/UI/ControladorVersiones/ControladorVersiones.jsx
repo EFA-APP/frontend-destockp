@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { axiosInitial } from "../../Backend/Config";
 import { RefreshCw } from "lucide-react";
+import { axiosInitial } from "../../../Backend/Config";
 
 export const ControladorVersiones = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -41,7 +41,7 @@ export const ControladorVersiones = () => {
     consultarEstado(); // Ejecutar al cargar
 
     // Polling cada 20 segundos
-    const interval = setInterval(consultarEstado, 2000);
+    const interval = setInterval(consultarEstado, 20000);
     return () => clearInterval(interval);
   }, []);
 
