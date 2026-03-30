@@ -40,6 +40,7 @@ const TablaClientes = () => {
         {...clienteConfig}
       />
       <DataTable id_tabla="clientes"
+        llaveTituloMobile="nombre"
         columnas={columnasClientes}
         datos={clientes}
         mostrarAcciones={true}

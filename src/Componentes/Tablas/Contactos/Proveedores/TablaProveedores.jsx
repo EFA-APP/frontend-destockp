@@ -45,6 +45,7 @@ const TablaProveedores = () => {
         {...proveedorConfig}
       />
       <DataTable id_tabla="proveedores"
+        llaveTituloMobile="nombre"
         columnas={columnasProveedores}
         datos={proveedores}
         acciones={accionesProveedor({

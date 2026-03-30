@@ -23,12 +23,11 @@ const Productos = lazy(
 const MateriaPrima = lazy(
   () => import("../Componentes/Secciones/Articulos/MateriaPrima/MateriaPrima"),
 );
-const Facturas = lazy(
-  () => import("../Componentes/Secciones/Ventas/Facturas/Facturas"),
+const Comprobantes = lazy(
+  () => import("../Componentes/Secciones/Ventas/Comprobantes/Comprobantes"),
 );
-const CrearFactura = lazy(
-  () =>
-    import("../Componentes/Secciones/Ventas/CrearVentas/CrearFactura/CrearFactura"),
+const Listados = lazy(
+  () => import("../Componentes/Secciones/Ventas/Listados/Listados"),
 );
 
 const FacturasProveedor = lazy(
@@ -248,8 +247,8 @@ export default function Router() {
 
             {/* VENTAS */}
             <Route element={<RutaProtegida />}>
-              <Route path="ventas/facturas" element={<Facturas />} />
-              <Route path="ventas/facturas/nueva" element={<CrearFactura />} />
+              <Route path="ventas/listados" element={<Listados />} />
+              <Route path="ventas/comprobantes" element={<Comprobantes />} />
             </Route>
 
             {/* COMPRAS */}

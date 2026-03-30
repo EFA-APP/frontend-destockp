@@ -7,8 +7,6 @@ import { Link } from "react-router-dom";
 import * as Icons from "../../../assets/Icons";
 import { useSeccionesUI } from "../../../Backend/Autenticacion/hooks/Secciones/useSeccionesUI";
 import { usePermisosDeUsuario } from "../../../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
-import { useArcaStore } from "../../../store/useArcaStore";
-import { useEffect } from "react";
 
 // Función para parsear el string del icono que viene del backend (ej: "<InventarioIcono size={20} />")
 const parseIcono = (iconStr) => {
@@ -32,14 +30,6 @@ const BarraLateral = () => {
 
   const { secciones: seccionesApi } = useSeccionesUI();
   const { codigosSeccionPermitidos } = usePermisosDeUsuario();
-  const { conectado, verificarSesion, cargando } = useArcaStore();
-
-  // Verificación automática de sesión ARCA (AFIP)
-  useEffect(() => {
-    if (usuario && !conectado && !cargando) {
-      verificarSesion(usuario);
-    }
-  }, [usuario, conectado, cargando, verificarSesion]);
 
   // Transformamos y filtramos el menú según los datos de la API y permisos
   const menuFiltrado = useMemo(() => {
@@ -127,8 +117,8 @@ const BarraLateral = () => {
                   {usuario?.nombreEmpresa || "SISTEMA"}
                 </span>
               </div>
-              <span className="text-[10px] text-[var(--text-muted)] font-medium">
-                {conectado ? "Conexión ARCA Activa" : "Panel de Control"}
+              <span className="text-[10px] text-[var(--text-muted)]/75 font-medium">
+                Panel de Control
               </span>
             </div>
           )}

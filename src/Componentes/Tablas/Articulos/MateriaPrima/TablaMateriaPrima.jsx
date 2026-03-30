@@ -77,6 +77,7 @@ const TablaMateriaPrima = () => {
 
       <DataTable
         id_tabla="materiaprima"
+        llaveTituloMobile="nombre"
         columnas={columnasMateriaPrima}
         datos={materiasPrimas}
         loading={cargando}

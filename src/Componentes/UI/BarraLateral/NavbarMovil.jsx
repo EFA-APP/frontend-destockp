@@ -94,9 +94,9 @@ const NavbarMovil = () => {
         />
       )}
 
-      {/* Popover de Submenús o Más Opciones (Estilo GUMA) */}
+      {/* Popover de Submenús o Más Opciones (Estilo Fijo) */}
       {menuAbierto && (
-        <div className="fixed bottom-[90px] left-4 right-4 bg-[var(--surface)]/90 backdrop-blur-xl rounded-2xl shadow-2xl z-[9999] max-h-[60vh] overflow-y-auto animate-in slide-in-from-bottom duration-300 md:hidden border border-[var(--border-subtle)]">
+        <div className="fixed bottom-[64px] left-0 right-0 bg-[var(--surface)]/95 backdrop-blur-2xl rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] z-[9999] max-h-[70vh] overflow-y-auto animate-in slide-in-from-bottom duration-300 md:hidden border-t border-[var(--border-subtle)]">
           {menuAbierto === "mas_opciones" ? (
             /* LISTA DE ITEMS EXTRAS */
             <div>
@@ -166,9 +166,9 @@ const NavbarMovil = () => {
         </div>
       )}
 
-      {/* Barra de navegación móvil (Estilo GUMA) */}
-      <header className="fixed w-full bottom-0 left-0 right-0 z-[9999] px-4 pb-6 pt-2 pointer-events-none md:hidden">
-        <nav className="mx-auto max-w-md h-16 pointer-events-auto flex justify-around items-center bg-[var(--surface)] shadow-xl shadow-[var(--primary)]/20 border border-[var(--primary)]/50 rounded-full px-2 backdrop-blur-md">
+      {/* Barra de navegación móvil (Estilo Fijo Bottom) */}
+      <header className="fixed w-full bottom-0 left-0 right-0 z-[9999] md:hidden">
+        <nav className="w-full h-[64px] flex justify-around items-center bg-[var(--surface)]/90 backdrop-blur-xl border-t border-[var(--border-subtle)] px-2 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
           {/* PRIMEROS 3 ITEMS */}
           {itemsPrincipales.map((item) => {
             const isActive = esSeccionActiva(item) || menuAbierto === item.id;
@@ -182,7 +182,7 @@ const NavbarMovil = () => {
                   onClick={() => toggleMenu(item.id)}
                 >
                   <div
-                    className={`p-1.5 rounded-lg transition-all duration-300 ${isActive ? "bg-[var(--primary)]/15 scale-110 shadow-[0_0_8px_var(--primary-subtle)]" : "group-hover:bg-[var(--surface-hover)]"}`}
+                    className={`p-1 rounded-lg transition-all duration-300 ${isActive ? "text-[var(--primary)] scale-110" : "group-hover:bg-[var(--surface-hover)]"}`}
                   >
                     {item.icono}
                   </div>
@@ -203,7 +203,7 @@ const NavbarMovil = () => {
                 onClick={() => manejarNavegacion(item.redireccion)}
               >
                 <div
-                  className={`p-1.5 rounded-lg transition-all duration-300 ${isActive ? "bg-[var(--primary)]/15 scale-110 shadow-[0_0_8px_var(--primary-subtle)]" : "group-hover:bg-[var(--surface-hover)]"}`}
+                  className={`p-1 rounded-lg transition-all duration-300 ${isActive ? "text-[var(--primary)] scale-110" : "group-hover:bg-[var(--surface-hover)]"}`}
                 >
                   {item.icono}
                 </div>
@@ -228,7 +228,7 @@ const NavbarMovil = () => {
               onClick={() => toggleMenu("mas_opciones")}
             >
               <div
-                className={`p-1.5 rounded-lg transition-all duration-300 ${menuAbierto === "mas_opciones" || itemsExtras.some(esSeccionActiva) ? "bg-[var(--primary)]/15 scale-110 shadow-[0_0_8px_var(--primary-subtle)]" : "group-hover:bg-[var(--surface-hover)]"}`}
+                className={`p-1 rounded-lg transition-all duration-300 ${menuAbierto === "mas_opciones" || itemsExtras.some(esSeccionActiva) ? "text-[var(--primary)] scale-110" : "group-hover:bg-[var(--surface-hover)]"}`}
               >
                 <LayoutGrid size={20} />
               </div>

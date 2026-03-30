@@ -205,8 +205,18 @@ const DataCard = ({
   accionesProps,
   estaExpandida,
   onToggleExpansion,
+  llaveTituloMobile = null, // <- Nuevo prop
 }) => {
   const [actionSheetOpen, setActionSheetOpen] = useState(false);
+
+  // Encontrar la columna que servirá de título
+  // Prioridad: 1. llaveTituloMobile (incluso si está oculta), 2. primera columna visible
+  const columnaTitulo = llaveTituloMobile 
+    ? columnas.find(c => c.key === llaveTituloMobile) || columnas.find(c => c.visible !== false)
+    : columnas.find(c => c.visible !== false);
+
+  // Columnas para el cuerpo: Las que son VISIBLES y NO son la del título
+  const columnasCuerpo = columnas.filter(c => c.visible !== false && c.key !== columnaTitulo?.key);
 
   // Extraer propiedades para crear botones en el sheet
   const { acciones, onVer, onEditar, onEliminar, onDescargar, permisos } =
@@ -275,13 +285,13 @@ const DataCard = ({
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] animate-pulse" />
               <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em]">
-                {columnas[0]?.etiqueta}
+                {columnaTitulo?.etiqueta}
               </span>
             </div>
             <div className="text-[16px] font-black text-[var(--text-primary)] leading-tight break-words">
-              {columnas[0]?.renderizar
-                ? columnas[0].renderizar(fila[columnas[0].key], fila)
-                : formatVal(fila[columnas[0]?.key])}
+              {columnaTitulo?.renderizar
+                ? columnaTitulo.renderizar(fila[columnaTitulo.key], fila)
+                : formatVal(fila[columnaTitulo?.key])}
             </div>
           </div>
           <div className="text-[var(--primary)] text-right">
@@ -331,18 +341,22 @@ const DataCard = ({
 
               {/* ----- NUEVA SECCION DETALLES ----- */}
               <div className="grid grid-cols-2 gap-x-6 gap-y-4 py-4 border-y border-white/5 mb-4 max-h-[40vh] overflow-y-auto no-scrollbar">
-                {columnas.slice(1).map((col) => (
-                  <div key={col.key} className="flex flex-col gap-1 overflow-hidden">
-                    <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
-                      {col.etiqueta}
-                    </span>
-                    <div className="text-[14px] font-medium text-white break-words">
-                      {col.renderizar
-                        ? col.renderizar(fila[col.key], fila)
-                        : formatVal(fila[col.key])}
+                {/* Mostramos todas las columnas VISIBLES excepto el título en el cuerpo del drawer */}
+                {columnas.map((col) => {
+                  if (col.key === columnaTitulo?.key || col.visible === false) return null;
+                  return (
+                    <div key={col.key} className="flex flex-col gap-1 overflow-hidden">
+                      <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                        {col.etiqueta}
+                      </span>
+                      <div className="text-[14px] font-medium text-white break-words">
+                        {col.renderizar
+                          ? col.renderizar(fila[col.key], fila)
+                          : formatVal(fila[col.key])}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {renderDetalle && (
@@ -489,6 +503,7 @@ const DataTable = ({
   className = "",
   onRefresh = null, // <- Nuevo prop para Pull to Refresh
   id_tabla = null,
+  llaveTituloMobile = null, // <- Nuevo prop
 }) => {
   const navigate = useNavigate();
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(
@@ -833,10 +848,11 @@ const DataTable = ({
             <DataCard
               key={fila.id || index}
               fila={fila}
-              columnas={columnasVisibles.filter((c) => c.visible !== false)}
+              columnas={columnasVisibles} // Pasamos todas para que DataCard decida
               renderDetalle={renderDetalle}
               estaExpandida={filaExpandidaId === (fila.id || index)}
               onToggleExpansion={() => toggleFilaExpansion(fila.id || index)}
+              llaveTituloMobile={llaveTituloMobile} // <- Pasar prop
               accionesProps={
                 mostrarAcciones
                   ? {

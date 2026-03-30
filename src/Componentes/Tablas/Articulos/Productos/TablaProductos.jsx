@@ -35,8 +35,14 @@ const TablaProductos = () => {
   // Estados locales para filtros API y paginación
   const [filtros, setFiltros] = useState({ pagina: 1, limite: 10 });
   // Estados persistentes para búsqueda
-  const [busquedaInput, setBusquedaInput] = usePersistentState("productos_busqueda_input", "");
-  const [busquedaClave, setBusquedaClave] = usePersistentState("productos_busqueda_clave", "nombre"); // 'nombre' o 'codigo'
+  const [busquedaInput, setBusquedaInput] = usePersistentState(
+    "productos_busqueda_input",
+    "",
+  );
+  const [busquedaClave, setBusquedaClave] = usePersistentState(
+    "productos_busqueda_clave",
+    "nombre",
+  ); // 'nombre' o 'codigo'
 
   // Debounce para aplicar la búsqueda al backend
   useEffect(() => {
@@ -230,6 +236,7 @@ const TablaProductos = () => {
 
       <DataTable
         id_tabla="productos"
+        llaveTituloMobile="nombre"
         columnas={columnasAMostrar}
         datos={productos}
         loading={cargando}

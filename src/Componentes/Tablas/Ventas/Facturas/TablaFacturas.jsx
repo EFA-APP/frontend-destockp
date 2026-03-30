@@ -9,7 +9,6 @@ import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGener
 import { facturaConfig } from "../../../Modales/Ventas/ConfigFactura";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
 
-
 const TablaFacturas = () => {
   const {
     facturas,
@@ -70,7 +69,9 @@ const TablaFacturas = () => {
       </div>
 
       {/* Tabla */}
-      <DataTable id_tabla="facturas"
+      <DataTable
+        id_tabla="facturas"
+        llaveTituloMobile="numero"
         columnas={columnasFacturas}
         datos={facturas}
         mostrarBuscador
