@@ -6,6 +6,7 @@ export const useArcaStore = create((set) => ({
   expiracion: null,
   cargando: false,
   mensaje: "",
+  infoIva: null,
 
   setConexion: (status, expiracion, mensaje = "") =>
     set({ conectado: status, expiracion, mensaje }),
@@ -28,11 +29,12 @@ export const useArcaStore = create((set) => ({
         set({
           conectado: true,
           expiracion: res.data?.expiration,
+          infoIva: res.iva || null, // Guardamos la info de IVA que viene del login
           mensaje: res.message,
           cargando: false,
         });
       } else {
-        set({ conectado: false, mensaje: res.message, cargando: false });
+        set({ conectado: false, infoIva: null, mensaje: res.message, cargando: false });
       }
     } catch (error) {
       console.error("[ARCA_STORE_ERROR]", error);

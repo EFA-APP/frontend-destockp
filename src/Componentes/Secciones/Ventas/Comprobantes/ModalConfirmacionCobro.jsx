@@ -13,8 +13,12 @@ const ModalConfirmacionCobro = ({
   totales,
   confirmarVentaFinal,
   enBlanco,
+  aplicaIva,
+  tipoDocumento,
 }) => {
   if (!mostrarPreview) return null;
+
+  const esTipoA = [1, 2, 3, 4, 5].includes(Number(tipoDocumento));
 
   return (
     <div className="fixed inset-0 z-[1000] flex justify-end">
@@ -97,25 +101,29 @@ const ModalConfirmacionCobro = ({
         {/* Panel de Totales y Botón Final */}
         <div className="p-6 bg-[#0a0a0a] border-top border-white/10 space-y-4">
           <div className="space-y-2">
-            <div className="flex justify-between text-white/50 text-xs">
-              <span>SUBTOTAL</span>
-              <span>
-                $
-                {totales.subtotal.toLocaleString("es-AR", {
-                  minimumFractionDigits: 2,
-                })}
-              </span>
-            </div>
-            {enBlanco === "si" && (
-              <div className="flex justify-between text-white/50 text-xs">
-                <span>IVA (21%)</span>
-                <span>
-                  $
-                  {totales.iva.toLocaleString("es-AR", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
+            {esTipoA && (
+              <>
+                <div className="flex justify-between text-white/50 text-xs">
+                  <span>SUBTOTAL (NETO)</span>
+                  <span>
+                    $
+                    {totales.subtotal.toLocaleString("es-AR", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+                {enBlanco === "si" && aplicaIva && (
+                  <div className="flex justify-between text-white/50 text-xs">
+                    <span>IVA</span>
+                    <span>
+                      $
+                      {totales.iva.toLocaleString("es-AR", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                )}
+              </>
             )}
             <div className="flex justify-between text-white text-3xl font-black mt-2 pt-2 border-t border-white/5">
               <span className="tracking-tighter">TOTAL</span>

@@ -8,11 +8,9 @@ import { useArcaStore } from "../../../../store/useArcaStore";
 import { ObtenerTiposComprobanteApi } from "../../../../Backend/Arca/api/arca.api";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import {
-  BorrarIcono,
   CarritoIcono,
   ComprobanteIcono,
   DineroIcono,
-  VentasIcono,
 } from "../../../../assets/Icons";
 
 // Importar Sub-componentes
@@ -38,6 +36,7 @@ const Comprobantes = () => {
   const usuario = useAuthStore((state) => state.usuario);
 
   // === ESTADOS DEL TICKET (ITEMS) ===
+  const { conectado: arcaConectado, infoIva } = useArcaStore();
   const [items, setItems] = useState([]);
 
   // === ESTADOS DE BÚSQUEDA Y CAPTURA ===
@@ -63,12 +62,12 @@ const Comprobantes = () => {
 
   // === ESTADOS DE FACTURACIÓN ===
   const [tipoDocumento, setTipoDocumento] = useState("factura");
-  const [letraComprobante, setLetraComprobante] = useState("B");
   const [comprobanteAsociado, setComprobanteAsociado] = useState("");
   const [enBlanco, setEnBlanco] = useState("si");
   const [clienteSeleccionado, setClienteSeleccionado] = useState("");
   const [condicionVenta, setCondicionVenta] = useState("contado");
-  const [aplicaIva, setAplicaIva] = useState(false);
+  // Determinar si aplica IVA de forma automática según la sesión de ARCA
+  const aplicaIva = arcaConectado && enBlanco === "si" && !!infoIva?.facturaConIva;
   const [metodoPago, setMetodoPago] = useState("efectivo");
   const [mostrarPreview, setMostrarPreview] = useState(false);
   const [tabActiva, setTabActiva] = useState("productos"); // 'productos' o 'pago'
@@ -133,7 +132,6 @@ const Comprobantes = () => {
   useEffect(() => {
     if (enBlanco === "no") {
       setTipoDocumento(99);
-      setAplicaIva(false);
       // Resetear IVA en items existentes
       setItems((prev) => prev.map((item) => ({ ...item, iva: 0 })));
     } else if (enBlanco === "si" && tipoDocumento === 99) {
@@ -141,7 +139,15 @@ const Comprobantes = () => {
         setTipoDocumento(tiposComprobante[0].id);
       }
     }
-  }, [enBlanco, tiposComprobante]);
+  }, [enBlanco, tipoDocumento]);
+
+  // Sincronizar el tipo de documento inicial con la preferencia de ARCA
+  useEffect(() => {
+    if (arcaConectado && infoIva?.tipoFacturaDefault) {
+      setTipoDocumento(infoIva.tipoFacturaDefault);
+    }
+  }, [arcaConectado, infoIva]);
+
 
   // === FOCO INICIAL ===
   useEffect(() => {
@@ -162,7 +168,7 @@ const Comprobantes = () => {
       try {
         const parsed = JSON.parse(prod.atributos);
         attr = parsed[col];
-      } catch (e) {}
+      } catch (e) { }
     }
 
     // Intento de fallback si, por alguna razón, guardan el precio dinámico como propiedad raíz
@@ -358,7 +364,7 @@ const Comprobantes = () => {
           cantidad: cantidad,
           precioUnitario: precioVenta,
           descuento: 0,
-          iva: aplicaIva ? 21 : 0,
+          tasaIva: parseFloat(productoEncontrado.tasaIva || productoEncontrado.atributos?.tasaIva) || 21,
         },
       ]);
     }
@@ -384,15 +390,25 @@ const Comprobantes = () => {
   };
 
   // === CÁLCULOS FINANCIEROS ===
-  const calcularSubtotal = (item) => {
-    const subtotalBase = item.cantidad * item.precioUnitario;
-    const descuentoValor = subtotalBase * ((item.descuento || 0) / 100);
-    return subtotalBase - descuentoValor;
+  const calcularIVA = (item) => {
+    if (!aplicaIva) return 0;
+    const totalConDescuento = calcularTotalItem(item);
+    const tasa = parseFloat(item.tasaIva) || 0;
+    const neto = totalConDescuento / (1 + tasa / 100);
+    return totalConDescuento - neto;
   };
 
-  const calcularIVA = (item) => {
-    const sub = calcularSubtotal(item);
-    return sub * ((item.iva || 0) / 100);
+  const calcularTotalItem = (item) => {
+    const bruto = (item.cantidad || 0) * (item.precioUnitario || 0);
+    const desc = bruto * ((item.descuento || 0) / 100);
+    return bruto - desc;
+  };
+
+  const calcularNetoItem = (item) => {
+    const total = calcularTotalItem(item);
+    if (!aplicaIva) return total;
+    const tasa = parseFloat(item.tasaIva) || 0;
+    return total / (1 + tasa / 100);
   };
 
   const totales = useMemo(() => {
@@ -401,15 +417,17 @@ const Comprobantes = () => {
     let total = 0;
 
     items.forEach((item) => {
-      const sub = calcularSubtotal(item);
+      const neto = calcularNetoItem(item);
       const impuesto = calcularIVA(item);
-      subtotal += sub;
+      const bruto = calcularTotalItem(item);
+
+      subtotal += neto;
       iva += impuesto;
-      total += sub + impuesto;
+      total += bruto;
     });
 
     return { subtotal, iva, total };
-  }, [items]);
+  }, [items, aplicaIva]);
 
   // === GENERACIÓN ===
   const handleFacturar = () => {
@@ -422,11 +440,14 @@ const Comprobantes = () => {
   };
 
   const confirmarVentaFinal = () => {
+    const letraDerivada = [1, 2, 3, 4, 5].includes(Number(tipoDocumento)) ? "A" :
+                          [6, 7, 8, 9, 10].includes(Number(tipoDocumento)) ? "B" : "C";
+
     const payload = {
       tipoDocumento,
       comprobanteAsociado:
         tipoDocumento !== "factura" ? comprobanteAsociado : null,
-      letraComprobante,
+      letraComprobante: letraDerivada,
       fiscal: enBlanco === "si",
       clienteId: clienteSeleccionado || null,
       condicionVenta,
@@ -438,7 +459,7 @@ const Comprobantes = () => {
         precioUnitario: i.precioUnitario,
         descuento: i.descuento,
         iva: i.iva,
-        subtotal: calcularSubtotal(i),
+        subtotal: calcularTotalItem(i),
       })),
     };
 
@@ -553,9 +574,10 @@ const Comprobantes = () => {
             items={items}
             actualizarItem={actualizarItem}
             eliminarItem={eliminarItem}
-            calcularSubtotal={calcularSubtotal}
+            calcularSubtotal={calcularTotalItem}
           />
         </div>
+
 
         {/* ========================================================= */}
         {/* PANEL DERECHO: OP. Y PAGO (ANCHO FIJO)                    */}
@@ -566,10 +588,7 @@ const Comprobantes = () => {
           setEnBlanco={setEnBlanco}
           tipoDocumento={tipoDocumento}
           setTipoDocumento={setTipoDocumento}
-          letraComprobante={letraComprobante}
-          setLetraComprobante={setLetraComprobante}
           aplicaIva={aplicaIva}
-          setAplicaIva={setAplicaIva}
           metodoPago={metodoPago}
           setMetodoPago={setMetodoPago}
           busquedaCliente={busquedaCliente}
@@ -606,6 +625,8 @@ const Comprobantes = () => {
         totales={totales}
         confirmarVentaFinal={confirmarVentaFinal}
         enBlanco={enBlanco}
+        aplicaIva={aplicaIva}
+        tipoDocumento={tipoDocumento}
       />
 
       {/* BARRA FLOTANTE MOBILE */}

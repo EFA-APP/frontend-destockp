@@ -15,8 +15,6 @@ const PanelPago = ({
   setEnBlanco,
   tipoDocumento,
   setTipoDocumento,
-  letraComprobante,
-  setLetraComprobante,
   aplicaIva,
   setAplicaIva,
   metodoPago,
@@ -44,6 +42,8 @@ const PanelPago = ({
   usuario = {},
 }) => {
   const isArca = usuario?.conexionArca || usuario?.configuracionArca?.activo;
+  const esTipoA = [1, 2, 3, 4, 5].includes(Number(tipoDocumento));
+
   return (
     <div
       className={`w-full md:w-[380px] shrink-0 bg-[#0a0a0a] border-l border-[var(--border-subtle)] flex flex-col shadow-[-10px_0_20px_max(rgba(0,0,0,0.2))] z-20 ${tabActiva !== "pago" ? "hidden md:flex" : "flex"}`}
@@ -155,33 +155,18 @@ const PanelPago = ({
                         .toLowerCase()
                         .includes(busquedaFactura.toLowerCase()),
                     ).length === 0 && (
-                      <div className="px-3 py-2 text-xs text-[var(--text-muted)] text-center">
-                        Sin resultados
-                      </div>
-                    )}
+                        <div className="px-3 py-2 text-xs text-[var(--text-muted)] text-center">
+                          Sin resultados
+                        </div>
+                      )}
                   </div>
                 )}
               </div>
             )}
 
 
-            {enBlanco === "si" && (
-              <div className="flex items-center gap-2 mt-1">
-                <input
-                  type="checkbox"
-                  id="chkIva"
-                  checked={aplicaIva}
-                  onChange={(e) => setAplicaIva(e.target.checked)}
-                  className="w-4 h-4 accent-[var(--primary)] cursor-pointer"
-                />
-                <label
-                  htmlFor="chkIva"
-                  className="text-xs font-bold text-[var(--text-primary)] cursor-pointer"
-                >
-                  Aplicar IVA (21%)
-                </label>
-              </div>
-            )}
+            {/* El checkbox de aplicar IVA fue removido para cálculo automático por sesión. */}
+
           </div>
         )}
 
@@ -319,28 +304,30 @@ const PanelPago = ({
 
       {/* FOOTER TOTALES Y BOTÓN (Solo Desktop) */}
       <div className="hidden md:flex shrink-0 p-5 bg-[var(--surface)] border-t border-[var(--border-subtle)] flex-col gap-4">
-        <div className="space-y-1.5 px-1">
-          <div className="flex justify-between text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
-            <span>Subtotal</span>
-            <span>
-              $
-              {totales.subtotal.toLocaleString("es-AR", {
-                minimumFractionDigits: 2,
-              })}
-            </span>
-          </div>
-          {enBlanco === "si" && (
+        {esTipoA && (
+          <div className="space-y-1.5 px-1">
             <div className="flex justify-between text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
-              <span>Impuestos (IVA)</span>
+              <span>Subtotal (Neto)</span>
               <span>
                 $
-                {totales.iva.toLocaleString("es-AR", {
+                {totales.subtotal.toLocaleString("es-AR", {
                   minimumFractionDigits: 2,
                 })}
               </span>
             </div>
-          )}
-        </div>
+            {enBlanco === "si" && aplicaIva && (
+              <div className="flex justify-between text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
+                <span>Impuestos (IVA)</span>
+                <span>
+                  $
+                  {totales.iva.toLocaleString("es-AR", {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="flex items-end justify-between px-1">
           <span className="text-sm font-black text-[var(--text-primary)] uppercase tracking-[0.2em] mb-1">
@@ -359,11 +346,10 @@ const PanelPago = ({
           onClick={handleFacturar}
           disabled={items.length === 0}
           className={`w-full h-14 rounded-md flex items-center justify-center gap-3 font-black text-xl uppercase tracking-widest transition-all duration-300 shadow-xl border
-                    ${
-                      items.length === 0
-                        ? "bg-[var(--surface-active)] text-[var(--text-muted)] border-transparent cursor-not-allowed opacity-50"
-                        : "bg-emerald-500 hover:bg-emerald-400 text-black border-emerald-400 shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-1"
-                    }
+                    ${items.length === 0
+              ? "bg-[var(--surface-active)] text-[var(--text-muted)] border-transparent cursor-not-allowed opacity-50"
+              : "bg-emerald-500 hover:bg-emerald-400 text-black border-emerald-400 shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-1"
+            }
                 `}
         >
           {items.length > 0 && <VentasIcono size={24} />}

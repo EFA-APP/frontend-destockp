@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useProductoUI } from "../../../../Backend/Articulos/hooks/Producto/useProductoUI";
-import { AgregarIcono, InventarioIcono, BalanceIcono, ConfiguracionIcono, EditarIcono } from "../../../../assets/Icons";
+import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
+import { AgregarIcono, InventarioIcono, BalanceIcono, ConfiguracionIcono, EditarIcono, ArcaIcono } from "../../../../assets/Icons";
 import ContenedorSeccion from "../../../ContenidoPanel/ContenedorSeccion";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import FormularioDinamico from "../../../UI/FormularioReutilizable/FormularioDinamico";
@@ -14,6 +15,9 @@ const CrearProductos = () => {
     const isEdit = !!id;
 
     const { crearProducto, actualizarProducto, productos, estaCreando, estaActualizando, cargando } = useProductoUI();
+    const usuario = useAuthStore((state) => state.usuario);
+    const tieneArca = usuario?.conexionArca || usuario?.configuracionArca?.activo;
+
     const [initialData, setInitialData] = useState(() => {
         const prod = location.state?.producto;
         if (!prod) return null;
@@ -39,9 +43,9 @@ const CrearProductos = () => {
                 const mapeados = data.map(c => ({
                     name: c.claveCampo,
                     label: c.nombreCampo,
-                    type: c.tipoDato === 'TEXTO' ? 'text' : 
-                          c.tipoDato === 'NUMERO' ? 'number' : 
-                          c.tipoDato === 'BOOLEANO' ? 'boolean' : 'select',
+                    type: c.tipoDato === 'TEXTO' ? 'text' :
+                        c.tipoDato === 'NUMERO' ? 'number' :
+                            c.tipoDato === 'BOOLEANO' ? 'boolean' : 'select',
                     options: c.opciones ? c.opciones.map(o => ({ value: o, label: o })) : [],
                     required: c.requerido,
                     formula: c.formula,
@@ -76,6 +80,20 @@ const CrearProductos = () => {
             type: "textarea",
             fullWidth: true,
             section: "Identificación de Producto",
+        },
+        {
+            name: "tasaIva",
+            label: "Alícuota IVA (%)",
+            type: "select",
+            options: [
+                { value: 0, label: "0% (Exento / No Gravado)" },
+                { value: 10.5, label: "10.5% (Reducida)" },
+                { value: 21, label: "21% (General)" },
+                { value: 27, label: "27% (Especial)" },
+            ],
+            defaultValue: 0,
+            section: "Gestión de Inventario", // Agrupado aquí para balance
+            sectionIcon: <ArcaIcono />,
         },
         {
             name: "unidadMedidaLegend",
@@ -186,9 +204,14 @@ const CrearProductos = () => {
     ];
 
     const camposAMostrar = useMemo(() => {
+        let base = [...camposProductos];
+        if (!tieneArca) {
+            base = base.filter(c => c.name !== "tasaIva");
+        }
+
         if (camposDinamicos.length > 0) {
             return [
-                ...camposProductos.filter(c => ["nombre", "descripcion", "stock"].includes(c.name)),
+                ...base.filter(c => ["nombre", "descripcion", "stock", "tasaIva"].includes(c.name)),
                 ...camposDinamicos
             ].map(c => {
                 if (c.name === "stock") {
@@ -211,17 +234,17 @@ const CrearProductos = () => {
             });
 
             // eslint-disable-next-line no-unused-vars
-            const { 
-                unidadMedidaLegend, 
-                cantidadDePaquetesActuales, 
+            const {
+                unidadMedidaLegend,
+                cantidadDePaquetesActuales,
                 cantidadDepaquetesActuales,
                 cantidadSobrante,
                 codigoEmpresa,
                 createdAt,
                 updatedAt,
-                id: _, 
-                codigoSecuencial, 
-                ...rest 
+                id: _,
+                codigoSecuencial,
+                ...rest
             } = data;
 
             // 2. NUEVO: Purga explícita de 'rest' para evitar fugas duplicadas al Gateway
@@ -234,8 +257,9 @@ const CrearProductos = () => {
                 unidadMedida: "FRASCO",
                 cantidadPorPaquete: parseFloat(data.cantidadPorPaquete) || 0,
                 stock: parseFloat(data.stock) || 0,
+                tasaIva: parseFloat(data.tasaIva) || 21,
                 activo: data.activo === "true" || data.activo === true,
-                atributos 
+                atributos
             };
 
             // Solo enviar para Creación (No permitido en ActualizarProductoDto)

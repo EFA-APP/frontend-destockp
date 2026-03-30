@@ -101,7 +101,9 @@ const BarraNavegacion = () => {
           {/* PERFIL */}
           <div className="flex items-center gap-4 ml-2 ">
             <div className="flex-col items-end hidden md:flex">
-              <span className="text-[11px] font-bold text-[var(--text-primary)] leading-none">{`${usuario.nombre.toUpperCase()} ${usuario.apellido.toUpperCase()}`}</span>
+              <span className="text-[11px] font-bold text-[var(--text-primary)] leading-none">{`${usuario.nombre.toUpperCase()} ${usuario.apellido.toUpperCase()} `} <span className="text-[11px] text-[var(--primary-light)] font-bold uppercase tracking-widest">
+                {(!usuario.conexionArca) ? "" : "(" + usuario.condicionIva.toUpperCase() + ")"}
+              </span></span>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-[9px] text-[var(--secondary)] font-bold uppercase tracking-widest">
                   {usuario.roles
