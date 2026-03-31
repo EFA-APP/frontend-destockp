@@ -257,7 +257,7 @@ const CrearProductos = () => {
                 unidadMedida: "FRASCO",
                 cantidadPorPaquete: parseFloat(data.cantidadPorPaquete) || 0,
                 stock: parseFloat(data.stock) || 0,
-                tasaIva: parseFloat(data.tasaIva) || 21,
+                tasaIva: parseFloat(data.tasaIva) || 0,
                 activo: data.activo === "true" || data.activo === true,
                 atributos
             };

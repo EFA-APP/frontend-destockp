@@ -6,12 +6,14 @@ import { useFacturas } from "../../../../../Backend/hooks/Ventas/Facturas/useFac
 import { useAuthStore } from "../../../../../Backend/Autenticacion/store/authenticacion.store";
 import { useArcaStore } from "../../../../../store/useArcaStore";
 import { ObtenerTiposComprobanteApi } from "../../../../../Backend/Arca/api/arca.api";
+import { useAlertas } from "../../../../../store/useAlertas";
 import {
   getPrecio,
   calcularIVA,
   calcularNetoItem,
   calcularTotalItem,
 } from "../utils/fiscal.utils";
+import { useGenerarComprobante } from "../../../../../Backend/Ventas/queries/Comprobante/useGenerarComprobante.mutation";
 
 /**
  * Hook maestro para la gestión de la lógica de Comprobantes.
@@ -23,6 +25,7 @@ export const useComprobantes = () => {
   const { conectado: arcaConectado, infoIva } = useArcaStore();
   const { clientes } = useClientes();
   const { facturas } = useFacturas();
+  const { agregarAlerta } = useAlertas();
 
   // === 2. ESTADOS DE BÚSQUEDA Y CAPTURA ===
   const [filtrosProductos, setFiltrosProductos] = useState({ pagina: 1, limite: 10 });
@@ -37,7 +40,7 @@ export const useComprobantes = () => {
 
   // === 3. ESTADOS FISCALES Y DE FACTURACIÓN ===
   const [tiposComprobante, setTiposComprobante] = useState([]);
-  const [tipoDocumento, setTipoDocumento] = useState("factura");
+  const [tipoDocumento, setTipoDocumento] = useState(99);
   const [enBlanco, setEnBlanco] = useState("si");
   const [condicionVenta, setCondicionVenta] = useState("contado");
   const [metodoPago, setMetodoPago] = useState("efectivo");
@@ -60,6 +63,9 @@ export const useComprobantes = () => {
   // === 6. REFERENCIAS PARA FOCO ===
   const inputCodigoRef = useRef(null);
   const inputCantidadRef = useRef(null);
+
+  // === 6.1 MUTACIONES ===
+  const mutationGenerar = useGenerarComprobante();
 
   // === 7. DERIVACIONES FISCALES ===
   const aplicaIva = arcaConectado && enBlanco === "si" && !!infoIva?.facturaConIva;
@@ -155,7 +161,10 @@ export const useComprobantes = () => {
   const agregarItem = () => {
     if (!productoEncontrado) return;
     const cantidad = parseFloat(cantidadInput);
-    if (isNaN(cantidad) || cantidad <= 0) return alert("Cantidad inválida");
+    if (isNaN(cantidad) || cantidad <= 0) {
+      agregarAlerta({ title: "Advertencia", message: "La cantidad debe ser mayor a 0", type: "warning" });
+      return;
+    }
 
     const itemIndex = items.findIndex(i => i.codigoSecuencial === productoEncontrado.codigoSecuencial);
     if (itemIndex > -1) {
@@ -169,7 +178,7 @@ export const useComprobantes = () => {
         cantidad,
         precioUnitario: getPrecio(productoEncontrado, columnaPrecioSeleccionada),
         descuento: 0,
-        tasaIva: parseFloat(productoEncontrado.tasaIva) || 21,
+        tasaIva: parseFloat(productoEncontrado.tasaIva) || 0,
       }]);
     }
     limpiarCaptura();
@@ -222,26 +231,118 @@ export const useComprobantes = () => {
   };
 
   const handleFinalizar = () => {
-    if (items.length === 0) return alert("Ticket vacío");
+    if (items.length === 0) {
+      agregarAlerta({ title: "Carrito vacío", message: "Agregue al menos un producto para facturar", type: "warning" });
+      return;
+    }
     setMostrarPreview(true);
   };
 
-  const confirmarVentaFinal = () => {
-    const letraDerivada = [1, 2, 3, 4, 5].includes(Number(tipoDocumento)) ? "A" :
+  const confirmarVentaFinal = async () => {
+    if (mutationGenerar.isPending) return;
+
+    const letraDerivada = tipoDocumento === 99 ? "X" : [1, 2, 3, 4, 5].includes(Number(tipoDocumento)) ? "A" :
                           [6, 7, 8, 9, 10].includes(Number(tipoDocumento)) ? "B" : "C";
-    const payload = {
-      tipoDocumento,
+
+    
+    // Función auxiliar para redondear a 2 decimales
+    const r2 = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
+
+    // Recalculamos los items asegurando el desglose Neto/IVA para AFIP
+    const itemsProcesados = items.map(i => {
+      const subtotalLinea = r2(calcularTotalItem(i)); // ANTES NO ESTABA REDONDEADO
+      const netoLinea = r2(calcularNetoItem(i, aplicaIva));
+      const ivaLinea = r2(subtotalLinea - netoLinea);
+      const precioUnitarioNeto = r2(netoLinea / (i.cantidad || 1));
+
+      return {
+        codigoProducto: i.id || 0,
+        nombre: i.nombre,
+        cantidad: i.cantidad,
+        precioUnitario: precioUnitarioNeto, 
+        descuento: i.descuento || 0,
+        tasaIva: i.tasaIva || 0,
+        subtotal: subtotalLinea, 
+        neto: netoLinea,
+        iva: ivaLinea
+      };
+    });
+
+    // Recalculamos totales globales para que coincidan EXACTO con la suma de los items redondeados
+    const totalNetoFinal = r2(itemsProcesados.reduce((acc, i) => acc + i.neto, 0));
+    const totalIvaFinal = r2(itemsProcesados.reduce((acc, i) => acc + (i.iva || 0), 0));
+    const totalVentaFinal = r2(totalNetoFinal + totalIvaFinal);
+
+    // VALIDACIÓN PREVIA PARA FACTURA A
+    if (letraDerivada === "A" && (!clienteSeleccionado || clienteSeleccionado.condicionIVA !== "Responsable Inscripto")) {
+       agregarAlerta({ 
+         title: "Cliente Requerido", 
+         message: "Para emitir una Factura A es obligatorio seleccionar un cliente Responsable Inscripto con CUIT.", 
+         type: "error" 
+       });
+       return;
+    }
+
+    // La venta solo puede ser fiscal si el modo está en "si" Y el usuario tiene permiso/conexión real
+    const esFiscalFinal = (enBlanco === "si" && usuario?.conexionArca === true);
+
+    // Mapeo detallado del DTO para el backend
+    const dto = {
+      puntoVenta: 1, 
+      codigoUsuario: usuario?.id || 1,
+      tipoDocumento: Number(tipoDocumento),
       letraComprobante: letraDerivada,
-      fiscal: enBlanco === "si",
-      clienteId: clienteSeleccionado || null,
-      items: items.map(i => ({ ...i, subtotal: calcularTotalItem(i) })),
-      totales,
+      fiscal: esFiscalFinal,
+      codigoCliente: clienteSeleccionado?.id || null,
+      condicionVenta: condicionVenta || "Contado",
+      metodoPago: metodoPago || "Efectivo",
+      totales: {
+        subtotal: totalNetoFinal,
+        iva: totalIvaFinal,
+        total: totalVentaFinal,
+      },
+      items: itemsProcesados.map(i => {
+        // Aseguramos que el codigoProducto sea numérico o null para que el DTO valide bien
+        const codigoNumerico = (typeof i.id === 'string' && i.id.startsWith('m-')) ? null : Number(i.id);
+        
+        return {
+          codigoProducto: isNaN(codigoNumerico) ? null : codigoNumerico,
+          nombre: i.nombre,
+          cantidad: i.cantidad,
+          precioUnitario: i.precioUnitario,
+          descuento: i.descuento,
+          tasaIva: i.tasaIva,
+          subtotal: i.subtotal
+        };
+      }),
+      receptor: !clienteSeleccionado ? {
+        razonSocial: "CONSUMIDOR FINAL",
+        DocTipo: 99,
+        DocNro: 0,
+        CondicionIVAReceptorId: 5,
+        domicilio: ""
+      } : {
+        razonSocial: clienteSeleccionado.nombre,
+        DocTipo: letraDerivada === "A" ? 80 : (clienteSeleccionado.documento?.length > 8 ? 80 : 96),
+        DocNro: Number(clienteSeleccionado.documento?.replace(/-/g, "")) || 0,
+        CondicionIVAReceptorId: clienteSeleccionado.condicionIVA === "Responsable Inscripto" ? 1 : 5,
+        domicilio: clienteSeleccionado.direccion || ""
+      }
     };
-    console.log("Venta finalizada:", payload);
-    alert("Venta procesada con éxito");
-    setItems([]); 
-    setMostrarPreview(false);
-    limpiarCaptura();
+
+    try {
+      await mutationGenerar.mutateAsync({ 
+        dto, 
+        codigoEmpresa: usuario?.codigoEmpresa || 1 
+      });
+      
+      // Si la petición es exitosa:
+      setItems([]); 
+      setMostrarPreview(false);
+      limpiarCaptura();
+    } catch (error) {
+      console.error("Error al procesar la venta en el frontend:", error);
+    }
   };
 
   // Exponer API del hook
