@@ -28,22 +28,23 @@ const BusquedaProducto = ({
       {/* FILA 1: SELECTORES */}
       <div className="flex flex-wrap md:flex-nowrap gap-2 items-center">
         {/* SELECTOR DE LISTA DE PRECIOS */}
-        <select
-          value={columnaPrecioSeleccionada}
-          onChange={(e) => {
-            setColumnaPrecioSeleccionada(e.target.value);
-            setTimeout(() => inputCodigoRef.current?.focus(), 50);
-          }}
-          title="Lista de Precio (Columna Dinámica)"
-          className="flex-1 md:w-32 h-12 bg-[var(--surface)] border-2 border-[var(--border-medium)] rounded-md px-2 text-[10px] md:text-xs font-black text-emerald-500 focus:outline-none focus:border-[var(--primary)] transition-colors cursor-pointer appearance-none text-center truncate"
-        >
-          {camposDinamicos.length === 0 && <option value="">Sin Listas</option>}
-          {camposDinamicos.map((c) => (
-            <option key={c.claveCampo} value={c.claveCampo}>
-              {c.nombreCampo.toUpperCase()}
-            </option>
-          ))}
-        </select>
+        {camposDinamicos.length > 0 && (
+          <select
+            value={columnaPrecioSeleccionada}
+            onChange={(e) => {
+              setColumnaPrecioSeleccionada(e.target.value);
+              setTimeout(() => inputCodigoRef.current?.focus(), 50);
+            }}
+            title="Lista de Precio (Columna Dinámica)"
+            className="flex-1 md:w-32 h-12 bg-[var(--surface)] border-2 border-[var(--border-medium)] rounded-md px-2 text-[10px] md:text-xs font-black text-emerald-500 focus:outline-none focus:border-[var(--primary)] transition-colors cursor-pointer appearance-none text-center truncate"
+          >
+            {camposDinamicos.map((c) => (
+              <option key={c.claveCampo} value={c.claveCampo}>
+                {c.nombreCampo.toUpperCase()}
+              </option>
+            ))}
+          </select>
+        )}
 
         {/* FILA 2: BUSCADOR + CANTIDAD */}
         <div className="flex flex-[2] gap-2 w-full md:w-auto relative items-center">
