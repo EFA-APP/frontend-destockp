@@ -26,13 +26,14 @@ const Comprobantes = () => {
   // Si necesitas añadir un nuevo estado o cálculo, edita './hooks/useComprobantes.js'
   const {
     // Datos y Totales
-    items, totales, productos, cargandoProductos, tiposComprobante, clientes, facturas, usuario, 
+    items, totales, productos, cargandoProductos, tiposComprobante, cargandoVouchers, 
+    clientes, facturas, usuario, 
     // Captura de productos
     codigoBusqueda, setCodigoBusqueda, cantidadInput, setCantidadInput, 
     mostrarDropdownProducto, setMostrarDropdownProducto, highlightedIndex, setHighlightedIndex,
     busquedaClaveProducto, setBusquedaClaveProducto, 
     // Configuraciones de precio
-    columnaPrecioSeleccionada, setColumnaPrecioSeleccionada, camposDinamicos,
+    columnaPrecioSeleccionada, setColumnaPrecioSeleccionada, camposDinamicos, cargandoConfigs,
     // Estados fiscales (ID de AFIP)
     tipoDocumento, setTipoDocumento, enBlanco, setEnBlanco, aplicaIva,
     // Métodos y clientes
@@ -47,7 +48,8 @@ const Comprobantes = () => {
     // Referencias de teclado
     inputCodigoRef, inputCantidadRef,
     // Manejadores de eventos
-    agregarItem, eliminarItem, actualizarItem, handleCodigoKeyDown, handleFinalizar, confirmarVentaFinal
+    agregarItem, eliminarItem, actualizarItem, handleCodigoKeyDown, handleFinalizar, confirmarVentaFinal,
+    cargandoCobro
   } = useComprobantes();
 
   return (
@@ -102,6 +104,7 @@ const Comprobantes = () => {
             camposDinamicos={camposDinamicos}
             columnaPrecioSeleccionada={columnaPrecioSeleccionada}
             setColumnaPrecioSeleccionada={setColumnaPrecioSeleccionada}
+            cargandoConfigs={cargandoConfigs}
             cargandoProductos={cargandoProductos}
             productos={productos}
             highlightedIndex={highlightedIndex}
@@ -155,6 +158,7 @@ const Comprobantes = () => {
           handleFacturar={handleFinalizar}
           items={items}
           tiposComprobante={tiposComprobante}
+          cargandoVouchers={cargandoVouchers}
           usuario={usuario}
         />
       </div>
@@ -168,6 +172,7 @@ const Comprobantes = () => {
         metodoPago={metodoPago}
         totales={totales}
         confirmarVentaFinal={confirmarVentaFinal}
+        cargandoCobro={cargandoCobro}
         enBlanco={enBlanco}
         aplicaIva={aplicaIva}
         tipoDocumento={tipoDocumento}

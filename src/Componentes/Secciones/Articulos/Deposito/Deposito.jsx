@@ -14,6 +14,7 @@ import { useDepositoUI } from "../../../../Backend/Articulos/hooks/Deposito/useD
 import TarjetaDeposito from "./TarjetaDeposito.jsx";
 import TablaDepositoStock from "../../../Tablas/Articulos/Deposito/TablaDepositoStock";
 import StockDepositoPDF from "../../../Reportes/StockDepositoPDF.jsx";
+import SkeletonTarjeta from "../../../UI/Skeletons/SkeletonTarjeta.jsx";
 
 /**
  * Componente Deposito: Gestión de sucursales y stock global.
@@ -90,10 +91,7 @@ const Deposito = () => {
           <div className="flex flex-wrap gap-4 w-auto">
             {cargando
               ? Array.from({ length: 4 }).map((_, n) => (
-                  <div
-                    key={n}
-                    className="h-44 rounded-md bg-[var(--surface)] border border-white/5 animate-pulse"
-                  />
+                  <SkeletonTarjeta key={n} />
                 ))
               : depositos.map((suc) => (
                   <TarjetaDeposito

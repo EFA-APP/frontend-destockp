@@ -8,6 +8,7 @@ import RutaPublica from "./RutaPublica";
 const Error = lazy(() => import("../pages/Error"));
 const Panel = lazy(() => import("../pages/Panel"));
 const IniciarSesion = lazy(() => import("../pages/IniciarSesion"));
+const SeleccionarUnidad = lazy(() => import("../pages/SeleccionarUnidad"));
 
 // Lazy Components/Sections
 const Configuracion = lazy(
@@ -154,6 +155,7 @@ export default function Router() {
         {/* 🔓 RUTAS PÚBLICAS (Solo si NO está logueado) */}
         <Route element={<RutaPublica />}>
           <Route path="/" element={<IniciarSesion />} />
+          <Route path="/seleccionar-unidad" element={<SeleccionarUnidad />} />
         </Route>
 
         {/* 🔐 PANEL (Solo si está logueado) */}

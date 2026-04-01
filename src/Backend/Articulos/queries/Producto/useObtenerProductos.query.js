@@ -1,12 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { ObtenerProductosApi } from "../../api/Producto/producto.api";
 import { useAlertas } from "../../../../store/useAlertas";
+import { useAuthStore } from "../../../Autenticacion/store/authenticacion.store";
 
-export const useObtenerProductos = (filtros) => {
+export const useObtenerProductos = (filtros, options = {}) => {
     const agregarAlerta = useAlertas((state) => state.agregarAlerta);
+    const unidadActiva = useAuthStore((state) => state.unidadActiva);
 
     return useQuery({
-        queryKey: ["productos", filtros],
+        // Incluimos unidadActiva en la Query Key para invalidar caché al cambiar de contexto
+        queryKey: ["productos", filtros, unidadActiva?.codigoSecuencial],
         queryFn: async () => {
             try {
                 return await ObtenerProductosApi(filtros);
@@ -18,7 +21,8 @@ export const useObtenerProductos = (filtros) => {
                 throw error;
             }
         },
-        refetchInterval: 10000, // Refresh every 10 seconds
-        refetchIntervalInBackground: true,
+        refetchInterval: options.refetchInterval ?? false,
+        refetchIntervalInBackground: options.refetchIntervalInBackground ?? false,
+        ...options
     });
 };

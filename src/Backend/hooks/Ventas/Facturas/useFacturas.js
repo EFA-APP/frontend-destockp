@@ -1,104 +1,36 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { usePersistentState } from "../../../../hooks/usePersistentState";
+import { useObtenerComprobantesQuery } from "../../../Ventas/queries/Comprobante/useObtenerComprobantes.query";
 
 export const useFacturas = () => {
-  const [facturas, setFacturas] = useState([
-    {
-      id: 1,
-      prefijo: "0001",
-      numero: "00000012",
-      fecha: "2025-03-01",
-      cliente: "Distribuidora San Martín",
-      tipo: "B",
-      isBlanco: true,
-      estado: "pagada",
-      total: 61200,
-      items: [
-        {
-          producto: "Mermelada de Frutilla 250g",
-          cantidad: 72,
-          precioUnitario: 850,
-          subtotal: 61200,
-        },
-      ],
-    },
-    {
-      id: 2,
-      prefijo: "0001",
-      numero: "00000013",
-      fecha: "2025-03-05",
-      cliente: "Kiosco Don Pepe",
-      tipo: "C",
-      isBlanco: true,
-      estado: "pendiente",
-      total: 27600,
-      items: [
-        {
-          producto: "Mermelada de Frambuesa 250g",
-          cantidad: 30,
-          precioUnitario: 920,
-          subtotal: 27600,
-        },
-      ],
-    },
-    {
-      id: 3,
-      prefijo: "0001",
-      numero: "00000020",
-      fecha: "2025-03-05",
-      cliente: "Kiosco Don Pepe",
-      tipo: "C",
-      estado: "vencida",
-      isBlanco: false,
-      total: 27600,
-      items: [
-        {
-          producto: "Mermelada de Frambuesa 250g",
-          cantidad: 30,
-          precioUnitario: 920,
-          subtotal: 27600,
-        },
-      ],
-    },
-  ]);
-  const [tipoFactura, setTipoFactura] = useState("TODAS");
-  const [estadoFactura, setEstadoFactura] = useState("TODAS");
-
+  // Filtros de UI
+  const [pagina, setPagina] = useState(1);
+  const [limite, setLimite] = useState(20);
+  const [tipoFactura, setTypeFactura] = useState("TODAS");
+  const [busqueda, setBusqueda] = usePersistentState("facturas_busqueda", "");
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
+  
+  // NUEVO FILTRO FISCAL
+  const [isFiscal, setIsFiscal] = useState("TODAS"); 
 
-  const [busqueda, setBusqueda] = usePersistentState("facturas_busqueda", "");
-  const [isBlanco, setIsBlanco] = useState("TODAS");
-
-  const facturasFiltradas = facturas.filter((f) => {
-    const coincideBusqueda =
-      f.numero.includes(busqueda) ||
-      f.cliente.toLowerCase().includes(busqueda.toLowerCase());
-
-    const coincideTipo = tipoFactura === "TODAS" || f.tipo === tipoFactura;
-    const coincideEstado =
-      estadoFactura === "TODAS" || f.estado === estadoFactura;
-    const coincideBlanco =
-      isBlanco === "TODAS" ||
-      (isBlanco === "BLANCO" && f.isBlanco === true) ||
-      (isBlanco === "NEGRO" && f.isBlanco === false);
-
-    const fechaFactura = new Date(f.fecha);
-    const desdeValida = !fechaDesde || fechaFactura >= new Date(fechaDesde);
-    const hastaValida = !fechaHasta || fechaFactura <= new Date(fechaHasta);
-
-    return (
-      coincideBusqueda &&
-      coincideTipo &&
-      coincideBlanco &&
-      coincideEstado &&
-      desdeValida &&
-      hastaValida
-    );
+  // QUERY REAL: El corazón del listado
+  const { data: respuesta, isLoading, isError, refetch } = useObtenerComprobantesQuery({
+    pagina,
+    limite,
+    tipoDocumento: tipoFactura === "TODAS" ? undefined : Number(tipoFactura),
+    fechaDesde,
+    fechaHasta,
+    buscarReceptor: busqueda,
+    // Convertimos el estado del select "TODAS/FISCAL/INTERNAS" al booleano esperado por el backend
+    fiscal: isFiscal === "TODAS" ? undefined : (isFiscal === "FISCAL" ? true : false)
   });
 
+  const facturas = useMemo(() => respuesta?.data || [], [respuesta]);
+  const meta = useMemo(() => respuesta?.meta || {}, [respuesta]);
+
   const manejarDetalle = (id) => {
-    console.log(id);
+    console.log("Visualizando detalle:", id);
   };
 
   const manejarEditar = (factura) => {
@@ -106,27 +38,31 @@ export const useFacturas = () => {
   };
 
   const manejarEliminar = (id) => {
-    if (window.confirm("¿Eliminar?")) {
-      setFacturas((prev) => prev.filter((c) => c.id !== id));
+    if (window.confirm("¿Seguro que deseas eliminar este comprobante?")) {
+        // TODO: Implementar eliminarMutation
     }
   };
 
   return {
-    facturas: facturasFiltradas,
+    facturas,
+    meta,
+    isLoading,
+    isError,
+    pagina,
+    setPagina,
     busqueda,
     setBusqueda,
     tipoFactura,
-    setTipoFactura,
-    estadoFactura,
-    setEstadoFactura,
+    setTypeFactura,
     fechaDesde,
     setFechaDesde,
     fechaHasta,
     setFechaHasta,
-    isBlanco,
-    setIsBlanco,
+    isFiscal,
+    setIsFiscal,
     manejarDetalle,
     manejarEditar,
     manejarEliminar,
+    refetch
   };
 };

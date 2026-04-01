@@ -16,6 +16,7 @@ import { FileSpreadsheet } from "lucide-react";
 import ModalCargaMasivaProductos from "../../../Modales/Articulos/ModalCargaMasivaProductos";
 import { usePermisosDeUsuario } from "../../../../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
 import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
+import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 // import ModalCargaMasivaMovimientos from "../../../Modales/Articulos/ModalCargaMasivaMovimientos";
 const formatVal = (val) => {
   if (val === null || val === undefined) return "";
@@ -32,6 +33,7 @@ const formatVal = (val) => {
 const TablaProductos = () => {
   const navigate = useNavigate();
   const { tieneAccion } = usePermisosDeUsuario("ARTICULOS");
+  const unidadActiva = useAuthStore((state) => state.unidadActiva);
   // Estados locales para filtros API y paginación
   const [filtros, setFiltros] = useState({ pagina: 1, limite: 10 });
   // Estados persistentes para búsqueda
@@ -87,7 +89,8 @@ const TablaProductos = () => {
       }
     };
     cargarConfigs();
-  }, []);
+  }, [unidadActiva?.codigoSecuencial]);
+// ☝️ Ahora las columnas cambian solas al cambiar de unidad
 
   const columnasAMostrar = useMemo(() => {
     const estaticasModificadas = columnasProductos.map((col) => {

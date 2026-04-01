@@ -3,15 +3,14 @@ import { useAuthStore } from "../Backend/Autenticacion/store/authenticacion.stor
 import { usePermisosDeUsuario } from "../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
 
 const RutaProtegida = ({ permisoRequerido }) => {
-  const token = useAuthStore((state) => state.token);
+  const { token } = useAuthStore();
   const { tienePermiso } = usePermisosDeUsuario();
 
   if (!token) {
     return <Navigate to="/" replace />;
   }
 
-  if (!tienePermiso(permisoRequerido)) {
-    // Si está logueado pero no tiene permiso, redirigir al panel principal
+  if (permisoRequerido && !tienePermiso(permisoRequerido)) {
     return <Navigate to="/panel" replace />;
   }
 

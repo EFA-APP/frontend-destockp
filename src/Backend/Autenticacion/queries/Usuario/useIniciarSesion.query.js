@@ -10,10 +10,17 @@ export const useIniciarSesion = () => {
   return useMutation({
     mutationFn: iniciarSesionApi,
     onSuccess: (data) => {
-      useAuthStore.getState().setAuth({
+      const store = useAuthStore.getState();
+      
+      store.setAuth({
         token: data.token,
         usuario: data.usuario,
       });
+
+      // Auto-seleccionar la primera unidad si existe
+      if (data.usuario?.unidadesNegocio?.length > 0) {
+        store.setUnidadActiva(data.usuario.unidadesNegocio[0]);
+      }
 
       queryClient.invalidateQueries();
       agregarAlerta({

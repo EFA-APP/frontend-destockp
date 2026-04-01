@@ -31,12 +31,14 @@ const createAxiosInstance = (baseURL) => {
         config.headers.Authorization = `Bearer ${token}`;
       }
 
-      // 🏢 Código de Empresa
-      const usuario = useAuthStore.getState().usuario;
-      if (usuario?.codigoEmpresa) {
+      // 🏢 Contexto de Empresa y Unidad de Negocio
+      const { usuario, unidadActiva } = useAuthStore.getState();
+      
+      if (usuario?.codigoEmpresa || unidadActiva?.codigoSecuencial) {
         config.params = {
           ...config.params,
-          codigoEmpresa: usuario?.codigoEmpresa,
+          ...(usuario?.codigoEmpresa && { codigoEmpresa: usuario.codigoEmpresa }),
+          ...(unidadActiva?.codigoSecuencial && { codigoUnidadNegocio: unidadActiva.codigoSecuencial }),
         };
       }
 

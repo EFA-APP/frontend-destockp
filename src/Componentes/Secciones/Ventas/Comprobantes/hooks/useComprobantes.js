@@ -22,6 +22,7 @@ import { useGenerarComprobante } from "../../../../../Backend/Ventas/queries/Com
 export const useComprobantes = () => {
   // === 1. DATOS Y CONTEXTO EXTERNO ===
   const usuario = useAuthStore((state) => state.usuario);
+  const unidadActiva = useAuthStore((state) => state.unidadActiva);
   const { conectado: arcaConectado, infoIva } = useArcaStore();
   const { clientes } = useClientes();
   const { facturas } = useFacturas();
@@ -30,7 +31,15 @@ export const useComprobantes = () => {
   // === 2. ESTADOS DE BÚSQUEDA Y CAPTURA ===
   const [filtrosProductos, setFiltrosProductos] = useState({ pagina: 1, limite: 10 });
   const [busquedaClaveProducto, setBusquedaClaveProducto] = useState("nombre"); // 'nombre' o 'codigo'
-  const { productos, cargando: cargandoProductos } = useProductoUI(filtrosProductos);
+  
+  // Garantizamos que productos sea siempre un array y cargando un booleano. 
+  // Solo habilitamos la búsqueda si hay algo escrito para evitar el fetch inicial masivo.
+  const productUI = useProductoUI(filtrosProductos, {
+    enabled: !!(filtrosProductos.buscarPorNombre || filtrosProductos.buscarPorCodigo),
+    staleTime: 1000 * 60 * 5, // 5 minutos de cache para evitar re-fetch constante
+  }) || {};
+  const productos = Array.isArray(productUI.productos) ? productUI.productos : [];
+  const cargandoProductos = !!productUI.cargando;
   
   const [codigoBusqueda, setCodigoBusqueda] = useState("");
   const [cantidadInput, setCantidadInput] = useState("1");
@@ -40,6 +49,7 @@ export const useComprobantes = () => {
 
   // === 3. ESTADOS FISCALES Y DE FACTURACIÓN ===
   const [tiposComprobante, setTiposComprobante] = useState([]);
+  const [cargandoVouchers, setCargandoVouchers] = useState(false);
   const [tipoDocumento, setTipoDocumento] = useState(99);
   const [enBlanco, setEnBlanco] = useState("si");
   const [condicionVenta, setCondicionVenta] = useState("contado");
@@ -55,6 +65,7 @@ export const useComprobantes = () => {
 
   // === 4. ESTADOS DE CAMPOS DINÁMICOS ===
   const [camposDinamicos, setCamposDinamicos] = useState([]);
+  const [cargandoConfigs, setCargandoConfigs] = useState(false);
   const [columnaPrecioSeleccionada, setColumnaPrecioSeleccionada] = useState("");
 
   // === 5. EL TICKET (ITEMS) ===
@@ -85,6 +96,7 @@ export const useComprobantes = () => {
   // Carga de campos dinámicos
   useEffect(() => {
     const cargarConfigs = async () => {
+      setCargandoConfigs(true);
       try {
         const data = await ListarConfiguracionCamposApi("PRODUCTO");
         setCamposDinamicos(data || []);
@@ -93,14 +105,16 @@ export const useComprobantes = () => {
           setColumnaPrecioSeleccionada(defaultCol);
         }
       } catch (e) { console.error("Error configs:", e); }
+      finally { setCargandoConfigs(false); }
     };
     cargarConfigs();
-  }, []);
+  }, [unidadActiva?.codigoSecuencial]);
 
   // Carga de Tipos de Comprobante ARCA
   useEffect(() => {
     const cargarVouchers = async () => {
       if (usuario?.conexionArca || usuario?.configuracionArca?.activo) {
+        setCargandoVouchers(true);
         try {
           const res = await ObtenerTiposComprobanteApi();
           const vouchersRaw = Array.isArray(res) ? res : res?.data;
@@ -110,6 +124,7 @@ export const useComprobantes = () => {
             if (filtrados.length > 0 && !tipoDocumento) setTipoDocumento(filtrados[0].id);
           }
         } catch (e) { console.error("Error vouchers:", e); }
+        finally { setCargandoVouchers(false); }
       }
     };
     cargarVouchers();
@@ -348,12 +363,13 @@ export const useComprobantes = () => {
   // Exponer API del hook
   return {
     // Datos
-    items, totales, productos, cargandoProductos, tiposComprobante, clientes, facturas, usuario, 
+    items, totales, productos, cargandoProductos, tiposComprobante, cargandoVouchers, 
+    clientes, facturas, usuario, 
     // Estados UI
     codigoBusqueda, setCodigoBusqueda, cantidadInput, setCantidadInput, product: productoEncontrado,
     mostrarDropdownProducto, setMostrarDropdownProducto, highlightedIndex, setHighlightedIndex,
     busquedaClaveProducto, setBusquedaClaveProducto, columnaPrecioSeleccionada, setColumnaPrecioSeleccionada,
-    camposDinamicos, tipoDocumento, setTipoDocumento, enBlanco, setEnBlanco, aplicaIva,
+    camposDinamicos, cargandoConfigs, tipoDocumento, setTipoDocumento, enBlanco, setEnBlanco, aplicaIva,
     metodoPago, setMetodoPago, clienteSeleccionado, setClienteSeleccionado, busquedaCliente, setBusquedaCliente,
     mostrarDropdownCliente, setMostrarDropdownCliente, condicionVenta, setCondicionVenta,
     busquedaFactura, setBusquedaFactura, comprobanteAsociado, setComprobanteAsociado,
@@ -361,6 +377,7 @@ export const useComprobantes = () => {
     // Refs
     inputCodigoRef, inputCantidadRef,
     // Handlers
-    agregarItem, eliminarItem, actualizarItem, handleCodigoKeyDown, handleFinalizar, confirmarVentaFinal
+    agregarItem, eliminarItem, actualizarItem, handleCodigoKeyDown, handleFinalizar, confirmarVentaFinal,
+    cargandoCobro: mutationGenerar.isPending
   };
 };

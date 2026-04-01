@@ -15,6 +15,7 @@ const ModalConfirmacionCobro = ({
   enBlanco,
   aplicaIva,
   tipoDocumento,
+  cargandoCobro,
 }) => {
   if (!mostrarPreview) return null;
 
@@ -29,6 +30,27 @@ const ModalConfirmacionCobro = ({
       />
       {/* Drawer Content */}
       <div className="relative w-full md:w-[450px] bg-[#111] h-full shadow-[-20px_0_50px_rgba(0,0,0,0.5)] border-l border-white/10 flex flex-col animate-in slide-in-from-right duration-500">
+        {/* OVERLAY DE CARGA PREMIUM */}
+        {cargandoCobro && (
+          <div className="absolute inset-0 z-[1100] bg-black/40 backdrop-blur-[2px] flex flex-col items-center justify-center animate-in fade-in duration-300">
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative">
+                <div className="w-16 h-16 rounded-full border-4 border-emerald-500/10 border-t-emerald-500 animate-spin" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <CheckIcono size={24} className="text-emerald-500 animate-pulse" />
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-black text-white uppercase tracking-widest">
+                  Generando Comprobante
+                </p>
+                <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">
+                  Esto puede demorar unos segundos
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Header del Drawer */}
         <div className="p-6 border-b border-white/5 bg-[#151515] flex justify-between items-center">
           <div>
@@ -138,14 +160,29 @@ const ModalConfirmacionCobro = ({
 
           <button
             onClick={confirmarVentaFinal}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-5 rounded-xl font-black text-lg transition-all shadow-[0_0_30px_rgba(16,185,129,0.3)] flex items-center justify-center gap-3 uppercase tracking-tighter active:scale-95"
+            disabled={cargandoCobro}
+            className={`w-full py-5 rounded-xl font-black text-lg transition-all flex items-center justify-center gap-3 uppercase tracking-tighter active:scale-95 border-none cursor-pointer ${cargandoCobro
+              ? "bg-white/10 text-white/50 cursor-not-allowed"
+              : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)]"
+              }`}
           >
-            <CheckIcono size={24} /> Confirmar y Cobrar
+            {cargandoCobro ? (
+              <div className="flex items-center gap-3">
+                <div className="w-5 h-5 border-3 border-white/20 border-t-white rounded-full animate-spin" />
+                <span>Procesando...</span>
+              </div>
+            ) : (
+              <>
+                <CheckIcono size={24} />
+                Confirmar y Cobrar
+              </>
+            )}
           </button>
 
           <button
-            onClick={() => setMostrarPreview(false)}
-            className="w-full text-[var(--text-muted)] hover:text-white py-2 text-xs font-bold transition-colors uppercase tracking-widest"
+            onClick={() => !cargandoCobro && setMostrarPreview(false)}
+            disabled={cargandoCobro}
+            className="w-full text-[var(--text-muted)] hover:text-white py-2 text-xs font-bold transition-colors uppercase tracking-widest disabled:opacity-20 disabled:cursor-not-allowed"
           >
             Volver al ticket
           </button>

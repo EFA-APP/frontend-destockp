@@ -2,37 +2,43 @@ import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "../../store/authenticacion.store";
 import { verificarTokenApi } from "../../api/Usuario/authenticacion.api";
-import { useAlertas } from "../../../../store/useAlertas";
 
 export const useVerificarToken = () => {
   const setAuth = useAuthStore((state) => state.setAuth);
+  const setUnidadActiva = useAuthStore((state) => state.setUnidadActiva);
   const clearAuth = useAuthStore((state) => state.clearAuth);
-  const token = useAuthStore((state) => state.token); // 👈 Obtener token de la store
+  const token = useAuthStore((state) => state.token);
 
   const query = useQuery({
     queryKey: ["verificarToken"],
     queryFn: verificarTokenApi,
-    enabled: !!token, // 👈 Solo ejecutar si hay un token previo
-    retry: false, // No reintentar si el token es inválido
-    staleTime: 1000 * 60 * 5, // 5 minutos
+    enabled: !!token, 
+    retry: false, 
+    staleTime: 1000 * 60 * 5, 
   });
 
   const { data, isError, isSuccess } = query;
 
   useEffect(() => {
     if (isSuccess && data) {
-      // Actualizamos los datos del usuario si el token es válido
+      const store = useAuthStore.getState();
+      const usuarioData = data?.usuario?.usuario || data;
+      
       setAuth({
-        token: useAuthStore.getState().token,
-        usuario: data?.usuario?.usuario || data,
+        token: store.token,
+        usuario: usuarioData,
       });
+
+      // Si no tenemos unidad activa, auto-seleccionamos la primera
+      if (!store.unidadActiva && usuarioData?.unidadesNegocio?.length > 0) {
+        setUnidadActiva(usuarioData.unidadesNegocio[0]);
+      }
     }
 
     if (isError) {
       clearAuth();
-      // Ya no agregamos alerta aquí, se encarga el interceptor de Axios (401)
     }
-  }, [isSuccess, isError, data, setAuth, clearAuth]);
+  }, [isSuccess, isError, data, setAuth, setUnidadActiva, clearAuth]);
 
   return query;
 };

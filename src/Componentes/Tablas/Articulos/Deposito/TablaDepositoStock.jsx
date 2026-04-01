@@ -4,6 +4,7 @@ import { CargandoIcono } from "../../../../assets/Icons";
 import { useDepositoUI } from "../../../../Backend/Articulos/hooks/Deposito/useDepositoUI.jsx";
 import { generarColumnasStock } from "./ColumnasDepositoStock";
 import { Package, Search, Database, ChevronRight } from "lucide-react";
+import SkeletonFilaTabla from "../../../UI/Skeletons/SkeletonFilaTabla.jsx";
 
 import DrawerActualizarStock from "../../../Modales/Articulos/ModalActualizarStock";
 
@@ -154,14 +155,10 @@ const TablaDepositoStock = () => {
             </div>
 
             {cargandoStock ? (
-              <div className="flex flex-col items-center justify-center py-20 gap-4">
-                <CargandoIcono
-                  size={32}
-                  className="animate-spin text-[var(--primary)]/40"
-                />
-                <span className="text-[11px] text-white/20 font-bold uppercase tracking-widest">
-                  Sincronizando Stock...
-                </span>
+              <div className="flex flex-col gap-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <SkeletonFilaTabla key={i} />
+                ))}
               </div>
             ) : matrizStock.length > 0 ? (
               matrizConAcciones.map((row, idx) => (

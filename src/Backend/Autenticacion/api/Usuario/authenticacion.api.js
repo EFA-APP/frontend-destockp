@@ -67,3 +67,8 @@ export const actualizarConfiguracionVisualApi = async (data) => {
   const respuesta = await axiosInitial.patch("/auth/empresa/configuracionVisual", data, { showLoader: true });
   return respuesta.data;
 };
+
+export const seleccionarUnidadApi = async (data) => {
+  const respuesta = await axiosInitial.post("/unidadesNegocio/seleccionarUnidad", data, { showLoader: true });
+  return respuesta.data;
+};

@@ -39,6 +39,7 @@ const PanelPago = ({
   handleFacturar,
   items,
   tiposComprobante = [],
+  cargandoVouchers,
   usuario = {},
 }) => {
   const isArca = usuario?.conexionArca || usuario?.configuracionArca?.activo;
@@ -80,7 +81,10 @@ const PanelPago = ({
             {/* SELECTOR DINÁMICO DE COMPROBANTES (DROPDOWN) */}
             {enBlanco === "si" && (
               <div className="relative group animate-in fade-in slide-in-from-top-2 duration-300">
-                <select
+                {cargandoVouchers ? (
+                  <div className="w-full h-10 bg-[var(--surface-active)] border border-[var(--border-subtle)] rounded-md animate-pulse" />
+                ) : (
+                  <select
                   value={tipoDocumento}
                   onChange={(e) => setTipoDocumento(e.target.value)}
                   className="w-full bg-[var(--surface-active)] border border-[var(--border-subtle)] rounded-md px-3 py-2.5 text-xs font-black text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors cursor-pointer appearance-none uppercase tracking-tighter shadow-inner pr-10"
@@ -97,7 +101,8 @@ const PanelPago = ({
                       {doc.label}
                     </option>
                   ))}
-                </select>
+                  </select>
+                )}
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none group-focus-within:text-[var(--primary)] transition-colors">
                   <ComprobanteIcono size={12} />
                 </div>

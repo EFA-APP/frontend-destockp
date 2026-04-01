@@ -13,10 +13,14 @@ import { Link } from "react-router-dom";
 import { cerrarSesion } from "../../../Backend/Autenticacion/store/cerrarSesion";
 import BotonConfiguracion from "../BotonConfiguracion/BotonConfiguracion";
 import { useAuthStore } from "../../../Backend/Autenticacion/store/authenticacion.store";
+import { useSeleccionarUnidad } from "../../../Backend/Autenticacion/queries/Usuario/useSeleccionarUnidad.mutation";
+import { ChevronDown, Building2, Factory, School, Store } from "lucide-react";
 
 const BarraNavegacion = () => {
   const [menuAbiertoNotificacion, setMenuAbiertoNotificacion] = useState(false);
-  const usuario = useAuthStore((state) => state.usuario);
+  const [menuUnidadesAbierto, setMenuUnidadesAbierto] = useState(false);
+  const { usuario, unidadActiva } = useAuthStore();
+  const { mutate: seleccionarUnidad } = useSeleccionarUnidad();
   const { conectado, verificarSesion, cargando } = useArcaStore();
 
   // Verificación automática de sesión ARCA (AFIP)
@@ -34,21 +38,10 @@ const BarraNavegacion = () => {
     <header className="sticky top-0 z-[50]">
       <nav className="px-5 bg-[var(--surface)] border-b border-[var(--border-subtle)] shadow-sm h-14 flex items-center justify-between transition-all duration-300">
         <div className="flex-1 flex items-center md:hidden">
-          <Link to="/" className="relative group/logo-mobile">
-            <div className="absolute -inset-1 bg-gradient-to-tr from-[var(--primary)] to-[var(--primary-subtle)] rounded-full blur opacity-25" />
-            {usuario?.configuracionVisual?.logoUrl ? (
-              <img
-                alt="logo"
-                className="relative w-8 h-8 rounded-full border-2 border-white shadow-sm object-contain bg-white"
-                src={usuario?.configuracionVisual?.logoUrl}
-              />
-            ) : (
-              <ConsolaIcono size={18} color="var(--primary)" />
-            )}
-          </Link>
+          {/* Logo Mobile */}
         </div>
 
-        <div></div>
+        <div className="flex-1"></div>
 
         <div className="flex items-center gap-3">
           {/* ARCA STATUS */}
@@ -81,6 +74,59 @@ const BarraNavegacion = () => {
               </div>
             </div>
           )}
+
+          {/* SELECTOR DE UNIDAD DE NEGOCIO (Destaque Premium) */}
+          <div className="relative hidden md:block group">
+            <button
+              onClick={() => setMenuUnidadesAbierto(!menuUnidadesAbierto)}
+              className="flex items-center gap-3 px-4 py-1.5 rounded-md text-white hover:shadow-[0_8px_20px_rgba(var(--p-h),var(--p-s),var(--p-l),0.3)] transition-all duration-300 cursor-pointer border border-white/20 active:scale-95"
+            >
+              <div className="bg-[var(--primary-light)] p-1.5 rounded-md">
+                <Building2 size={16} className="text-white" />
+              </div>
+              <div className="flex flex-col items-start leading-none pr-1 pb-1">
+                <span className="text-[8px] uppercase font-black text-white/70">Unidad negocio</span>
+                <span className="text-[12px] font-black tracking-tight">
+                  {unidadActiva?.nombre?.toUpperCase() || "SIN SELECCIÓN"}
+                </span>
+              </div>
+              <ChevronDown size={14} className={`text-white transition-transform duration-300 ${menuUnidadesAbierto ? "rotate-180" : ""}`} />
+            </button>
+
+            {menuUnidadesAbierto && (
+              <div className="absolute top-12 right-0 w-72 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.25)] overflow-hidden z-[100] animate-in fade-in slide-in-from-top-4">
+                <div className="p-4 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-subtle)] text-white">
+                  <span className="text-[10px] font-black uppercase tracking-widest block mb-1 opacity-80">Cambiar Contexto</span>
+                  <p className="text-[11px] font-medium leading-tight">Elegí la unidad de negocio donde deseas trabajar ahora.</p>
+                </div>
+                <div className="max-h-80 overflow-y-auto px-2 py-2 bg-[var(--surface)]">
+                  {usuario?.unidadesNegocio?.map((un) => (
+                    <button
+                      key={un.codigoSecuencial}
+                      onClick={() => {
+                        seleccionarUnidad({
+                          codigoUsuarioSecuencial: usuario.codigoSecuencial,
+                          codigoUnidadNegocioSecuencial: un.codigoSecuencial
+                        });
+                        setMenuUnidadesAbierto(false);
+                      }}
+                      className={`w-full flex items-center gap-4 px-3 py-3 rounded-md text-left transition-all mb-1 last:mb-0 ${unidadActiva?.codigoSecuencial === un.codigoSecuencial ? "bg-[var(--primary-container)] ring-2 ring-[var(--primary)]" : "hover:bg-[var(--surface-hover)]"}`}
+                    >
+                      <div className={`p-2 rounded-md ${unidadActiva?.codigoSecuencial === un.codigoSecuencial ? "bg-[var(--primary)] text-white" : "bg-[var(--surface-hover)] text-[var(--text-muted)] border border-[var(--border-subtle)]"}`}>
+                        <Building2 size={18} />
+                      </div>
+                      <div className="flex-1">
+                        <div className={`text-sm font-black ${unidadActiva?.codigoSecuencial === un.codigoSecuencial ? "text-[var(--primary)]" : "text-[var(--text-primary)]"}`}>
+                          {un.nombre}
+                        </div>
+                        <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">Gestión de {un.nombre}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* NOTIFICACIONES */}
           {/* <div className="relative">

@@ -1,4 +1,5 @@
 import { BuscadorIcono, AgregarIcono } from "../../../../assets/Icons";
+import SkeletonProductoBusqueda from "../../../UI/Skeletons/SkeletonProductoBusqueda.jsx";
 
 const BusquedaProducto = ({
   inputCodigoRef,
@@ -10,6 +11,7 @@ const BusquedaProducto = ({
   camposDinamicos,
   columnaPrecioSeleccionada,
   setColumnaPrecioSeleccionada,
+  cargandoConfigs,
   cargandoProductos,
   productos,
   highlightedIndex,
@@ -28,7 +30,9 @@ const BusquedaProducto = ({
       {/* FILA 1: SELECTORES */}
       <div className="flex flex-wrap md:flex-nowrap gap-2 items-center">
         {/* SELECTOR DE LISTA DE PRECIOS */}
-        {camposDinamicos.length > 0 && (
+        {cargandoConfigs ? (
+          <div className="flex-1 md:w-32 h-12 bg-[var(--surface)] border-2 border-[var(--border-medium)] rounded-md animate-pulse" />
+        ) : camposDinamicos.length > 0 && (
           <select
             value={columnaPrecioSeleccionada}
             onChange={(e) => {
@@ -87,8 +91,10 @@ const BusquedaProducto = ({
             {mostrarDropdownProducto && codigoBusqueda && (
               <div className="absolute top-full mt-1 left-0 right-0 max-h-64 overflow-y-auto custom-scrollbar bg-[var(--surface-active)] border border-white/10 rounded-md shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-[100] p-1 flex flex-col">
                 {cargandoProductos && (
-                  <div className="px-3 py-2 text-xs text-[var(--primary)] font-bold animate-pulse text-center">
-                    Buscando en base de datos...
+                  <div className="flex flex-col">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <SkeletonProductoBusqueda key={i} />
+                    ))}
                   </div>
                 )}
                 {!cargandoProductos && productos.length === 0 && (

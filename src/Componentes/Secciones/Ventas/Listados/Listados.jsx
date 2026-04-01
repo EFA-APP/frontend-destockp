@@ -1,14 +1,14 @@
 import { ComprobanteIcono } from "../../../../assets/Icons";
-import TablaFacturas from "../../../Tablas/Ventas/Facturas/TablaFacturas";
+import TablaComprobantes from "../../../Tablas/Ventas/Comprobantes/TablaComprobantes";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 
 const Listados = () => {
   return (
     <div className="w-full py-6 px-6 h-auto">
       {/* ENCABEZADO */}
-      <EncabezadoSeccion ruta={"Comprobantes"} icono={<ComprobanteIcono />} />
+      <EncabezadoSeccion ruta={"Listado de Comprobantes"} icono={<ComprobanteIcono />} />
 
-      <TablaFacturas />
+      <TablaComprobantes />
     </div>
   );
 };
