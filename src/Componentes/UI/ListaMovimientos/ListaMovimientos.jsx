@@ -11,6 +11,7 @@ import ModalConfirmacion from "../ModalConfirmacion/ModalConfirmacion";
 const ListaMovimientos = ({ codigoArticulo, tipoArticulo, filtroOrigen = null }) => {
   const usuario = useAuthStore((state) => state.usuario);
   const [movimientoAEliminar, setMovimientoAEliminar] = useState(null);
+  const [busqueda, setBusqueda] = useState("");
   
   const formatDateForInput = (date) => {
     const year = date.getFullYear();
@@ -30,7 +31,8 @@ const ListaMovimientos = ({ codigoArticulo, tipoArticulo, filtroOrigen = null })
     codigoArticulo,
     tipoArticulo,
     fechaInicio,
-    fechaFin
+    fechaFin,
+    busqueda
   );
 
   const { mutate: eliminarMovimiento, isPending: isEliminando } = useEliminarMovimiento();
@@ -42,6 +44,7 @@ const ListaMovimientos = ({ codigoArticulo, tipoArticulo, filtroOrigen = null })
   const clearFilters = () => {
     setFechaInicio("");
     setFechaFin("");
+    setBusqueda("");
   };
 
   const handleEliminar = () => {
@@ -104,37 +107,61 @@ const ListaMovimientos = ({ codigoArticulo, tipoArticulo, filtroOrigen = null })
   return (
     <div className="pt-2">
       {/* Filters - Formal Implementation */}
-      <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] items-end gap-3 mb-8 bg-white/[0.02] p-4 rounded-md border border-white/5 shadow-inner">
-        <FechaInput
-          label="Desde la fecha"
-          value={fechaInicio}
-          onChange={setFechaInicio}
-          className={inputClasses}
-          size="sm"
-        />
-        <FechaInput
-          label="Hasta la fecha"
-          value={fechaFin}
-          onChange={setFechaFin}
-          className={inputClasses}
-          size="sm"
-        />
-        {(fechaInicio || fechaFin) && (
-          <button
-            onClick={clearFilters}
-            className="p-2.5 rounded-md bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 transition-all border border-rose-500/10 active:scale-95 flex items-center justify-center h-[38px] w-[38px] cursor-pointer group"
-            title="Limpiar filtros"
-          >
-            <BorrarIcono size={16} className="group-hover:rotate-12 transition-transform" />
-          </button>
-        )}
+      <div className="flex flex-col gap-4 mb-8">
+        {/* Search Bar - Premium Style */}
+        <div className="relative group">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-amber-500/50 transition-colors">
+             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </div>
+          <input
+            type="text"
+            placeholder="Buscar por artículo, usuario u observación..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="w-full bg-white/[0.03] border border-white/10 rounded-xl pl-11 pr-4 py-3.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-amber-500/50 focus:bg-white/[0.05] transition-all"
+          />
+        </div>
+
+        {/* Date Filters Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] items-end gap-3 bg-white/[0.02] p-4 rounded-xl border border-white/5 shadow-inner">
+          <FechaInput
+            label="Desde la fecha"
+            value={fechaInicio}
+            onChange={setFechaInicio}
+            className={inputClasses}
+            size="sm"
+          />
+          <FechaInput
+            label="Hasta la fecha"
+            value={fechaFin}
+            onChange={setFechaFin}
+            className={inputClasses}
+            size="sm"
+          />
+          {(fechaInicio || fechaFin || busqueda) && (
+            <button
+              onClick={clearFilters}
+              className="p-2.5 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 transition-all border border-rose-500/10 active:scale-95 flex items-center justify-center h-[42px] w-[42px] cursor-pointer group"
+              title="Limpiar filtros"
+            >
+              <BorrarIcono size={18} className="group-hover:rotate-12 transition-transform" />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 px-2 gap-4">
-        <h4 className="text-[11px] font-black text-white/20 uppercase tracking-[0.2em] flex items-center gap-2.5">
-          <ProduccionIcono size={12} color="var(--primary-light)" />
-          {tipoArticulo === "PRODUCTO" ? "Historial de Productos" : "Historial de Materia Prima"}
-        </h4>
+        <div className="flex items-center gap-3">
+          <h4 className="text-[11px] font-black text-white/20 uppercase tracking-[0.2em] flex items-center gap-2.5">
+            <ProduccionIcono size={12} color="var(--primary-light)" />
+            {tipoArticulo === "PRODUCTO" ? "Historial de Productos" : "Historial de Materia Prima"}
+          </h4>
+          {movimientos?.length > 0 && (
+            <div className="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-[10px] font-black text-amber-500 animate-in zoom-in duration-300">
+               {movimientos.length} MOVIMIENTOS
+            </div>
+          )}
+        </div>
         <div className="hidden sm:block h-[1px] flex-1 mx-4 bg-gradient-to-r from-white/10 to-transparent" />
         
         {/* PDF Export Button */}
@@ -181,123 +208,129 @@ const ListaMovimientos = ({ codigoArticulo, tipoArticulo, filtroOrigen = null })
           <span className="text-[8px] normal-case font-medium opacity-50">Ajuste el rango de fechas para ver resultados</span>
         </div>
       ) : (
-        <div className="relative space-y-3 pb-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+        <div className="relative space-y-6 pb-4 max-h-[700px] overflow-y-auto pr-4 custom-scrollbar pl-4">
+          {/* Vertical Line for Timeline */}
+          <div className="absolute left-8 top-0 bottom-0 w-[2px] bg-gradient-to-b from-amber-500/20 via-white/5 to-transparent hidden md:block" />
+
           {movimientos.map((mov, idx) => {
             const config = getTipoConfig(mov.tipoMovimiento);
             return (
-              <div key={idx} className="group">
-                {/* Desktop View: Formal Row */}
-                <div className="hidden md:grid grid-cols-[100px_1fr_120px_140px_auto] gap-4 p-4 bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 rounded-md transition-all duration-300 items-center">
+              <div key={idx} className="relative group animate-in fade-in slide-in-from-left duration-500" style={{ animationDelay: `${idx * 50}ms` }}>
+                {/* Timeline Bullet (Desktop) */}
+                <div className={`absolute left-[29px] top-6 w-3 h-3 rounded-full border-2 border-[var(--surface)] ${config.bullet} z-10 hidden md:block shadow-[0_0_10px_rgba(0,0,0,0.5)]`} />
+
+                {/* Desktop View: Timeline Card */}
+                <div className="hidden md:grid grid-cols-[120px_1fr_140px_150px_auto] gap-6 p-5 bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-amber-500/20 rounded-2xl transition-all duration-500 items-center ml-12 backdrop-blur-sm group-hover:translate-x-1 shadow-lg">
                   <div className="flex flex-col">
-                    <span className="text-[10px] text-white/40 font-bold uppercase tracking-tighter mb-1">
+                    <span className="text-[10px] text-white/30 font-black uppercase tracking-widest mb-1">
                       {formatFecha(mov.fecha).split(',')[0]}
                     </span>
-                    <span className="text-[11px] text-white/80 font-black font-mono">
+                    <span className="text-sm text-white font-black font-mono tracking-tighter">
                       {formatFecha(mov.fecha).split(',')[1]}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-4">
-                    <div className={`w-1.5 h-8 rounded-full ${config.bullet} opacity-50`} />
-                    <div className="flex flex-col">
-                      <div className="flex flex-col items-start gap-1">
-                        <div className="text-[11px] text-[var(--primary-light)]">
-                          {mov.nombreArticulo}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-[9px] font-black px-2 py-0.5 rounded border uppercase tracking-widest ${config.estilo}`}>
-                            {mov.tipoMovimiento}
-                          </span>
-                          <span className="text-[10px] text-white/70 font-bold uppercase tracking-widest">
-                            {mov.origenMovimiento?.replace(/_/g, " ")}
-                          </span>
-                        </div>
+                  <div className="flex flex-col">
+                    <div className="flex flex-col items-start gap-1">
+                      <div className="text-[13px] text-white font-bold tracking-tight mb-0.5 group-hover:text-amber-500 transition-colors">
+                        {mov.nombreArticulo}
                       </div>
-                      {mov.observacion && (
-                        <span className="text-[11px] text-white/40 italic mt-1 line-clamp-1 truncate max-w-[300px]" title={mov.observacion}>
-                          "{mov.observacion}"
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[8px] font-black px-2 py-0.5 rounded-full border uppercase tracking-[0.1em] ${config.estilo}`}>
+                          {mov.tipoMovimiento}
                         </span>
-                      )}
+                        <div className="w-1 h-1 rounded-full bg-white/10" />
+                        <span className="text-[9px] text-white/40 font-black uppercase tracking-widest">
+                          {mov.origenMovimiento?.replace(/_/g, " ")}
+                        </span>
+                      </div>
                     </div>
+                    {mov.observacion && (
+                      <span className="text-[11px] text-white/30 italic mt-2 line-clamp-1 max-w-[400px] font-medium" title={mov.observacion}>
+                        "{mov.observacion}"
+                      </span>
+                    )}
                   </div>
 
-                  <div className="text-right flex flex-col items-end">
-                    <div className="text-base font-black text-white tracking-tighter flex items-center gap-1">
+                  <div className="text-right flex flex-col items-end px-4 border-r border-white/5">
+                    <div className="text-xl font-black text-white tracking-tighter flex items-center gap-1.5">
                       <span className={mov.tipoMovimiento === "INGRESO" ? "text-emerald-400" : mov.tipoMovimiento === "EGRESO" ? "text-rose-400" : "text-amber-400"}>
-                        {config.simbolo}
+                        {config.simbolo}{mov.cantidad}
                       </span>
-                      {mov.cantidad}
                     </div>
-                    <span className="text-[9px] text-white/30 font-bold uppercase tracking-widest underline decoration-white/10 underline-offset-2">
+                    <span className="text-[10px] text-white/20 font-black uppercase tracking-widest">
                       {mov.unidadMedida || "unidades"}
                     </span>
                   </div>
 
-                  <div className="text-right flex flex-col items-end border-l border-white/5 pl-4">
-                    <span className="text-[10px] text-amber-500/50 font-black uppercase tracking-widest mb-0.5">
+                  <div className="text-right flex flex-col items-end">
+                    <span className="text-[10px] text-amber-500/70 font-black uppercase tracking-widest mb-0.5">
                       {mov.nombreUsuario}
                     </span>
-                    <span className="text-[9px] text-white/20 font-bold uppercase tracking-[0.2em]">OPERADOR</span>
+                    <span className="text-[8px] text-white/10 font-bold uppercase tracking-[0.2em]">Responsable</span>
                   </div>
 
-                  {/* Delete Button Desktop */}
-                  <div className="pl-2">
+                  <div className="pl-4">
                     <button 
                       onClick={() => setMovimientoAEliminar(mov)}
-                      className="p-2 rounded-md bg-rose-500/5 text-rose-500/30 hover:text-rose-500 hover:bg-rose-500/10 transition-all cursor-pointer group/del"
-                      title="Eliminar movimiento y revertir stock"
+                      className="w-10 h-10 rounded-xl bg-rose-500/5 text-rose-500/20 hover:text-rose-500 hover:bg-rose-500/10 transition-all cursor-pointer group/del flex items-center justify-center border border-transparent hover:border-rose-500/20"
+                      title="Eliminar registro"
                     >
-                      <BorrarIcono size={16} className="group-hover/del:scale-110 transition-transform" />
+                      <BorrarIcono size={18} />
                     </button>
                   </div>
                 </div>
 
-                {/* Mobile View: Premium Card */}
-                <div className="md:hidden p-4 bg-white/[0.03] border border-white/10 rounded-md shadow-lg space-y-4">
-                  <div className="flex justify-between items-start">
+                {/* Mobile View: High Impact Card */}
+                <div className="md:hidden p-5 bg-gradient-to-br from-white/[0.05] to-transparent border border-white/10 rounded-3xl shadow-xl space-y-4 relative overflow-hidden backdrop-blur-md active:scale-[0.98] transition-transform">
+                  <div className={`absolute top-0 right-0 w-24 h-24 blur-3xl opacity-10 rounded-full -mr-12 -mt-12 ${config.bullet}`} />
+                  
+                  <div className="flex justify-between items-start relative z-10">
                     <div className="flex flex-col">
-                      <span className={`text-[8px] font-black px-2.5 py-1 rounded border uppercase tracking-widest self-start mb-2 ${config.estilo}`}>
+                      <span className={`text-[8px] font-black px-2.5 py-1 rounded-full border uppercase tracking-widest self-start mb-2 ${config.estilo}`}>
                         {mov.tipoMovimiento}
                       </span>
-                      <span className="text-[10px] text-white/80 font-black">
+                      <h3 className="text-white font-black text-sm tracking-tight mb-1">{mov.nombreArticulo}</h3>
+                      <span className="text-[10px] text-white/40 font-bold">
                         {formatFecha(mov.fecha)}
                       </span>
                     </div>
-                    <div className="text-right flex items-center gap-4">
-                      <div className="text-lg font-black text-white tracking-tighter">
+                    <div className="text-right">
+                       <div className="text-2xl font-black text-white tracking-tighter">
                         <span className={mov.tipoMovimiento === "INGRESO" ? "text-emerald-400" : mov.tipoMovimiento === "EGRESO" ? "text-rose-400" : "text-amber-400"}>
-                          {config.simbolo}
+                          {config.simbolo}{mov.cantidad}
                         </span>
-                        {mov.cantidad}
-                        <span className="text-[9px] text-white/30 ml-1 font-bold uppercase">{mov.unidadMedida || "un."}</span>
                       </div>
-                      <button 
-                        onClick={() => setMovimientoAEliminar(mov)}
-                        className="p-2 rounded bg-rose-500/10 text-rose-500"
-                      >
-                        <BorrarIcono size={14} />
-                      </button>
+                      <span className="text-[9px] text-white/20 font-black uppercase">{mov.unidadMedida || "un."}</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 pt-3 border-t border-white/5">
-                    <div className="flex-1">
-                      <span className="text-[8px] text-white/20 font-bold uppercase tracking-widest block mb-1">Origen / Destino</span>
-                      <span className="text-[10px] text-white/60 font-black uppercase">{mov.origenMovimiento?.replace(/_/g, " ")}</span>
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5 relative z-10">
+                    <div>
+                      <span className="text-[8px] text-white/20 font-black uppercase tracking-widest block mb-0.5">Origen</span>
+                      <span className="text-[10px] text-white/60 font-black uppercase tracking-tighter">{mov.origenMovimiento?.replace(/_/g, " ")}</span>
                     </div>
                     <div className="text-right">
-                      <span className="text-[8px] text-white/20 font-bold uppercase tracking-widest block mb-1">Usuario</span>
-                      <span className="text-[10px] text-amber-500/60 font-black uppercase">{mov.nombreUsuario}</span>
+                      <span className="text-[8px] text-white/20 font-black uppercase tracking-widest block mb-0.5">Usuario</span>
+                      <span className="text-[10px] text-amber-500/80 font-black uppercase tracking-tighter">{mov.nombreUsuario}</span>
                     </div>
                   </div>
 
                   {mov.observacion && (
-                    <div className="bg-black/20 p-3 rounded border border-white/5 border-dashed">
-                      <p className="text-[10px] text-white/40 italic leading-relaxed">
-                        {mov.observacion}
+                    <div className="bg-black/40 p-4 rounded-2xl border border-white/5 border-dashed relative z-10">
+                      <p className="text-[11px] text-white/40 italic leading-snug font-medium">
+                        "{mov.observacion}"
                       </p>
                     </div>
                   )}
+
+                  <button 
+                    onClick={() => setMovimientoAEliminar(mov)}
+                    className="w-full py-3 rounded-2xl bg-rose-500/10 text-rose-500 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 border border-rose-500/20 active:bg-rose-500/20 transition-colors"
+                  >
+                    <BorrarIcono size={14} />
+                    Eliminar Registro
+                  </button>
                 </div>
               </div>
             );

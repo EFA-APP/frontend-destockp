@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useProductoUI } from "../../../../Backend/Articulos/hooks/Producto/useProductoUI";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
-import { AgregarIcono, InventarioIcono, BalanceIcono, ConfiguracionIcono, EditarIcono, ArcaIcono } from "../../../../assets/Icons";
+import { AgregarIcono, InventarioIcono, BalanceIcono, ConfiguracionIcono, EditarIcono, ArcaIcono, AdvertenciaIcono } from "../../../../assets/Icons";
 import ContenedorSeccion from "../../../ContenidoPanel/ContenedorSeccion";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import FormularioDinamico from "../../../UI/FormularioReutilizable/FormularioDinamico";
@@ -35,27 +35,32 @@ const CrearProductos = () => {
     }, [isEdit, id, productos, initialData]);
 
     const [camposDinamicos, setCamposDinamicos] = useState([]);
+    const [configCargada, setConfigCargada] = useState(false);
 
     useEffect(() => {
         const cargarConfigs = async () => {
             try {
                 const data = await ListarConfiguracionCamposApi('PRODUCTO');
-                const mapeados = data.map(c => ({
-                    name: c.claveCampo,
-                    label: c.nombreCampo,
-                    type: c.tipoDato === 'TEXTO' ? 'text' :
-                        c.tipoDato === 'NUMERO' ? 'number' :
-                            c.tipoDato === 'BOOLEANO' ? 'boolean' : 'select',
-                    options: c.opciones ? c.opciones.map(o => ({ value: o, label: o })) : [],
-                    required: c.requerido,
-                    formula: c.formula,
-                    section: "Atributos Adicionales",
-                    sectionIcon: <ConfiguracionIcono />
+                if (Array.isArray(data)) {
+                    const mapeados = data.map(c => ({
+                        name: c.claveCampo,
+                        label: c.nombreCampo,
+                        type: c.tipoDato === 'TEXTO' ? 'text' :
+                            c.tipoDato === 'NUMERO' ? 'number' :
+                                c.tipoDato === 'BOOLEANO' ? 'boolean' : 'select',
+                        options: c.opciones ? c.opciones.map(o => ({ value: o, label: o })) : [],
+                        required: c.requerido,
+                        formula: c.formula,
+                        section: "Atributos Adicionales",
+                        sectionIcon: <ConfiguracionIcono />
 
-                }));
-                setCamposDinamicos(mapeados);
+                    }));
+                    setCamposDinamicos(mapeados);
+                }
+                setConfigCargada(true);
             } catch (e) {
                 console.error("Error cargando configs dinámicas:", e);
+                setConfigCargada(true);
             }
         };
         cargarConfigs();
@@ -63,9 +68,6 @@ const CrearProductos = () => {
 
     // Configuración para PRODUCTOS
     const camposProductos = [
-        // ─────────────────────────────
-        // INFORMACIÓN BÁSICA
-        // ─────────────────────────────
         {
             name: "nombre",
             label: "Nombre del Producto",
@@ -92,102 +94,18 @@ const CrearProductos = () => {
                 { value: 27, label: "27% (Especial)" },
             ],
             defaultValue: 0,
-            section: "Gestión de Inventario", // Agrupado aquí para balance
+            section: "Impuestos y Arca",
             sectionIcon: <ArcaIcono />,
         },
         {
-            name: "unidadMedidaLegend",
-            type: "custom",
-            section: "Identificación de Producto",
-            fullWidth: true,
-            render: () => (
-                <div className="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-4 flex items-center gap-4 animate-in fade-in slide-in-from-top-2 duration-700">
-                    <div className="flex-shrink-0 w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center border border-amber-500/20">
-                        <InventarioIcono size={20} color="var(--primary)" />
-                    </div>
-                    <div>
-                        <p className="text-[10px] text-amber-500 font-black uppercase tracking-[0.2em] mb-0.5">Configuración de Unidad</p>
-                        <p className="text-[12px] text-white/60 font-medium">Todos los productos se gestionan por defecto en unidad: <span className="text-amber-500 font-bold">FRASCO</span></p>
-                    </div>
-                </div>
-            )
-        },
-
-        // ─────────────────────────────
-        // GESTIÓN DE STOCK
-        // ─────────────────────────────
-        {
-            name: "cantidadPorPaquete",
-            label: "Unidades por Pack",
+            name: "stock",
+            label: "Stock Actual",
             type: "number",
             required: true,
-            min: 1,
+            defaultValue: 0,
             section: "Gestión de Inventario",
             sectionIcon: <BalanceIcono />,
-            onChangeCalculate: (data) => {
-                const cant = parseFloat(data.cantidadPorPaquete) || 0;
-                const paq = parseFloat(data.cantidadDePaquetesActuales) || 0;
-                const sobrante = parseFloat(data.cantidadSobrante) || 0;
-                const stock = (cant * paq) + sobrante;
-
-                return {
-                    ...data,
-                    stock: stock,
-                };
-            },
         },
-        {
-            name: "cantidadDePaquetesActuales",
-            label: "Número de Packs",
-            type: "number",
-            required: true,
-            min: 0,
-            section: "Gestión de Inventario",
-            onChangeCalculate: (data) => {
-                const cant = parseFloat(data.cantidadPorPaquete) || 0;
-                const paq = parseFloat(data.cantidadDePaquetesActuales) || 0;
-                const sobrante = parseFloat(data.cantidadSobrante) || 0;
-                const stock = (cant * paq) + sobrante;
-
-                return {
-                    ...data,
-                    stock: stock,
-                };
-            },
-        },
-        {
-            name: "cantidadSobrante",
-            label: "Unidades Sobrantes",
-            type: "number",
-            required: true,
-            min: 0,
-            section: "Gestión de Inventario",
-            defaultValue: 0,
-            helpText: "Unidades sueltas (no empaquetadas)",
-            onChangeCalculate: (data) => {
-                const cant = parseFloat(data.cantidadPorPaquete) || 0;
-                const paq = parseFloat(data.cantidadDePaquetesActuales) || 0;
-                const sobrante = parseFloat(data.cantidadSobrante) || 0;
-                const stock = (cant * paq) + sobrante;
-
-                return {
-                    ...data,
-                    stock: stock,
-                };
-            },
-        },
-        {
-            name: "stock",
-            label: "Stock Total Estimado",
-            type: "number",
-            readOnly: true,
-            section: "Gestión de Inventario",
-            helpText: (data) => `Cálculo: (${data.cantidadDePaquetesActuales || 0} packs × ${data.cantidadPorPaquete || 0}) + ${data.cantidadSobrante || 0} sobrantes`,
-        },
-
-        // ─────────────────────────────
-        // CONFIGURACIÓN
-        // ─────────────────────────────
         {
             name: "activo",
             label: "Estado de Disponibilidad",
@@ -208,20 +126,8 @@ const CrearProductos = () => {
         if (!tieneArca) {
             base = base.filter(c => c.name !== "tasaIva");
         }
-
-        if (camposDinamicos.length > 0) {
-            return [
-                ...base.filter(c => ["nombre", "descripcion", "stock", "tasaIva"].includes(c.name)),
-                ...camposDinamicos
-            ].map(c => {
-                if (c.name === "stock") {
-                    return { ...c, readOnly: false, required: true, helpText: undefined };
-                }
-                return c;
-            });
-        }
-        return [...camposProductos, ...camposDinamicos];
-    }, [camposDinamicos, camposProductos]);
+        return [...base, ...camposDinamicos];
+    }, [camposDinamicos, camposProductos, tieneArca]);
 
     const handleSubmit = async (data) => {
         try {
@@ -256,18 +162,11 @@ const CrearProductos = () => {
             const payload = {
                 ...rest,
                 unidadMedida: "FRASCO",
-                cantidadPorPaquete: parseFloat(data.cantidadPorPaquete) || 0,
                 stock: parseFloat(data.stock) || 0,
                 tasaIva: parseFloat(data.tasaIva) || 0,
                 activo: data.activo === "true" || data.activo === true,
                 atributos
             };
-
-            // Solo enviar para Creación (No permitido en ActualizarProductoDto)
-            if (!isEdit) {
-                payload.cantidadDepaquetesActuales = parseFloat(data.cantidadDePaquetesActuales) || 0;
-                payload.cantidadSobrante = parseFloat(data.cantidadSobrante) || 0;
-            }
 
             if (isEdit) {
                 await actualizarProducto(id, payload);
@@ -283,7 +182,49 @@ const CrearProductos = () => {
     if (isEdit && cargando && !initialData) {
         return (
             <ContenedorSeccion className="flex items-center justify-center p-20">
-                <div className="animate-pulse text-amber-500 font-black uppercase tracking-[0.2em]">Cargando Datos del Producto...</div>
+                <div className="animate-pulse text-[var(--primary)] font-black uppercase tracking-[0.2em]">Cargando Datos del Producto...</div>
+            </ContenedorSeccion>
+        );
+    }
+
+    if (configCargada && (!Array.isArray(camposDinamicos) || camposDinamicos.length === 0) && !isEdit) {
+        return (
+            <ContenedorSeccion>
+                <div className="flex flex-col items-center justify-center min-h-[60vh] w-full">
+                    <div className="max-w-lg w-full bg-[#1a1a1a] border border-white/5 rounded-[2.5rem] p-10 text-center shadow-2xl relative overflow-hidden group">
+                        {/* Decoración de fondo */}
+                        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-[var(--primary)]/5 rounded-full blur-3xl group-hover:bg-[var(--primary)]/10 transition-all duration-700"></div>
+
+                        <div className="relative z-10">
+                            {/* Contenedor del Icono */}
+                            <div className="w-20 h-20 bg-[var(--primary)]/10 rounded-[2rem] flex items-center justify-center mx-auto mb-6 border border-[var(--primary)]/20 rotate-3 group-hover:rotate-6 transition-transform duration-500">
+                                <AdvertenciaIcono size={40} color="var(--primary)" />
+                            </div>
+
+                            {/* Texto Principal */}
+                            <h2 className="text-3xl font-black text-white mb-4 tracking-tight leading-tight">
+                                ¡Catálogo <br /> <span className="text-[var(--primary)] italic font-medium">Requerido</span>!
+                            </h2>
+
+                            <p className="text-white/40 text-sm leading-relaxed mb-10 max-w-[280px] mx-auto font-medium">
+                                Es necesario que hables con el administrador del sistema para configurar los campos del producto.
+                            </p>
+
+                            {/* Botones de Acción */}
+                            <div className="flex justify-center items-center">
+                                <button
+                                    onClick={() => navigate("/panel/inventario/productos")}
+                                    className="px-10 py-4 bg-white/5 text-white/70 font-bold uppercase tracking-[0.15em] text-xs rounded-2xl hover:bg-white/10 transition-all border border-white/5 hover:border-white/10 w-full sm:w-auto"
+                                >
+                                    Volver Atrás
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Línea decorativa inferior */}
+                        <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--primary)]/20 to-transparent"></div>
+                    </div>
+                </div>
             </ContenedorSeccion>
         );
     }
