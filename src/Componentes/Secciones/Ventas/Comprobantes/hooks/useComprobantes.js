@@ -270,8 +270,11 @@ export const useComprobantes = () => {
       const ivaLinea = r2(subtotalLinea - netoLinea);
       const precioUnitarioNeto = r2(netoLinea / (i.cantidad || 1));
 
+      // Obtenemos el ID original para saber si es manual o de DB
+      const rawId = i.codigoSecuencial || i.id;
+
       return {
-        codigoProducto: i.id || 0,
+        rawId,
         nombre: i.nombre,
         cantidad: i.cantidad,
         precioUnitario: precioUnitarioNeto, 
@@ -318,10 +321,12 @@ export const useComprobantes = () => {
       },
       items: itemsProcesados.map(i => {
         // Aseguramos que el codigoProducto sea numérico o null para que el DTO valide bien
-        const codigoNumerico = (typeof i.id === 'string' && i.id.startsWith('m-')) ? null : Number(i.id);
+        const rawIdStr = String(i.rawId || '');
+        const isManual = rawIdStr.toLowerCase().startsWith('m-');
+        const codigoNumerico = isManual ? null : Number(i.rawId);
         
         return {
-          codigoProducto: isNaN(codigoNumerico) ? null : codigoNumerico,
+          codigoProducto: (codigoNumerico && !isNaN(codigoNumerico)) ? codigoNumerico : null,
           nombre: i.nombre,
           cantidad: i.cantidad,
           precioUnitario: i.precioUnitario,

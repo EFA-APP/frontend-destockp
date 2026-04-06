@@ -240,6 +240,7 @@ const CrearProductos = () => {
                 cantidadDepaquetesActuales,
                 cantidadSobrante,
                 codigoEmpresa,
+                codigoUnidadNegocio,
                 createdAt,
                 updatedAt,
                 id: _,

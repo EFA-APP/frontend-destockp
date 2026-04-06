@@ -89,7 +89,15 @@ const CrearMateriaPrima = () => {
     const handleSubmit = async (data) => {
         try {
             // eslint-disable-next-line no-unused-vars
-            const { id: _, codigoSecuencial, ...rest } = data;
+            const { 
+              id: _, 
+              codigoSecuencial, 
+              codigoEmpresa, 
+              codigoUnidadNegocio, 
+              createdAt, 
+              updatedAt, 
+              ...rest 
+            } = data;
             const payload = {
                 ...rest,
                 activo: true,
