@@ -12,6 +12,7 @@ import {
   DetalleIcono,
   BloquearUsuarioIcono,
   DuplicarIcono,
+  AdjuntoIcono,
 } from "../../../assets/Icons";
 
 export const accionesReutilizables = {
@@ -87,7 +88,7 @@ export const accionesReutilizables = {
 
   generarComprobante: {
     key: "generarComprobante",
-    label: "Generar Comporbantes",
+    label: "Generar Comprobantes",
     icono: (
       <div className="bg-pink-500/10 p-1 rounded-md text-pink-400! cursor-pointer! hover:bg-violet-500/20 transition-colors ">
         <PagosIcono size={18} />
@@ -143,5 +144,15 @@ export const accionesReutilizables = {
         <DetalleIcono size={18} />
       </div>
     ),
-  }
+  },
+
+  verAdjuntos: {
+    key: "verAdjuntos",
+    label: "Ver adjuntos",
+    icono: (
+      <div className="p-1 rounded-md bg-violet-500/10 text-violet-500 hover:bg-violet-500/20 transition-colors">
+        <AdjuntoIcono size={18} />
+      </div>
+    ),
+  },
 };

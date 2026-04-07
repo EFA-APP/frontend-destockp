@@ -9,7 +9,7 @@ const ModalConfirmacionCobro = ({
   setMostrarPreview,
   items,
   clienteSeleccionado,
-  metodoPago,
+  listaPagos = [],
   totales,
   confirmarVentaFinal,
   enBlanco,
@@ -100,22 +100,31 @@ const ModalConfirmacionCobro = ({
           </div>
 
           {/* Datos del Cliente y Método */}
-          <div className="pt-6 grid grid-cols-2 gap-4">
-            <div className="bg-white/5 p-3 rounded-md border border-white/5">
-              <span className="block text-[9px] text-[var(--text-muted)] font-black uppercase mb-1">
-                Cliente
+          <div className="pt-6 flex flex-col gap-4">
+            <div className="bg-white/5 p-4 rounded-md border border-white/5 flex flex-col gap-1">
+              <span className="block text-[9px] text-[var(--text-muted)] font-black uppercase tracking-widest">
+                Cliente / Receptor
               </span>
-              <span className="text-xs font-bold text-white truncate block">
-                {clienteSeleccionado || "Consumidor Final"}
+              <span className="text-sm font-bold text-white uppercase italic">
+                {clienteSeleccionado?.nombre || "Consumidor Final"}
               </span>
             </div>
-            <div className="bg-white/5 p-3 rounded-md border border-white/5">
-              <span className="block text-[9px] text-[var(--text-muted)] font-black uppercase mb-1">
-                Pago
-              </span>
-              <span className="text-xs font-bold text-emerald-400 uppercase">
-                {metodoPago}
-              </span>
+
+            <div className="bg-white/5 p-4 rounded-md border border-white/5">
+                <span className="block text-[9px] text-[var(--text-muted)] font-black uppercase tracking-widest mb-3">
+                    Desglose de Pago
+                </span>
+                <div className="space-y-2">
+                    {listaPagos.map((p, i) => (
+                        <div key={i} className="flex justify-between items-center text-xs">
+                             <div className="flex flex-col">
+                                <span className="font-bold text-white uppercase">{p.metodo}</span>
+                                {p.detalles && <span className="text-[9px] text-[var(--text-muted)] font-black italic">{p.detalles}</span>}
+                             </div>
+                             <span className="font-black text-emerald-400">${p.monto.toLocaleString()}</span>
+                        </div>
+                    ))}
+                </div>
             </div>
           </div>
         </div>

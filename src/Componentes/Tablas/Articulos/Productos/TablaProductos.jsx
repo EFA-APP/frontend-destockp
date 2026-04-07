@@ -159,22 +159,6 @@ const TablaProductos = () => {
         };
       }
 
-      if (col.key === "cantidadMovimientos") {
-        return {
-          ...col,
-          renderizar: (valor) => (
-            <div className="flex items-center gap-2">
-               <div className="w-8 h-8 rounded-full bg-white/5 border border-white/5 flex items-center justify-center">
-                  <span className="text-[11px] font-black text-amber-500/80">
-                    {valor || 0}
-                  </span>
-               </div>
-               <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">Movs</span>
-            </div>
-          )
-        }
-      }
-
       if (col.key === "stock") {
         return {
           ...col,

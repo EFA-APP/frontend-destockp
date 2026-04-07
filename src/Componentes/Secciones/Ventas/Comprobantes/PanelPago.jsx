@@ -41,6 +41,12 @@ const PanelPago = ({
   tiposComprobante = [],
   cargandoVouchers,
   usuario = {},
+  // Nuevos props para pagos multiples
+  listaPagos = [],
+  nuevoPago = {},
+  setNuevoPago,
+  agregarPago,
+  eliminarPago,
 }) => {
   const isArca = usuario?.conexionArca || usuario?.configuracionArca?.activo;
   const esTipoA = [1, 2, 3, 4, 5].includes(Number(tipoDocumento));
@@ -85,22 +91,22 @@ const PanelPago = ({
                   <div className="w-full h-10 bg-[var(--surface-active)] border border-[var(--border-subtle)] rounded-md animate-pulse" />
                 ) : (
                   <select
-                  value={tipoDocumento}
-                  onChange={(e) => setTipoDocumento(e.target.value)}
-                  className="w-full bg-[var(--surface-active)] border border-[var(--border-subtle)] rounded-md px-3 py-2.5 text-xs font-black text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors cursor-pointer appearance-none uppercase tracking-tighter shadow-inner pr-10"
-                >
-                  {tiposComprobante.length === 0 && (
-                    <option value="">No hay comprobantes habilitados</option>
-                  )}
-                  {tiposComprobante.map((doc) => (
-                    <option
-                      key={doc.id}
-                      value={doc.id}
-                      className="bg-[#151515] text-white py-2"
-                    >
-                      {doc.label}
-                    </option>
-                  ))}
+                    value={tipoDocumento}
+                    onChange={(e) => setTipoDocumento(e.target.value)}
+                    className="w-full bg-[var(--surface-active)] border border-[var(--border-subtle)] rounded-md px-3 py-2.5 text-xs font-black text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors cursor-pointer appearance-none uppercase tracking-tighter shadow-inner pr-10"
+                  >
+                    {tiposComprobante.length === 0 && (
+                      <option value="">No hay comprobantes habilitados</option>
+                    )}
+                    {tiposComprobante.map((doc) => (
+                      <option
+                        key={doc.id}
+                        value={doc.id}
+                        className="bg-[#151515] text-white py-2"
+                      >
+                        {doc.label}
+                      </option>
+                    ))}
                   </select>
                 )}
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none group-focus-within:text-[var(--primary)] transition-colors">
@@ -175,30 +181,152 @@ const PanelPago = ({
           </div>
         )}
 
-        {/* 2. MÉTODO DE PAGO */}
-        <div className="bg-[var(--surface)] p-4 rounded-md border border-[var(--border-subtle)] space-y-3">
-          <div className="flex items-center gap-2 mb-1 text-[var(--text-muted)]">
-            <DineroIcono size={16} />
-            <h3 className="text-[11px] font-black uppercase tracking-widest">
-              Método de Pago
-            </h3>
+        {/* 2. MÉTODOS DE PAGO MULTIPLES */}
+        <div className="bg-[var(--surface)] p-4 rounded-md border border-[var(--border-subtle)] space-y-4">
+          <div className="flex items-center justify-between text-[var(--text-muted)]">
+            <div className="flex items-center gap-2 mb-1">
+              <DineroIcono size={16} />
+              <h3 className="text-[11px] font-black uppercase tracking-widest">
+                Pagos Realizados
+              </h3>
+            </div>
+            {listaPagos.length > 0 && (
+              <span className="text-[10px] font-black text-emerald-500">
+                ${listaPagos.reduce((acc, p) => acc + p.monto, 0).toLocaleString()}
+              </span>
+            )}
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { id: "efectivo", label: "EFECTIVO" },
-              { id: "debito", label: "DÉBITO" },
-              { id: "credito", label: "CRÉDITO" },
-              { id: "transferencia", label: "TRANSF." },
-            ].map((m) => (
-              <button
-                key={m.id}
-                onClick={() => setMetodoPago(m.id)}
-                className={`py-3 rounded-md text-[11px] md:text-[10px] font-black border transition-all ${metodoPago === m.id ? "bg-[var(--primary)] text-black border-[var(--primary)] shadow-lg" : "bg-[var(--surface-active)] text-[var(--text-muted)] border-transparent hover:bg-[var(--surface-hover)]"}`}
-              >
-                {m.label}
-              </button>
+
+          {/* LISTA DE PAGOS AGREGADOS */}
+          <div className="space-y-2">
+            {listaPagos.map((p, idx) => (
+              <div key={idx} className="flex items-center justify-between bg-[var(--surface-active)] p-2 rounded-md border border-white/5 animate-in slide-in-from-right-2 duration-200">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black uppercase text-white tracking-widest">
+                    {p.metodo} {p.detalles ? `• ${p.detalles}` : ""}
+                  </span>
+                  <span className="text-[9px] text-[var(--text-muted)] font-bold">
+                    {p.referencia || "Sin referencia"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-black text-emerald-400">${p.monto.toLocaleString()}</span>
+                  <button
+                    onClick={() => eliminarPago(idx)}
+                    className="text-red-500/50 hover:text-red-500 transition-colors"
+                  >
+                    <BorrarIcono size={14} />
+                  </button>
+                </div>
+              </div>
             ))}
+
+            {listaPagos.length === 0 && (
+              <div className="text-center py-4 border border-dashed border-white/10 rounded-md">
+                <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-tighter">Sin pagos registrados</p>
+              </div>
+            )}
           </div>
+
+          {/* FORMULARIO PARA AGREGAR PAGO */}
+          <div className="pt-4 border-t border-white/10 space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              {["efectivo", "debito", "credito", "transferencia"].map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => {
+                    setNuevoPago(prev => ({
+                      ...prev,
+                      metodo: m,
+                      detalles: m === "transferencia" ? "Mercado Pago" : (m === "credito" || m === "debito" ? "Visa" : "")
+                    }));
+                  }}
+                  className={`py-2 rounded-md text-[10px] font-black border transition-all ${nuevoPago.metodo === m ? "bg-[var(--primary)] text-black border-[var(--primary)]" : "bg-[var(--surface-active)] text-[var(--text-muted)] border-transparent hover:bg-[var(--surface-hover)]"}`}
+                >
+                  {m.toUpperCase()}
+                </button>
+              ))}
+            </div>
+
+            {/* DETALLES ESPECIFICOS (TARJETAS / BILLETERAS) */}
+            {(nuevoPago.metodo === "transferencia" || nuevoPago.metodo === "credito" || nuevoPago.metodo === "debito") && (
+              <div className="animate-in fade-in zoom-in-95 duration-200">
+                <label className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1 block">
+                  {nuevoPago.metodo === "transferencia" ? "Billetera / Banco Destino" : "Marca / Tipo de Tarjeta"}
+                </label>
+                <select
+                  value={nuevoPago.detalles}
+                  onChange={(e) => setNuevoPago(prev => ({ ...prev, detalles: e.target.value }))}
+                  className="w-full bg-[var(--surface-active)] border border-white/10 rounded-md px-3 py-2 text-[11px] font-bold text-white focus:outline-none focus:border-[var(--primary)]"
+                >
+                  {nuevoPago.metodo === "transferencia" ? (
+                    <>
+                      <option value="Mercado Pago">Mercado Pago</option>
+                      <option value="Naranja X">Naranja X</option>
+                      <option value="Personal Pay">Personal Pay</option>
+                      <option value="Uala">Uala</option>
+                      <option value="Modo">Modo</option>
+                      <option value="Brubank">Brubank</option>
+                      <option value="Transferencia Bancaria">Transferencia Bancaria</option>
+                      <option value="Otro">Otro</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="Visa">Visa</option>
+                      <option value="Mastercard">Mastercard</option>
+                      <option value="Maestro">Maestro</option>
+                      <option value="Cabal">Cabal</option>
+                      <option value="American Express">American Express</option>
+                      <option value="Naranja">Naranja</option>
+                      <option value="Otro">Otro</option>
+                    </>
+                  )}
+                </select>
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <label className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1 block">Monto a abonar</label>
+                <input
+                  type="number"
+                  value={nuevoPago.monto}
+                  onChange={(e) => setNuevoPago(prev => ({ ...prev, monto: parseFloat(e.target.value) || 0 }))}
+                  className="w-full bg-[var(--surface-active)] border border-white/10 rounded-md px-3 py-2 text-sm font-black text-emerald-400 focus:outline-none focus:border-[var(--primary)]"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1 block">Ref. (Opcional)</label>
+                <input
+                  type="text"
+                  placeholder="Nro. Transacción"
+                  value={nuevoPago.referencia}
+                  onChange={(e) => setNuevoPago(prev => ({ ...prev, referencia: e.target.value }))}
+                  className="w-full bg-[var(--surface-active)] border border-white/10 rounded-md px-3 py-2 text-[11px] font-bold text-white focus:outline-none focus:border-[var(--primary)] placeholder:opacity-20"
+                />
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={agregarPago}
+              disabled={nuevoPago.monto <= 0}
+              className="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-[10px] font-black uppercase tracking-widest text-[var(--primary)] transition-all active:scale-95 disabled:opacity-30"
+            >
+              + AGREGAR PAGO
+            </button>
+          </div>
+
+          {/* BALANCE RESTANTE */}
+          {totales.total - listaPagos.reduce((acc, p) => acc + p.monto, 0) > 0.01 && (
+            <div className="bg-amber-500/10 border border-amber-500/20 p-2 rounded-md flex justify-between items-center animate-pulse">
+              <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Saldo Restante:</span>
+              <span className="text-xs font-black text-amber-500">
+                ${(totales.total - listaPagos.reduce((acc, p) => acc + p.monto, 0)).toLocaleString()}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* 3. CLIENTE */}
@@ -349,9 +477,9 @@ const PanelPago = ({
 
         <button
           onClick={handleFacturar}
-          disabled={items.length === 0}
+          disabled={items.length === 0 || Math.abs(totales.total - listaPagos.reduce((acc, p) => acc + p.monto, 0)) > 0.01}
           className={`w-full h-14 rounded-md flex items-center justify-center gap-3 font-black text-xl uppercase tracking-widest transition-all duration-300 shadow-xl border
-                    ${items.length === 0
+                    ${(items.length === 0 || Math.abs(totales.total - listaPagos.reduce((acc, p) => acc + p.monto, 0)) > 0.01)
               ? "bg-[var(--surface-active)] text-[var(--text-muted)] border-transparent cursor-not-allowed opacity-50"
               : "bg-emerald-500 hover:bg-emerald-400 text-black border-emerald-400 shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-1"
             }

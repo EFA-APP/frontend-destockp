@@ -7,13 +7,12 @@ export const useArcaStore = create((set) => ({
   cargando: false,
   mensaje: "",
   infoIva: null,
+  arcaConfig: null, // Guardamos aquí el encabezado fiscal
 
   setConexion: (status, expiracion, mensaje = "") =>
     set({ conectado: status, expiracion, mensaje }),
 
   verificarSesion: async (empresa) => {
-    // 1. Verificamos si la empresa tiene habilitada la conexión a ARCA
-    // Basado en el requerimiento: "verifique que la empresa tenga una columna llamada conexionArca: true"
     if (!empresa?.conexionArca && !empresa?.configuracionArca?.activo) {
       set({
         conectado: false,
@@ -29,12 +28,13 @@ export const useArcaStore = create((set) => ({
         set({
           conectado: true,
           expiracion: res.data?.expiration,
-          infoIva: res.iva || null, // Guardamos la info de IVA que viene del login
+          arcaConfig: res.data?.encabezado || null, // Guardamos el encabezado fiscal precargado
+          infoIva: res.iva || null,
           mensaje: res.message,
           cargando: false,
         });
       } else {
-        set({ conectado: false, infoIva: null, mensaje: res.message, cargando: false });
+        set({ conectado: false, infoIva: null, arcaConfig: null, mensaje: res.message, cargando: false });
       }
     } catch (error) {
       console.error("[ARCA_STORE_ERROR]", error);

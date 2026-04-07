@@ -540,10 +540,15 @@ const DataTable = ({
   const { tieneAccion } = usePermisosDeUsuario();
   const esAdmin = usuario?.roles?.some((r) => r.nombre === "ADMINISTRADOR");
 
+  // Ref para evitar guardar en el primer render or antes de cargar preferencias
+  const inicializadoRef = React.useRef(false);
+
   // 1. Cargar preferencias o columnas del prop
   React.useEffect(() => {
     setColumnasVisibles((prev) => {
       const pref = id_tabla && usuario?.preferenciasTabla?.[id_tabla];
+      
+      // Si tenemos preferencias en el usuario, aplicarlas
       if (pref && pref.orden && pref.visibles) {
         const nuevas = [];
         pref.orden.forEach((key) => {
@@ -551,23 +556,42 @@ const DataTable = ({
           if (col)
             nuevas.push({ ...col, visible: pref.visibles.includes(key) });
         });
+        // Agregar columnas que no estaban en las preferencias (nuevas columnas de código)
         columnas.forEach((col) => {
           if (!nuevas.some((n) => n.key === col.key))
             nuevas.push({ ...col, visible: true });
         });
+        
+        inicializadoRef.current = true;
         return nuevas;
       }
 
-      return columnas.map((c) => {
-        const guardado = prev.find((p) => p.key === c.key);
-        return { ...c, visible: guardado ? guardado.visible : true };
-      });
+      // Si no hay preferencias pero ya tenemos columnas previas, intentar mantenerlas
+      if (prev.length > 0) {
+        return columnas.map((c) => {
+          const guardado = prev.find((p) => p.key === c.key);
+          return { ...c, visible: guardado ? guardado.visible : true };
+        });
+      }
+
+      // Por defecto, todo visible
+      return columnas.map((c) => ({ ...c, visible: true }));
     });
+    
+    // Marcar como inicializado si no hay preferencias pero ha cargado el usuario
+    if (usuario && !usuario.preferenciasTabla?.[id_tabla]) {
+        inicializadoRef.current = true;
+    }
   }, [columnas, id_tabla, usuario?.preferenciasTabla]);
 
   // 2. Guardar preferencias si es Administrador (Debounced)
   React.useEffect(() => {
-    if (!id_tabla || !esAdmin) return;
+    // CONDICIONES CRÍTICAS PARA GUARDAR:
+    // - Debe haber id_tabla
+    // - Debe ser Admin
+    // - La tabla DEBE haber sido inicializada desde las preferencias (o marcado como listo)
+    // - NO guardar si columnasVisibles está vacío (evita borrar config por error)
+    if (!id_tabla || !esAdmin || !inicializadoRef.current || columnasVisibles.length === 0) return;
 
     const timeout = setTimeout(() => {
       const config = {
@@ -578,6 +602,8 @@ const DataTable = ({
       };
 
       const guardado = usuario?.preferenciasTabla?.[id_tabla];
+      
+      // Solo disparar la petición si realmente hubo un cambio
       if (JSON.stringify(guardado) !== JSON.stringify(config)) {
         actualizarPreferencias({
           ...usuario?.preferenciasTabla,

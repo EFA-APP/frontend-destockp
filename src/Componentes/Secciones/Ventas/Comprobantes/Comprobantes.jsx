@@ -43,6 +43,8 @@ const Comprobantes = () => {
     // Notas de crédito / Comprobantes asociados
     busquedaFactura, setBusquedaFactura, comprobanteAsociado, setComprobanteAsociado,
     mostrarDropdownFactura, setMostrarDropdownFactura, 
+    // Pagos multiples
+    listaPagos, nuevoPago, setNuevoPago, agregarPago, eliminarPago,
     // UI Local
     mostrarPreview, setMostrarPreview, tabActiva, setTabActiva,
     // Referencias de teclado
@@ -160,6 +162,12 @@ const Comprobantes = () => {
           tiposComprobante={tiposComprobante}
           cargandoVouchers={cargandoVouchers}
           usuario={usuario}
+          // Pagos multiples
+          listaPagos={listaPagos}
+          nuevoPago={nuevoPago}
+          setNuevoPago={setNuevoPago}
+          agregarPago={agregarPago}
+          eliminarPago={eliminarPago}
         />
       </div>
 
@@ -169,7 +177,7 @@ const Comprobantes = () => {
         setMostrarPreview={setMostrarPreview}
         items={items}
         clienteSeleccionado={clienteSeleccionado}
-        metodoPago={metodoPago}
+        listaPagos={listaPagos}
         totales={totales}
         confirmarVentaFinal={confirmarVentaFinal}
         cargandoCobro={cargandoCobro}

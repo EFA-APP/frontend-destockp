@@ -9,6 +9,12 @@ import { facturaConfig } from "../../../Modales/Ventas/ConfigFactura";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { ObtenerTiposComprobanteApi } from "../../../../Backend/Arca/api/arca.api";
+import { useArcaStore } from "../../../../store/useArcaStore";
+import { accionesComprobantes } from "./AccionesComprobantes";
+import { ComprobanteIcono, VentasIcono, DineroIcono } from "../../../../assets/Icons";
+import { TrendingUp, LayoutGrid, Calendar } from "lucide-react";
+import ComprobantePDF from "./ComprobantePDF";
+import { pdf } from "@react-pdf/renderer";
 
 const TablaComprobantes = () => {
   const { usuario, unidadActiva } = useAuthStore();
@@ -31,22 +37,49 @@ const TablaComprobantes = () => {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [seleccionado, setSeleccionado] = useState(null);
 
+  const handleVerDetalle = (fila) => {
+    setSeleccionado(fila);
+    setModalAbierto(true);
+  };
+
+  const handleVerAdjuntos = async (fila) => {
+    // Generar PDF y descargar usando implementación nativa para evitar dependencias externas
+    try {
+      const blob = await pdf(
+        <ComprobantePDF 
+          comprobante={fila} 
+          vendedorConfig={usuario} 
+          arcaConfig={arcaConfig}
+        />
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Comprobante-${fila.ptoVenta}-${fila.numeroComprobante}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error generando PDF:", error);
+    }
+  };
+
   // Datos dinámicos de ARCA
   const [tiposARCA, setTiposARCA] = useState([]);
   const [cargandoTipos, setCargandoTipos] = useState(false);
 
-  // 1. Carga de Tipos de Comprobante Dinámicos
+  // 1. Carga de Tipos de Comprobante Dinámicos 
+  const { arcaConfig } = useArcaStore(); // Consumimos el encabezado precargado desde el store
+
   useEffect(() => {
-    const fetchTipos = async () => {
-      // Cargamos si hay conexión ARCA habilitada
+    const fetchDatosArca = async () => {
       if (usuario?.conexionArca) {
         setCargandoTipos(true);
         try {
-          const res = await ObtenerTiposComprobanteApi();
-          // Mapeo robusto: Buscamos el array en .data o el objeto directo
-          const dataRaw = Array.isArray(res) ? res : (res?.data || []);
+          const resTipos = await ObtenerTiposComprobanteApi();
+          const dataRaw = Array.isArray(resTipos) ? resTipos : (resTipos?.data || []);
           const vouchersReal = Array.isArray(dataRaw) ? dataRaw : (dataRaw?.data || []);
-
           if (Array.isArray(vouchersReal)) {
             setTiposARCA(vouchersReal.map(t => ({ valor: String(t.Id), texto: t.Desc })));
           }
@@ -57,7 +90,7 @@ const TablaComprobantes = () => {
         }
       }
     };
-    fetchTipos();
+    fetchDatosArca();
   }, [usuario?.id]);
 
   // 2. Lógica de visibilidad del filtro fiscal (Detección Real)
@@ -91,36 +124,58 @@ const TablaComprobantes = () => {
       />
 
       {/* Tarjetas con Colores de Empresa */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <TarjetaInformacion
-          titulo="Facturación Vista"
-          color="text-[var(--primary)]"
-          valorMoneda
-          numero={totalFacturadoFacturas}
-          cargando={isLoading}
-          estiloExtra="border-l-4 border-[var(--primary)] bg-[var(--surface)] shadow-2xl p-6 rounded-2xl hover:scale-[1.02] transition-all duration-300"
-        />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="relative group overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#111] border border-white/5 p-6 rounded-md shadow-2xl transition-all hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)]/10 blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-[var(--primary)]/20 transition-all duration-700" />
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 bg-[var(--primary)]/10 rounded-2xl flex items-center justify-center border border-[var(--primary)]/20 text-[var(--primary)]">
+              <DineroIcono size={24} />
+            </div>
+            <div>
+              <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Facturación Listada</h3>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-black text-white italic tracking-tighter">
+                  ${totalFacturadoFacturas.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
+                </span>
+                <TrendingUp size={14} className="text-emerald-500" />
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <TarjetaInformacion
-          titulo="Total Registros"
-          color="text-indigo-400"
-          numero={meta.totalItems || 0}
-          cargando={isLoading}
-          estiloExtra="bg-[var(--surface)] shadow-xl p-6 rounded-2xl border border-[var(--border-subtle)]"
-        />
+        <div className="relative group overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#111] border border-white/5 p-6 rounded-md shadow-2xl transition-all hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-indigo-500/20 transition-all duration-700" />
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center border border-indigo-500/20 text-indigo-400">
+              <LayoutGrid size={24} />
+            </div>
+            <div>
+              <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Total Registros</h3>
+              <span className="text-2xl font-black text-white italic tracking-tighter">
+                {meta.totalItems || 0}
+              </span>
+            </div>
+          </div>
+        </div>
 
-        <TarjetaInformacion
-          titulo="Monto Filtrado"
-          color="text-amber-400"
-          valorMoneda
-          numero={totalFacturadoFacturas}
-          cargando={isLoading}
-          estiloExtra="bg-[var(--surface)] shadow-xl p-6 rounded-2xl border border-[var(--border-subtle)]"
-        />
+        <div className="relative group overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#111] border border-white/5 p-6 rounded-md shadow-2xl transition-all hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-emerald-500/20 transition-all duration-700" />
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20 text-emerald-400">
+              <VentasIcono size={24} />
+            </div>
+            <div>
+              <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Ticket Promedio</h3>
+              <span className="text-2xl font-black text-white italic tracking-tighter">
+                ${(totalFacturadoFacturas / (meta.totalItems || 1)).toLocaleString("es-AR", { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Tabla Maestra con Diseño Identitario */}
-      <div className="rounded-2xl overflow-hidden shadow-2xl border border-[var(--border-medium)] bg-[var(--fill)]">
+      <div className="rounded-2xl overflow-hidden shadow-2xl">
         <DataTable
           id_tabla="comprobantes_final_v1"
           llaveTituloMobile="numeroComprobante"
@@ -130,12 +185,12 @@ const TablaComprobantes = () => {
           mostrarBuscador
           busqueda={busqueda}
           setBusqueda={setBusqueda}
-          mostrarAcciones={false}
+          mostrarAcciones={true}
+          acciones={accionesComprobantes({
+            handleVerDetalle,
+            handleVerAdjuntos
+          })}
           placeholderBuscador="Factura, Receptor, Fecha..."
-          botonAgregar={{
-            texto: "Nueva Venta",
-            ruta: "/panel/ventas/facturas/nueva",
-          }}
           mostrarFiltros={true}
           textoFiltros="Opciones de Busqueda"
           filtrosAbiertosInicial={false}

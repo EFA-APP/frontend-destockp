@@ -54,6 +54,8 @@ export const useComprobantes = () => {
   const [enBlanco, setEnBlanco] = useState("si");
   const [condicionVenta, setCondicionVenta] = useState("contado");
   const [metodoPago, setMetodoPago] = useState("efectivo");
+  const [listaPagos, setListaPagos] = useState([]);
+  const [nuevoPago, setNuevoPago] = useState({ metodo: "efectivo", monto: 0, detalles: "", referencia: "" });
   const [comprobanteAsociado, setComprobanteAsociado] = useState("");
   const [busquedaFactura, setBusquedaFactura] = useState("");
   const [mostrarDropdownFactura, setMostrarDropdownFactura] = useState(false);
@@ -171,6 +173,13 @@ export const useComprobantes = () => {
     })));
   }, [columnaPrecioSeleccionada]);
 
+  // Actualizar monto sugerido del nuevo pago
+  useEffect(() => {
+    const totalPagado = listaPagos.reduce((acc, p) => acc + p.monto, 0);
+    const restante = Math.max(0, totales.total - totalPagado);
+    setNuevoPago(prev => ({ ...prev, monto: Math.round(restante * 100) / 100 }));
+  }, [totales.total, listaPagos]);
+
   // === 9. MANEJADORES DE ACCIONES ===
 
   const agregarItem = () => {
@@ -215,6 +224,16 @@ export const useComprobantes = () => {
     const nuevosItems = [...items];
     nuevosItems[index][campo] = valor;
     setItems(nuevosItems);
+  };
+
+  const agregarPago = () => {
+    if (nuevoPago.monto <= 0) return;
+    setListaPagos([...listaPagos, { ...nuevoPago, id: Date.now() }]);
+    setNuevoPago({ metodo: "efectivo", monto: 0, detalles: "", referencia: "" });
+  };
+
+  const eliminarPago = (index) => {
+    setListaPagos(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleCodigoKeyDown = (e) => {
@@ -306,7 +325,7 @@ export const useComprobantes = () => {
 
     // Mapeo detallado del DTO para el backend
     const dto = {
-      puntoVenta: 1, 
+      puntoVenta: tipoDocumento === 99 ? 99 : 1, 
       codigoUsuario: usuario?.id || 1,
       tipoDocumento: Number(tipoDocumento),
       letraComprobante: letraDerivada,
@@ -314,6 +333,12 @@ export const useComprobantes = () => {
       codigoCliente: clienteSeleccionado?.id || null,
       condicionVenta: condicionVenta || "Contado",
       metodoPago: metodoPago || "Efectivo",
+      pagos: listaPagos.map(p => ({
+        metodo: p.metodo.toUpperCase(),
+        monto: p.monto,
+        detalles: p.detalles,
+        referencia: p.referencia
+      })),
       totales: {
         subtotal: totalNetoFinal,
         iva: totalIvaFinal,
@@ -377,6 +402,8 @@ export const useComprobantes = () => {
     camposDinamicos, cargandoConfigs, tipoDocumento, setTipoDocumento, enBlanco, setEnBlanco, aplicaIva,
     metodoPago, setMetodoPago, clienteSeleccionado, setClienteSeleccionado, busquedaCliente, setBusquedaCliente,
     mostrarDropdownCliente, setMostrarDropdownCliente, condicionVenta, setCondicionVenta,
+    // Pagos multiples
+    listaPagos, setListaPagos, nuevoPago, setNuevoPago, agregarPago, eliminarPago,
     busquedaFactura, setBusquedaFactura, comprobanteAsociado, setComprobanteAsociado,
     mostrarDropdownFactura, setMostrarDropdownFactura, mostrarPreview, setMostrarPreview, tabActiva, setTabActiva,
     // Refs

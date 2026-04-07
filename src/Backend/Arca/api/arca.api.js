@@ -20,3 +20,12 @@ export const ObtenerTiposComprobanteApi = async () => {
   });
   return respuesta.data;
 };
+/**
+ * Obtiene la configuración fiscal (encabezado) de la empresa desde ARCA/AFIP.
+ */
+export const ObtenerConfiguracionArcaApi = async () => {
+  const respuesta = await axiosInitial.get(`/arca/configuracion/obtener`, {
+    showLoader: false,
+  });
+  return respuesta.data;
+};
