@@ -59,14 +59,11 @@ const createAxiosInstance = (baseURL) => {
     (error) => {
       useCargadorStore.getState().setCargando(false);
 
-      if (error.response?.status === 401) {
-        // 🚨 Solo mostrar alerta si intentamos mandar un token y falló
-        if (error.config?.headers?.Authorization) {
+      if (error.response?.status === 401) {        
           agregarAlerta({
             type: "error",
             message: "Sesión expirada o inválida. Por favor, inicie sesión nuevamente."
           });
-        }
         useAuthStore.getState().clearAuth(); // 🔐 Limpiar estado y forzar redirección
       }
 

@@ -9,12 +9,13 @@ import { facturaConfig } from "../../../Modales/Ventas/ConfigFactura";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { ObtenerTiposComprobanteApi } from "../../../../Backend/Arca/api/arca.api";
-import { useArcaStore } from "../../../../store/useArcaStore";
 import { accionesComprobantes } from "./AccionesComprobantes";
 import { ComprobanteIcono, VentasIcono, DineroIcono } from "../../../../assets/Icons";
 import { TrendingUp, LayoutGrid, Calendar } from "lucide-react";
 import ComprobantePDF from "./ComprobantePDF";
 import { pdf } from "@react-pdf/renderer";
+
+import DetalleComprobanteDrawer from "./DetalleComprobanteDrawer";
 
 const TablaComprobantes = () => {
   const { usuario, unidadActiva } = useAuthStore();
@@ -43,13 +44,12 @@ const TablaComprobantes = () => {
   };
 
   const handleVerAdjuntos = async (fila) => {
-    // Generar PDF y descargar usando implementación nativa para evitar dependencias externas
+    // Generar PDF y descargar usando implementación nativa
     try {
       const blob = await pdf(
         <ComprobantePDF 
           comprobante={fila} 
-          vendedorConfig={usuario} 
-          arcaConfig={arcaConfig}
+          usuario={usuario} 
         />
       ).toBlob();
       const url = URL.createObjectURL(blob);
@@ -69,22 +69,22 @@ const TablaComprobantes = () => {
   const [tiposARCA, setTiposARCA] = useState([]);
   const [cargandoTipos, setCargandoTipos] = useState(false);
 
-  // 1. Carga de Tipos de Comprobante Dinámicos 
-  const { arcaConfig } = useArcaStore(); // Consumimos el encabezado precargado desde el store
-
+  // 1. Carga de Tipos de Comprobante Dinámicos
   useEffect(() => {
     const fetchDatosArca = async () => {
       if (usuario?.conexionArca) {
         setCargandoTipos(true);
         try {
           const resTipos = await ObtenerTiposComprobanteApi();
+
+          // Procesar Tipos
           const dataRaw = Array.isArray(resTipos) ? resTipos : (resTipos?.data || []);
           const vouchersReal = Array.isArray(dataRaw) ? dataRaw : (dataRaw?.data || []);
           if (Array.isArray(vouchersReal)) {
             setTiposARCA(vouchersReal.map(t => ({ valor: String(t.Id), texto: t.Desc })));
           }
         } catch (e) {
-          console.error("Error cargando tipos ARCA:", e);
+          console.error("Error cargando tipos de ARCA:", e);
         } finally {
           setCargandoTipos(false);
         }
@@ -116,11 +116,11 @@ const TablaComprobantes = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <ModalDetalleGenerico
+      <DetalleComprobanteDrawer
         open={modalAbierto}
         onClose={() => setModalAbierto(false)}
         data={seleccionado}
-        {...facturaConfig}
+        usuario={usuario}
       />
 
       {/* Tarjetas con Colores de Empresa */}

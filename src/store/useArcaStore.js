@@ -7,7 +7,6 @@ export const useArcaStore = create((set) => ({
   cargando: false,
   mensaje: "",
   infoIva: null,
-  arcaConfig: null, // Guardamos aquí el encabezado fiscal
 
   setConexion: (status, expiracion, mensaje = "") =>
     set({ conectado: status, expiracion, mensaje }),
@@ -28,13 +27,12 @@ export const useArcaStore = create((set) => ({
         set({
           conectado: true,
           expiracion: res.data?.expiration,
-          arcaConfig: res.data?.encabezado || null, // Guardamos el encabezado fiscal precargado
           infoIva: res.iva || null,
           mensaje: res.message,
           cargando: false,
         });
       } else {
-        set({ conectado: false, infoIva: null, arcaConfig: null, mensaje: res.message, cargando: false });
+        set({ conectado: false, infoIva: null, mensaje: res.message, cargando: false });
       }
     } catch (error) {
       console.error("[ARCA_STORE_ERROR]", error);
