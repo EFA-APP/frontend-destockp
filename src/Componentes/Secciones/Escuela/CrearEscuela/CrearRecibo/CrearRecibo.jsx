@@ -3,7 +3,6 @@ import EncabezadoSeccion from "../../../../UI/EncabezadoSeccion/EncabezadoSeccio
 import { AgregarIcono } from "../../../../../assets/Icons";
 import FormularioDinamico from "../../../../UI/FormularioReutilizable/FormularioDinamico";
 
-
 const CrearRecibo = () => {
   const [numeroRecibo] = useState({
     prefijo: "R",
@@ -280,7 +279,7 @@ const CrearRecibo = () => {
           const totales = calcularTotales(
             formData.alumnoId,
             true,
-            parseInt(value) || 0
+            parseInt(value) || 0,
           );
           setFieldValue("montoInteres", totales.montoInteres);
           setFieldValue("tasaInteres", totales.tasaInteres);
@@ -404,7 +403,7 @@ const CrearRecibo = () => {
         ? `\n⚠️ Pago con ${
             data.diasAtraso
           } días de atraso\nInterés aplicado: $${data.montoInteres.toFixed(
-            2
+            2,
           )} (${data.tasaInteres}%)`
         : "\n✓ Pago realizado en término";
 
@@ -415,12 +414,12 @@ const CrearRecibo = () => {
         `Concepto: ${reciboCompleto.concepto}\n` +
         `Período: ${new Date(reciboCompleto.periodo + "-01").toLocaleDateString(
           "es-AR",
-          { month: "long", year: "numeric" }
+          { month: "long", year: "numeric" },
         )}\n` +
         `Método: ${reciboCompleto.metodoPago}\n` +
         `Total: $${reciboCompleto.total.toFixed(2)}` +
         mensajeMora +
-        `\n\nRevisa la consola para ver los detalles completos.`
+        `\n\nRevisa la consola para ver los detalles completos.`,
     );
   };
 
@@ -432,7 +431,7 @@ const CrearRecibo = () => {
           ruta="Crear Recibo de Cuota"
           icono={<AgregarIcono />}
           volver={true}
-          redireccionAnterior="/panel/escuela/recibos"
+          redireccionAnterior="/panel/escuela/cuotas"
         />
       </div>
 

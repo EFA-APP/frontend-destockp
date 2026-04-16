@@ -6,14 +6,18 @@ export const obtenerComprobantesPaginados = async (filtros) => {
     params: {
       ...filtros,
     },
-    showLoading: false,
+    showLoader: false,
   });
   return data;
 };
 
-export const generarComprobante = async (payload) => {
-  const { data } = await axiosInitial.post("/ventas/generar-comprobante", payload, {
-    showLoading: false,
+export const generarComprobante = async ({ dto, codigoEmpresa, codigoUnidadNegocio }) => {
+  const { data } = await axiosInitial.post("/ventas/generar-comprobante", dto, {
+    params: {
+        codigoEmpresa,
+        codigoUnidadNegocio
+    },
+    showLoader: false,
   });
   return data;
 };

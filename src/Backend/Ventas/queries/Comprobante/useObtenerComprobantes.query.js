@@ -3,15 +3,11 @@ import { obtenerComprobantesPaginados } from "../../api/Comprobante/comprobante.
 import { useAuthStore } from "../../../Autenticacion/store/authenticacion.store";
 
 export const useObtenerComprobantesQuery = (filtros = {}) => {
-  const { unidadActiva } = useAuthStore();
-
   return useQuery({
-    queryKey: ["comprobantes", { 
-        ...filtros, 
-        unidadActiva: unidadActiva?.id
-    }],
+    queryKey: ["comprobantes", { ...filtros }],
     queryFn: () => obtenerComprobantesPaginados(filtros),
     keepPreviousData: true,
     staleTime: 1000 * 60 * 5,
+    enabled: !!filtros.codigoUnidadNegocio
   });
 };

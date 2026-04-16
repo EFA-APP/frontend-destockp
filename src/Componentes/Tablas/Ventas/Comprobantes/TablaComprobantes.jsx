@@ -1,17 +1,14 @@
 import { useFacturas } from "../../../../Backend/hooks/Ventas/Facturas/useFacturas";
 import Select from "../../../UI/Select/Select";
 import DataTable from "../../../UI/DataTable/DataTable";
-import TarjetaInformacion from "../../../UI/TarjetaInformacion/TarjetaInformacion";
 import { columnasComprobantes } from "./ColumnaComprobantes";
 import { useMemo, useState, useEffect } from "react";
-import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
-import { facturaConfig } from "../../../Modales/Ventas/ConfigFactura";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { ObtenerTiposComprobanteApi } from "../../../../Backend/Arca/api/arca.api";
 import { accionesComprobantes } from "./AccionesComprobantes";
-import { ComprobanteIcono, VentasIcono, DineroIcono } from "../../../../assets/Icons";
-import { TrendingUp, LayoutGrid, Calendar } from "lucide-react";
+import { VentasIcono, DineroIcono } from "../../../../assets/Icons";
+import { TrendingUp, LayoutGrid } from "lucide-react";
 import ComprobantePDF from "./ComprobantePDF";
 import { pdf } from "@react-pdf/renderer";
 
@@ -23,6 +20,10 @@ const TablaComprobantes = () => {
     facturas,
     meta,
     isLoading,
+    isFetching,
+    isError,
+    pagina,
+    setPagina,
     busqueda,
     setBusqueda,
     tipoFactura,
@@ -33,10 +34,59 @@ const TablaComprobantes = () => {
     setFechaHasta,
     isFiscal,
     setIsFiscal,
+    condicionVenta,
+    setCondicionVenta,
+    unidadNegocio,
+    setUnidadNegocio,
+    manejarDetalle,
+    manejarEditar,
+    manejarEliminar,
+    refetch,
   } = useFacturas();
+  
+  const opcionesUnidad = useMemo(() => {
+    return (usuario?.unidadesNegocio || []).map(un => ({
+        valor: un.codigoSecuencial,
+        texto: un.nombre
+    }));
+  }, [usuario]);
 
   const [modalAbierto, setModalAbierto] = useState(false);
   const [seleccionado, setSeleccionado] = useState(null);
+
+  // --- SUBCOMPONENTE DE TABS PREMIUM ---
+  const CondicionVentaTabs = () => {
+    const options = [
+      { id: "TODAS", label: "Todos", icon: null },
+      { id: "contado", label: "Contado", icon: null },
+      { id: "cuenta_corriente", label: "Cta. Cte.", icon: null },
+    ];
+
+    return (
+      <div className="flex p-1 bg-zinc-950/60 backdrop-blur-xl border border-white/5 rounded-2xl shadow-inner gap-1">
+        {options.map((opt) => {
+          const active = condicionVenta === opt.id;
+          return (
+            <button
+              key={opt.id}
+              onClick={() => setCondicionVenta(opt.id)}
+              className={`
+                relative px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 cursor-pointer
+                ${active 
+                  ? "text-white shadow-xl shadow-[var(--primary)]/10" 
+                  : "text-white/30 hover:text-white/60 hover:bg-white/5"}
+              `}
+            >
+              {active && (
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-active)] rounded-xl -z-10 animate-in fade-in zoom-in-95" />
+              )}
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
 
   const handleVerDetalle = (fila) => {
     setSeleccionado(fila);
@@ -47,15 +97,13 @@ const TablaComprobantes = () => {
     // Generar PDF y descargar usando implementación nativa
     try {
       const blob = await pdf(
-        <ComprobantePDF 
-          comprobante={fila} 
-          usuario={usuario} 
-        />
+        <ComprobantePDF comprobante={fila} usuario={usuario} />,
       ).toBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `Comprobante-${fila.ptoVenta}-${fila.numeroComprobante}.pdf`;
+      const fileName = `${fila.cae || 'SIN_CAE'}-${String(fila.puntoVenta || 1).padStart(5, '0')}-${String(fila.numeroComprobante || 0).padStart(8, '0')}.pdf`;
+      link.download = fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -78,10 +126,16 @@ const TablaComprobantes = () => {
           const resTipos = await ObtenerTiposComprobanteApi();
 
           // Procesar Tipos
-          const dataRaw = Array.isArray(resTipos) ? resTipos : (resTipos?.data || []);
-          const vouchersReal = Array.isArray(dataRaw) ? dataRaw : (dataRaw?.data || []);
+          const dataRaw = Array.isArray(resTipos)
+            ? resTipos
+            : resTipos?.data || [];
+          const vouchersReal = Array.isArray(dataRaw)
+            ? dataRaw
+            : dataRaw?.data || [];
           if (Array.isArray(vouchersReal)) {
-            setTiposARCA(vouchersReal.map(t => ({ valor: String(t.Id), texto: t.Desc })));
+            setTiposARCA(
+              vouchersReal.map((t) => ({ valor: String(t.Id), texto: t.Desc })),
+            );
           }
         } catch (e) {
           console.error("Error cargando tipos de ARCA:", e);
@@ -106,13 +160,58 @@ const TablaComprobantes = () => {
   // 4. Opciones de Clase (Mezcla estáticas + ARCA)
   const opcionesClase = useMemo(() => {
     if (tiposARCA.length > 0) {
-      return [{ valor: "TODAS", texto: "TODOS LOS COMPROBANTES" }, ...tiposARCA];
+      return [
+        { valor: "TODAS", texto: "TODOS LOS COMPROBANTES" },
+        ...tiposARCA,
+      ];
     }
     return [
       { valor: "TODAS", texto: "Todos los Comprobantes" },
       { valor: "99", texto: "Ticket No Fiscal" },
     ];
   }, [tiposARCA]);
+
+  if (!unidadNegocio) {
+    return (
+      <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="rounded-2xl overflow-hidden shadow-2xl">
+          <DataTable
+            id_tabla="comprobantes_placeholder"
+            columnas={[]}
+            datos={[]}
+            loading={false}
+            mostrarBuscador={false}
+            elementosSuperior={
+              <div className="flex flex-wrap items-center gap-4 bg-zinc-950/40 backdrop-blur-md border border-white/5 p-2 rounded-2xl shadow-2xl">
+                <div className="min-w-[220px]">
+                  <Select
+                    valor={unidadNegocio}
+                    setValor={setUnidadNegocio}
+                    options={[
+                      { valor: null, texto: "SELECCIONE UNA UNIDAD" },
+                      ...opcionesUnidad
+                    ]}
+                  />
+                </div>
+              </div>
+            }
+          />
+        </div>
+        
+        <div className="flex flex-col items-center justify-center py-32 rounded-3xl bg-zinc-950/20 border border-white/5 border-dashed">
+          <div className="w-20 h-20 bg-[var(--primary)]/10 rounded-[2.5rem] flex items-center justify-center mb-6 border border-[var(--primary)]/20 rotate-3">
+             <LayoutGrid size={40} className="text-[var(--primary)]" />
+          </div>
+          <h2 className="text-2xl font-black text-white italic tracking-tighter mb-2">
+            Contexto <span className="text-[var(--primary)]">Requerido</span>
+          </h2>
+          <p className="text-white/40 text-sm font-medium uppercase tracking-[0.2em] max-w-[300px] text-center">
+            Debe seleccionar una unidad de negocio para visualizar el listado de comprobantes.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -132,10 +231,15 @@ const TablaComprobantes = () => {
               <DineroIcono size={24} />
             </div>
             <div>
-              <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Facturación Listada</h3>
+              <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">
+                Facturación Listada
+              </h3>
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-black text-white italic tracking-tighter">
-                  ${totalFacturadoFacturas.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
+                  $
+                  {totalFacturadoFacturas.toLocaleString("es-AR", {
+                    minimumFractionDigits: 2,
+                  })}
                 </span>
                 <TrendingUp size={14} className="text-emerald-500" />
               </div>
@@ -150,7 +254,9 @@ const TablaComprobantes = () => {
               <LayoutGrid size={24} />
             </div>
             <div>
-              <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Total Registros</h3>
+              <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">
+                Total Registros
+              </h3>
               <span className="text-2xl font-black text-white italic tracking-tighter">
                 {meta.totalItems || 0}
               </span>
@@ -165,9 +271,14 @@ const TablaComprobantes = () => {
               <VentasIcono size={24} />
             </div>
             <div>
-              <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Ticket Promedio</h3>
+              <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">
+                Ticket Promedio
+              </h3>
               <span className="text-2xl font-black text-white italic tracking-tighter">
-                ${(totalFacturadoFacturas / (meta.totalItems || 1)).toLocaleString("es-AR", { minimumFractionDigits: 2 })}
+                $
+                {(
+                  totalFacturadoFacturas / (meta.totalItems || 1)
+                ).toLocaleString("es-AR", { minimumFractionDigits: 2 })}
               </span>
             </div>
           </div>
@@ -181,68 +292,84 @@ const TablaComprobantes = () => {
           llaveTituloMobile="numeroComprobante"
           columnas={columnasComprobantes}
           datos={facturas}
-          cargando={isLoading}
+          loading={isLoading}
+          isFetching={isFetching}
           mostrarBuscador
           busqueda={busqueda}
           setBusqueda={setBusqueda}
           mostrarAcciones={true}
           acciones={accionesComprobantes({
             handleVerDetalle,
-            handleVerAdjuntos
+            handleVerAdjuntos,
           })}
-          placeholderBuscador="Factura, Receptor, Fecha..."
-          mostrarFiltros={true}
-          textoFiltros="Opciones de Busqueda"
-          filtrosAbiertosInicial={false}
-          filtrosElementos={
-            <div className="flex flex-wrap items-center gap-8 p-6 bg-[var(--fill-secondary)] rounded-2xl border border-[var(--border-medium)] mt-4 shadow-inner">
+          mostrarFiltros={false}
+          elementosSuperior={
+            <div className="flex flex-wrap items-center gap-4 bg-zinc-950/40 backdrop-blur-md border border-white/5 p-2 rounded-2xl shadow-2xl animate-in fade-in slide-in-from-right-4 duration-700">
+              {/* SELECTOR DE UNIDAD DE NEGOCIO */}
+              <div className="min-w-[180px]">
+                <Select
+                  valor={unidadNegocio}
+                  setValor={setUnidadNegocio}
+                  options={[
+                    { valor: null, texto: "SIN UNIDAD SELECCIONADA" },
+                    ...opcionesUnidad
+                  ]}
+                  placeholder="Elegir Unidad..."
+                />
+              </div>
 
-              {/* SELECTORES CON COLORES DINÁMICOS - SOLO SI HAY AFIP */}
+              <div className="w-px h-8 bg-white/10 mx-1 hidden lg:block"></div>
+
+              {/* TABS DE CONDICIÓN DE VENTA */}
+              <CondicionVentaTabs />
+
+              <div className="w-px h-8 bg-white/10 mx-1 hidden lg:block"></div>
+
+              {/* SELECTORES FISCALES */}
               {tieneConexionArca && (
                 <>
+                  <div className="min-w-[170px]">
+                    <Select
+                      valor={isFiscal}
+                      setValor={setIsFiscal}
+                      options={[
+                        { valor: "TODAS", texto: "TODOS LOS REGISTROS" },
+                        { valor: "FISCAL", texto: "VÍA AFIP" },
+                        { valor: "INTERNA", texto: "INTERNAS" },
+                      ]}
+                    />
+                  </div>
+
                   {isFiscal !== "INTERNA" && (
-                    <div className="flex-1 min-w-[240px]">
+                    <div className="min-w-[200px]">
                       <Select
                         valor={tipoFactura}
-                        label={"Tipo de Comprobante / Clase:"}
                         setValor={setTypeFactura}
                         options={opcionesClase}
                         cargando={cargandoTipos}
                       />
                     </div>
                   )}
-
-                  <div className="min-w-[220px]">
-                    <Select
-                      valor={isFiscal}
-                      label={"Condición Fiscal:"}
-                      setValor={setIsFiscal}
-                      options={[
-                        { valor: "TODAS", texto: "Fiscal e Interno" },
-                        { valor: "FISCAL", texto: "Emitidos vía AFIP" },
-                        { valor: "INTERNA", texto: "Ventas Internas" },
-                      ]}
-                    />
-                  </div>
                 </>
               )}
 
-              {/* RANGO DE FECHAS PREMIUM */}
-              <div className={`flex flex-col gap-2 p-4 bg-[var(--surface)] rounded-2xl border border-[var(--border-gray)] shadow-sm ${!tieneConexionArca ? 'flex-1' : ''}`}>
-                <span className="text-[11px] text-[var(--primary)] font-bold uppercase tracking-wider ml-1 opacity-80">Período de Facturación</span>
-                <div className="flex items-center gap-4">
+              {/* RANGO DE FECHAS */}
+              <div className="flex items-center gap-1 border border-white/5 p-1 rounded-xl shadow-inner">
+                <div className="flex items-center">
                   <FechaInput
-                    label="Desde"
                     value={fechaDesde}
                     onChange={setFechaDesde}
                     size="sm"
+                    className="bg-transparent! border-none! min-w-[115px]"
                   />
-                  <div className="h-6 w-px bg-[var(--border-medium)]"></div>
+                </div>
+                <div className="w-px h-6 bg-white/10 mx-1"></div>
+                <div className="flex items-center">
                   <FechaInput
-                    label="Hasta"
                     value={fechaHasta}
                     onChange={setFechaHasta}
                     size="sm"
+                    className="bg-transparent! border-none! min-w-[115px]"
                   />
                 </div>
               </div>

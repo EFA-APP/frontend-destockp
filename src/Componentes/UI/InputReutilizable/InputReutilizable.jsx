@@ -6,13 +6,13 @@ const InputReutilizable = ({ label, tipo, valor, onChange, ...props }) => {
   const esPassword = tipo === "password";
 
   return (
-    <div>
-      <label className="text-xs mb-2 block font-normal text-white text-[15px]">
+    <div className="flex flex-col gap-1.5 w-full">
+      <label className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest pl-0.5">
         {label}
       </label>
-      <div className="relative w-full">
+      <div className="relative w-full group">
         <input
-          className="flex h-8 w-full rounded-md px-3 py-4 text-sm border-[0.2px] border-gray-200/10 text-[var(--primary)] focus:border-[var(--primary)] pr-10 bg-[var(--surface-hover)]/30"
+          className="flex h-10 w-full rounded-md px-4 text-[13px] bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-white placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] transition-all outline-none disabled:opacity-50"
           type={esPassword && mostrar ? "text" : tipo}
           value={valor}
           onChange={onChange}
@@ -22,14 +22,14 @@ const InputReutilizable = ({ label, tipo, valor, onChange, ...props }) => {
           <button 
              type="button" 
              onClick={() => setMostrar(!mostrar)} 
-             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-all duration-200"
+             className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-white transition-all duration-200"
           >
-               <div className="relative flex items-center justify-center">
-                    <OjosIcono size={16} />
-                    {!mostrar && (
-                         <div className="absolute top-1/2 left-1/2 w-4 h-[1.5px] bg-red-500 rotate-45 -translate-x-1/2 -translate-y-1/2 shadow-sm"></div>
-                    )}
-               </div>
+            <div className="relative flex items-center justify-center">
+                 <OjosIcono size={18} />
+                 {!mostrar && (
+                      <div className="absolute top-1/2 left-1/2 w-4 h-[1.5px] bg-rose-500 rotate-45 -translate-x-1/2 -translate-y-1/2 shadow-sm shadow-black/50"></div>
+                 )}
+            </div>
           </button>
         )}
       </div>

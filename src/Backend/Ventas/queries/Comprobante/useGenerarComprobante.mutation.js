@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { GenerarComprobanteApi } from "../../api/comprobante.api";
+import { generarComprobante } from "../../api/Comprobante/comprobante.api";
 import { useAlertas } from "../../../../store/useAlertas";
 
 /**
@@ -11,7 +11,7 @@ export const useGenerarComprobante = () => {
     const { agregarAlerta } = useAlertas();
 
     return useMutation({
-        mutationFn: GenerarComprobanteApi,
+        mutationFn: generarComprobante,
         onSuccess: (data) => {
             // Invalida lo que consideres pertinente, por ejemplo listado de facturas.
             queryClient.invalidateQueries(["comprobantes"]);

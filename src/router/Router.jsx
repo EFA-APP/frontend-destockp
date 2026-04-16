@@ -56,18 +56,9 @@ const LibroDiario = lazy(
 const LibroMayor = lazy(
   () => import("../Componentes/Secciones/Contabilidad/LibroMayor/LibroMayor"),
 );
-const Alumnos = lazy(
-  () => import("../Componentes/Secciones/Escuela/Alumnos/Alumnos"),
-);
-const CrearAlumnos = lazy(
+const DashboardContactos = lazy(
   () =>
-    import("../Componentes/Secciones/Escuela/CrearEscuela/CrearAlumnos/CrearAlumnos"),
-);
-const Clientes = lazy(
-  () => import("../Componentes/Secciones/Contactos/Cliente/Clientes"),
-);
-const Proveedores = lazy(
-  () => import("../Componentes/Secciones/Contactos/Proveedores/Proveedores"),
+    import("../Componentes/Secciones/Contactos/GestionContactos/DashboardContactos"),
 );
 const CrearProductos = lazy(
   () =>
@@ -76,14 +67,6 @@ const CrearProductos = lazy(
 const CrearMateriaPrima = lazy(
   () =>
     import("../Componentes/Secciones/Articulos/CrearArticulos/CrearMateriaPrima"),
-);
-const CrearClientes = lazy(
-  () =>
-    import("../Componentes/Secciones/Contactos/CrearContactos/CrearClientes"),
-);
-const CrearProveedores = lazy(
-  () =>
-    import("../Componentes/Secciones/Contactos/CrearContactos/CrearProveedores"),
 );
 const Cuotas = lazy(
   () => import("../Componentes/Secciones/Escuela/Cuotas/Cuotas"),
@@ -140,6 +123,9 @@ const GestionProducto = lazy(
 const GestionMateriaPrima = lazy(
   () =>
     import("../Componentes/Secciones/Articulos/MateriaPrima/GestionMateriaPrima"),
+);
+const ImportadorPrecios = lazy(
+  () => import("../Componentes/Secciones/Articulos/Importacion/ImportadorPrecios"),
 );
 
 export default function Router() {
@@ -231,20 +217,15 @@ export default function Router() {
                 path="inventario/materia-prima/:id/editar"
                 element={<CrearMateriaPrima />}
               />
+              <Route
+                path="inventario/importar-precios"
+                element={<ImportadorPrecios />}
+              />
             </Route>
 
             {/* CONTACTOS */}
             <Route element={<RutaProtegida />}>
-              <Route path="contactos/clientes" element={<Clientes />} />
-              <Route
-                path="contactos/clientes/nuevo"
-                element={<CrearClientes />}
-              />
-              <Route path="contactos/proveedores" element={<Proveedores />} />
-              <Route
-                path="contactos/proveedores/nuevo"
-                element={<CrearProveedores />}
-              />
+              <Route path="contactos" element={<DashboardContactos />} />
             </Route>
 
             {/* VENTAS */}
@@ -267,8 +248,6 @@ export default function Router() {
 
             {/* ESCUELA */}
             <Route element={<RutaProtegida />}>
-              <Route path="escuela/alumnos" element={<Alumnos />} />
-              <Route path="escuela/alumnos/nuevo" element={<CrearAlumnos />} />
               <Route path="escuela/cuotas" element={<Cuotas />} />
               <Route path="escuela/recibos" element={<Recibos />} />
               <Route path="escuela/recibos/nuevo" element={<CrearRecibo />} />

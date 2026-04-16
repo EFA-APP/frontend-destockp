@@ -12,15 +12,24 @@ import {
   ProduccionIcono,
   InventarioIcono,
 } from "../../../../assets/Icons";
-import { FileSpreadsheet, ChevronRight, Package, Search, MoreHorizontal, Database, TrendingUp } from "lucide-react";
+import {
+  FileSpreadsheet,
+  ChevronRight,
+  Package,
+  Search,
+  TrendingUp,
+  User,
+  X,
+} from "lucide-react";
+import { useContactos } from "../../../../Backend/Contactos/hooks/useContactos";
 import SkeletonFilaTabla from "../../../UI/Skeletons/SkeletonFilaTabla.jsx";
 import ModalCargaMasivaProductos from "../../../Modales/Articulos/ModalCargaMasivaProductos";
+import ModalImportarListaPrecios from "../../../Modales/Articulos/ModalImportarListaPrecios";
 import DrawerActualizarStock from "../../../Modales/Articulos/ModalActualizarStock";
 import { useDepositoUI } from "../../../../Backend/Articulos/hooks/Deposito/useDepositoUI.jsx";
 import { usePermisosDeUsuario } from "../../../../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
 import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
-// import ModalCargaMasivaMovimientos from "../../../Modales/Articulos/ModalCargaMasivaMovimientos";
 const formatVal = (val) => {
   if (val === null || val === undefined) return "";
   const parsed =
@@ -49,13 +58,18 @@ const TablaProductos = () => {
     "nombre",
   ); // 'nombre' o 'codigo'
 
+  const [provFiltro, setProvFiltro] = useState(null); // { codigoSecuencial, razonSocial }
+  const [busquedaProv, setBusquedaProv] = useState("");
+  const [mostrarSelectProv, setMostrarSelectProv] = useState(false);
+
   // Debounce para aplicar la búsqueda al backend
   useEffect(() => {
     const timer = setTimeout(() => {
       setFiltros((prev) => {
-        const nuevos = { ...prev, pagina: 1 }; // Reset page on new search
+        const nuevos = { ...prev, pagina: 1 };
         delete nuevos.buscarPorNombre;
         delete nuevos.buscarPorCodigo;
+        delete nuevos.filtrosAtributos;
 
         if (busquedaInput) {
           if (busquedaClave === "nombre")
@@ -65,37 +79,31 @@ const TablaProductos = () => {
             if (!isNaN(num)) nuevos.buscarPorCodigo = num;
           }
         }
+
+        // Agregar filtro de proveedor si está seleccionado
+        if (provFiltro) {
+          nuevos.filtrosAtributos = JSON.stringify({
+            codigoProveedor: Number(provFiltro.codigoSecuencial),
+          });
+        }
+
         return nuevos;
       });
     }, 500);
     return () => clearTimeout(timer);
-  }, [busquedaInput, busquedaClave]);
+  }, [busquedaInput, busquedaClave, provFiltro]);
 
   const {
-    productos,
+    matrizStock: productos,
     meta,
     eliminarProducto,
-    cargando,
-    estaEliminando,
+    cargandoStock: cargando,
+    estaEliminandoProducto: estaEliminando,
     refetch,
-  } = useProductoUI(filtros);
+    dataDepositosRaw,
+  } = useDepositoUI(filtros);
 
-  const { dataDepositosRaw, matrizStock } = useDepositoUI(filtros);
-
-  // Mapeamos los productos para que tengan la estructura que necesita el Drawer
-  const productosConStock = useMemo(() => {
-    return productos.map((prod) => {
-      // Buscamos si existe en la matriz de stock para obtener el desglose por depósito
-      const stockInfo = matrizStock.find(
-        (m) => m.codigoProducto === prod.codigoSecuencial,
-      );
-      return {
-        ...prod,
-        ...stockInfo, // Trae los dep_X
-        codigoProducto: prod.codigoSecuencial, // El drawer espera codigoProducto
-      };
-    });
-  }, [productos, matrizStock]);
+  const productosConStock = productos; // Direct use of unified data
 
   const [drawerData, setDrawerData] = useState({
     isOpen: false,
@@ -128,8 +136,6 @@ const TablaProductos = () => {
     };
     cargarConfigs();
   }, [unidadActiva?.codigoSecuencial]);
-
-
 
   const columnasAMostrar = useMemo(() => {
     const estaticasModificadas = columnasProductos.map((col) => {
@@ -232,6 +238,7 @@ const TablaProductos = () => {
   });
 
   const [modalMasivoOpen, setModalMasivoOpen] = useState(false);
+  const [modalImportarListaOpen, setModalImportarListaOpen] = useState(false);
 
   const handleEliminarClick = (codigo, nombre) => {
     setConfirmarEliminar({
@@ -263,7 +270,10 @@ const TablaProductos = () => {
     }
   };
 
-  if (configCargada && (!Array.isArray(camposDinamicos) || camposDinamicos.length === 0)) {
+  if (
+    configCargada &&
+    (!Array.isArray(camposDinamicos) || camposDinamicos.length === 0)
+  ) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] w-full px-4">
         <div className="max-w-lg w-full bg-[#1a1a1a] border border-white/5 rounded-[2.5rem] p-10 text-center shadow-2xl relative overflow-hidden group">
@@ -382,6 +392,20 @@ const TablaProductos = () => {
                 </button>
               </TieneAccion>
 
+              {/* IMPORTAR LISTA DE PRECIO (NUEVO) */}
+              <TieneAccion accion="IMPORTAR_LISTA_PRODUCTO">
+                <button
+                  onClick={() => setModalImportarListaOpen(true)}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 rounded-md text-[11px] font-bold text-blue-400 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-blue-500/5 group"
+                >
+                  <FileSpreadsheet
+                    size={14}
+                    className="group-hover:scale-110 transition-transform"
+                  />
+                  Importar Lista
+                </button>
+              </TieneAccion>
+
               {/* PRODUCCION */}
               <TieneAccion accion="PRODUCCION_PRODUCTO">
                 <button
@@ -409,6 +433,60 @@ const TablaProductos = () => {
                   Carga Masiva
                 </button>
               </TieneAccion>
+
+              {/* SELECTOR DE PROVEEDOR */}
+              <TieneAccion accion="FILTRAR_POR_PROVEEDOR_PRODUCTO">
+                <div className="relative">
+                  {!provFiltro ? (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setMostrarSelectProv(!mostrarSelectProv)}
+                        className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-md text-[11px] font-bold text-white/60 hover:bg-white/10 transition-all cursor-pointer group"
+                      >
+                        <User size={14} className="group-hover:scale-110" />
+                        Filtrar Proveedor
+                      </button>
+                      {mostrarSelectProv && (
+                        <div className="absolute top-full left-0 mt-2 w-72 z-50 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl p-4 animate-in fade-in slide-in-from-top-2">
+                          <input
+                            autoFocus
+                            type="text"
+                            placeholder="Buscar proveedor..."
+                            value={busquedaProv}
+                            onChange={(e) => setBusquedaProv(e.target.value)}
+                            className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[var(--primary)]/50"
+                          />
+                          <div className="mt-3 max-h-48 overflow-y-auto space-y-1 custom-scrollbar">
+                            <SelectorProveedoresInterno
+                              busqueda={busquedaProv}
+                              onSeleccion={(p) => {
+                                setProvFiltro(p);
+                                setMostrarSelectProv(false);
+                                setBusquedaProv("");
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 px-3 py-2 bg-amber-500/10 border border-amber-500/30 rounded-md shadow-lg shadow-amber-500/5 animate-in zoom-in-95">
+                      <div className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center text-[10px] font-black text-black">
+                        {provFiltro.razonSocial?.[0]?.toUpperCase() || "P"}
+                      </div>
+                      <span className="text-[11px] font-black text-amber-500 uppercase max-w-[120px] truncate">
+                        {provFiltro.razonSocial.toUpperCase()}
+                      </span>
+                      <button
+                        onClick={() => setProvFiltro(null)}
+                        className="p-1 hover:bg-amber-500/20 rounded-md text-amber-500 transition-colors cursor-pointer"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </TieneAccion>
             </div>
           }
           mostrarBuscador={true}
@@ -434,8 +512,12 @@ const TablaProductos = () => {
               onChange={(e) => setBusquedaClave(e.target.value)}
               className="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-[10px] font-black text-white/80 focus:outline-none focus:border-[var(--primary)]/50 appearance-none cursor-pointer uppercase tracking-tighter"
             >
-              <option value="nombre" className="bg-[#181818]">NOM</option>
-              <option value="codigo" className="bg-[#181818]">COD</option>
+              <option value="nombre" className="bg-[#181818]">
+                NOM
+              </option>
+              <option value="codigo" className="bg-[#181818]">
+                COD
+              </option>
             </select>
             <div className="relative flex-1">
               <Search
@@ -472,23 +554,27 @@ const TablaProductos = () => {
                   <div className="flex flex-col gap-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-[9px] font-mono font-black text-[var(--primary)] px-1.5 py-0.5 bg-[var(--primary)]/10 rounded border border-[var(--primary)]/30 shadow-sm uppercase tracking-tighter">
-                        COD: {prod.codigoSecuencial?.toString().padStart(4, "0")}
+                        COD:{" "}
+                        {prod.codigoSecuencial?.toString().padStart(4, "0")}
                       </span>
                       <span className="text-[9px] font-black text-white/60 uppercase tracking-widest bg-white/10 px-1.5 py-0.5 rounded border border-white/5">
                         {prod.unidadMedida}
                       </span>
                     </div>
-                    <h3 onClick={() => handleEditarClick(prod)} className="text-[15px] font-black text-white leading-[1.2] tracking-tight break-words cursor-pointer hover:text-[var(--primary)] transition-colors">
+                    <h3
+                      onClick={() => handleEditarClick(prod)}
+                      className="text-[15px] font-black text-white leading-[1.2] tracking-tight break-words cursor-pointer hover:text-[var(--primary)] transition-colors"
+                    >
                       {prod.nombre}
                     </h3>
                   </div>
                   <div className="shrink-0 flex gap-2">
-                    <button 
-                       onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditarClick(prod);
-                       }}
-                       className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shadow-inner text-[var(--primary)]/60 active:scale-90 transition-all"
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditarClick(prod);
+                      }}
+                      className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shadow-inner text-[var(--primary)]/60 active:scale-90 transition-all"
                     >
                       <Package size={20} />
                     </button>
@@ -498,13 +584,18 @@ const TablaProductos = () => {
                 {/* Atributos Dinámicos en Mobile */}
                 {camposDinamicos.length > 0 && (
                   <div className="flex flex-wrap gap-x-3 gap-y-1.5 mt-3 pt-3 border-t border-white/5">
-                    {camposDinamicos.slice(0, 3).map(c => {
+                    {camposDinamicos.slice(0, 3).map((c) => {
                       const val = prod.atributos?.[c.claveCampo];
                       if (!val) return null;
                       return (
-                        <div key={c.claveCampo} className="flex items-center gap-1.5">
+                        <div
+                          key={c.claveCampo}
+                          className="flex items-center gap-1.5"
+                        >
                           <div className="w-1 h-1 rounded-full bg-white/20" />
-                          <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">{c.nombreCampo}:</span>
+                          <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">
+                            {c.nombreCampo}:
+                          </span>
                           <span className="text-[10px] font-black text-white/80 uppercase">
                             {val === true ? "SÍ" : val === false ? "NO" : val}
                           </span>
@@ -523,18 +614,24 @@ const TablaProductos = () => {
                     Existencias por Depósito
                   </span>
                   <span className="text-[10px] font-black text-white/60">
-                    Total: <span className="text-emerald-400">{prod.stock || 0}</span>
+                    Total:{" "}
+                    <span className="text-emerald-400">{prod.stock || 0}</span>
                   </span>
                 </div>
 
                 {dataDepositosRaw.map((dep, dIdx) => {
                   const stockDep = prod[`dep_${dep.codigoSecuencial}`] || 0;
                   const tieneStock = stockDep > 0;
-                  
+
                   return (
                     <div
                       key={dep.codigoSecuencial}
-                      onClick={() => handleAbrirDrawer({ ...prod, depositoInicial: dep.codigoSecuencial.toString() })}
+                      onClick={() =>
+                        handleAbrirDrawer({
+                          ...prod,
+                          depositoInicial: dep.codigoSecuencial.toString(),
+                        })
+                      }
                       className={`group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all duration-300 active:scale-[0.98] ${
                         tieneStock
                           ? "bg-white/5 border border-white/10"
@@ -545,12 +642,16 @@ const TablaProductos = () => {
                         <div
                           className={`w-1.5 h-1.5 rounded-full shrink-0 ${tieneStock ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]" : "bg-white/10"}`}
                         />
-                        <span className={`text-[11px] font-bold uppercase tracking-wider truncate transition-colors ${tieneStock ? "text-white" : "text-white/40"}`}>
+                        <span
+                          className={`text-[11px] font-bold uppercase tracking-wider truncate transition-colors ${tieneStock ? "text-white" : "text-white/40"}`}
+                        >
                           {dep.nombre}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className={`text-[14px] font-black tabular-nums ${tieneStock ? "text-emerald-400" : "text-white/10"}`}>
+                        <span
+                          className={`text-[14px] font-black tabular-nums ${tieneStock ? "text-emerald-400" : "text-white/10"}`}
+                        >
                           {stockDep}
                         </span>
                         <ChevronRight size={14} className="text-white/10" />
@@ -564,32 +665,38 @@ const TablaProductos = () => {
         ) : (
           <div className="py-24 flex flex-col items-center justify-center opacity-20 text-center px-10">
             <Package size={64} className="mb-4 text-[var(--primary)]" />
-            <span className="text-sm font-black uppercase tracking-[0.3em] text-white">No hay productos</span>
+            <span className="text-sm font-black uppercase tracking-[0.3em] text-white">
+              No hay productos
+            </span>
           </div>
         )}
 
         {/* Paginación Mobile */}
         {meta && (
           <div className="flex flex-col items-center gap-3 mt-4 pt-4 border-t border-white/5">
-             <div className="flex items-center gap-1.5 bg-[#181818] border border-white/10 rounded-lg p-1">
-                <button
-                  disabled={!meta.prev}
-                  onClick={() => setFiltros(prev => ({ ...prev, pagina: meta.prev }))}
-                  className="p-1 rounded text-white/60 hover:bg-white/5 disabled:opacity-30 transition-all font-bold text-[11px] px-3"
-                >
-                  Anterior
-                </button>
-                <span className="text-[11px] font-black text-white px-2">
-                  {meta.currentPage} / {meta.lastPage || 1}
-                </span>
-                <button
-                  disabled={!meta.next}
-                  onClick={() => setFiltros(prev => ({ ...prev, pagina: meta.next }))}
-                  className="p-1 rounded text-white/60 hover:bg-white/5 disabled:opacity-30 transition-all font-bold text-[11px] px-3"
-                >
-                  Siguiente
-                </button>
-              </div>
+            <div className="flex items-center gap-1.5 bg-[#181818] border border-white/10 rounded-lg p-1">
+              <button
+                disabled={!meta.prev}
+                onClick={() =>
+                  setFiltros((prev) => ({ ...prev, pagina: meta.prev }))
+                }
+                className="p-1 rounded text-white/60 hover:bg-white/5 disabled:opacity-30 transition-all font-bold text-[11px] px-3"
+              >
+                Anterior
+              </button>
+              <span className="text-[11px] font-black text-white px-2">
+                {meta.currentPage} / {meta.lastPage || 1}
+              </span>
+              <button
+                disabled={!meta.next}
+                onClick={() =>
+                  setFiltros((prev) => ({ ...prev, pagina: meta.next }))
+                }
+                className="p-1 rounded text-white/60 hover:bg-white/5 disabled:opacity-30 transition-all font-bold text-[11px] px-3"
+              >
+                Siguiente
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -602,6 +709,15 @@ const TablaProductos = () => {
         }}
       />
 
+      <ModalImportarListaPrecios
+        open={modalImportarListaOpen}
+        onClose={() => setModalImportarListaOpen(false)}
+        onExito={() => {
+          refetch();
+          setModalImportarListaOpen(false);
+        }}
+      />
+
       <DrawerActualizarStock
         isOpen={drawerData.isOpen}
         onClose={cerrarDrawer}
@@ -610,6 +726,52 @@ const TablaProductos = () => {
       />
     </div>
   );
+};
+
+const SelectorProveedoresInterno = ({ busqueda, onSeleccion }) => {
+  const { contactos: proveedores, cargandoContactos: loadingProvs } =
+    useContactos({
+      tipoEntidad: "PROV",
+      busqueda: busqueda,
+      pagina: 1,
+      limite: 20,
+    });
+
+  if (loadingProvs) {
+    return (
+      <div className="py-4 text-center text-[10px] text-white/30 uppercase font-black animate-pulse">
+        Buscando...
+      </div>
+    );
+  }
+
+  if (!proveedores || proveedores.length === 0) {
+    return (
+      <div className="py-4 text-center text-[10px] text-white/20 uppercase font-black">
+        No se encontraron proveedores
+      </div>
+    );
+  }
+
+  return proveedores.map((p) => (
+    <button
+      key={p.codigoSecuencial}
+      onClick={() => onSeleccion(p)}
+      className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors text-left group"
+    >
+      <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center text-[10px] font-black text-[var(--primary)] group-hover:bg-[var(--primary)] group-hover:text-black transition-all">
+        {p.razonSocial?.[0]?.toUpperCase() || "P"}
+      </div>
+      <div className="flex flex-col min-w-0">
+        <span className="text-[11px] font-bold text-white/80 truncate group-hover:text-white transition-colors">
+          {p.razonSocial.toUpperCase()}
+        </span>
+        <span className="text-[9px] font-black text-[var(--primary)] uppercase mt-1 ">
+          Código: {p.codigoSecuencial.toString().padStart(4, "0")}
+        </span>
+      </div>
+    </button>
+  ));
 };
 
 export default TablaProductos;

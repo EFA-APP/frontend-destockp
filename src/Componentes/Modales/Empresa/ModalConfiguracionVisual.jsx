@@ -10,13 +10,14 @@ const ModalConfiguracionVisual = ({ isOpen, onClose }) => {
 
   const [colorPrimario, setColorPrimario] = useState(usuario?.configuracionVisual?.colorPrimario || "#d11057");
   const [colorSecundario, setColorSecundario] = useState(usuario?.configuracionVisual?.colorSecundario || "#10d127");
-  const [logoBase64, setLogoBase64] = useState(usuario?.configuracionVisual?.logoUrl || "");
+  const [previewUrl, setPreviewUrl] = useState(usuario?.configuracionVisual?.logoUrl || "");
+  const [logoBase64, setLogoBase64] = useState("");
   const [cargando, setCargando] = useState(false);
 
   if (!isOpen) return null;
 
   const manejarArchivo = (e) => {
-    const archivo = e.target.files?.[0];
+    const archivo = e.target.files[0];
     if (!archivo) return;
 
     if (archivo.size > 1024 * 1024) { 
@@ -24,11 +25,15 @@ const ModalConfiguracionVisual = ({ isOpen, onClose }) => {
       return;
     }
 
+    // Vista previa instantánea
+    setPreviewUrl(URL.createObjectURL(archivo));
+
+    // Base64 para guardar
     const reader = new FileReader();
-    reader.readAsDataURL(archivo);
-    reader.onloadend = () => {
-      setLogoBase64(String(reader.result));
+    reader.onload = (event) => {
+      setLogoBase64(event.target.result);
     };
+    reader.readAsDataURL(archivo);
   };
 
   const manejarGuardar = async () => {
@@ -37,7 +42,7 @@ const ModalConfiguracionVisual = ({ isOpen, onClose }) => {
       const payload = {
         colorPrimario,
         colorSecundario,
-        logoUrl: logoBase64
+        logoUrl: logoBase64 || previewUrl
       };
 
       await actualizarConfiguracionVisualApi(payload);
@@ -59,123 +64,184 @@ const ModalConfiguracionVisual = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-md animate-in fade-in duration-300" onClick={onClose} />
+      <div 
+        className="absolute inset-0 bg-black/80 backdrop-blur-md animate-in fade-in duration-500" 
+        onClick={onClose} 
+      />
 
-      {/* Modal */}
-      <div className="relative w-full max-w-md bg-[var(--surface)] border border-[var(--border-subtle)] rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+      <div className="relative w-full max-w-2xl bg-[var(--surface)] border border-[var(--border-subtle)] rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500">
         
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[var(--border-subtle)] bg-[var(--primary-subtle)]/10">
-          <h2 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider">
-            Diseño de la Empresa
+        <div className="px-8 py-6 border-b border-[var(--border-subtle)] bg-[var(--primary-subtle)]/10">
+          <h2 className="text-[15px] font-bold text-white uppercase tracking-wider mb-1">
+            🎨 Personalización Visual
           </h2>
-          <p className="text-[10px] text-[var(--text-muted)] mt-1 font-medium">
-            Logo y Colores Corporativos (White-Labeling)
+          <p className="text-[11px] text-[var(--text-muted)] font-medium">
+            Personalizá la identidad de tu empresa, logo y paleta de colores.
           </p>
         </div>
 
         {/* Body */}
-        <div className="p-6 space-y-5">
-          {/* Logo */}
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-              Logo de la Empresa
-            </label>
-            <div className="flex items-center gap-4 bg-[var(--surface-hover)] p-3 rounded-lg border border-[var(--border-subtle)]">
-              <div className="shrink-0 w-12 h-12 rounded-lg border border-[var(--border-subtle)] bg-white flex items-center justify-center overflow-hidden">
-                {logoBase64 ? (
-                  <img src={logoBase64} alt="Previsualización" className="object-contain w-full h-full p-1" />
-                ) : (
-                  <span className="text-[8px] text-gray-400">Sin Logo</span>
-                )}
-              </div>
-              <div className="flex-1">
+        <div className="p-8 h-[500px] overflow-y-auto scrollbar-thin space-y-8">
+          
+          {/* SECCION LOGO */}
+          <div className="grid grid-cols-2 gap-8 items-start">
+            <div className="space-y-4">
+              <h3 className="text-[11px] font-black text-white uppercase tracking-[0.2em] border-l-2 border-[var(--primary)] pl-3">
+                Logotipo Corporativo
+              </h3>
+              <p className="text-[11px] text-[var(--text-muted)] font-medium leading-relaxed">
+                Este logo se utilizará en la barra lateral y en los comprobantes de venta oficiales.
+              </p>
+              
+              <div className="relative group">
                 <input 
                   type="file" 
-                  accept="image/png, image/jpeg, image/svg+xml" 
-                  onChange={manejarArchivo}
-                  className="hidden" 
                   id="logo-upload"
+                  accept="image/*"
+                  onChange={manejarArchivo}
+                  className="hidden"
                 />
                 <label 
                   htmlFor="logo-upload"
-                  className="inline-block px-3 py-1.5 bg-[var(--primary)]/10 border border-[var(--primary)]/20 hover:bg-[var(--primary)]/20 text-[10px] font-bold text-[var(--primary)] rounded-md cursor-pointer transition-all"
+                  className="inline-block px-5 py-2.5 bg-[var(--primary)]/10 border border-[var(--primary)]/20 hover:bg-[var(--primary)] text-[11px] font-black text-[var(--primary)] hover:text-white rounded-md cursor-pointer transition-all uppercase tracking-widest shadow-sm"
                 >
                   Subir Imagen
                 </label>
-                <p className="text-[8px] text-gray-500 mt-1">Recomendado: PNG/SVG (Max 1MB)</p>
+                <p className="text-[9px] text-gray-500 mt-2 font-medium">Recomendado: PNG/SVG con fondo transparente (Max 1MB)</p>
               </div>
+            </div>
+
+            <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-[var(--border-subtle)] rounded-md bg-[var(--surface-hover)]/20 group hover:border-[var(--primary)]/50 transition-all min-h-[160px]">
+              {previewUrl ? (
+                <div className="relative group">
+                    <img src={previewUrl} alt="Previsualización" className="max-h-24 object-contain drop-shadow-2xl animate-in zoom-in-50 duration-300" />
+                    <button 
+                        onClick={() => {
+                          setPreviewUrl("");
+                          setLogoBase64("");
+                        }}
+                        className="absolute -top-2 -right-2 bg-rose-500 text-white w-6 h-6 rounded-md flex items-center justify-center text-[10px] shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                        ✕
+                    </button>
+                </div>
+              ) : (
+                <div className="text-center space-y-2">
+                    <div className="text-3xl opacity-20">🖼️</div>
+                    <div className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-[0.2em]">Vista Previa</div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Colores */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colorPrimario }} />
-                Color Primario
-              </label>
-              <div className="flex items-center gap-2 bg-[var(--surface-hover)] px-2 py-1.5 rounded-lg border border-[var(--border-subtle)] h-9">
-                <input 
-                  type="color" 
-                  value={colorPrimario} 
-                  onChange={(e) => setColorPrimario(e.target.value)}
-                  className="w-6 h-6 border-0 bg-transparent cursor-pointer rounded overflow-hidden"
-                />
-                <input 
-                  type="text" 
-                  value={colorPrimario.toUpperCase()} 
-                  onChange={(e) => setColorPrimario(e.target.value)}
-                  className="flex-1 bg-transparent border-0 text-[11px] font-mono text-[var(--text-primary)] focus:outline-none"
-                  maxLength={7}
-                />
+          <div className="h-px bg-[var(--border-subtle)]" />
+
+          {/* SECCION COLORES */}
+          <div className="space-y-6">
+            <h3 className="text-[11px] font-black text-white uppercase tracking-[0.2em] border-l-2 border-[var(--primary)] pl-3">
+              Identidad de Marca
+            </h3>
+            
+            <div className="grid grid-cols-2 gap-8">
+              {/* Primario */}
+              <div className="space-y-3">
+                <label className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colorPrimario }} />
+                    Color Primario
+                </label>
+                <div className="flex items-center gap-3 bg-[var(--surface-hover)] p-3 border border-[var(--border-subtle)] rounded-md h-12 shadow-inner">
+                   <input 
+                    type="color" 
+                    value={colorPrimario}
+                    onChange={(e) => setColorPrimario(e.target.value)}
+                    className="w-8 h-8 rounded-md border-0 bg-transparent cursor-pointer"
+                  />
+                  <input 
+                    type="text" 
+                    value={colorPrimario.toUpperCase()}
+                    onChange={(e) => setColorPrimario(e.target.value)}
+                    className="bg-transparent border-0 text-[13px] font-mono font-bold text-white focus:outline-none w-full"
+                    maxLength={7}
+                  />
+                </div>
+              </div>
+
+              {/* Secundario */}
+              <div className="space-y-3">
+                <label className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colorSecundario }} />
+                    Color Secundario
+                </label>
+                <div className="flex items-center gap-3 bg-[var(--surface-hover)] p-3 border border-[var(--border-subtle)] rounded-md h-12 shadow-inner">
+                   <input 
+                    type="color" 
+                    value={colorSecundario}
+                    onChange={(e) => setColorSecundario(e.target.value)}
+                    className="w-8 h-8 rounded-md border-0 bg-transparent cursor-pointer"
+                  />
+                  <input 
+                    type="text" 
+                    value={colorSecundario.toUpperCase()}
+                    onChange={(e) => setColorSecundario(e.target.value)}
+                    className="bg-transparent border-0 text-[13px] font-mono font-bold text-white focus:outline-none w-full"
+                    maxLength={7}
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colorSecundario }} />
-                Color Secundario
-              </label>
-              <div className="flex items-center gap-2 bg-[var(--surface-hover)] px-2 py-1.5 rounded-lg border border-[var(--border-subtle)] h-9">
-                <input 
-                  type="color" 
-                  value={colorSecundario} 
-                  onChange={(e) => setColorSecundario(e.target.value)}
-                  className="w-6 h-6 border-0 bg-transparent cursor-pointer rounded overflow-hidden"
-                />
-                <input 
-                  type="text" 
-                  value={colorSecundario.toUpperCase()} 
-                  onChange={(e) => setColorSecundario(e.target.value)}
-                  className="flex-1 bg-transparent border-0 text-[11px] font-mono text-[var(--text-primary)] focus:outline-none"
-                  maxLength={7}
-                />
-              </div>
+            {/* VISTA PREVIA ELEMENTOS */}
+            <div className="p-6 border border-[var(--border-subtle)] rounded-md bg-[var(--surface-hover)]/30 space-y-4">
+                <div className="flex justify-between items-center border-b border-[var(--border-subtle)] pb-2">
+                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Previsualización de UI</span>
+                    <div className="flex gap-1">
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colorPrimario }} />
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colorSecundario }} />
+                    </div>
+                </div>
+                <div className="flex gap-4">
+                    <button 
+                        className="flex-1 py-2.5 rounded-md text-[11px] font-black text-white uppercase tracking-widest shadow-xl transition-transform hover:scale-[1.02]"
+                        style={{ backgroundColor: colorPrimario }}
+                    >
+                        Botón Principal
+                    </button>
+                    <button 
+                        className="flex-1 py-2.5 rounded-md text-[11px] font-black text-white uppercase tracking-widest shadow-xl transition-transform hover:scale-[1.02]"
+                        style={{ backgroundColor: colorSecundario }}
+                    >
+                        Botón Secundario
+                    </button>
+                </div>
             </div>
           </div>
 
-          <p className="text-[9px] text-[var(--text-muted)] italic leading-relaxed">
-            * Se recomiendan tonos vibrantes. El sistema ajustará automáticamente los hovers basados en estos códigos.
+          <p className="text-[10px] text-[var(--text-muted)] italic leading-relaxed font-medium bg-[var(--primary-subtle)]/5 p-4 rounded-md border-l-4 border-[var(--primary)]">
+            * Estos cambios se aplicarán a toda la plataforma para todos los usuarios de la empresa (White-Labeling).
           </p>
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-[var(--surface-hover)] border-t border-[var(--border-subtle)] flex items-center justify-end gap-3">
+        <div className="px-8 py-6 bg-[var(--surface-hover)]/80 border-t border-[var(--border-subtle)] flex items-center justify-end gap-4">
           <button 
             onClick={onClose}
             disabled={cargando}
-            className="px-4 py-1.5 border border-[var(--border-subtle)] hover:bg-[var(--surface-active)] text-[10px] font-bold text-[var(--text-secondary)] rounded-md transition-all"
+            className="px-6 py-2.5 border border-[var(--border-subtle)] hover:bg-[var(--surface-active)] text-[11px] font-bold text-[var(--text-secondary)] rounded-md transition-all uppercase tracking-widest"
           >
             Cancelar
           </button>
           <button 
             onClick={manejarGuardar}
             disabled={cargando}
-            className="px-4 py-1.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:bg-gray-600 disabled:cursor-not-allowed text-[10px] font-bold text-white rounded-md shadow-sm transition-all"
+            className="px-8 py-2.5 bg-white text-black hover:bg-gray-200 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed text-[11px] font-black rounded-md shadow-xl transition-all flex items-center gap-3 uppercase tracking-widest"
           >
-            {cargando ? "Guardando..." : "Guardar Cambios"}
+            {cargando ? (
+              <>
+                <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                Guardando...
+              </>
+            ) : "Aplicar Diseño"}
           </button>
         </div>
 

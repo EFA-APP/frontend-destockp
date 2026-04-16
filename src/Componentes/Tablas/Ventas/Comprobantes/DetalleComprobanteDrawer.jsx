@@ -12,7 +12,9 @@ import {
   Tag,
   Receipt,
   CheckCircle2,
-  Info
+  Info,
+  DollarSign,
+  ArrowRightLeft
 } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import ComprobantePDF from "./ComprobantePDF";
@@ -42,7 +44,8 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `Comprobante-${data.puntoVenta}-${data.numeroComprobante}.pdf`;
+      const fileName = `${data.cae || 'SIN_CAE'}-${String(data.puntoVenta || 1).padStart(5, '0')}-${String(data.numeroComprobante || 0).padStart(8, '0')}.pdf`;
+      link.download = fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -117,7 +120,11 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
               <ComprobanteIcono size={22} />
             </div>
             <div>
-              <h2 className="text-sm font-black text-white uppercase tracking-widest leading-none mb-1">Detalle del Comprobante</h2>
+              <h2 className="text-sm font-black text-white uppercase tracking-widest leading-none mb-1">
+                {[3, 8, 13, 53].includes(Number(data.tipoDocumento)) ? "Nota de Crédito" : 
+                 [2, 7, 12, 52].includes(Number(data.tipoDocumento)) ? "Nota de Débito" : 
+                 "Factura"}
+              </h2>
               <p className="text-[10px] font-bold text-white/70 tracking-tighter uppercase">
                 {data.letraComprobante} {String(data.puntoVenta).padStart(5, '0')}-{String(data.numeroComprobante).padStart(8, '0')}
               </p>
@@ -158,12 +165,23 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
 
           {/* Status & General Info */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
-              <div className="flex items-center gap-2 mb-2 text-emerald-500">
+            <div className={`p-4 rounded-2xl border ${
+              data.estado === 'ANULADO' ? 'bg-red-500/5 border-red-500/10' : 
+              data.estado === 'AJUSTADO_PARCIAL' ? 'bg-amber-500/5 border-amber-500/10' : 
+              'bg-emerald-500/5 border-emerald-500/10'}`}>
+              <div className={`flex items-center gap-2 mb-2 ${
+                data.estado === 'ANULADO' ? 'text-red-500' :
+                data.estado === 'AJUSTADO_PARCIAL' ? 'text-amber-500' :
+                'text-emerald-500'}`}>
                 <CheckCircle2 size={14} />
                 <span className="text-[9px] font-black uppercase tracking-widest">Estado</span>
               </div>
-              <p className="text-xs font-black text-emerald-400 uppercase tracking-tight">AUTORIZADO</p>
+              <p className={`text-xs font-black uppercase tracking-tight ${
+                data.estado === 'ANULADO' ? 'text-red-400' :
+                data.estado === 'AJUSTADO_PARCIAL' ? 'text-amber-400' :
+                'text-emerald-400'}`}>
+                {data.estado || 'VALIDO'}
+              </p>
             </div>
             <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
               <div className="flex items-center gap-2 mb-2 text-white/70">
@@ -173,6 +191,72 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
               <p className="text-xs font-black text-white/80 uppercase tracking-tight">{formatearFecha(data.fechaEmision)}</p>
             </div>
           </div>
+
+          {/* AJUSTES APLICADOS A ESTE COMPROBANTE (Quien me ajusta a mí) */}
+          {data.ajustes && Array.isArray(data.ajustes) && data.ajustes.length > 0 && (
+            <section className="space-y-4">
+               <div className="flex items-center gap-2 text-rose-400/80">
+                <ArrowRightLeft size={14} />
+                <h3 className="text-[9px] font-black uppercase tracking-[0.2em]">Ajustes Aplicados (NC/ND)</h3>
+                <div className="flex-1 h-px bg-white/5 ml-2" />
+              </div>
+              <div className="space-y-2">
+                {data.ajustes.map((ajuste, idx) => {
+                  const esNC = [3, 8, 13, 53].includes(Number(ajuste.tipo));
+                  return (
+                    <div key={idx} className={`p-4 rounded-2xl border flex items-center justify-between group transition-all ${esNC ? 'bg-rose-500/5 border-rose-500/10 hover:bg-rose-500/10' : 'bg-blue-500/5 border-blue-500/10 hover:bg-blue-500/10'}`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center border ${esNC ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' : 'bg-blue-500/10 border-blue-500/20 text-blue-400'}`}>
+                          <Receipt size={14} />
+                        </div>
+                        <div>
+                          <p className={`text-[9px] font-black uppercase tracking-widest leading-none mb-1 ${esNC ? 'text-rose-400/60' : 'text-blue-400/60'}`}>
+                            {esNC ? 'Nota de Crédito' : 'Nota de Débito'}
+                          </p>
+                          <p className="text-xs font-black text-white uppercase tracking-tight">
+                            {String(ajuste.ptoVta).padStart(4, '0')}-{String(ajuste.nro).padStart(8, '0')}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className={`text-xs font-black italic ${esNC ? 'text-rose-400' : 'text-blue-400'}`}>
+                          {esNC ? '-' : '+'}${ajuste.total?.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* COMPROBANTES VINCULADOS (A quién ajusto yo) */}
+          {data.cbtesAsoc && Array.isArray(data.cbtesAsoc) && data.cbtesAsoc.length > 0 && (
+            <section className="space-y-4">
+               <div className="flex items-center gap-2 text-amber-400/80">
+                <ArrowRightLeft size={14} />
+                <h3 className="text-[9px] font-black uppercase tracking-[0.2em]">Comprobantes Vinculados</h3>
+                <div className="flex-1 h-px bg-white/5 ml-2" />
+              </div>
+              <div className="space-y-2">
+                {data.cbtesAsoc.map((cbte, idx) => (
+                  <div key={idx} className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center border border-amber-500/20 text-amber-400">
+                        <FileText size={14} />
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-amber-400/60 uppercase tracking-widest leading-none mb-1">Documento Original</p>
+                        <p className="text-xs font-black text-white uppercase tracking-tight">
+                           Cbt. Tipo: {cbte.tipo} | {String(cbte.ptoVta).padStart(4, '0')}-{String(cbte.nro).padStart(8, '0')}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Client Info */}
           <section className="space-y-4">
@@ -207,6 +291,22 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
               </div>
             </div>
           </section>
+
+          {/* OBSERVACIONES */}
+          {data.observaciones && (
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 text-[var(--primary-light)]">
+                <Info size={14} />
+                <h3 className="text-[9px] font-black uppercase tracking-[0.2em]">Observaciones / Notas</h3>
+                <div className="flex-1 h-px bg-white/5 ml-2" />
+              </div>
+              <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                <p className="text-xs font-medium text-white/60 leading-relaxed italic">
+                  "{data.observaciones}"
+                </p>
+              </div>
+            </section>
+          )}
 
           {/* Fiscal Details (only if CAE exists) */}
           {data.cae && (
@@ -274,39 +374,89 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
             </div>
           </section>
 
-          {/* Totals Section */}
-          <section className="grid grid-cols-2 gap-8 items-end pb-8">
-            <div className="space-y-4">
-              <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
-                <div className="flex items-center gap-2 mb-3 text-[var(--primary-light)]">
-                  <CreditCard size={14} />
-                  <span className="text-[8px] font-black uppercase tracking-widest">Información de Pago</span>
+          {/* Breakdown of Payments */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 text-[var(--primary-light)]">
+              <CreditCard size={14} />
+              <h3 className="text-[9px] font-black uppercase tracking-[0.2em]">Desglose de Cobros</h3>
+              <div className="flex-1 h-px bg-white/5 ml-2" />
+            </div>
+            
+            <div className="space-y-3">
+              {data.pagos && data.pagos.length > 0 ? (
+                data.pagos.map((pago, idx) => {
+                  const getIcon = () => {
+                    if (pago.metodo?.includes("EFECTIVO")) return <DollarSign size={14} className="text-emerald-400" />;
+                    if (pago.metodo?.includes("TRANSFERENCIA")) return <ArrowRightLeft size={14} className="text-blue-400" />;
+                    if (pago.metodo?.includes("TARJETA")) return <CreditCard size={14} className="text-amber-400" />;
+                    return <Receipt size={14} className="text-white/40" />;
+                  };
+
+                  return (
+                    <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/5">
+                          {getIcon()}
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black text-white uppercase tracking-wider">{pago.metodo?.replace(/_/g, ' ')}</p>
+                          <p className="text-[9px] text-white/30 font-bold uppercase tracking-tighter">Ref: {pago.referencia || "PAGO DIRECTO"}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-black text-white italic tracking-tighter">${pago.monto?.toLocaleString()}</p>
+                        <p className="text-[8px] text-white/20 font-bold">{pago.detalles || ""}</p>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="p-8 rounded-3xl border border-dashed border-white/10 flex flex-col items-center justify-center opacity-40">
+                  <Info size={24} className="mb-2" />
+                  <p className="text-[10px] font-black uppercase tracking-widest">{data.condicionVenta === "cuenta_corriente" ? "Pendiente de Cobro" : "Sin registros de pago"}</p>
                 </div>
-                <div className="space-y-2">
-                  <p className="text-[10px] font-bold text-white/70 uppercase">
-                    Metodo: <span className="text-white">{data.metodoPago?.replace(/_/g, ' ') || "CONTADO"}</span>
-                  </p>
-                  <p className="text-[10px] font-bold text-white/70 uppercase">
-                    Condición: <span className="text-white">{data.condicionVenta || "CONTADO"}</span>
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
 
-            <div className="bg-[var(--primary)]/5 border border-[var(--primary)]/20 rounded-3xl p-6 shadow-2xl space-y-3">
-              <div className="flex justify-between items-center text-white/40">
-                <span className="text-[9px] font-black uppercase tracking-widest">Subtotal</span>
-                <span className="text-xs font-bold font-mono">${data.subtotal?.toLocaleString()}</span>
+            {/* Resume / Balance Logic */}
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between px-2">
+                <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">Condición de Venta</span>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${data.condicionVenta === 'cuenta_corriente' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>
+                  {data.condicionVenta || 'CONTADO'}
+                </span>
               </div>
-              <div className="flex justify-between items-center text-white/40">
-                <span className="text-[9px] font-black uppercase tracking-widest">IVA (21%)</span>
-                <span className="text-xs font-bold font-mono">${data.iva?.toLocaleString()}</span>
-              </div>
-              <div className="h-px bg-white/10 my-1" />
-              <div className="flex justify-between items-center">
-                <span className="text-[10px] font-black text-white uppercase tracking-widest">Total Final</span>
-                <span className="text-xl font-black text-white italic tracking-tighter">${data.total?.toLocaleString()}</span>
-              </div>
+              
+              {data.condicionVenta === 'cuenta_corriente' && (
+                <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 flex items-center justify-between">
+                   <div>
+                    <p className="text-[9px] font-black text-blue-400/60 uppercase tracking-widest mb-1">Saldo Pendiente</p>
+                    <p className="text-lg font-black text-blue-400 italic tracking-tighter">
+                      ${(data.total - (data.pagos?.reduce((acc, p) => acc + (p.monto || 0), 0) || 0)).toLocaleString()}
+                    </p>
+                   </div>
+                   <div className="w-12 h-12 rounded-full border border-blue-500/20 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full border-2 border-blue-500/40 border-t-blue-500 animate-spin" />
+                   </div>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Totals Section */}
+          <section className="bg-[var(--primary)]/5 border border-[var(--primary)]/20 rounded-3xl p-6 shadow-2xl space-y-3 mt-4">
+            <div className="flex justify-between items-center text-white/40">
+              <span className="text-[9px] font-black uppercase tracking-widest">Subtotal Bruto</span>
+              <span className="text-xs font-bold font-mono">${data.subtotal?.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between items-center text-white/40">
+              <span className="text-[9px] font-black uppercase tracking-widest">Impuestos (IVA)</span>
+              <span className="text-xs font-bold font-mono">${data.iva?.toLocaleString()}</span>
+            </div>
+            <div className="h-px bg-white/10 my-1" />
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-black text-white uppercase tracking-widest">Total del Comprobante</span>
+              <span className="text-2xl font-black text-white italic tracking-tighter">${data.total?.toLocaleString()}</span>
             </div>
           </section>
 

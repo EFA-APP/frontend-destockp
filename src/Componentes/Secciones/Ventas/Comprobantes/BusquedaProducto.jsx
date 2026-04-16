@@ -20,7 +20,7 @@ const BusquedaProducto = ({
   mostrarDropdownProducto,
   setMostrarDropdownProducto,
   handleCodigoKeyDown,
-  handleCantidadKeyDown,
+  agregarItem,
   cantidadInput,
   setCantidadInput,
   getPrecio,
@@ -115,14 +115,10 @@ const BusquedaProducto = ({
                         id={`prod-search-item-${index}`}
                         key={p.codigoSecuencial || index}
                         onMouseEnter={() => setHighlightedIndex(index)}
-                        onClick={() => {
-                          setProductoEncontrado(p);
-                          setCodigoBusqueda(
-                            `[${p.codigoSecuencial}] ${p.nombre}`,
-                          );
+                        onMouseDown={(e) => {
+                          e.preventDefault(); // Evita el blur del input
+                          agregarItem(p, 1);
                           setMostrarDropdownProducto(false);
-                          inputCantidadRef.current?.focus();
-                          inputCantidadRef.current?.select();
                         }}
                         className={`px-3 py-3 border-b border-[var(--border-subtle)] last:border-0 cursor-pointer rounded transition-colors group ${isHighlighted ? "bg-[var(--surface-hover)] border-l-2 border-l-[var(--primary)]" : "hover:bg-[var(--surface-hover)]"}`}
                       >
@@ -161,7 +157,8 @@ const BusquedaProducto = ({
                   <div
                     id={`prod-search-item-${productos.length}`}
                     onMouseEnter={() => setHighlightedIndex(productos.length)}
-                    onClick={() => {
+                    onMouseDown={(e) => {
+                      e.preventDefault();
                       const prodManual = {
                         id: `manual-${Date.now()}`,
                         codigoSecuencial: `M-${Date.now().toString().slice(-4)}`,
@@ -171,11 +168,8 @@ const BusquedaProducto = ({
                         stock: 0,
                         manual: true,
                       };
-                      setProductoEncontrado(prodManual);
-                      setCodigoBusqueda(prodManual.nombre);
+                      agregarItem(prodManual, 1);
                       setMostrarDropdownProducto(false);
-                      inputCantidadRef.current?.focus();
-                      inputCantidadRef.current?.select();
                     }}
                     className={`px-3 py-3 border-t border-[var(--border-subtle)] cursor-pointer rounded transition-colors group ${highlightedIndex === productos.length ? "bg-emerald-500/10 border-l-2 border-l-emerald-500" : "hover:bg-emerald-500/5"}`}
                   >
@@ -196,24 +190,6 @@ const BusquedaProducto = ({
                 )}
               </div>
             )}
-          </div>
-
-          {/* INPUT CANTIDAD */}
-          <div className="w-24 md:w-28 relative group">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--text-muted)] group-focus-within:text-[var(--primary)] font-black text-sm">
-              x
-            </div>
-            <input
-              ref={inputCantidadRef}
-              type="number"
-              value={cantidadInput}
-              onChange={(e) => setCantidadInput(e.target.value)}
-              onKeyDown={handleCantidadKeyDown}
-              min="0.1"
-              step="1"
-              placeholder="Cant"
-              className="w-full h-12 bg-[var(--surface)] border-2 border-[var(--border-medium)] rounded-md pl-6 md:pl-8 pr-2 text-center text-lg font-black text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors shadow-inner"
-            />
           </div>
         </div>
       </div>

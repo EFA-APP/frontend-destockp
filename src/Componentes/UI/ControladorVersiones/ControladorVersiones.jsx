@@ -41,7 +41,7 @@ export const ControladorVersiones = () => {
     consultarEstado(); // Ejecutar al cargar
 
     // Polling cada 20 segundos
-    const interval = setInterval(consultarEstado, 20000);
+    const interval = setInterval(consultarEstado, 2000000);
     return () => clearInterval(interval);
   }, []);
 

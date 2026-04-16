@@ -5,6 +5,9 @@ import { useCrearDeposito } from "../../queries/Deposito/useCrearDeposito.mutati
 import { useActualizarDeposito } from "../../queries/Deposito/useActualizarDeposito.mutation";
 import { useEliminarDeposito } from "../../queries/Deposito/useEliminarDeposito.mutation";
 import { useDepositosConStock } from "../../queries/Deposito/useDepositosConStock.query";
+import { useEliminarProducto } from "../../queries/Producto/useEliminarProducto.mutation";
+import { useActualizarProducto } from "../../queries/Producto/useActualizarProducto.mutation";
+import { useCrearProducto } from "../../queries/Producto/useCrearProducto.mutation";
 
 /**
  * Hook de UI para centralizar la lógica de Depósitos.
@@ -20,6 +23,11 @@ export const useDepositoUI = (filtros = {}) => {
   const mutationCrear = useCrearDeposito();
   const mutationActualizar = useActualizarDeposito();
   const mutationEliminar = useEliminarDeposito();
+
+  // Mutaciones de Producto (Consolidadas)
+  const mutationCrearProducto = useCrearProducto();
+  const mutationActualizarProducto = useActualizarProducto();
+  const mutationEliminarProducto = useEliminarProducto();
 
   // Filtrado local de depósitos (para las cards)
   const depositosFiltrados = useMemo(() => {
@@ -58,11 +66,8 @@ export const useDepositoUI = (filtros = {}) => {
 
       if (!productosMap[prodCodigo]) {
         productosMap[prodCodigo] = {
+          ...producto,
           codigoProducto: prodCodigo,
-          nombre: producto.nombre,
-          unidadMedida: producto.unidadMedida || "UNIDAD",
-          sku: producto.sku,
-          descripcion: producto.descripcion,
         };
       }
 
@@ -104,5 +109,14 @@ export const useDepositoUI = (filtros = {}) => {
     estaCreando: mutationCrear.isPending,
     estaActualizando: mutationActualizar.isPending,
     estaEliminando: mutationEliminar.isPending,
+
+    // Acciones de Producto
+    eliminarProducto: (codigo) => mutationEliminarProducto.mutateAsync(codigo),
+    actualizarProducto: (codigo, data) =>
+      mutationActualizarProducto.mutateAsync({ codigo, data }),
+    crearProducto: mutationCrearProducto.mutateAsync,
+    estaEliminandoProducto: mutationEliminarProducto.isPending,
+    estaActualizandoProducto: mutationActualizarProducto.isPending,
+    estaCreandoProducto: mutationCrearProducto.isPending,
   };
 };

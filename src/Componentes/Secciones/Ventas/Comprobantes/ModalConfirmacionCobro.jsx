@@ -106,7 +106,7 @@ const ModalConfirmacionCobro = ({
                 Cliente / Receptor
               </span>
               <span className="text-sm font-bold text-white uppercase italic">
-                {clienteSeleccionado?.nombre || "Consumidor Final"}
+                {clienteSeleccionado ? (clienteSeleccionado.razonSocial || `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}`) : "Consumidor Final"}
               </span>
             </div>
 

@@ -12,9 +12,10 @@ export const useVerificarToken = () => {
   const query = useQuery({
     queryKey: ["verificarToken"],
     queryFn: verificarTokenApi,
-    enabled: !!token, 
-    retry: false, 
-    staleTime: 1000 * 60 * 5, 
+    enabled: !!token,
+    retry: false,
+    staleTime: 1000 * 60 * 5,
+    refetchInterval: 1000 * 60, // 🔄 Verificar cada 5 minutos proactivamente
   });
 
   const { data, isError, isSuccess } = query;
@@ -23,7 +24,7 @@ export const useVerificarToken = () => {
     if (isSuccess && data) {
       const store = useAuthStore.getState();
       const usuarioData = data?.usuario?.usuario || data;
-      
+
       setAuth({
         token: store.token,
         usuario: usuarioData,

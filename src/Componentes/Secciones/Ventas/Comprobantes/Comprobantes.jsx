@@ -39,7 +39,9 @@ const Comprobantes = () => {
     // Métodos y clientes
     metodoPago, setMetodoPago, clienteSeleccionado, setClienteSeleccionado, 
     busquedaCliente, setBusquedaCliente, mostrarDropdownCliente, setMostrarDropdownCliente, 
-    condicionVenta, setCondicionVenta,
+    condicionVenta, setCondicionVenta, entidades, entidadSeleccionada, setEntidadSeleccionada,
+    handleClienteKeyDown, clientesFiltrados, highlightedIndexCliente,
+    observaciones, setObservaciones,
     // Notas de crédito / Comprobantes asociados
     busquedaFactura, setBusquedaFactura, comprobanteAsociado, setComprobanteAsociado,
     mostrarDropdownFactura, setMostrarDropdownFactura, 
@@ -47,6 +49,7 @@ const Comprobantes = () => {
     listaPagos, nuevoPago, setNuevoPago, agregarPago, eliminarPago,
     // UI Local
     mostrarPreview, setMostrarPreview, tabActiva, setTabActiva,
+    unidadLocal, setUnidadLocal,
     // Referencias de teclado
     inputCodigoRef, inputCantidadRef,
     // Manejadores de eventos
@@ -115,7 +118,7 @@ const Comprobantes = () => {
             mostrarDropdownProducto={mostrarDropdownProducto}
             setMostrarDropdownProducto={setMostrarDropdownProducto}
             handleCodigoKeyDown={handleCodigoKeyDown}
-            handleCantidadKeyDown={agregarItem} // Ejecuta la suma al ticket
+            agregarItem={agregarItem}
             cantidadInput={cantidadInput}
             setCantidadInput={setCantidadInput}
             getPrecio={getPrecio}
@@ -127,6 +130,7 @@ const Comprobantes = () => {
             actualizarItem={actualizarItem}
             eliminarItem={eliminarItem}
             calcularSubtotal={calcularTotalItem}
+            inputCodigoRef={inputCodigoRef}
           />
         </div>
 
@@ -162,12 +166,22 @@ const Comprobantes = () => {
           tiposComprobante={tiposComprobante}
           cargandoVouchers={cargandoVouchers}
           usuario={usuario}
+          entidades={entidades}
+          entidadSeleccionada={entidadSeleccionada}
+          setEntidadSeleccionada={setEntidadSeleccionada}
+          handleClienteKeyDown={handleClienteKeyDown}
+          clientesFiltrados={clientesFiltrados}
+          highlightedIndexCliente={highlightedIndexCliente}
           // Pagos multiples
           listaPagos={listaPagos}
           nuevoPago={nuevoPago}
           setNuevoPago={setNuevoPago}
           agregarPago={agregarPago}
           eliminarPago={eliminarPago}
+          observaciones={observaciones}
+          setObservaciones={setObservaciones}
+          unidadLocal={unidadLocal}
+          setUnidadLocal={setUnidadLocal}
         />
       </div>
 

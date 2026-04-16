@@ -3,7 +3,6 @@ import useCargadorStore from "../../store/useCargadorStore";
 import { useAlertas } from "../../store/useAlertas";
 import { useAuthStore } from "../Autenticacion/store/authenticacion.store";
 
-
 const createAxiosInstance = (baseURL) => {
   const instance = axios.create({
     baseURL,
@@ -15,7 +14,6 @@ const createAxiosInstance = (baseURL) => {
   });
 
   const agregarAlerta = useAlertas.getState().agregarAlerta;
-  
 
   // 🔹 REQUEST
   instance.interceptors.request.use(
@@ -33,12 +31,15 @@ const createAxiosInstance = (baseURL) => {
 
       // 🏢 Contexto de Empresa y Unidad de Negocio
       const { usuario, unidadActiva } = useAuthStore.getState();
-      
-      if (usuario?.codigoEmpresa || unidadActiva?.codigoSecuencial) {
+
+      if (usuario?.codigoEmpresa) {
+        // if (usuario?.codigoEmpresa || unidadActiva?.codigoSecuencial) {
         config.params = {
+          ...(usuario?.codigoEmpresa && {
+            codigoEmpresa: usuario.codigoEmpresa,
+          }),
+          // ...(unidadActiva?.codigoSecuencial && { codigoUnidadNegocio: unidadActiva.codigoSecuencial }),
           ...config.params,
-          ...(usuario?.codigoEmpresa && { codigoEmpresa: usuario.codigoEmpresa }),
-          ...(unidadActiva?.codigoSecuencial && { codigoUnidadNegocio: unidadActiva.codigoSecuencial }),
         };
       }
 
@@ -47,7 +48,7 @@ const createAxiosInstance = (baseURL) => {
     (error) => {
       useCargadorStore.getState().setCargando(false);
       return Promise.reject(error);
-    }
+    },
   );
 
   // 🔹 RESPONSE
@@ -59,23 +60,24 @@ const createAxiosInstance = (baseURL) => {
     (error) => {
       useCargadorStore.getState().setCargando(false);
 
-      if (error.response?.status === 401) {        
-          agregarAlerta({
-            type: "error",
-            message: "Sesión expirada o inválida. Por favor, inicie sesión nuevamente."
-          });
+      if (error.response?.status === 401) {
+        agregarAlerta({
+          type: "error",
+          message:
+            "Sesión expirada o inválida. Por favor, inicie sesión nuevamente.",
+        });
         useAuthStore.getState().clearAuth(); // 🔐 Limpiar estado y forzar redirección
       }
 
       if (error.response?.status === 403) {
         agregarAlerta({
           type: "warning",
-          message: "No tiene permisos suficientes para realizar esta acción."
+          message: "No tiene permisos suficientes para realizar esta acción.",
         });
       }
 
       return Promise.reject(error);
-    }
+    },
   );
 
   return instance;

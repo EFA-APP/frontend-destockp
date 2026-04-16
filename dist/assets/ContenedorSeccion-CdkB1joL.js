@@ -1,0 +1,1 @@
+import{j as o}from"./index-BruFCnlC.js";const n=({children:r})=>o.jsx("div",{className:"px-5 py-4 border-0 card no-inset no-ring bg-[var(--surface-active)] shadow-md rounded-md!",children:r});export{n as C};

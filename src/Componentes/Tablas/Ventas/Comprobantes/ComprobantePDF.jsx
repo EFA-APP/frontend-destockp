@@ -231,6 +231,17 @@ const mapearCondicionIva = (condicion) => {
   return mapa[limpio] || condicion || 'CONSUMIDOR FINAL';
 };
 
+// Helper para determinar el título según tipoDocumento
+const obtenerTituloComprobante = (tipo, fiscal) => {
+  if (!fiscal) return "RECIBO";
+  const t = Number(tipo);
+  // Tipos AFIP estándar
+  if ([1, 6, 11, 51].includes(t)) return "FACTURA";
+  if ([2, 7, 12, 52].includes(t)) return "NOTA DE DÉBITO";
+  if ([3, 8, 13, 53].includes(t)) return "NOTA DE CRÉDITO";
+  return "COMPROBANTE";
+};
+
 const ComprobantePagina = ({ comprobante, emisor, labelCopia, conexionArca }) => {
   const {
     letraComprobante = 'C',
@@ -244,7 +255,10 @@ const ComprobantePagina = ({ comprobante, emisor, labelCopia, conexionArca }) =>
     vtoCae,
     fiscal = false,
     qrCodeImage,
-    tipoDocumento
+    tipoDocumento,
+    cbtesAsoc = [],
+    ajustes = [],
+    observaciones
   } = comprobante;
 
   const nroFormateado = String(numeroComprobante).padStart(8, '0');
@@ -280,7 +294,7 @@ const ComprobantePagina = ({ comprobante, emisor, labelCopia, conexionArca }) =>
 
         {/* LADO DERECHO: VOUCHER INFO */}
         <View style={styles.headerRight}>
-          <Text style={styles.voucherTitle}>{fiscal ? 'FACTURA' : 'RECIBO'}</Text>
+          <Text style={styles.voucherTitle}>{obtenerTituloComprobante(tipoDocumento, fiscal)}</Text>
           <View style={styles.flexRow}>
             <Text style={styles.labelBold}>Punto de Venta: {ptoVtaFormateado}</Text>
             <Text style={styles.labelBold}>Comp. Nro: {nroFormateado}</Text>
@@ -341,8 +355,47 @@ const ComprobantePagina = ({ comprobante, emisor, labelCopia, conexionArca }) =>
       <View style={{ flex: 1, borderLeft: '1px solid #000', borderRight: '1px solid #000' }} />
       <View style={styles.tableBottom} />
 
-      {/* SECCION TOTALES */}
+      {/* SECCION TOTALES Y COMPROBANTES ASOCIADOS */}
       <View style={styles.summaryContainer}>
+        {/* COMPROBANTES ASOCIADOS (LADO IZQUIERDO) */}
+        <View style={{ width: '70%', paddingRight: 10 }}>
+          {/* OBSERVACIONES */}
+          {observaciones && (
+            <View style={{ marginBottom: 10 }}>
+              <Text style={[styles.emisorDetailLabel, { borderBottom: '1px solid #000', paddingBottom: 2, marginBottom: 5 }]}>
+                OBSERVACIONES
+              </Text>
+              <Text style={{ fontSize: 8, color: '#444' }}>
+                {observaciones}
+              </Text>
+            </View>
+          )}
+
+          {((cbtesAsoc && cbtesAsoc.length > 0) || (ajustes && ajustes.length > 0)) && (
+            <View>
+              <Text style={[styles.emisorDetailLabel, { borderBottom: '1px solid #000', paddingBottom: 2, marginBottom: 5 }]}>
+                COMPROBANTES ASOCIADOS
+              </Text>
+              {/* Si soy una NC/ND, muestro a quién afecto (cbtesAsoc) */}
+              {cbtesAsoc?.map((cb, i) => (
+                <Text key={`asoc-${i}`} style={{ fontSize: 7, marginBottom: 2 }}>
+                  TIPO: {cb.tipo} | PTO. VTA: {String(cb.ptoVta).padStart(4, '0')} | NRO: {String(cb.nro).padStart(8, '0')}
+                </Text>
+              ))}
+              {/* Si soy una Factura, muestro quién me ajustó (ajustes) */}
+              {ajustes?.map((aj, i) => {
+                const esNC = [3, 8, 13, 53].includes(Number(aj.tipo));
+                return (
+                  <Text key={`ajuste-${i}`} style={{ fontSize: 7, marginBottom: 2 }}>
+                    {esNC ? 'NOTA CRÉDITO' : 'NOTA DÉBITO'}: {String(aj.ptoVta).padStart(4, '0')}-{String(aj.nro).padStart(8, '0')} | {esNC ? '-' : '+'}${aj.total?.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                  </Text>
+                );
+              })}
+            </View>
+          )}
+        </View>
+
+        {/* TOTALES (LADO DERECHO) */}
         <View style={styles.totalesBox}>
           <View style={styles.totalRow}>
             <Text>Subtotal: $</Text>

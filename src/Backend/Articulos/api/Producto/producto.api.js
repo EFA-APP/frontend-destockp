@@ -15,8 +15,11 @@ export const ActualizarProductoApi = async (codigo, data) => {
     return respuesta.data;
 }
 
-export const ListarConfiguracionCamposApi = async (entidad) => {
-    const respuesta = await axiosInitial.get(`/producto/configuracion/listar`, { params: { entidad }, showLoader: false });
+export const ListarConfiguracionCamposApi = async (entidad, extraParams = {}) => {
+    const respuesta = await axiosInitial.get(`/producto/configuracion/listar`, { 
+        params: { entidad, ...extraParams }, 
+        showLoader: false 
+    });
     return respuesta.data;
 }
 

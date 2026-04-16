@@ -66,3 +66,4 @@ export { default as DuplicarIcono } from "./DuplicarIcono";
 export { default as TarjetaIcono } from "./TarjetaIcono";
 export { default as DineroIcono } from "./DineroIcono";
 export { default as AdjuntoIcono } from "./AdjuntoIcono";
+export { default as NuevoContactoIcono } from "./NuevoContactoIcono";

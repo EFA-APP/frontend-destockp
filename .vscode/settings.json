@@ -1,0 +1,17 @@
+{
+  "folder-color.pathColors": [
+    {
+      "folderPath": "frontend\\src\\Componenetes\\Secciones\\",
+      "color": "foldercolorizer.color_ffcc00"
+    },
+    {
+      "folderPath": "frontend\\src\\Componenetes\\Tablas\\",
+      "badge": "📔",
+      "color": "foldercolorizer.color_ff0000"
+    },
+    {
+      "folderPath": "frontend\\src\\api\\hooks\\",
+      "color": "foldercolorizer.color_cc33ff"
+    }
+  ]
+}

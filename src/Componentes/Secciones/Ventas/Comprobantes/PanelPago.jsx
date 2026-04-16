@@ -7,7 +7,16 @@ import {
   BorrarIcono,
   TarjetaIcono,
   VentasIcono,
+  AgregarIcono,
+  NuevoContactoIcono,
+  VentasIcono as BuildingIcono, // Usaremos este como fallback si no está Building2
 } from "../../../../assets/Icons";
+import { useState } from "react";
+import FormularioContacto from "../../Contactos/GestionContactos/FormularioContacto";
+import SelectorComprobantesModal from "./SelectorComprobantesModal";
+import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
+import { usePermisosDeUsuario } from "../../../../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
+import { Building2 } from "lucide-react";
 
 const PanelPago = ({
   tabActiva,
@@ -47,7 +56,21 @@ const PanelPago = ({
   setNuevoPago,
   agregarPago,
   eliminarPago,
+  entidades = [],
+  entidadSeleccionada,
+  setEntidadSeleccionada,
+  handleClienteKeyDown,
+  clientesFiltrados = [],
+  highlightedIndexCliente,
+  observaciones = "",
+  setObservaciones,
+  unidadLocal,
+  setUnidadLocal,
 }) => {
+  const { tieneAccion } = usePermisosDeUsuario();
+  const [mostrarFormularioContacto, setMostrarFormularioContacto] =
+    useState(false);
+  const [mostrarSelectorFactura, setMostrarSelectorFactura] = useState(false);
   const isArca = usuario?.conexionArca || usuario?.configuracionArca?.activo;
   const esTipoA = [1, 2, 3, 4, 5].includes(Number(tipoDocumento));
 
@@ -56,6 +79,49 @@ const PanelPago = ({
       className={`w-full md:w-[380px] shrink-0 bg-[#0a0a0a] border-l border-[var(--border-subtle)] flex flex-col shadow-[-10px_0_20px_max(rgba(0,0,0,0.2))] z-20 ${tabActiva !== "pago" ? "hidden md:flex" : "flex"}`}
     >
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4 pb-3 md:pb-1 flex flex-col gap-4">
+        {/* 0. SELECTOR DE UNIDAD DE NEGOCIO (LOCAL) */}
+        <div className="bg-[var(--surface-active)] p-4 rounded-md border border-[var(--primary)]/20 space-y-3 shadow-lg shadow-[var(--primary)]/5">
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-2 text-[var(--primary)]">
+              <Building2 size={16} />
+              <h3 className="text-[11px] font-black uppercase tracking-widest">
+                Unidad de Negocio
+              </h3>
+            </div>
+            <TieneAccion accion="CAMBIAR_UNIDAD_COMPROBANTE">
+               <span className="text-[8px] font-bold bg-[var(--primary)]/10 text-[var(--primary)] px-1.5 py-0.5 rounded uppercase tracking-tighter border border-[var(--primary)]/20">
+                Editable
+              </span>
+            </TieneAccion>
+          </div>
+
+          <TieneAccion accion="CAMBIAR_UNIDAD_COMPROBANTE">
+            <select
+              value={unidadLocal}
+              onChange={(e) => setUnidadLocal(Number(e.target.value))}
+              className="w-full bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md px-3 py-2.5 text-xs font-black text-white focus:outline-none focus:border-[var(--primary)] transition-colors cursor-pointer appearance-none uppercase tracking-tighter"
+            >
+              {usuario?.unidadesNegocio?.map((un) => (
+                <option key={un.codigoSecuencial} value={un.codigoSecuencial} className="bg-[#151515]">
+                  {un.nombre}
+                </option>
+              ))}
+            </select>
+          </TieneAccion>
+
+          {/* Si no tiene permiso, solo mostramos el nombre de la unidad actual como label informativa */}
+          <div className="flex items-center">
+             {!tieneAccion('CAMBIAR_UNIDAD_COMPROBANTE') && (
+               <div className="w-full px-3 py-2.5 bg-[var(--surface)]/50 border border-white/5 rounded-md text-xs font-bold text-white/60 select-none">
+                 {usuario?.unidadesNegocio?.find(un => un.codigoSecuencial === unidadLocal)?.nombre || "Unidad Actual"}
+               </div>
+             )}
+          </div>
+
+          <p className="text-[9px] text-[var(--text-muted)] font-medium leading-tight">
+            Este cambio es local para este comprobante y no afecta al resto de la aplicación.
+          </p>
+        </div>
         {/* 1. CONFIG FISCAL RAPIDA (Solo si es ARCA) */}
         {isArca && (
           <div className="bg-[var(--surface)] p-4 rounded-md border border-[var(--border-subtle)] space-y-3">
@@ -116,68 +182,42 @@ const PanelPago = ({
             )}
 
             {enBlanco === "si" && tipoDocumento !== "factura" && (
-              <div className="animate-in fade-in slide-in-from-top-2 duration-300 relative">
-                <input
-                  type="text"
-                  value={busquedaFactura}
-                  onChange={(e) => {
-                    setBusquedaFactura(e.target.value);
-                    setComprobanteAsociado(e.target.value);
-                    setMostrarDropdownFactura(true);
-                  }}
-                  onFocus={() => setMostrarDropdownFactura(true)}
-                  onBlur={() =>
-                    setTimeout(() => setMostrarDropdownFactura(false), 200)
-                  }
-                  placeholder="Buscador de comprobante (Ej: 0001 o San Martin)"
-                  className="w-full bg-[var(--surface-active)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-xs font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-colors placeholder:font-normal"
-                />
-                {mostrarDropdownFactura && busquedaFactura && (
-                  <div className="absolute top-full mt-1 left-0 right-0 max-h-48 overflow-y-auto custom-scrollbar bg-[var(--surface-active)] border border-[var(--border-subtle)] rounded-md shadow-2xl z-50 p-1">
-                    {facturas
-                      .filter((f) =>
-                        `${f.prefijo}-${f.numero} ${f.cliente}`
-                          .toLowerCase()
-                          .includes(busquedaFactura.toLowerCase()),
-                      )
-                      .map((f) => {
-                        const nroCompleto = `${f.prefijo}-${f.numero}`;
-                        return (
-                          <div
-                            key={f.id}
-                            onClick={() => {
-                              setComprobanteAsociado(nroCompleto);
-                              setBusquedaFactura(nroCompleto);
-                              setMostrarDropdownFactura(false);
-                            }}
-                            className="px-3 py-2 flex flex-col hover:bg-[var(--primary)] hover:text-white cursor-pointer rounded-md transition-colors"
-                          >
-                            <span className="text-xs font-bold">
-                              {nroCompleto}
-                            </span>
-                            <span className="text-[10px] opacity-70 truncate">
-                              {f.cliente} • ${f.total}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    {facturas.filter((f) =>
-                      `${f.prefijo}-${f.numero} ${f.cliente}`
-                        .toLowerCase()
-                        .includes(busquedaFactura.toLowerCase()),
-                    ).length === 0 && (
-                        <div className="px-3 py-2 text-xs text-[var(--text-muted)] text-center">
-                          Sin resultados
-                        </div>
-                      )}
+              <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                {!comprobanteAsociado ? (
+                  <button
+                    type="button"
+                    onClick={() => setMostrarSelectorFactura(true)}
+                    className="w-full h-11 bg-[var(--primary)]/10 border border-[var(--primary)]/20 rounded-md flex items-center justify-center gap-2 text-[var(--primary)] text-xs font-black uppercase tracking-widest hover:bg-[var(--primary)]/20 transition-all active:scale-95"
+                  >
+                    <AgregarIcono size={18} />
+                    Vincular Comprobante
+                  </button>
+                ) : (
+                  <div className="bg-[var(--surface-active)] border border-[var(--primary)]/30 p-3 rounded-md flex items-center justify-between group">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[9px] font-black text-[var(--primary)] uppercase tracking-widest">
+                        Comprobante Vinculado
+                      </span>
+                      <span className="text-xs font-black text-white">
+                        Nro: {comprobanteAsociado}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setComprobanteAsociado("");
+                        setBusquedaFactura("");
+                      }}
+                      className="p-1.5 rounded-md text-red-500/50 hover:text-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
+                      title="Desvincular"
+                    >
+                      <BorrarIcono size={16} />
+                    </button>
                   </div>
                 )}
               </div>
             )}
 
-
             {/* El checkbox de aplicar IVA fue removido para cálculo automático por sesión. */}
-
           </div>
         )}
 
@@ -192,7 +232,10 @@ const PanelPago = ({
             </div>
             {listaPagos.length > 0 && (
               <span className="text-[10px] font-black text-emerald-500">
-                ${listaPagos.reduce((acc, p) => acc + p.monto, 0).toLocaleString()}
+                $
+                {listaPagos
+                  .reduce((acc, p) => acc + p.monto, 0)
+                  .toLocaleString()}
               </span>
             )}
           </div>
@@ -200,7 +243,10 @@ const PanelPago = ({
           {/* LISTA DE PAGOS AGREGADOS */}
           <div className="space-y-2">
             {listaPagos.map((p, idx) => (
-              <div key={idx} className="flex items-center justify-between bg-[var(--surface-active)] p-2 rounded-md border border-white/5 animate-in slide-in-from-right-2 duration-200">
+              <div
+                key={idx}
+                className="flex items-center justify-between bg-[var(--surface-active)] p-2 rounded-md border border-white/5 animate-in slide-in-from-right-2 duration-200"
+              >
                 <div className="flex flex-col">
                   <span className="text-[10px] font-black uppercase text-white tracking-widest">
                     {p.metodo} {p.detalles ? `• ${p.detalles}` : ""}
@@ -210,7 +256,9 @@ const PanelPago = ({
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-black text-emerald-400">${p.monto.toLocaleString()}</span>
+                  <span className="text-xs font-black text-emerald-400">
+                    ${p.monto.toLocaleString()}
+                  </span>
                   <button
                     onClick={() => eliminarPago(idx)}
                     className="text-red-500/50 hover:text-red-500 transition-colors"
@@ -223,7 +271,9 @@ const PanelPago = ({
 
             {listaPagos.length === 0 && (
               <div className="text-center py-4 border border-dashed border-white/10 rounded-md">
-                <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-tighter">Sin pagos registrados</p>
+                <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-tighter">
+                  Sin pagos registrados
+                </p>
               </div>
             )}
           </div>
@@ -236,10 +286,15 @@ const PanelPago = ({
                   key={m}
                   type="button"
                   onClick={() => {
-                    setNuevoPago(prev => ({
+                    setNuevoPago((prev) => ({
                       ...prev,
                       metodo: m,
-                      detalles: m === "transferencia" ? "Mercado Pago" : (m === "credito" || m === "debito" ? "Visa" : "")
+                      detalles:
+                        m === "transferencia"
+                          ? "Mercado Pago"
+                          : m === "credito" || m === "debito"
+                            ? "Visa"
+                            : "",
                     }));
                   }}
                   className={`py-2 rounded-md text-[10px] font-black border transition-all ${nuevoPago.metodo === m ? "bg-[var(--primary)] text-black border-[var(--primary)]" : "bg-[var(--surface-active)] text-[var(--text-muted)] border-transparent hover:bg-[var(--surface-hover)]"}`}
@@ -250,14 +305,23 @@ const PanelPago = ({
             </div>
 
             {/* DETALLES ESPECIFICOS (TARJETAS / BILLETERAS) */}
-            {(nuevoPago.metodo === "transferencia" || nuevoPago.metodo === "credito" || nuevoPago.metodo === "debito") && (
+            {(nuevoPago.metodo === "transferencia" ||
+              nuevoPago.metodo === "credito" ||
+              nuevoPago.metodo === "debito") && (
               <div className="animate-in fade-in zoom-in-95 duration-200">
                 <label className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1 block">
-                  {nuevoPago.metodo === "transferencia" ? "Billetera / Banco Destino" : "Marca / Tipo de Tarjeta"}
+                  {nuevoPago.metodo === "transferencia"
+                    ? "Billetera / Banco Destino"
+                    : "Marca / Tipo de Tarjeta"}
                 </label>
                 <select
                   value={nuevoPago.detalles}
-                  onChange={(e) => setNuevoPago(prev => ({ ...prev, detalles: e.target.value }))}
+                  onChange={(e) =>
+                    setNuevoPago((prev) => ({
+                      ...prev,
+                      detalles: e.target.value,
+                    }))
+                  }
                   className="w-full bg-[var(--surface-active)] border border-white/10 rounded-md px-3 py-2 text-[11px] font-bold text-white focus:outline-none focus:border-[var(--primary)]"
                 >
                   {nuevoPago.metodo === "transferencia" ? (
@@ -268,7 +332,9 @@ const PanelPago = ({
                       <option value="Uala">Uala</option>
                       <option value="Modo">Modo</option>
                       <option value="Brubank">Brubank</option>
-                      <option value="Transferencia Bancaria">Transferencia Bancaria</option>
+                      <option value="Transferencia Bancaria">
+                        Transferencia Bancaria
+                      </option>
                       <option value="Otro">Otro</option>
                     </>
                   ) : (
@@ -288,21 +354,35 @@ const PanelPago = ({
 
             <div className="flex gap-2">
               <div className="flex-1">
-                <label className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1 block">Monto a abonar</label>
+                <label className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1 block">
+                  Monto a abonar
+                </label>
                 <input
                   type="number"
                   value={nuevoPago.monto}
-                  onChange={(e) => setNuevoPago(prev => ({ ...prev, monto: parseFloat(e.target.value) || 0 }))}
+                  onChange={(e) =>
+                    setNuevoPago((prev) => ({
+                      ...prev,
+                      monto: parseFloat(e.target.value) || 0,
+                    }))
+                  }
                   className="w-full bg-[var(--surface-active)] border border-white/10 rounded-md px-3 py-2 text-sm font-black text-emerald-400 focus:outline-none focus:border-[var(--primary)]"
                 />
               </div>
               <div className="flex-1">
-                <label className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1 block">Ref. (Opcional)</label>
+                <label className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1 block">
+                  Ref. (Opcional)
+                </label>
                 <input
                   type="text"
                   placeholder="Nro. Transacción"
                   value={nuevoPago.referencia}
-                  onChange={(e) => setNuevoPago(prev => ({ ...prev, referencia: e.target.value }))}
+                  onChange={(e) =>
+                    setNuevoPago((prev) => ({
+                      ...prev,
+                      referencia: e.target.value,
+                    }))
+                  }
                   className="w-full bg-[var(--surface-active)] border border-white/10 rounded-md px-3 py-2 text-[11px] font-bold text-white focus:outline-none focus:border-[var(--primary)] placeholder:opacity-20"
                 />
               </div>
@@ -319,11 +399,26 @@ const PanelPago = ({
           </div>
 
           {/* BALANCE RESTANTE */}
-          {totales.total - listaPagos.reduce((acc, p) => acc + p.monto, 0) > 0.01 && (
-            <div className="bg-amber-500/10 border border-amber-500/20 p-2 rounded-md flex justify-between items-center animate-pulse">
-              <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Saldo Restante:</span>
-              <span className="text-xs font-black text-amber-500">
-                ${(totales.total - listaPagos.reduce((acc, p) => acc + p.monto, 0)).toLocaleString()}
+          {totales.total - listaPagos.reduce((acc, p) => acc + p.monto, 0) >
+            0.01 && (
+            <div
+              className={`border p-2 rounded-md flex justify-between items-center ${condicionVenta === "cuenta_corriente" ? "bg-blue-500/10 border-blue-500/20" : "bg-amber-500/10 border-amber-500/20 animate-pulse"}`}
+            >
+              <span
+                className={`text-[9px] font-black uppercase tracking-widest ${condicionVenta === "cuenta_corriente" ? "text-blue-400" : "text-amber-500"}`}
+              >
+                {condicionVenta === "cuenta_corriente"
+                  ? "A enviar a deuda:"
+                  : "Falta Abonar:"}
+              </span>
+              <span
+                className={`text-xs font-black ${condicionVenta === "cuenta_corriente" ? "text-blue-400" : "text-amber-500"}`}
+              >
+                $
+                {(
+                  totales.total -
+                  listaPagos.reduce((acc, p) => acc + p.monto, 0)
+                ).toLocaleString()}
               </span>
             </div>
           )}
@@ -338,81 +433,119 @@ const PanelPago = ({
                 Cliente
               </h3>
             </div>
+            <button
+              onClick={() => setMostrarFormularioContacto(true)}
+              className="flex items-center cursor-pointer gap-1.5 px-2 py-1 rounded bg-[var(--primary)] text-white text-[9px] font-black uppercase tracking-tighter hover:scale-105 active:scale-95 transition-all shadow-lg shadow-[var(--primary)]/10"
+              title="Registrar Nuevo Cliente"
+            >
+              <NuevoContactoIcono size={20} />
+            </button>
           </div>
 
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Buscar Cliente..."
-              value={busquedaCliente}
-              onChange={(e) => {
-                setBusquedaCliente(e.target.value);
-                setClienteSeleccionado("");
-                setMostrarDropdownCliente(true);
-              }}
-              onFocus={() => setMostrarDropdownCliente(true)}
-              onBlur={() =>
-                setTimeout(() => setMostrarDropdownCliente(false), 200)
-              }
-              className="w-full bg-[var(--surface-active)] border border-[var(--border-subtle)] rounded-md px-3 py-2.5 text-sm font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)]"
-            />
-
-            {!clienteSeleccionado && !busquedaCliente && (
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black uppercase text-[var(--text-muted)] pointer-events-none bg-[var(--surface-active)] pl-2">
-                Consumidor Final
-              </span>
-            )}
-
-            {(clienteSeleccionado || busquedaCliente) && (
-              <button
-                onClick={() => {
-                  setClienteSeleccionado("");
-                  setBusquedaCliente("");
-                }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-red-500 transition-colors"
-                title="Quitar cliente (Consumidor Final)"
+          <div className="flex flex-col gap-2">
+            {/* Selector de Entidad */}
+            {entidades.length > 0 && (
+              <select
+                value={entidadSeleccionada}
+                onChange={(e) => setEntidadSeleccionada(e.target.value)}
+                className="w-full bg-[var(--surface-active)] border border-white/5 rounded-md px-3 py-2 text-xs font-black text-white/70 focus:outline-none focus:border-[var(--primary)] uppercase tracking-wider"
               >
-                <BorrarIcono size={16} />
-              </button>
+                <option value="">TODAS LAS ENTIDADES</option>
+                {entidades.map((e) => (
+                  <option key={e.codigoSecuencial || e.id} value={e.clave}>
+                    {e.nombre.toUpperCase()}
+                  </option>
+                ))}
+              </select>
             )}
 
-            {mostrarDropdownCliente && busquedaCliente && (
-              <div className="absolute top-full mt-1 left-0 right-0 max-h-48 overflow-y-auto custom-scrollbar bg-[var(--surface-active)] border border-[var(--border-subtle)] rounded-md shadow-2xl z-50 p-1 flex flex-col">
-                {Array.isArray(clientes?.data) &&
-                  clientes.data
-                    .filter((c) =>
-                      `${c.nombre} ${c.apellido} ${c.codigoSecuencial}`
-                        .toLowerCase()
-                        .includes(busquedaCliente.toLowerCase()),
-                    )
-                    .map((c) => (
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Buscar Cliente..."
+                value={busquedaCliente}
+                onChange={(e) => {
+                  setBusquedaCliente(e.target.value);
+                  setClienteSeleccionado("");
+                  setMostrarDropdownCliente(true);
+                }}
+                onFocus={() => setMostrarDropdownCliente(true)}
+                onBlur={() =>
+                  setTimeout(() => setMostrarDropdownCliente(false), 200)
+                }
+                onKeyDown={handleClienteKeyDown}
+                className="w-full bg-[var(--surface-active)] border border-[var(--border-subtle)] rounded-md px-3 py-2.5 text-sm font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)]"
+              />
+
+              {!clienteSeleccionado && !busquedaCliente && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black uppercase text-[var(--text-muted)] pointer-events-none bg-[var(--surface-active)] pl-2">
+                  Consumidor Final
+                </span>
+              )}
+
+              {(clienteSeleccionado || busquedaCliente) && (
+                <button
+                  onClick={() => {
+                    setClienteSeleccionado("");
+                    setBusquedaCliente("");
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-red-500 transition-colors"
+                  title="Quitar cliente (Consumidor Final)"
+                >
+                  <BorrarIcono size={16} />
+                </button>
+              )}
+
+              {mostrarDropdownCliente && busquedaCliente && (
+                <div className="absolute top-full mt-1 left-0 right-0 max-h-48 overflow-y-auto custom-scrollbar bg-[var(--surface-active)] border border-[var(--border-subtle)] rounded-md shadow-2xl z-50 p-1 flex flex-col">
+                  {clientesFiltrados.length > 0 ? (
+                    clientesFiltrados.map((c, idx) => (
                       <div
-                        key={c.codigoSecuencial}
+                        key={c.codigoSecuencial || c.id}
                         onClick={() => {
-                          setClienteSeleccionado(c.codigoSecuencial);
-                          setBusquedaCliente(`${c.nombre} ${c.apellido}`);
+                          setClienteSeleccionado(c);
+                          setBusquedaCliente(
+                            `${c.razonSocial || c.nombre + " " + c.apellido}`,
+                          );
                           setMostrarDropdownCliente(false);
                         }}
-                        className="px-3 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--primary)] hover:text-white cursor-pointer rounded-md font-medium"
+                        className={`px-3 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--primary)] hover:text-white cursor-pointer rounded-md font-medium flex justify-between items-center transition-colors ${
+                          highlightedIndexCliente === idx
+                            ? "bg-[var(--primary)] text-white"
+                            : ""
+                        }`}
                       >
-                        <span className="font-bold opacity-50 mr-2">
-                          [{c.codigoSecuencial}]
-                        </span>
-                        {c.nombre} {c.apellido}
+                        <div>
+                          <span className="font-bold opacity-50 mr-2 text-[10px]">
+                            [{String(c.codigoSecuencial).padStart(4, "0")}]
+                          </span>
+                          <span>
+                            {c.razonSocial || `${c.nombre} ${c.apellido}`}
+                          </span>
+                        </div>
+
+                        {/* Saldo de Cuenta Corriente */}
+                        {c?.atributos?.saldo !== undefined &&
+                          c?.atributos?.saldo !== 0 && (
+                            <span
+                              className={`text-[10px] font-black tracking-widest uppercase ${c?.atributos?.saldo > 0 ? "text-rose-400 group-hover:text-rose-200" : "text-emerald-400"}`}
+                            >
+                              {new Intl.NumberFormat("es-AR", {
+                                style: "currency",
+                                currency: "ARS",
+                              }).format(c?.atributos?.saldo)}
+                            </span>
+                          )}
                       </div>
-                    ))}
-                {Array.isArray(clientes?.data) &&
-                  clientes.data.filter((c) =>
-                    `${c.nombre} ${c.apellido} ${c.codigoSecuencial}`
-                      .toLowerCase()
-                      .includes(busquedaCliente.toLowerCase()),
-                  ).length === 0 && (
+                    ))
+                  ) : (
                     <div className="px-3 py-2 text-xs text-[var(--text-muted)] text-center">
                       No se encontraron clientes
                     </div>
                   )}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="pt-2 border-t border-[var(--border-subtle)]">
@@ -432,6 +565,22 @@ const PanelPago = ({
               </select>
             </div>
           </div>
+        </div>
+
+        {/* 4. OBSERVACIONES */}
+        <div className="bg-[var(--surface)] p-4 rounded-md border border-[var(--border-subtle)] space-y-3 mb-2">
+          <div className="flex items-center gap-2 mb-1 text-[var(--text-muted)]">
+            <VentasIcono size={16} />
+            <h3 className="text-[11px] font-black uppercase tracking-widest">
+              Notas / Observaciones
+            </h3>
+          </div>
+          <textarea
+            value={observaciones}
+            onChange={(e) => setObservaciones(e.target.value)}
+            placeholder="Escribe una nota interna o para el PDF..."
+            className="w-full bg-[var(--surface-active)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[11px] font-medium text-white/80 focus:outline-none focus:border-[var(--primary)] resize-none min-h-[60px] placeholder:opacity-20 custom-scrollbar"
+          />
         </div>
       </div>
 
@@ -477,18 +626,57 @@ const PanelPago = ({
 
         <button
           onClick={handleFacturar}
-          disabled={items.length === 0 || Math.abs(totales.total - listaPagos.reduce((acc, p) => acc + p.monto, 0)) > 0.01}
+          disabled={
+            items.length === 0 ||
+            (condicionVenta === "contado" &&
+              Math.abs(
+                totales.total - listaPagos.reduce((acc, p) => acc + p.monto, 0),
+              ) > 0.01)
+          }
           className={`w-full h-14 rounded-md flex items-center justify-center gap-3 font-black text-xl uppercase tracking-widest transition-all duration-300 shadow-xl border
-                    ${(items.length === 0 || Math.abs(totales.total - listaPagos.reduce((acc, p) => acc + p.monto, 0)) > 0.01)
-              ? "bg-[var(--surface-active)] text-[var(--text-muted)] border-transparent cursor-not-allowed opacity-50"
-              : "bg-emerald-500 hover:bg-emerald-400 text-black border-emerald-400 shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-1"
-            }
+                    ${
+                      items.length === 0 ||
+                      (condicionVenta === "contado" &&
+                        Math.abs(
+                          totales.total -
+                            listaPagos.reduce((acc, p) => acc + p.monto, 0),
+                        ) > 0.01)
+                        ? "bg-[var(--surface-active)] text-[var(--text-muted)] border-transparent cursor-not-allowed opacity-50"
+                        : "bg-emerald-500 hover:bg-emerald-400 text-black border-emerald-400 shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-1"
+                    }
                 `}
         >
           {items.length > 0 && <VentasIcono size={24} />}
           COBRAR (F2)
         </button>
       </div>
+
+      {/* MODAL CREAR CONTACTO RÁPIDO */}
+      {mostrarFormularioContacto && (
+        <FormularioContacto
+          onClose={() => setMostrarFormularioContacto(false)}
+          onExito={(nuevo) => {
+            setClienteSeleccionado(nuevo);
+            setBusquedaCliente(
+              nuevo.razonSocial || `${nuevo.nombre} ${nuevo.apellido}`,
+            );
+            setMostrarFormularioContacto(false);
+          }}
+        />
+      )}
+
+      {/* MODAL SELECCIONAR COMPROBANTE ASOCIADO */}
+      <SelectorComprobantesModal
+        open={mostrarSelectorFactura}
+        onClose={() => setMostrarSelectorFactura(false)}
+        onSelect={(f) => {
+          const ptoVta = String(f.puntoVenta || 1).padStart(5, "0");
+          const nro = String(f.numeroComprobante || 0).padStart(8, "0");
+          const nroCompleto = `${ptoVta}-${nro}`;
+          setComprobanteAsociado(nroCompleto);
+          setBusquedaFactura(nroCompleto);
+        }}
+      />
     </div>
   );
 };

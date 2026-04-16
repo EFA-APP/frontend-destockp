@@ -44,6 +44,7 @@ const TablaTicket = ({
                     {/* Cantidad Editable */}
                     <td className="px-2 py-2 w-20 text-center relative border-r border-[var(--border-subtle)]/50">
                       <input
+                        id={`input-cant-${index}`}
                         type="number"
                         value={item.cantidad}
                         onChange={(e) =>
@@ -53,6 +54,12 @@ const TablaTicket = ({
                             parseFloat(e.target.value) || 0,
                           )
                         }
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            inputCodigoRef.current?.focus();
+                            inputCodigoRef.current?.select();
+                          }
+                        }}
                         className="w-full bg-transparent text-center font-black text-[var(--text-primary)] text-sm focus:outline-none focus:bg-[var(--fill)] rounded py-1"
                       />
                     </td>
@@ -120,7 +127,7 @@ const TablaTicket = ({
                     <td className="px-2 py-2 text-center">
                       <button
                         onClick={() => eliminarItem(index)}
-                        className="p-2 text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-md transition-colors opacity-0 group-hover:opacity-100"
+                        className="p-2 text-red-500 bg-red-500/10 rounded-md transition-colors "
                         title="Quitar item"
                       >
                         <BorrarIcono size={16} />
