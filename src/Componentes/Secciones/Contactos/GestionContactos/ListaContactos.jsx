@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import FormularioContacto from "./FormularioContacto";
 import DetallesContacto from "./DetallesContacto";
-import { AgregarIcono, CuentaIcono } from "../../../../assets/Icons";
+import {
+  AdvertenciaIcono,
+  AgregarIcono,
+  BorrarIcono,
+  CuentaIcono,
+} from "../../../../assets/Icons";
 import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
 import { accionesReutilizables } from "../../../UI/AccionesReutilizables/accionesReutilizables";
 import MenuDeAccionesGenerico from "../../../UI/TablaReutilizable/MenuDeAccionesGenerico";
@@ -14,10 +19,13 @@ const ListaContactos = ({
   setFiltros,
   total,
   paginas,
+  eliminarContacto,
 }) => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [contactoEditar, setContactoEditar] = useState(null);
   const [contactoDetalle, setContactoDetalle] = useState(null);
+  const [contactoAEliminar, setContactoAEliminar] = useState(null);
+  const [eliminando, setEliminando] = useState(false);
   const [busquedaLocal, setBusquedaLocal] = useState(filtros.busqueda);
 
   // Debounce para la búsqueda
@@ -44,8 +52,25 @@ const ListaContactos = ({
       onClick: (fila) => setContactoDetalle(fila),
     },
     { ...accionesReutilizables.editar, onClick: (fila) => handleEditar(fila) },
-    { ...accionesReutilizables.eliminar, onClick: (fila) => {} },
+    {
+      ...accionesReutilizables.eliminar,
+      onClick: (fila) => setContactoAEliminar(fila),
+    },
   ];
+
+  const handleConfirmarEliminar = async () => {
+    if (!contactoAEliminar) return;
+    try {
+      setEliminando(true);
+      await eliminarContacto(contactoAEliminar.codigoSecuencial);
+      setContactoAEliminar(null);
+    } catch (error) {
+      console.error("Error al eliminar contacto:", error);
+      alert("No se pudo eliminar el contacto. Intente nuevamente.");
+    } finally {
+      setEliminando(false);
+    }
+  };
 
   const HighlightText = (text, highlight) => {
     if (!highlight || !String(highlight).trim()) return text;
@@ -282,6 +307,56 @@ const ListaContactos = ({
           contacto={contactoDetalle}
           onClose={() => setContactoDetalle(null)}
         />
+      )}
+
+      {/* CONFIRMACIÓN DE ELIMINACIÓN */}
+      {contactoAEliminar && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-[#0a0a0a] border border-white/10 rounded-xl max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500 mb-2">
+                <AdvertenciaIcono size={32} />
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-xl font-black uppercase tracking-tighter text-white">
+                  ¿ELIMINAR CONTACTO?
+                </h3>
+                <p className="text-[11px] text-white/40 font-bold leading-relaxed uppercase tracking-widest">
+                  ESTÁS POR DESACTIVAR A{" "}
+                  <span className="text-white">
+                    {contactoAEliminar.razonSocial ||
+                      `${contactoAEliminar.nombre} ${contactoAEliminar.apellido}`}
+                  </span>
+                  . ESTA ACCIÓN OCULTARÁ AL CONTACTO DE LAS LISTAS ACTIVAS PERO
+                  MANTENDRÁ SU HISTORIAL.
+                </p>
+              </div>
+
+              <div className="flex gap-3 w-full mt-4">
+                <button
+                  onClick={() => setContactoAEliminar(null)}
+                  disabled={eliminando}
+                  className="flex-1 py-3 rounded-md bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all disabled:opacity-50"
+                >
+                  CANCELAR
+                </button>
+                <button
+                  onClick={handleConfirmarEliminar}
+                  disabled={eliminando}
+                  className="flex-1 py-3 rounded-md bg-rose-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 transition-all shadow-lg shadow-rose-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {eliminando ? (
+                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <BorrarIcono size={12} />
+                  )}
+                  ELIMINAR
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

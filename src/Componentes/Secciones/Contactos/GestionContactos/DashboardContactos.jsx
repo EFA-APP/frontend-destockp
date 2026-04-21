@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import { CuentaIcono, ConfiguracionIcono } from "../../../../assets/Icons";
 import { useEntidades } from "../../../../Backend/Contactos/hooks/useEntidades";
@@ -20,12 +20,20 @@ const DashboardContactos = () => {
   });
 
   const { entidades, cargandoEntidades } = useEntidades();
+
+  // Seleccionar la primera entidad automáticamente al cargar
+  useEffect(() => {
+    if (!entidadSeleccionada && entidades.length > 0 && !modoAdmin) {
+      setEntidadSeleccionada(entidades[0]);
+    }
+  }, [entidades, entidadSeleccionada, modoAdmin]);
   const {
     contactos,
     total,
     paginas,
     paginaActual,
     cargandoContactos,
+    eliminarContacto,
     refetch,
   } = useContactos({
     tipoEntidad: entidadSeleccionada?.clave,
@@ -83,26 +91,6 @@ const DashboardContactos = () => {
             </div>
           ) : (
             <>
-              <button
-                onClick={() => {
-                  setEntidadSeleccionada(null);
-                  setModoAdmin(false);
-                  setFiltros((prev) => ({ ...prev, pagina: 1 }));
-                }}
-                className={`w-full text-left px-3 py-2.5 rounded-md text-[10px] font-black transition-all flex items-center justify-between group tracking-widest ${
-                  !entidadSeleccionada && !modoAdmin
-                    ? "bg-white/10 text-white shadow-inner"
-                    : "text-white/40 hover:bg-white/5 hover:text-white/70"
-                }`}
-              >
-                <span>TODOS</span>
-                {!entidadSeleccionada && !modoAdmin && (
-                  <div className="w-1 h-1 rounded-full bg-[var(--primary)] shadow-[0_0_8px_var(--primary)]" />
-                )}
-              </button>
-
-              <div className="h-px bg-white/5 my-2 mx-2" />
-
               {entidades.map((ent) => (
                 <button
                   key={ent.codigoSecuencial}
@@ -150,6 +138,7 @@ const DashboardContactos = () => {
               setFiltros={setFiltros}
               total={total}
               paginas={paginas}
+              eliminarContacto={eliminarContacto}
             />
           )}
         </div>

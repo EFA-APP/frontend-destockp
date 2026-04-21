@@ -1,3 +1,4 @@
+import { memo } from "react";
 import {
   ComprobanteIcono,
   ArcaIcono,
@@ -55,6 +56,7 @@ const PanelPago = ({
   nuevoPago = {},
   setNuevoPago,
   agregarPago,
+  agregarPagoConVuelto,
   eliminarPago,
   entidades = [],
   entidadSeleccionada,
@@ -66,6 +68,7 @@ const PanelPago = ({
   setObservaciones,
   unidadLocal,
   setUnidadLocal,
+  vuelto = 0,
 }) => {
   const { tieneAccion } = usePermisosDeUsuario();
   const [mostrarFormularioContacto, setMostrarFormularioContacto] =
@@ -89,7 +92,7 @@ const PanelPago = ({
               </h3>
             </div>
             <TieneAccion accion="CAMBIAR_UNIDAD_COMPROBANTE">
-               <span className="text-[8px] font-bold bg-[var(--primary)]/10 text-[var(--primary)] px-1.5 py-0.5 rounded uppercase tracking-tighter border border-[var(--primary)]/20">
+              <span className="text-[8px] font-bold bg-[var(--primary)]/10 text-[var(--primary)] px-1.5 py-0.5 rounded uppercase tracking-tighter border border-[var(--primary)]/20">
                 Editable
               </span>
             </TieneAccion>
@@ -102,7 +105,11 @@ const PanelPago = ({
               className="w-full bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md px-3 py-2.5 text-xs font-black text-white focus:outline-none focus:border-[var(--primary)] transition-colors cursor-pointer appearance-none uppercase tracking-tighter"
             >
               {usuario?.unidadesNegocio?.map((un) => (
-                <option key={un.codigoSecuencial} value={un.codigoSecuencial} className="bg-[#151515]">
+                <option
+                  key={un.codigoSecuencial}
+                  value={un.codigoSecuencial}
+                  className="bg-[#151515]"
+                >
                   {un.nombre}
                 </option>
               ))}
@@ -111,15 +118,18 @@ const PanelPago = ({
 
           {/* Si no tiene permiso, solo mostramos el nombre de la unidad actual como label informativa */}
           <div className="flex items-center">
-             {!tieneAccion('CAMBIAR_UNIDAD_COMPROBANTE') && (
-               <div className="w-full px-3 py-2.5 bg-[var(--surface)]/50 border border-white/5 rounded-md text-xs font-bold text-white/60 select-none">
-                 {usuario?.unidadesNegocio?.find(un => un.codigoSecuencial === unidadLocal)?.nombre || "Unidad Actual"}
-               </div>
-             )}
+            {!tieneAccion("CAMBIAR_UNIDAD_COMPROBANTE") && (
+              <div className="w-full px-3 py-2.5 bg-[var(--surface)]/50 border border-white/5 rounded-md text-xs font-bold text-white/60 select-none">
+                {usuario?.unidadesNegocio?.find(
+                  (un) => un.codigoSecuencial === unidadLocal,
+                )?.nombre || "Unidad Actual"}
+              </div>
+            )}
           </div>
 
           <p className="text-[9px] text-[var(--text-muted)] font-medium leading-tight">
-            Este cambio es local para este comprobante y no afecta al resto de la aplicación.
+            Este cambio es local para este comprobante y no afecta al resto de
+            la aplicación.
           </p>
         </div>
         {/* 1. CONFIG FISCAL RAPIDA (Solo si es ARCA) */}
@@ -235,7 +245,10 @@ const PanelPago = ({
                 $
                 {listaPagos
                   .reduce((acc, p) => acc + p.monto, 0)
-                  .toLocaleString()}
+                  .toLocaleString("es-AR", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
               </span>
             )}
           </div>
@@ -257,7 +270,11 @@ const PanelPago = ({
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-black text-emerald-400">
-                    ${p.monto.toLocaleString()}
+                    $
+                    {p.monto.toLocaleString("es-AR", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
                   </span>
                   <button
                     onClick={() => eliminarPago(idx)}
@@ -352,50 +369,146 @@ const PanelPago = ({
               </div>
             )}
 
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1 block">
-                  Monto a abonar
-                </label>
-                <input
-                  type="number"
-                  value={nuevoPago.monto}
-                  onChange={(e) =>
-                    setNuevoPago((prev) => ({
-                      ...prev,
-                      monto: parseFloat(e.target.value) || 0,
-                    }))
-                  }
-                  className="w-full bg-[var(--surface-active)] border border-white/10 rounded-md px-3 py-2 text-sm font-black text-emerald-400 focus:outline-none focus:border-[var(--primary)]"
-                />
-              </div>
-              <div className="flex-1">
-                <label className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1 block">
-                  Ref. (Opcional)
-                </label>
-                <input
-                  type="text"
-                  placeholder="Nro. Transacción"
-                  value={nuevoPago.referencia}
-                  onChange={(e) =>
-                    setNuevoPago((prev) => ({
-                      ...prev,
-                      referencia: e.target.value,
-                    }))
-                  }
-                  className="w-full bg-[var(--surface-active)] border border-white/10 rounded-md px-3 py-2 text-[11px] font-bold text-white focus:outline-none focus:border-[var(--primary)] placeholder:opacity-20"
-                />
-              </div>
-            </div>
+            {/* FLUJO DE COBRO EN EFECTIVO (REDISEÑADO) */}
+            {nuevoPago.metodo === "efectivo" ? (
+              <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="bg-[#151515] p-4 rounded-xl border border-white/5 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">
+                      Dinero Recibido
+                    </label>
+                    <span className="text-emerald-500/50">
+                      <DineroIcono size={14} />
+                    </span>
+                  </div>
+                  <input
+                    type="number"
+                    placeholder="Ej: 5000"
+                    value={nuevoPago.pagaCon || ""}
+                    onChange={(e) =>
+                      setNuevoPago((prev) => ({
+                        ...prev,
+                        pagaCon: parseFloat(e.target.value) || 0,
+                      }))
+                    }
+                    className="w-full bg-transparent border-none p-0 text-3xl font-black text-white focus:outline-none focus:ring-0 placeholder:text-white/5"
+                  />
 
-            <button
-              type="button"
-              onClick={agregarPago}
-              disabled={nuevoPago.monto <= 0}
-              className="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-[10px] font-black uppercase tracking-widest text-[var(--primary)] transition-all active:scale-95 disabled:opacity-30"
-            >
-              + AGREGAR PAGO
-            </button>
+                  {nuevoPago.pagaCon > 0 && (
+                    <div className="pt-3 border-t border-white/5 space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-400">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-white/40 font-bold uppercase tracking-wider">
+                          A cobrar:
+                        </span>
+                        <span className="text-white font-black">
+                          $
+                          {Math.min(
+                            nuevoPago.pagaCon,
+                            totales.total -
+                              listaPagos.reduce((acc, p) => acc + p.monto, 0),
+                          ).toLocaleString("es-AR", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-emerald-500/60 text-[10px] font-black uppercase tracking-widest italic">
+                          Vuelto a entregar:
+                        </span>
+                        <span className="text-emerald-500 text-lg font-black tabular-nums">
+                          $
+                          {Math.max(
+                            0,
+                            nuevoPago.pagaCon -
+                              (totales.total -
+                                listaPagos.reduce(
+                                  (acc, p) => acc + p.monto,
+                                  0,
+                                )),
+                          ).toLocaleString("es-AR", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const restante =
+                      totales.total -
+                      listaPagos.reduce((acc, p) => acc + p.monto, 0);
+                    const aCobrar = Math.min(nuevoPago.pagaCon, restante);
+                    const vueltoCalculado = Math.max(
+                      0,
+                      nuevoPago.pagaCon - restante,
+                    );
+                    agregarPagoConVuelto(
+                      nuevoPago.pagaCon,
+                      aCobrar,
+                      vueltoCalculado,
+                    );
+                  }}
+                  disabled={nuevoPago.pagaCon <= 0}
+                  className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 disabled:bg-white/5 disabled:text-white/20 text-white rounded-xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-lg shadow-emerald-600/20 active:scale-95 flex items-center justify-center gap-2"
+                >
+                  <CheckIcono size={16} />
+                  Registrar Cobro y Vuelto
+                </button>
+              </div>
+            ) : (
+              /* OTROS MÉTODOS DE PAGO (FLUJO ESTÁNDAR) */
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1 block">
+                      Monto a abonar
+                    </label>
+                    <input
+                      type="number"
+                      value={nuevoPago.monto}
+                      onChange={(e) =>
+                        setNuevoPago((prev) => ({
+                          ...prev,
+                          monto: parseFloat(e.target.value) || 0,
+                        }))
+                      }
+                      className="w-full bg-[var(--surface-active)] border border-white/10 rounded-md px-3 py-2 text-sm font-black text-[var(--primary)] focus:outline-none focus:border-[var(--primary)]"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1 block">
+                      Ref. (Opcional)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Protocolo/Nota"
+                      value={nuevoPago.referencia}
+                      onChange={(e) =>
+                        setNuevoPago((prev) => ({
+                          ...prev,
+                          referencia: e.target.value,
+                        }))
+                      }
+                      className="w-full bg-[var(--surface-active)] border border-white/10 rounded-md px-3 py-2 text-[11px] font-bold text-white focus:outline-none focus:border-[var(--primary)] placeholder:opacity-20"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={agregarPago}
+                  disabled={nuevoPago.monto <= 0}
+                  className="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-[10px] font-black uppercase tracking-widest text-[var(--primary)] transition-all active:scale-95 disabled:opacity-30"
+                >
+                  + AGREGAR PAGO
+                </button>
+              </div>
+            )}
           </div>
 
           {/* BALANCE RESTANTE */}
@@ -418,7 +531,10 @@ const PanelPago = ({
                 {(
                   totales.total -
                   listaPagos.reduce((acc, p) => acc + p.monto, 0)
-                ).toLocaleString()}
+                ).toLocaleString("es-AR", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </span>
             </div>
           )}
@@ -444,7 +560,7 @@ const PanelPago = ({
 
           <div className="flex flex-col gap-2">
             {/* Selector de Entidad */}
-            {entidades.length > 0 && (
+            {/* {entidades.length > 0 && (
               <select
                 value={entidadSeleccionada}
                 onChange={(e) => setEntidadSeleccionada(e.target.value)}
@@ -457,7 +573,7 @@ const PanelPago = ({
                   </option>
                 ))}
               </select>
-            )}
+            )} */}
 
             <div className="relative">
               <input
@@ -594,6 +710,7 @@ const PanelPago = ({
                 $
                 {totales.subtotal.toLocaleString("es-AR", {
                   minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
                 })}
               </span>
             </div>
@@ -604,6 +721,7 @@ const PanelPago = ({
                   $
                   {totales.iva.toLocaleString("es-AR", {
                     minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
                   })}
                 </span>
               </div>
@@ -681,4 +799,4 @@ const PanelPago = ({
   );
 };
 
-export default PanelPago;
+export default memo(PanelPago);

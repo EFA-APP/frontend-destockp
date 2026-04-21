@@ -5,6 +5,7 @@
  * Ahora actúa como una "Cápsula Visual" (Shell) que delega toda la lógica pesada
  * al hook personalizado 'useComprobantes'.
  */
+import { useCallback } from "react";
 import { useComprobantes } from "./hooks/useComprobantes";
 import { getPrecio, calcularTotalItem } from "./utils/fiscal.utils";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
@@ -20,6 +21,24 @@ import TablaTicket from "./TablaTicket";
 import PanelPago from "./PanelPago";
 import ResumenVentaMobile from "./ResumenVentaMobile";
 import ModalConfirmacionCobro from "./ModalConfirmacionCobro";
+
+const ComprobantesSkeleton = () => (
+  <div className="flex-1 flex flex-col md:flex-row overflow-hidden animate-pulse">
+    <div className="flex-1 flex flex-col min-w-0 border-r border-[var(--border-subtle)] bg-[var(--fill2)]">
+      <div className="shrink-0 p-4">
+        <div className="h-12 rounded-md bg-white/10" />
+      </div>
+      <div className="flex-1 p-2">
+        <div className="h-full rounded-md bg-white/5" />
+      </div>
+    </div>
+    <div className="w-full md:w-[380px] shrink-0 p-4 bg-[#0a0a0a] border-l border-[var(--border-subtle)]">
+      <div className="h-28 rounded-md bg-white/10 mb-4" />
+      <div className="h-40 rounded-md bg-white/5 mb-4" />
+      <div className="h-40 rounded-md bg-white/5" />
+    </div>
+  </div>
+);
 
 const Comprobantes = () => {
   // Inyección de lógica mediante Hook Maestro
@@ -46,7 +65,7 @@ const Comprobantes = () => {
     busquedaFactura, setBusquedaFactura, comprobanteAsociado, setComprobanteAsociado,
     mostrarDropdownFactura, setMostrarDropdownFactura, 
     // Pagos multiples
-    listaPagos, nuevoPago, setNuevoPago, agregarPago, eliminarPago,
+    listaPagos, nuevoPago, setNuevoPago, agregarPago, agregarPagoConVuelto, eliminarPago, vuelto,
     // UI Local
     mostrarPreview, setMostrarPreview, tabActiva, setTabActiva,
     unidadLocal, setUnidadLocal,
@@ -56,6 +75,8 @@ const Comprobantes = () => {
     agregarItem, eliminarItem, actualizarItem, handleCodigoKeyDown, handleFinalizar, confirmarVentaFinal,
     cargandoCobro
   } = useComprobantes();
+  const noopProductoEncontrado = useCallback(() => {}, []);
+  const cargandoInicial = cargandoConfigs && items.length === 0;
 
   return (
     <div className="flex flex-col h-screen md:h-screen w-full bg-[var(--fill)] overflow-hidden pt-4 md:py-6 px-2">
@@ -96,6 +117,9 @@ const Comprobantes = () => {
       </div>
 
       {/* 3. CUERPO: CAPTURA Y TICKET (IZQUIERDA) + PANEL DE PAGO (DERECHA) */}
+      {cargandoInicial ? (
+        <ComprobantesSkeleton />
+      ) : (
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         <div className={`flex-1 flex flex-col min-w-0 border-r border-[var(--border-subtle)] bg-[var(--fill2)] ${tabActiva !== "productos" ? "hidden md:flex" : "flex"}`}>
           {/* Componente que gestiona el buscador de códigos y la cantidad */}
@@ -108,13 +132,12 @@ const Comprobantes = () => {
             setBusquedaClaveProducto={setBusquedaClaveProducto}
             camposDinamicos={camposDinamicos}
             columnaPrecioSeleccionada={columnaPrecioSeleccionada}
-            setColumnaPrecioSeleccionada={setColumnaPrecioSeleccionada}
             cargandoConfigs={cargandoConfigs}
             cargandoProductos={cargandoProductos}
             productos={productos}
             highlightedIndex={highlightedIndex}
             setHighlightedIndex={setHighlightedIndex}
-            setProductoEncontrado={() => {}} // Se maneja en el hook
+            setProductoEncontrado={noopProductoEncontrado} // Se maneja en el hook
             mostrarDropdownProducto={mostrarDropdownProducto}
             setMostrarDropdownProducto={setMostrarDropdownProducto}
             handleCodigoKeyDown={handleCodigoKeyDown}
@@ -177,13 +200,16 @@ const Comprobantes = () => {
           nuevoPago={nuevoPago}
           setNuevoPago={setNuevoPago}
           agregarPago={agregarPago}
+          agregarPagoConVuelto={agregarPagoConVuelto}
           eliminarPago={eliminarPago}
           observaciones={observaciones}
           setObservaciones={setObservaciones}
           unidadLocal={unidadLocal}
           setUnidadLocal={setUnidadLocal}
+          vuelto={vuelto}
         />
       </div>
+      )}
 
       {/* 4. MODAL: CIERRE DE VENTA (VISTA PREVIA) */}
       <ModalConfirmacionCobro
@@ -198,6 +224,7 @@ const Comprobantes = () => {
         enBlanco={enBlanco}
         aplicaIva={aplicaIva}
         tipoDocumento={tipoDocumento}
+        vuelto={vuelto}
       />
 
       {/* BARRA MOBILE: ACCESO RÁPIDO A TOTALES */}

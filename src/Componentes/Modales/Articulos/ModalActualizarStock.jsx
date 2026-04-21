@@ -95,7 +95,12 @@ const DrawerActualizarStock = ({
 
       actualizarStock(
         {
-          codigoProducto: Number(fila.codigoProducto),
+          codigoProducto: fila.codigoProducto
+            ? Number(fila.codigoProducto)
+            : undefined,
+          codigoMateriaPrima: fila.codigoMateriaPrima
+            ? Number(fila.codigoMateriaPrima)
+            : undefined,
           codigoDeposito: Number(depositoSeleccionado),
           cantidad: cantidadFinal,
           codigoUsuario: usuario?.codigoSecuencial
@@ -116,7 +121,12 @@ const DrawerActualizarStock = ({
 
       transferirStock(
         {
-          codigoProducto: Number(fila.codigoProducto),
+          codigoProducto: fila.codigoProducto
+            ? Number(fila.codigoProducto)
+            : undefined,
+          codigoMateriaPrima: fila.codigoMateriaPrima
+            ? Number(fila.codigoMateriaPrima)
+            : undefined,
           codigoDepositoOrigen: Number(depositoOrigen),
           codigoDepositoDestino: Number(depositoDestino),
           cantidad: Number(cantidad),

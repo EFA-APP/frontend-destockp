@@ -702,7 +702,11 @@ const DataTable = ({
                       className="bg-transparent border-r text-white! border-[var(--border-medium)] px-3 text-[12px] font-bold outline-none cursor-pointer"
                     >
                       {opcionesBusqueda.map((op) => (
-                        <option key={op.value} value={op.value}>
+                        <option
+                          key={op.value}
+                          value={op.value}
+                          className="text-black!"
+                        >
                           {op.label}
                         </option>
                       ))}
@@ -781,8 +785,9 @@ const DataTable = ({
             />
           ))
         ) : (
-          <div className="py-10 text-center opacity-40">
-            <Package size={30} className="mx-auto" /> {emptyMessage}
+          <div className="py-10 text-center opacity-40 text-white!">
+            <Package size={30} className="mx-auto" color="white" />{" "}
+            {emptyMessage}
           </div>
         )}
       </div>
@@ -998,9 +1003,10 @@ const DataTable = ({
                     columnasVisibles.filter((c) => c.visible !== false).length +
                     1
                   }
-                  className="py-20 text-center opacity-30"
+                  className="py-20 text-center opacity-30 text-white"
                 >
-                  <Package size={40} className="mx-auto mb-2" /> {emptyMessage}
+                  <Package size={40} className="mx-auto mb-2 text-white" />{" "}
+                  {emptyMessage}
                 </td>
               </tr>
             )}
@@ -1020,11 +1026,11 @@ const DataTable = ({
               onChange={(e) =>
                 onLimitChange && onLimitChange(Number(e.target.value))
               }
-              className="bg-transparent border border-[var(--border-subtle)] text-[11px] font-bold rounded px-2 py-1"
+              className="bg-[#111] border border-white/10 text-white text-[11px] font-bold rounded px-2 py-1 outline-none appearance-none"
             >
               {[10, 20, 50, 100].map((v) => (
-                <option key={v} value={v}>
-                  {v}
+                <option key={v} value={v} className="bg-[#111] text-white">
+                  {v} FILAS
                 </option>
               ))}
             </select>
@@ -1032,17 +1038,17 @@ const DataTable = ({
               <button
                 disabled={!meta.prev}
                 onClick={() => onPageChange && onPageChange(meta.prev)}
-                className="px-3 py-1 text-[11px] font-bold disabled:opacity-30"
+                className="px-3 py-1 text-[11px] font-bold text-white hover:text-[var(--primary)] transition-colors disabled:opacity-30"
               >
                 Anterior
               </button>
-              <span className="text-[11px] font-black">
+              <span className="text-[11px] font-black text-white/90">
                 {meta.currentPage} / {meta.lastPage || 1}
               </span>
               <button
                 disabled={!meta.next}
                 onClick={() => onPageChange && onPageChange(meta.next)}
-                className="px-3 py-1 text-[11px] font-bold disabled:opacity-30"
+                className="px-3 py-1 text-[11px] font-bold text-white hover:text-[var(--primary)] transition-colors disabled:opacity-30"
               >
                 Siguiente
               </button>

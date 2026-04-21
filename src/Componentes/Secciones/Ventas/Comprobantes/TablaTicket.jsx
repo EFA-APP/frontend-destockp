@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { CarritoIcono, BorrarIcono } from "../../../../assets/Icons";
 
 const TablaTicket = ({
@@ -5,6 +6,7 @@ const TablaTicket = ({
   actualizarItem,
   eliminarItem,
   calcularSubtotal,
+  inputCodigoRef,
 }) => {
   return (
     <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
@@ -144,4 +146,4 @@ const TablaTicket = ({
   );
 };
 
-export default TablaTicket;
+export default memo(TablaTicket);

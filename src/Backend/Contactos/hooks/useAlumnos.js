@@ -1,38 +1,57 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { useDebounce } from "../../../hooks/useDebounce";
 import { useQuery } from "@tanstack/react-query";
 import { useAlertas } from "../../../store/useAlertas";
 import { useConfiguracionContactos } from "./useConfiguracionContactos";
 import { useContactos } from "./useContactos";
 import {
   EmitirCuotasMasivasApi,
+  CargarInteresMasivaApi,
   ListarMovimientosApi,
 } from "../api/contactos.api";
 import { usePersistentState } from "../../../hooks/usePersistentState";
 
 export const useAlumnos = () => {
   const { agregarAlerta } = useAlertas();
-  // 🔍 1. Obtención de Datos Reales del API (Usamos límite alto para ver más alumnos)
+  const fechaActual = new Date();
+
+  // 🔍 1. Estado de Filtros (Simplificado)
+  const [busqueda, setBusqueda] = usePersistentState("alumnos_busqueda", "");
+  const [mesSeleccionado, setMesSeleccionado] = useState(fechaActual.getMonth());
+
+  // Debounce para la búsqueda para no saturar el servidor
+  const [busquedaDebounced] = useDebounce(busqueda, 500);
+
+  // 📊 2. Obtención de Datos Reales del API Filtrados por el Servidor
+  const periodoFiltro = `${fechaActual.getFullYear()}-${String(mesSeleccionado + 1).padStart(2, "0")}`;
+
   const {
     contactos: alumnos = [],
     cargandoContactos,
     refetch,
-  } = useContactos({ tipoEntidad: "ALUM", limite: 100 });
+    total,
+    paginas,
+    paginaActual,
+  } = useContactos({
+    tipoEntidad: "ALUM",
+    busqueda: busquedaDebounced,
+    limite: 200, // Traemos todos para calcular cuotas localmente como antes
+  });
+
   const { configs } = useConfiguracionContactos();
 
-  // 🏦 2. Obtención de Movimientos Reales (Ledger)
-  // Nota: Para escalabilidad, traemos todos los movimientos de la empresa
-  // Podríamos filtrar por año si fuera necesario.
+  // 🏦 3. Movimientos: Seguimos trayéndolos para el historial rápido, 
+  // pero la cabecera ya viene pre-calculada en CuentaDeuda (opcional)
   const {
     data: todosLosMovimientos = [],
     isLoading: cargandoMovimientos,
     refetch: refetchMovs,
   } = useQuery({
-    queryKey: ["movimientos_empresa"],
-    queryFn: () => ListarMovimientosApi(), // Sin id trae todos
+    queryKey: ["movimientos_alumnos", busquedaDebounced],
+    queryFn: () => ListarMovimientosApi(), 
     showLoader: false,
+    enabled: !!alumnos.length, 
   });
-
-  const [busqueda, setBusqueda] = usePersistentState("alumnos_busqueda", "");
 
   // 🎚️ 3. Obtener Fórmulas de la Configuración Real
   const formulaCuota = useMemo(() => {
@@ -74,7 +93,6 @@ export const useAlumnos = () => {
   // [No es necesario si usamos usePersistentState arriba]
 
   // 🗓️ Fecha actual (usamos la del sistema, o una simulada para pruebas)
-  const fechaActual = new Date();
 
   // 🔍 Verificar si una cuota está vencida
   const estaVencida = (fechaVencimiento) => {
@@ -93,23 +111,30 @@ export const useAlumnos = () => {
     aplicaInteres,
     alumnoAtributos,
   ) => {
-    if (!aplicaInteres) return { monto: 0, dias: 0 };
+    // 1. Calcular días de atraso usando solo fechas (sin horas)
+    const hoy = new Date();
+    const hoyInicio = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+    const fVenc = new Date(fechaVencimiento);
+    const vencInicio = new Date(fVenc.getFullYear(), fVenc.getMonth(), fVenc.getDate());
 
-    // Ejecutar fórmula real de configuración
+    const diffTime = hoyInicio.getTime() - vencInicio.getTime();
+    const diffDays = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
+
+    // 2. Si no aplica interés o no está vencido, devolvemos el monto en 0 pero los días calculados
+    if (!aplicaInteres || hoyInicio <= vencInicio) {
+      return { monto: 0, dias: diffDays };
+    }
+
+    // 3. Evaluar tasa diaria
     const tasaDiaria =
       evaluarFormula(formulaInteres, alumnoAtributos || {}) || 0;
 
-    const fVenc = new Date(fechaVencimiento);
-    if (fechaActual <= fVenc) return { monto: 0, dias: 0 };
-
-    const diffTime = Math.abs(fechaActual - fVenc);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    return { 
+    return {
       monto: diffDays * tasaDiaria,
-      dias: diffDays
+      dias: diffDays,
     };
   };
+
 
   // 📊 Generar cuotas para cada alumno (calculado dinámicamente)
   const alumnosConCuotas = useMemo(() => {
@@ -134,8 +159,8 @@ export const useAlumnos = () => {
           alumno.atributos?.beca_porcentaje || alumno.descuento || 0,
         ),
         aplicaInteres:
-          alumno.atributos?.aplica_interes !== undefined
-            ? alumno.atributos.aplica_interes
+          alumno.atributos?.aplicar_interes !== undefined
+            ? alumno.atributos.aplicar_interes
             : (alumno.aplicarInteres ?? true),
       };
 
@@ -156,10 +181,15 @@ export const useAlumnos = () => {
             m.periodo === periodoStr,
         );
 
-        // Sumar débitos (deuda) y créditos (pagos)
-        const debito = movsAlumno
-          .filter((m) => m.monto > 0)
+        // Sumar débitos base (sin intereses grabados) y créditos (pagos)
+        const debitoBase = movsAlumno
+          .filter((m) => m.monto > 0 && !m.concepto?.startsWith("INTERES GENERADO"))
           .reduce((s, m) => s + m.monto, 0);
+        
+        const interesGrabado = movsAlumno
+          .filter((m) => m.monto > 0 && m.concepto?.startsWith("INTERES GENERADO"))
+          .reduce((s, m) => s + m.monto, 0);
+
         const credito = Math.abs(
           movsAlumno
             .filter((m) => m.monto < 0)
@@ -167,7 +197,7 @@ export const useAlumnos = () => {
         );
 
         // Movimiento de débito principal para obtener la fecha de vencimiento
-        const movPrincipal = movsAlumno.find((m) => m.monto > 0);
+        const movPrincipal = movsAlumno.find((m) => m.monto > 0 && !m.concepto?.startsWith("INTERES GENERADO"));
         const fVenc = movPrincipal?.fechaVencimiento
           ? new Date(movPrincipal.fechaVencimiento)
           : new Date(fechaActual.getFullYear(), mes, config.diaVencimiento);
@@ -176,18 +206,28 @@ export const useAlumnos = () => {
         let interes = 0;
         let diasAtraso = 0;
 
-        if (debito > 0) {
-          if (credito >= debito) {
+        if (debitoBase > 0) {
+          // Primero calculamos intereses si está vencido
+          const resMora = calcularInteresMora(
+            fVenc,
+            config.aplicaInteres,
+            alumno.atributos,
+          );
+          diasAtraso = resMora.dias;
+
+          if (fechaActual > fVenc) {
+            // El interés mostrado es el máximo entre lo grabado y lo calculado dinámicamente
+            interes = Math.max(interesGrabado, resMora.monto);
+          } else {
+            interes = interesGrabado;
+          }
+
+          const deudaTotal = (debitoBase || montoFinal) + interes;
+
+          if (credito >= deudaTotal) {
             estado = "pagado";
           } else if (fechaActual > fVenc) {
             estado = "vencido";
-            const resMora = calcularInteresMora(
-              fVenc,
-              config.aplicaInteres,
-              alumno.atributos, // Pasamos todos los atributos para evaluar la fórmula
-            );
-            interes = resMora.monto;
-            diasAtraso = resMora.dias;
           } else {
             estado = "pendiente";
           }
@@ -195,10 +235,10 @@ export const useAlumnos = () => {
 
         cuotas[mes] = {
           estado,
-          monto: debito || montoFinal,
+          monto: (debitoBase || montoFinal) + interes - credito,
           interes,
           diasAtraso,
-          montoConInteres: (debito || montoFinal) + interes,
+          montoConInteres: (debitoBase || montoFinal) + interes - credito,
           fechaVencimiento: fVenc.toISOString().split("T")[0],
           // Datos informativos del pago (usamos el crédito si existe)
           fechaPago: movsAlumno.find((m) => m.monto < 0)?.fecha || null,
@@ -233,7 +273,7 @@ export const useAlumnos = () => {
         cuotasAdeudadas: cuotasVencidas,
       };
     });
-  }, [alumnos, todosLosMovimientos, formulaCuota]);
+  }, [alumnos, todosLosMovimientos, formulaCuota, formulaInteres]);
 
   // 🔍 Filtro mejorado
   const alumnosFiltrados = useMemo(() => {
@@ -305,6 +345,35 @@ export const useAlumnos = () => {
     }
   };
 
+  // 📈 5. Carga Masiva de Intereses
+
+  const cargarInteresesMensuales = async (mesIndex) => {
+    console.log(`[Escuela] Iniciando carga masiva de intereses...`);
+
+    try {
+      await CargarInteresMasivaApi({
+        tipoEntidad: "ALUM",
+        formulaInteres: formulaInteres,
+      });
+
+      agregarAlerta({
+        title: "Éxito",
+        message: `Se han grabado los intereses acumulados para todos los alumnos correctamente.`,
+        type: "success",
+      });
+
+      refetch();
+      refetchMovs();
+    } catch (e) {
+      console.error("Error en la carga masiva de intereses:", e);
+      agregarAlerta({
+        title: "Error",
+        message: "No se pudo completar la carga masiva de intereses.",
+        type: "error",
+      });
+    }
+  };
+
   // 📊 Estadísticas generales
   const obtenerEstadisticas = () => {
     const totalAlumnos = alumnosConCuotas.length;
@@ -357,10 +426,14 @@ export const useAlumnos = () => {
     alumnosCompletos: alumnosConCuotas,
     busqueda,
     setBusqueda,
+    mesSeleccionado,
+    setMesSeleccionado,
     cargandoAlumnos: cargandoContactos || cargandoMovimientos,
     obtenerEstadisticas,
     registrarPago,
     emitirCuotasMensuales,
+    cargarInteresesMensuales,
     movimientos: todosLosMovimientos,
   };
+
 };

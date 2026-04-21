@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { VentasIcono, CheckIcono } from "../../../../assets/Icons";
 
 const ResumenVentaMobile = ({
@@ -39,4 +40,4 @@ const ResumenVentaMobile = ({
   );
 };
 
-export default ResumenVentaMobile;
+export default memo(ResumenVentaMobile);

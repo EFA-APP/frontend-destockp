@@ -3,6 +3,7 @@ import {
   ListarConfiguracionCamposApi,
   CrearConfiguracionCampoApi,
   ActualizarConfiguracionCampoApi,
+  EliminarConfiguracionCampoApi,
 } from "../api/contactos.api";
 
 export const useConfiguracionContactos = () => {
@@ -32,10 +33,20 @@ export const useConfiguracionContactos = () => {
     },
   });
 
+  const mutationEliminar = useMutation({
+    mutationFn: EliminarConfiguracionCampoApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["configuracion-campos-contacto"],
+      });
+    },
+  });
+
   return {
     configs,
     cargandoConfigs,
     crearConfiguracion: mutationCrear.mutateAsync,
     actualizarConfiguracion: mutationActualizar.mutateAsync,
+    eliminarConfiguracion: mutationEliminar.mutateAsync,
   };
 };

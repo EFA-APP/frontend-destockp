@@ -1,3 +1,4 @@
+import { memo } from "react";
 import {
   CerrarIcono,
   CarritoIcono,
@@ -16,6 +17,7 @@ const ModalConfirmacionCobro = ({
   aplicaIva,
   tipoDocumento,
   cargandoCobro,
+  vuelto = 0,
 }) => {
   if (!mostrarPreview) return null;
 
@@ -121,7 +123,9 @@ const ModalConfirmacionCobro = ({
                                 <span className="font-bold text-white uppercase">{p.metodo}</span>
                                 {p.detalles && <span className="text-[9px] text-[var(--text-muted)] font-black italic">{p.detalles}</span>}
                              </div>
-                             <span className="font-black text-emerald-400">${p.monto.toLocaleString()}</span>
+                             <span className={`font-black ${p.monto >= 0 ? "text-emerald-400" : "text-rose-500"}`}>
+                                {p.monto < 0 ? `- $${Math.abs(p.monto).toLocaleString("es-AR")}` : `$${p.monto.toLocaleString("es-AR")}`}
+                             </span>
                         </div>
                     ))}
                 </div>
@@ -165,6 +169,21 @@ const ModalConfirmacionCobro = ({
                 })}
               </span>
             </div>
+            {vuelto > 0 && (
+              <div className="flex justify-between items-center bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl animate-in fade-in zoom-in duration-500 mt-4 shadow-lg shadow-emerald-500/5">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black text-emerald-400/60 uppercase tracking-[0.2em] mb-1">
+                    Vuelto a entregar
+                  </span>
+                  <span className="text-2xl font-black text-emerald-400 tabular-nums">
+                    ${vuelto.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+                <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                   <div className="w-6 h-6 rounded-full border-2 border-emerald-500/30 border-t-emerald-500 animate-spin" />
+                </div>
+              </div>
+            )}
           </div>
 
           <button
@@ -201,4 +220,4 @@ const ModalConfirmacionCobro = ({
   );
 };
 
-export default ModalConfirmacionCobro;
+export default memo(ModalConfirmacionCobro);

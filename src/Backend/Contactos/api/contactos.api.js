@@ -15,6 +15,11 @@ export const CrearEntidadApi = async (dto) => {
   return data;
 };
 
+export const EliminarEntidadApi = async (clave) => {
+  const { data } = await axiosInitial.delete(`/contactos/entidad/${clave}`);
+  return data;
+};
+
 /**
  * API para Gestión de Contactos
  */
@@ -49,6 +54,11 @@ export const ActualizarContactoApi = async (codigoSecuencial, dto) => {
   return data;
 };
 
+export const EliminarContactoApi = async (codigoSecuencial) => {
+  const { data } = await axiosInitial.delete(`/contactos/${codigoSecuencial}`);
+  return data;
+};
+
 export const ImportarContactosApi = async (dto) => {
   const { data } = await axiosInitial.post(`/contactos/importar`, dto);
   return data;
@@ -69,10 +79,20 @@ export const CrearConfiguracionCampoApi = async (dto) => {
   return data;
 };
 
-export const ActualizarConfiguracionCampoApi = async (codigoSecuencial, dto) => {
+export const ActualizarConfiguracionCampoApi = async (
+  codigoSecuencial,
+  dto,
+) => {
   const { data } = await axiosInitial.patch(
     `/contactos/configuracion/${codigoSecuencial}`,
     dto,
+  );
+  return data;
+};
+
+export const EliminarConfiguracionCampoApi = async (codigoSecuencial) => {
+  const { data } = await axiosInitial.delete(
+    `/contactos/configuracion/${codigoSecuencial}`,
   );
   return data;
 };
@@ -85,15 +105,26 @@ export const ActualizarSaldoApi = async (codigoSecuencial, dto) => {
 };
 
 export const ListarMovimientosApi = async (codigoSecuencial) => {
-  const url = codigoSecuencial 
+  const url = codigoSecuencial
     ? `/contactos/movimientos/${codigoSecuencial}`
     : `/contactos/movimientos`;
-    
+
   const { data } = await axiosInitial.get(url, { showLoader: false });
   return data;
 };
 
 export const EmitirCuotasMasivasApi = async (dto) => {
-  const { data } = await axiosInitial.post(`/contactos/emitir-cuotas-masivas`, dto);
+  const { data } = await axiosInitial.post(
+    `/contactos/emitir-cuotas-masivas`,
+    dto,
+  );
+  return data;
+};
+
+export const CargarInteresMasivaApi = async (dto) => {
+  const { data } = await axiosInitial.post(
+    `/contactos/cargar-interes-masivo`,
+    dto,
+  );
   return data;
 };

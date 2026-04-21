@@ -3,6 +3,7 @@ import {
   ListarContactosApi,
   CrearContactoApi,
   ActualizarContactoApi,
+  EliminarContactoApi,
 } from "../api/contactos.api";
 
 export const useContactos = (filtros = {}) => {
@@ -31,6 +32,13 @@ export const useContactos = (filtros = {}) => {
     },
   });
 
+  const mutationEliminar = useMutation({
+    mutationFn: EliminarContactoApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contactos"] });
+    },
+  });
+
   return {
     contactos: dataPaginada.items || [],
     total: dataPaginada.total || 0,
@@ -39,6 +47,7 @@ export const useContactos = (filtros = {}) => {
     cargandoContactos,
     crearContacto: mutationCrear.mutateAsync,
     actualizarContacto: mutationActualizar.mutateAsync,
+    eliminarContacto: mutationEliminar.mutateAsync,
     refetch,
   };
 };

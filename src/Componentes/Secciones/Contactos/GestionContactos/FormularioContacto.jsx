@@ -120,8 +120,14 @@ const FormularioContacto = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-end bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-300">
-      <div className="w-full max-w-sm h-full bg-[#080808] border-l border-white/5 shadow-[-20px_0_50px_rgba(0,0,0,0.5)] flex flex-col animate-in slide-in-from-right duration-500">
+    <div 
+      className="fixed inset-0 z-[100] flex items-center justify-end bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-300"
+      onClick={onClose}
+    >
+      <div 
+        className="w-full max-w-sm h-full bg-[#080808] border-l border-white/5 shadow-[-20px_0_50px_rgba(0,0,0,0.5)] flex flex-col animate-in slide-in-from-right duration-500"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header Minimalista */}
         <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
           <div className="flex items-center gap-3">
@@ -863,12 +869,19 @@ const FormularioContacto = ({
           )}
 
           {/* Botón de Acción Pro */}
-          <div className="pt-4">
+          <div className="pt-4 flex gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white/50 rounded-md text-[10px] font-black uppercase tracking-[0.2em] transition-all border border-white/5"
+            >
+              CANCELAR
+            </button>
             <button
               type="submit"
-              className="w-full py-3 bg-[var(--primary)] text-black rounded-md text-[10px] font-black uppercase tracking-[0.2em] hover:brightness-110 active:scale-[0.98] transition-all shadow-[0_10px_30px_rgba(var(--p-rgb),0.2)]"
+              className="flex-[2] py-3 bg-[var(--primary)] text-black rounded-md text-[10px] font-black uppercase tracking-[0.2em] hover:brightness-110 active:scale-[0.98] transition-all shadow-[0_10px_30px_rgba(var(--p-rgb),0.2)]"
             >
-              {contacto ? "ACTUALIZAR" : "CREAR"} CONTACTO
+              {contacto ? "ACTUALIZAR" : "CREAR"}
             </button>
           </div>
         </form>

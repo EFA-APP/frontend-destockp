@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import ContenedorSeccion from "../../../ContenidoPanel/ContenedorSeccion";
@@ -10,7 +10,9 @@ import {
   DescargarIcono,
 } from "../../../../assets/Icons";
 import { Building2, Trash2 } from "lucide-react";
+import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { useDepositoUI } from "../../../../Backend/Articulos/hooks/Deposito/useDepositoUI.jsx";
+import { useDepositosConStock } from "../../../../Backend/Articulos/queries/Deposito/useDepositosConStock.query";
 import TarjetaDeposito from "./TarjetaDeposito.jsx";
 import TablaDepositoStock from "../../../Tablas/Articulos/Deposito/TablaDepositoStock";
 import StockDepositoPDF from "../../../Reportes/StockDepositoPDF.jsx";
@@ -23,19 +25,31 @@ const Deposito = () => {
   const [depositoAEliminar, setDepositoAEliminar] = useState(null);
   const [borrarStock, setBorrarStock] = useState(false);
   const [procesando, setProcesando] = useState(false);
-  const { depositos, matrizStock, cargando, eliminarDeposito } =
-    useDepositoUI();
+  const { depositos, cargando, eliminarDeposito } = useDepositoUI();
+  const usuario = useAuthStore((state) => state.usuario);
+  const { data: stockCompletoData, isFetching: cargandoStockCompleto } =
+    useDepositosConStock({
+      pagina: 1,
+      limite: 100000,
+      tipoArticulo: "PRODUCTO",
+    });
+  const { data: stockCompletoMpData, isFetching: cargandoStockCompletoMp } =
+    useDepositosConStock({
+      pagina: 1,
+      limite: 100000,
+      tipoArticulo: "MATERIA_PRIMA",
+    });
   const navigate = useNavigate();
 
-  const handleNuevaSucursal = () => {
+  const handleNuevaSucursal = useCallback(() => {
     navigate("/panel/inventario/depositos/nuevo");
-  };
+  }, [navigate]);
 
-  const handleEliminarSucursal = async (suc) => {
+  const handleEliminarSucursal = useCallback((suc) => {
     setDepositoAEliminar(suc);
-  };
+  }, []);
 
-  const handleConfirmarEliminar = async () => {
+  const handleConfirmarEliminar = useCallback(async () => {
     if (!depositoAEliminar) return;
     setProcesando(true);
     try {
@@ -47,13 +61,99 @@ const Deposito = () => {
     } finally {
       setProcesando(false);
     }
-  };
+  }, [depositoAEliminar, borrarStock, eliminarDeposito]);
 
-  const handleEditarSucursal = (suc) => {
+  const handleEditarSucursal = useCallback((suc) => {
     navigate(
       `/panel/inventario/depositos/editar?codigoSecuencial=${suc.codigoSecuencial}`,
     );
-  };
+  }, [navigate]);
+
+  const handleCerrarModalEliminar = useCallback(() => {
+    setDepositoAEliminar(null);
+    setBorrarStock(false);
+  }, []);
+
+  const matrizStockCompletaPDF = useMemo(() => {
+    const data = Array.isArray(stockCompletoData?.data) ? stockCompletoData.data : [];
+    const productosMap = {};
+
+    data.forEach((producto) => {
+      const prodCodigo = producto.codigoSecuencial;
+      if (!productosMap[prodCodigo]) {
+        productosMap[prodCodigo] = {
+          ...producto,
+          codigoProducto: prodCodigo,
+        };
+      }
+
+      producto.stockPorDeposito?.forEach((sp) => {
+        const depCodigo = sp.codigoDeposito;
+        productosMap[prodCodigo][`dep_${depCodigo}`] =
+          (productosMap[prodCodigo][`dep_${depCodigo}`] || 0) + (sp.stock || 0);
+      });
+    });
+
+    return Object.values(productosMap);
+  }, [stockCompletoData]);
+
+  const stockPdfDocument = useMemo(
+    () => (
+      <StockDepositoPDF
+        matrizStock={matrizStockCompletaPDF}
+        depositos={depositos}
+        empresaNombre={usuario?.nombreEmpresa || usuario?.datosFiscales?.razonSocial}
+      />
+    ),
+    [matrizStockCompletaPDF, depositos],
+  );
+  const matrizStockCompletaPDFMp = useMemo(() => {
+    const data = Array.isArray(stockCompletoMpData?.data) ? stockCompletoMpData.data : [];
+    const productosMap = {};
+
+    data.forEach((producto) => {
+      const prodCodigo = producto.codigoSecuencial;
+      if (!productosMap[prodCodigo]) {
+        productosMap[prodCodigo] = {
+          ...producto,
+          codigoProducto: prodCodigo,
+          codigoMateriaPrima: prodCodigo,
+        };
+      }
+
+      producto.stockPorDeposito?.forEach((sp) => {
+        const depCodigo = sp.codigoDeposito;
+        productosMap[prodCodigo][`dep_${depCodigo}`] =
+          (productosMap[prodCodigo][`dep_${depCodigo}`] || 0) + (sp.stock || 0);
+      });
+    });
+
+    return Object.values(productosMap);
+  }, [stockCompletoMpData]);
+
+  const stockPdfDocumentMp = useMemo(
+    () => (
+      <StockDepositoPDF
+        matrizStock={matrizStockCompletaPDFMp}
+        depositos={depositos}
+        empresaNombre={usuario?.nombreEmpresa || usuario?.datosFiscales?.razonSocial}
+      />
+    ),
+    [matrizStockCompletaPDFMp, depositos, usuario?.nombreEmpresa, usuario?.datosFiscales?.razonSocial],
+  );
+
+  // Fuerza remount del PDFDownloadLink cuando cambia la data de origen
+  // para evitar el primer blob vacío por cache interno del componente.
+  const pdfLinkKey = useMemo(
+    () =>
+      `pdf-stock-${matrizStockCompletaPDF.length}-${depositos.length}-${usuario?.codigoEmpresa || "na"}`,
+    [matrizStockCompletaPDF.length, depositos.length, usuario?.codigoEmpresa],
+  );
+  const pdfLinkKeyMp = useMemo(
+    () =>
+      `pdf-stock-mp-${matrizStockCompletaPDFMp.length}-${depositos.length}-${usuario?.codigoEmpresa || "na"}`,
+    [matrizStockCompletaPDFMp.length, depositos.length, usuario?.codigoEmpresa],
+  );
 
   return (
     <ContenedorSeccion className="px-3 py-2">
@@ -104,7 +204,7 @@ const Deposito = () => {
           </div>
         </section>
 
-        {/* Stock Matrix Section */}
+        {/* Stock Matrix Section - Productos */}
         <section>
           <div className="flex items-center justify-between mb-4 px-2">
             <h4 className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] flex items-center gap-2.5">
@@ -115,17 +215,18 @@ const Deposito = () => {
 
             {/* PDF Download Button */}
             <PDFDownloadLink
-              document={
-                <StockDepositoPDF
-                  matrizStock={matrizStock}
-                  depositos={depositos}
-                />
-              }
-              fileName={`Reporte_Stock_${new Date().toLocaleDateString()}.pdf`}
+              key={pdfLinkKey}
+              document={stockPdfDocument}
+              fileName={`Reporte_Stock_Productos_${new Date().toLocaleDateString()}.pdf`}
             >
               {({ loading }) => (
                 <button
-                  disabled={loading || cargando}
+                  disabled={
+                    loading ||
+                    cargando ||
+                    cargandoStockCompleto ||
+                    matrizStockCompletaPDF.length === 0
+                  }
                   className="flex items-center gap-2.5 px-4 py-2 bg-white/5 hover:bg-white/[0.08] text-white/60 hover:text-white border border-white/10 hover:border-white/20 rounded-md font-bold text-[10px] uppercase tracking-widest transition-all cursor-pointer active:scale-95 group/pdf disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <DescargarIcono
@@ -133,12 +234,55 @@ const Deposito = () => {
                     className="group-hover:rotate-90 transition-transform duration-500"
                   />
 
-                  {loading ? "Preparando..." : "Descargar Reporte"}
+                  {loading || cargandoStockCompleto
+                    ? "Preparando..."
+                    : "Descargar Reporte"}
                 </button>
               )}
             </PDFDownloadLink>
           </div>
-          <TablaDepositoStock />
+          <TablaDepositoStock tipoArticulo="PRODUCTO" titulo="Matriz de Inventario (Productos)" />
+        </section>
+
+        {/* Stock Matrix Section - Materia Prima */}
+        <section>
+          <div className="flex items-center justify-between mb-4 px-2">
+            <h4 className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] flex items-center gap-2.5">
+              <VentasIcono size={14} color="var(--primary-light)" />
+              Inventario de Materia Prima
+            </h4>
+            <div className="h-[1px] flex-1 mx-4 bg-gradient-to-r from-white/10 to-transparent" />
+
+            <PDFDownloadLink
+              key={pdfLinkKeyMp}
+              document={stockPdfDocumentMp}
+              fileName={`Reporte_Stock_MateriaPrima_${new Date().toLocaleDateString()}.pdf`}
+            >
+              {({ loading }) => (
+                <button
+                  disabled={
+                    loading ||
+                    cargando ||
+                    cargandoStockCompletoMp ||
+                    matrizStockCompletaPDFMp.length === 0
+                  }
+                  className="flex items-center gap-2.5 px-4 py-2 bg-white/5 hover:bg-white/[0.08] text-white/60 hover:text-white border border-white/10 hover:border-white/20 rounded-md font-bold text-[10px] uppercase tracking-widest transition-all cursor-pointer active:scale-95 group/pdf disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <DescargarIcono
+                    size={20}
+                    className="group-hover:rotate-90 transition-transform duration-500"
+                  />
+                  {loading || cargandoStockCompletoMp
+                    ? "Preparando..."
+                    : "Descargar Reporte"}
+                </button>
+              )}
+            </PDFDownloadLink>
+          </div>
+          <TablaDepositoStock
+            tipoArticulo="MATERIA_PRIMA"
+            titulo="Matriz de Inventario (Materia Prima)"
+          />
         </section>
       </div>
 
@@ -182,10 +326,7 @@ const Deposito = () => {
 
               <div className="flex gap-3 w-full">
                 <button
-                  onClick={() => {
-                    setDepositoAEliminar(null);
-                    setBorrarStock(false);
-                  }}
+                  onClick={handleCerrarModalEliminar}
                   disabled={procesando}
                   className="flex-1 px-4 py-2.5 bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-wider rounded-md transition-all cursor-pointer disabled:opacity-50"
                 >

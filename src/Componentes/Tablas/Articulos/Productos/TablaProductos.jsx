@@ -1,7 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback, memo, useRef } from "react";
 import { ListarConfiguracionCamposApi } from "../../../../Backend/Articulos/api/Producto/producto.api";
 import { useNavigate } from "react-router-dom";
-import { useProductoUI } from "../../../../Backend/Articulos/hooks/Producto/useProductoUI";
 import { usePersistentState } from "../../../../hooks/usePersistentState";
 import DataTable from "../../../UI/DataTable/DataTable";
 import ModalConfirmacion from "../../../UI/ModalConfirmacion/ModalConfirmacion";
@@ -14,6 +13,7 @@ import {
 } from "../../../../assets/Icons";
 import {
   FileSpreadsheet,
+  Plus,
   ChevronRight,
   Package,
   Search,
@@ -56,7 +56,7 @@ const TablaProductos = () => {
   const [busquedaClave, setBusquedaClave] = usePersistentState(
     "productos_busqueda_clave",
     "nombre",
-  ); // 'nombre' o 'codigo'
+  ); // 'nombre', 'codigo' o 'general'
 
   const [provFiltro, setProvFiltro] = useState(null); // { codigoSecuencial, razonSocial }
   const [busquedaProv, setBusquedaProv] = useState("");
@@ -69,11 +69,14 @@ const TablaProductos = () => {
         const nuevos = { ...prev, pagina: 1 };
         delete nuevos.buscarPorNombre;
         delete nuevos.buscarPorCodigo;
+        delete nuevos.buscarPorGeneral;
         delete nuevos.filtrosAtributos;
 
         if (busquedaInput) {
           if (busquedaClave === "nombre")
             nuevos.buscarPorNombre = busquedaInput;
+          if (busquedaClave === "general")
+            nuevos.buscarPorGeneral = busquedaInput;
           if (busquedaClave === "codigo") {
             const num = Number(busquedaInput);
             if (!isNaN(num)) nuevos.buscarPorCodigo = num;
@@ -109,14 +112,19 @@ const TablaProductos = () => {
     isOpen: false,
     fila: null,
   });
+  const mobileScrollRef = useRef(null);
+  const [mobileScrollTop, setMobileScrollTop] = useState(0);
+  const [mobileViewportHeight, setMobileViewportHeight] = useState(0);
+  const MOBILE_ITEM_ESTIMATED_HEIGHT = 380;
+  const MOBILE_OVERSCAN = 3;
 
-  const handleAbrirDrawer = (fila) => {
+  const handleAbrirDrawer = useCallback((fila) => {
     setDrawerData({ isOpen: true, fila });
-  };
+  }, []);
 
-  const cerrarDrawer = () => {
+  const cerrarDrawer = useCallback(() => {
     setDrawerData({ isOpen: false, fila: null });
-  };
+  }, []);
 
   const [camposDinamicos, setCamposDinamicos] = useState([]);
   const [configCargada, setConfigCargada] = useState(false);
@@ -216,7 +224,7 @@ const TablaProductos = () => {
       etiqueta: c.nombreCampo,
       filtrable: true,
       renderizar: (_, fila) => {
-        const valor = fila.atributos?.[c.claveCampo];
+        const valor = fila.atributos?.[c.claveCampo] ?? fila[c.claveCampo];
         return (
           <div className="text-[12px] text-[var(--text-secondary)] font-bold tracking-tight">
             {valor === true
@@ -240,35 +248,91 @@ const TablaProductos = () => {
   const [modalMasivoOpen, setModalMasivoOpen] = useState(false);
   const [modalImportarListaOpen, setModalImportarListaOpen] = useState(false);
 
-  const handleEliminarClick = (codigo, nombre) => {
+  useEffect(() => {
+    const el = mobileScrollRef.current;
+    if (!el) return;
+
+    const updateViewport = () => setMobileViewportHeight(el.clientHeight || 0);
+    updateViewport();
+    window.addEventListener("resize", updateViewport);
+    return () => window.removeEventListener("resize", updateViewport);
+  }, []);
+
+  const mobileVirtualData = useMemo(() => {
+    const total = productosConStock.length;
+    if (total === 0) {
+      return { startIndex: 0, endIndex: 0, topSpacer: 0, bottomSpacer: 0, visible: [] };
+    }
+
+    const viewport = mobileViewportHeight || MOBILE_ITEM_ESTIMATED_HEIGHT * 2;
+    const startIndex = Math.max(
+      0,
+      Math.floor(mobileScrollTop / MOBILE_ITEM_ESTIMATED_HEIGHT) - MOBILE_OVERSCAN,
+    );
+    const endIndex = Math.min(
+      total,
+      Math.ceil((mobileScrollTop + viewport) / MOBILE_ITEM_ESTIMATED_HEIGHT) +
+        MOBILE_OVERSCAN,
+    );
+    const topSpacer = startIndex * MOBILE_ITEM_ESTIMATED_HEIGHT;
+    const bottomSpacer = Math.max(
+      0,
+      (total - endIndex) * MOBILE_ITEM_ESTIMATED_HEIGHT,
+    );
+    const visible = productosConStock.slice(startIndex, endIndex);
+
+    return { startIndex, endIndex, topSpacer, bottomSpacer, visible };
+  }, [productosConStock, mobileScrollTop, mobileViewportHeight]);
+
+  const handleEliminarClick = useCallback((codigo, nombre) => {
     setConfirmarEliminar({
       open: true,
       codigo,
       nombre,
     });
-  };
+  }, []);
 
-  const handleEditarClick = (item) => {
+  const handleEditarClick = useCallback((item) => {
     const { codigoSecuencial } = item;
     navigate(`/panel/inventario/productos/${codigoSecuencial}/editar`, {
       state: { producto: item },
     });
-  };
+  }, [navigate]);
 
-  const handleDuplicarClick = (item) => {
+  const handleDuplicarClick = useCallback((item) => {
     navigate(`/panel/inventario/productos/nuevo`, {
       state: { producto: item },
     });
-  };
+  }, [navigate]);
 
-  const confirmarEliminacion = async () => {
+  const confirmarEliminacion = useCallback(async () => {
     try {
       await eliminarProducto(confirmarEliminar.codigo);
       setConfirmarEliminar({ open: false, codigo: null, nombre: "" });
     } catch (error) {
       console.error("Error al eliminar:", error);
     }
-  };
+  }, [eliminarProducto, confirmarEliminar.codigo]);
+
+  const handleOpenHistorial = useCallback(() => {
+    navigate("/panel/inventario/historial-stock/PRODUCTO");
+  }, [navigate]);
+
+  const handleOpenProduccion = useCallback(() => {
+    navigate("/panel/inventario/produccion/nueva");
+  }, [navigate]);
+
+  const handleOpenImportarLista = useCallback(() => {
+    setModalImportarListaOpen(true);
+  }, []);
+
+  const handleOpenCargaMasiva = useCallback(() => {
+    setModalMasivoOpen(true);
+  }, []);
+
+  const handleCrearProducto = useCallback(() => {
+    navigate("/panel/inventario/productos/nuevo");
+  }, [navigate]);
 
   if (
     configCargada &&
@@ -379,9 +443,7 @@ const TablaProductos = () => {
               {/* HISTORIAL */}
               <TieneAccion accion="HISTORIAL_PRODUCTO">
                 <button
-                  onClick={() =>
-                    navigate("/panel/inventario/historial-stock/PRODUCTO")
-                  }
+                  onClick={handleOpenHistorial}
                   className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border border-[var(--primary)]/20 rounded-md text-[11px] font-bold text-[var(--primary)] uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-amber-500/5 group"
                 >
                   <HistorialIcono
@@ -395,7 +457,7 @@ const TablaProductos = () => {
               {/* IMPORTAR LISTA DE PRECIO (NUEVO) */}
               <TieneAccion accion="IMPORTAR_LISTA_PRODUCTO">
                 <button
-                  onClick={() => setModalImportarListaOpen(true)}
+                  onClick={handleOpenImportarLista}
                   className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 rounded-md text-[11px] font-bold text-blue-400 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-blue-500/5 group"
                 >
                   <FileSpreadsheet
@@ -409,7 +471,7 @@ const TablaProductos = () => {
               {/* PRODUCCION */}
               <TieneAccion accion="PRODUCCION_PRODUCTO">
                 <button
-                  onClick={() => navigate("/panel/inventario/produccion/nueva")}
+                  onClick={handleOpenProduccion}
                   className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/20 rounded-md text-[11px] font-bold text-purple-400 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-purple-500/5 group"
                 >
                   <ProduccionIcono
@@ -423,7 +485,7 @@ const TablaProductos = () => {
               {/* CARGA MASIVA */}
               <TieneAccion accion="CARGA_MASIVA_PRODUCTO">
                 <button
-                  onClick={() => setModalMasivoOpen(true)}
+                  onClick={handleOpenCargaMasiva}
                   className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 rounded-md text-[11px] font-bold text-emerald-400 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-emerald-500/5 group"
                 >
                   <FileSpreadsheet
@@ -475,7 +537,11 @@ const TablaProductos = () => {
                         {provFiltro.razonSocial?.[0]?.toUpperCase() || "P"}
                       </div>
                       <span className="text-[11px] font-black text-amber-500 uppercase max-w-[120px] truncate">
-                        {provFiltro.razonSocial.toUpperCase()}
+                        {provFiltro.razonSocial.toUpperCase() ||
+                          provFiltro.nombre.toUpperCase() ||
+                          provFiltro.apellido.toUpperCase() +
+                            " " +
+                            provFiltro.nombre.toUpperCase()}
                       </span>
                       <button
                         onClick={() => setProvFiltro(null)}
@@ -493,6 +559,7 @@ const TablaProductos = () => {
           busqueda={busquedaInput}
           setBusqueda={setBusquedaInput}
           opcionesBusqueda={[
+            { label: "General", value: "general" },
             { label: "Por Nombre", value: "nombre" },
             { label: "Por Código", value: "codigo" },
           ]}
@@ -503,7 +570,11 @@ const TablaProductos = () => {
       </div>
 
       {/* VISTA MOBILE PREMIUM */}
-      <div className="md:hidden flex flex-col gap-5 pb-28">
+      <div
+        ref={mobileScrollRef}
+        onScroll={(e) => setMobileScrollTop(e.currentTarget.scrollTop)}
+        className="md:hidden flex flex-col gap-5 pb-28 overflow-y-auto"
+      >
         {/* BUSCADOR MOBILE */}
         <div className="flex flex-col gap-3 bg-[#181818]/60 backdrop-blur-md p-4 rounded-2xl border border-white/5 shadow-xl">
           <div className="flex gap-2">
@@ -517,6 +588,9 @@ const TablaProductos = () => {
               </option>
               <option value="codigo" className="bg-[#181818]">
                 COD
+              </option>
+              <option value="general" className="bg-[#181818]">
+                GEN
               </option>
             </select>
             <div className="relative flex-1">
@@ -533,6 +607,16 @@ const TablaProductos = () => {
               />
             </div>
           </div>
+          <TieneAccion accion="CREAR_PRODUCTO">
+            <button
+              type="button"
+              onClick={handleCrearProducto}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--primary)] text-black rounded-xl font-black text-[11px] uppercase tracking-wider shadow-lg shadow-amber-500/20 active:scale-95 transition-transform"
+            >
+              <Plus size={15} />
+              Nuevo Producto
+            </button>
+          </TieneAccion>
         </div>
 
         {cargando ? (
@@ -542,126 +626,25 @@ const TablaProductos = () => {
             ))}
           </div>
         ) : productosConStock.length > 0 ? (
-          productosConStock.map((prod, idx) => (
-            <div
-              key={prod.codigoSecuencial}
-              className="bg-[#181818] rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500"
-              style={{ animationDelay: `${idx * 50}ms` }}
-            >
-              {/* Header: Identidad del Producto */}
-              <div className="p-4 bg-gradient-to-br from-white/[0.06] to-transparent border-b border-white/5 relative">
-                <div className="flex items-start justify-between gap-4 mb-2">
-                  <div className="flex flex-col gap-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-mono font-black text-[var(--primary)] px-1.5 py-0.5 bg-[var(--primary)]/10 rounded border border-[var(--primary)]/30 shadow-sm uppercase tracking-tighter">
-                        COD:{" "}
-                        {prod.codigoSecuencial?.toString().padStart(4, "0")}
-                      </span>
-                      <span className="text-[9px] font-black text-white/60 uppercase tracking-widest bg-white/10 px-1.5 py-0.5 rounded border border-white/5">
-                        {prod.unidadMedida}
-                      </span>
-                    </div>
-                    <h3
-                      onClick={() => handleEditarClick(prod)}
-                      className="text-[15px] font-black text-white leading-[1.2] tracking-tight break-words cursor-pointer hover:text-[var(--primary)] transition-colors"
-                    >
-                      {prod.nombre}
-                    </h3>
-                  </div>
-                  <div className="shrink-0 flex gap-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditarClick(prod);
-                      }}
-                      className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shadow-inner text-[var(--primary)]/60 active:scale-90 transition-all"
-                    >
-                      <Package size={20} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Atributos Dinámicos en Mobile */}
-                {camposDinamicos.length > 0 && (
-                  <div className="flex flex-wrap gap-x-3 gap-y-1.5 mt-3 pt-3 border-t border-white/5">
-                    {camposDinamicos.slice(0, 3).map((c) => {
-                      const val = prod.atributos?.[c.claveCampo];
-                      if (!val) return null;
-                      return (
-                        <div
-                          key={c.claveCampo}
-                          className="flex items-center gap-1.5"
-                        >
-                          <div className="w-1 h-1 rounded-full bg-white/20" />
-                          <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">
-                            {c.nombreCampo}:
-                          </span>
-                          <span className="text-[10px] font-black text-white/80 uppercase">
-                            {val === true ? "SÍ" : val === false ? "NO" : val}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Sección de Stock con Desglose */}
-              <div className="p-3 bg-black/30 flex flex-col gap-1.5">
-                <div className="flex items-center justify-between px-1 mb-1">
-                  <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] flex items-center gap-2">
-                    <TrendingUp size={10} className="text-emerald-500/50" />
-                    Existencias por Depósito
-                  </span>
-                  <span className="text-[10px] font-black text-white/60">
-                    Total:{" "}
-                    <span className="text-emerald-400">{prod.stock || 0}</span>
-                  </span>
-                </div>
-
-                {dataDepositosRaw.map((dep, dIdx) => {
-                  const stockDep = prod[`dep_${dep.codigoSecuencial}`] || 0;
-                  const tieneStock = stockDep > 0;
-
-                  return (
-                    <div
-                      key={dep.codigoSecuencial}
-                      onClick={() =>
-                        handleAbrirDrawer({
-                          ...prod,
-                          depositoInicial: dep.codigoSecuencial.toString(),
-                        })
-                      }
-                      className={`group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all duration-300 active:scale-[0.98] ${
-                        tieneStock
-                          ? "bg-white/5 border border-white/10"
-                          : "bg-white/[0.02] border border-transparent opacity-50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div
-                          className={`w-1.5 h-1.5 rounded-full shrink-0 ${tieneStock ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]" : "bg-white/10"}`}
-                        />
-                        <span
-                          className={`text-[11px] font-bold uppercase tracking-wider truncate transition-colors ${tieneStock ? "text-white" : "text-white/40"}`}
-                        >
-                          {dep.nombre}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`text-[14px] font-black tabular-nums ${tieneStock ? "text-emerald-400" : "text-white/10"}`}
-                        >
-                          {stockDep}
-                        </span>
-                        <ChevronRight size={14} className="text-white/10" />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))
+          <div className="flex flex-col gap-4">
+            {mobileVirtualData.topSpacer > 0 && (
+              <div style={{ height: `${mobileVirtualData.topSpacer}px` }} />
+            )}
+            {mobileVirtualData.visible.map((prod, localIdx) => (
+              <MobileProductoCard
+                key={prod.codigoSecuencial}
+                prod={prod}
+                idx={mobileVirtualData.startIndex + localIdx}
+                camposDinamicos={camposDinamicos}
+                dataDepositosRaw={dataDepositosRaw}
+                onEditar={handleEditarClick}
+                onAbrirDrawer={handleAbrirDrawer}
+              />
+            ))}
+            {mobileVirtualData.bottomSpacer > 0 && (
+              <div style={{ height: `${mobileVirtualData.bottomSpacer}px` }} />
+            )}
+          </div>
         ) : (
           <div className="py-24 flex flex-col items-center justify-center opacity-20 text-center px-10">
             <Package size={64} className="mb-4 text-[var(--primary)]" />
@@ -728,7 +711,121 @@ const TablaProductos = () => {
   );
 };
 
-const SelectorProveedoresInterno = ({ busqueda, onSeleccion }) => {
+const MobileProductoCard = memo(
+  ({ prod, idx, camposDinamicos, dataDepositosRaw, onEditar, onAbrirDrawer }) => (
+    <div
+      className="bg-[#181818] rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500"
+      style={{ animationDelay: `${idx * 50}ms` }}
+    >
+      <div className="p-4 bg-gradient-to-br from-white/[0.06] to-transparent border-b border-white/5 relative">
+        <div className="flex items-start justify-between gap-4 mb-2">
+          <div className="flex flex-col gap-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] font-mono font-black text-[var(--primary)] px-1.5 py-0.5 bg-[var(--primary)]/10 rounded border border-[var(--primary)]/30 shadow-sm uppercase tracking-tighter">
+                COD: {prod.codigoSecuencial?.toString().padStart(4, "0")}
+              </span>
+              <span className="text-[9px] font-black text-white/60 uppercase tracking-widest bg-white/10 px-1.5 py-0.5 rounded border border-white/5">
+                {prod.unidadMedida}
+              </span>
+            </div>
+            <h3
+              onClick={() => onEditar(prod)}
+              className="text-[15px] font-black text-white leading-[1.2] tracking-tight break-words cursor-pointer hover:text-[var(--primary)] transition-colors"
+            >
+              {prod.nombre}
+            </h3>
+          </div>
+          <div className="shrink-0 flex gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditar(prod);
+              }}
+              className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shadow-inner text-[var(--primary)]/60 active:scale-90 transition-all"
+            >
+              <Package size={20} />
+            </button>
+          </div>
+        </div>
+
+        {camposDinamicos.length > 0 && (
+          <div className="flex flex-wrap gap-x-3 gap-y-1.5 mt-3 pt-3 border-t border-white/5">
+            {camposDinamicos.slice(0, 3).map((c) => {
+              const val = prod.atributos?.[c.claveCampo];
+              if (!val) return null;
+              return (
+                <div key={c.claveCampo} className="flex items-center gap-1.5">
+                  <div className="w-1 h-1 rounded-full bg-white/20" />
+                  <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter">
+                    {c.nombreCampo}:
+                  </span>
+                  <span className="text-[10px] font-black text-white/80 uppercase">
+                    {val === true ? "SÍ" : val === false ? "NO" : val}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <div className="p-3 bg-black/30 flex flex-col gap-1.5">
+        <div className="flex items-center justify-between px-1 mb-1">
+          <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] flex items-center gap-2">
+            <TrendingUp size={10} className="text-emerald-500/50" />
+            Existencias por Depósito
+          </span>
+          <span className="text-[10px] font-black text-white/60">
+            Total: <span className="text-emerald-400">{prod.stock || 0}</span>
+          </span>
+        </div>
+
+        {dataDepositosRaw.map((dep) => {
+          const stockDep = prod[`dep_${dep.codigoSecuencial}`] || 0;
+          const tieneStock = stockDep > 0;
+
+          return (
+            <div
+              key={dep.codigoSecuencial}
+              onClick={() =>
+                onAbrirDrawer({
+                  ...prod,
+                  depositoInicial: dep.codigoSecuencial.toString(),
+                })
+              }
+              className={`group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all duration-300 active:scale-[0.98] ${
+                tieneStock
+                  ? "bg-white/5 border border-white/10"
+                  : "bg-white/[0.02] border border-transparent opacity-50"
+              }`}
+            >
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div
+                  className={`w-1.5 h-1.5 rounded-full shrink-0 ${tieneStock ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]" : "bg-white/10"}`}
+                />
+                <span
+                  className={`text-[11px] font-bold uppercase tracking-wider truncate transition-colors ${tieneStock ? "text-white" : "text-white/40"}`}
+                >
+                  {dep.nombre}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-[14px] font-black tabular-nums ${tieneStock ? "text-emerald-400" : "text-white/10"}`}
+                >
+                  {stockDep}
+                </span>
+                <ChevronRight size={14} className="text-white/10" />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  ),
+);
+
+const SelectorProveedoresInterno = memo(({ busqueda, onSeleccion }) => {
   const { contactos: proveedores, cargandoContactos: loadingProvs } =
     useContactos({
       tipoEntidad: "PROV",
@@ -764,7 +861,9 @@ const SelectorProveedoresInterno = ({ busqueda, onSeleccion }) => {
       </div>
       <div className="flex flex-col min-w-0">
         <span className="text-[11px] font-bold text-white/80 truncate group-hover:text-white transition-colors">
-          {p.razonSocial.toUpperCase()}
+          {p.razonSocial.toUpperCase() ||
+            p.nombre.toUpperCase() ||
+            p.apellido.toUpperCase() + " " + p.nombre.toUpperCase()}
         </span>
         <span className="text-[9px] font-black text-[var(--primary)] uppercase mt-1 ">
           Código: {p.codigoSecuencial.toString().padStart(4, "0")}
@@ -772,6 +871,6 @@ const SelectorProveedoresInterno = ({ busqueda, onSeleccion }) => {
       </div>
     </button>
   ));
-};
+});
 
 export default TablaProductos;

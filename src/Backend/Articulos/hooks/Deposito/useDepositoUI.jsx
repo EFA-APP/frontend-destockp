@@ -68,6 +68,8 @@ export const useDepositoUI = (filtros = {}) => {
         productosMap[prodCodigo] = {
           ...producto,
           codigoProducto: prodCodigo,
+          codigoMateriaPrima:
+            filtros?.tipoArticulo === "MATERIA_PRIMA" ? prodCodigo : undefined,
         };
       }
 
@@ -79,13 +81,16 @@ export const useDepositoUI = (filtros = {}) => {
     });
 
     return Object.values(productosMap);
-  }, [queryStock.data]);
+  }, [queryStock.data, filtros?.tipoArticulo]);
 
   return {
     depositos: depositosFiltrados,
     cargando: query.isLoading,
     error: query.error,
-    refetch: query.refetch,
+    refetch: () => {
+      query.refetch();
+      queryStock.refetch();
+    },
 
     matrizStock,
     dataDepositosRaw: (Array.isArray(query.data)

@@ -18,6 +18,7 @@ export const columnasComprobantes = [
       const tipo = Number(fila.tipoDocumento);
       const esNC = [3, 8, 13, 53].includes(tipo);
       const esND = [2, 7, 12, 52].includes(tipo);
+      const esRecibo = [4, 9, 15, 54].includes(tipo);
 
       let label = "Factura";
       let badgeStyle =
@@ -28,7 +29,10 @@ export const columnasComprobantes = [
         badgeStyle = "bg-rose-500/10 text-rose-400 border-rose-500/20";
       } else if (esND) {
         label = "Nota Débito";
-        badgeStyle = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+        badgeStyle = "bg-amber-500/10 text-amber-500 border-amber-500/20";
+      } else if (esRecibo) {
+        label = "Recibo";
+        badgeStyle = "bg-blue-500/10 text-blue-400 border-blue-500/20";
       }
 
       return (
@@ -90,33 +94,92 @@ export const columnasComprobantes = [
     key: "receptor",
     etiqueta: "Cliente / Receptor",
     filtrable: true,
-    renderizar: (valor) => (
-      <div className="flex flex-col py-1">
-        <span className="text-sm font-black text-white uppercase tracking-tight italic">
-          {valor?.razonSocial || "CONSUMIDOR FINAL"}
-        </span>
-        <div className="flex items-center gap-1.5 opacity-40">
-          <span className="text-[10px] font-bold">
-            {valor?.DocTipo === 80 ? "CUIT" : "DNI"}
-          </span>
-          <div className="w-1 h-1 rounded-full bg-white" />
-          <span className="text-[10px] font-medium tracking-wider">
-            {valor?.DocNro || "0"}
-          </span>
+    renderizar: (valor) => {
+      const idIva = Number(valor?.CondicionIVAReceptorId);
+      
+      const configIva = {
+        1: { label: "RI", style: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
+        4: { label: "Monot.", style: "bg-purple-500/10 text-purple-400 border-purple-500/20" },
+        5: { label: "CF", style: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20" },
+        6: { label: "Exento", style: "bg-amber-500/10 text-amber-500 border-amber-500/20" }
+      };
+
+      const iva = configIva[idIva] || { label: "S/D", style: "bg-zinc-800 text-zinc-500 border-zinc-700" };
+
+      return (
+        <div className="flex flex-col py-1 group/receptor">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm font-black text-white uppercase tracking-tight italic group-hover/receptor:text-[var(--primary)] transition-colors">
+              {valor?.razonSocial || "CONSUMIDOR FINAL"}
+            </span>
+            <span className={`text-[8px] font-black uppercase tracking-tighter px-1.5 py-0.5 border rounded-sm ${iva.style}`}>
+              {iva.label}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 opacity-40">
+            <span className="text-[10px] font-bold">
+              {valor?.DocTipo === 80 ? "CUIT" : "DNI"}
+            </span>
+            <div className="w-1 h-1 rounded-full bg-white/30" />
+            <span className="text-[10px] font-medium tracking-wider">
+              {valor?.DocNro || "0"}
+            </span>
+          </div>
         </div>
-      </div>
-    ),
+      );
+    },
   },
   {
     key: "total",
     etiqueta: "Total Bruto",
     renderizar: (valor) => (
       <div className="flex flex-col items-end px-4">
-        <span className="font-black text-blue-400 text-lg tracking-tighter">
+        <span className="font-black text-blue-400 text-sm tracking-tighter">
           ${Number(valor).toLocaleString("es-AR", { minimumFractionDigits: 2 })}
         </span>
         <div className="w-8 h-0.5 bg-blue-500/20 rounded-full mt-0.5" />
       </div>
     ),
+  },
+  {
+    key: "saldo",
+    etiqueta: "Saldo Pendiente",
+    renderizar: (_, fila) => {
+      // Usamos el campo estructural de la DB si existe, si no, calculamos (fallback temporal)
+      const pagado = fila.pagos?.reduce((acc, p) => acc + (p.monto || 0), 0) || 0;
+      const saldoCalculado = (fila.total || 0) - pagado;
+      
+      const saldo = fila.saldoPendiente !== undefined 
+        ? Number(fila.saldoPendiente) 
+        : saldoCalculado;
+
+      const esCtaCte =
+        fila.condicionVenta?.toLowerCase() === "cuenta_corriente";
+
+      if (!esCtaCte && saldo <= 0)
+        return (
+          <div className="flex flex-col items-end px-4 opacity-20">
+            <span className="text-[10px] font-black uppercase tracking-widest text-white/50">
+              Contado
+            </span>
+          </div>
+        );
+
+      return (
+        <div className="flex flex-col items-end px-4">
+          {saldo > 0.01 ? (
+            <span className="font-black text-amber-500 text-sm tracking-tighter">
+              ${saldo.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
+            </span>
+          ) : (
+            <div className="bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded">
+              <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">
+                Saldado
+              </span>
+            </div>
+          )}
+        </div>
+      );
+    },
   },
 ];

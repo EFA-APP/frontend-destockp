@@ -45,6 +45,10 @@ export default function ImportadorPrecios({ onExito }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [results, setResults] = useState(null);
 
+  // Estado de IVA
+  const [incluirIva, setIncluirIva] = useState(false);
+  const [tasaIvaImportacion, setTasaIvaImportacion] = useState(21);
+
   // Filtros de Proveedor con Debounce
   const [busquedaProv, setBusquedaProv] = useState("");
   const [busquedaDebounced, setBusquedaDebounced] = useState("");
@@ -67,7 +71,7 @@ export default function ImportadorPrecios({ onExito }) {
   // Campos del sistema disponibles para mapear (Deben coincidir EXACTAMENTE con tu tabla de configuración)
   const systemFields = [
     { key: "codigoFabrica", label: "Código de Fábrica (ID)", required: true },
-    { key: "listaPrecio", label: "Costo de Lista", required: true },
+    { key: "precioLista", label: "Costo de Lista", required: true },
     {
       key: "margenGanancia",
       label: "Margen de Ganancia (Opcional)",
@@ -109,7 +113,7 @@ export default function ImportadorPrecios({ onExito }) {
         lowerH.includes("costo") ||
         lowerH.includes("lista")
       )
-        initialMapping["listaPrecio"] = h;
+        initialMapping["precioLista"] = h;
       if (lowerH.includes("margen") || lowerH.includes("ganancia"))
         initialMapping["margenGanancia"] = h;
       if (
@@ -136,7 +140,7 @@ export default function ImportadorPrecios({ onExito }) {
         type: "error",
         message: "Seleccione un proveedor",
       });
-    if (!mapping.codigoFabrica || !mapping.listaPrecio)
+    if (!mapping.codigoFabrica || !mapping.precioLista)
       return agregarAlerta({
         type: "error",
         message: "Debe mapear al menos el Código y el Costo",
@@ -177,7 +181,13 @@ export default function ImportadorPrecios({ onExito }) {
                 lowerKey.includes("costo") ||
                 lowerKey.includes("lista")
               ) {
-                obj[sysKey] = cleanNumber(rawVal);
+                let val = cleanNumber(rawVal);
+                // Si es precioLista y el usuario quiere incluir IVA manualmente
+                if (sysKey === "precioLista" && incluirIva) {
+                  const multiplicador = 1 + tasaIvaImportacion / 100;
+                  val = parseFloat((val * multiplicador).toFixed(2));
+                }
+                obj[sysKey] = val;
               } else {
                 obj[sysKey] = rawVal;
               }
@@ -603,12 +613,48 @@ export default function ImportadorPrecios({ onExito }) {
                   </div>
                 </div>
 
+                <div className="p-6 bg-[var(--surface-hover)] border border-[var(--border-subtle)] rounded-md space-y-4">
+                   <div className="flex items-center gap-2 text-[var(--primary)] mb-1">
+                     <TrendingUp size={18} />
+                     <h4 className="text-xs font-black uppercase tracking-widest">Ajustes de Precio</h4>
+                   </div>
+                   
+                   <div className="flex items-center justify-between p-3 bg-white/5 rounded border border-white/5">
+                     <div className="space-y-0.5">
+                       <p className="text-[10px] font-black text-white uppercase tracking-tighter">Incluir IVA al Costo</p>
+                       <p className="text-[9px] text-[var(--text-muted)] font-medium">Incrementa el precio de lista un %</p>
+                     </div>
+                     <button
+                        type="button"
+                        onClick={() => setIncluirIva(!incluirIva)}
+                        className={`w-10 h-5 rounded-full relative transition-all duration-300 ${incluirIva ? 'bg-emerald-500' : 'bg-white/10'}`}
+                     >
+                        <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-300 ${incluirIva ? 'left-6' : 'left-1'}`} />
+                     </button>
+                   </div>
+
+                   {incluirIva && (
+                     <div className="animate-in fade-in slide-in-from-top-2 duration-300 space-y-2">
+                       <label className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">Tasa de IVA (%)</label>
+                       <div className="relative">
+                        <input
+                          type="number"
+                          value={tasaIvaImportacion}
+                          onChange={(e) => setTasaIvaImportacion(parseFloat(e.target.value) || 0)}
+                          className="w-full bg-white/10 border border-white/10 rounded-md px-3 py-2 text-xs font-black text-white focus:outline-none focus:border-[var(--primary)]"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-white/20">%</span>
+                       </div>
+                     </div>
+                   )}
+                 </div>
+
                 <div className="p-6 bg-[var(--surface-hover)] border border-[var(--border-subtle)] rounded-md">
                   <h4 className="text-xs font-black text-[var(--text-muted)] uppercase mb-4">
                     ¿Todo listo?
                   </h4>
                   <button
-                    disabled={!mapping.codigoFabrica || !mapping.listaPrecio}
+                    disabled={!mapping.codigoFabrica || !mapping.precioLista}
                     onClick={() => setStep(4)}
                     className="w-full py-4 bg-[var(--primary)]/20 border border-[var(--primary)] hover:bg-[var(--primary)]/30 text-[var(--text-theme)] font-bold rounded-md shadow-xl shadow-[var(--primary)]/20 hover:-translate-y-1 transition-all disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
                   >
@@ -662,6 +708,14 @@ export default function ImportadorPrecios({ onExito }) {
                 </p>
                 <p className="text-lg font-black text-[var(--text-primary)]">
                   {mapping.codigoFabrica}
+                </p>
+              </div>
+              <div className="p-6 bg-[var(--surface-hover)] border border-[var(--border-subtle)] rounded-md text-center space-y-2">
+                <p className="text-[10px] font-black text-[var(--text-muted)] uppercase">
+                  IVA Incluido (Costo)
+                </p>
+                <p className={`text-lg font-black ${incluirIva ? 'text-emerald-500' : 'text-[var(--text-muted)]'}`}>
+                  {incluirIva ? `SÍ (${tasaIvaImportacion}%)` : 'NO'}
                 </p>
               </div>
             </div>

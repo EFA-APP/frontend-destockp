@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { MapPin, Settings2, Trash2, Building2 } from "lucide-react";
 import {
   PersonaIcono,
@@ -144,4 +145,4 @@ const TarjetaDeposito = ({ suc, onEdit, onDelete }) => {
   );
 };
 
-export default TarjetaDeposito;
+export default memo(TarjetaDeposito);

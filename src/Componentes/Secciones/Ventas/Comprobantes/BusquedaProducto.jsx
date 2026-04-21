@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { BuscadorIcono, AgregarIcono } from "../../../../assets/Icons";
 import SkeletonProductoBusqueda from "../../../UI/Skeletons/SkeletonProductoBusqueda.jsx";
 
@@ -10,7 +11,6 @@ const BusquedaProducto = ({
   setBusquedaClaveProducto,
   camposDinamicos,
   columnaPrecioSeleccionada,
-  setColumnaPrecioSeleccionada,
   cargandoConfigs,
   cargandoProductos,
   productos,
@@ -29,27 +29,6 @@ const BusquedaProducto = ({
     <div className="shrink-0 p-4 bg-[var(--surface-active)] shadow-sm z-10 flex flex-col gap-3 relative">
       {/* FILA 1: SELECTORES */}
       <div className="flex flex-wrap md:flex-nowrap gap-2 items-center">
-        {/* SELECTOR DE LISTA DE PRECIOS */}
-        {cargandoConfigs ? (
-          <div className="flex-1 md:w-32 h-12 bg-[var(--surface)] border-2 border-[var(--border-medium)] rounded-md animate-pulse" />
-        ) : camposDinamicos.length > 0 && (
-          <select
-            value={columnaPrecioSeleccionada}
-            onChange={(e) => {
-              setColumnaPrecioSeleccionada(e.target.value);
-              setTimeout(() => inputCodigoRef.current?.focus(), 50);
-            }}
-            title="Lista de Precio (Columna Dinámica)"
-            className="flex-1 md:w-32 h-12 bg-[var(--surface)] border-2 border-[var(--border-medium)] rounded-md px-2 text-[10px] md:text-xs font-black text-emerald-500 focus:outline-none focus:border-[var(--primary)] transition-colors cursor-pointer appearance-none text-center truncate"
-          >
-            {camposDinamicos.map((c) => (
-              <option key={c.claveCampo} value={c.claveCampo}>
-                {c.nombreCampo.toUpperCase()}
-              </option>
-            ))}
-          </select>
-        )}
-
         {/* FILA 2: BUSCADOR + CANTIDAD */}
         <div className="flex flex-[2] gap-2 w-full md:w-auto relative items-center">
           {/* INPUT CÓDIGO CON SELECTOR INTEGRADO */}
@@ -197,4 +176,4 @@ const BusquedaProducto = ({
   );
 };
 
-export default BusquedaProducto;
+export default memo(BusquedaProducto);

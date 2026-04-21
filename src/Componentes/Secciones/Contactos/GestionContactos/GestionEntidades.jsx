@@ -8,11 +8,13 @@ import { useEntidades } from "../../../../Backend/Contactos/hooks/useEntidades";
 import { useConfiguracionContactos } from "../../../../Backend/Contactos/hooks/useConfiguracionContactos";
 
 const GestionEntidades = () => {
-  const { entidades, crearEntidad, cargandoEntidades } = useEntidades();
+  const { entidades, crearEntidad, eliminarEntidad, cargandoEntidades } =
+    useEntidades();
   const {
     configs,
     crearConfiguracion,
     actualizarConfiguracion,
+    eliminarConfiguracion,
     cargandoConfigs,
   } = useConfiguracionContactos();
 
@@ -198,7 +200,14 @@ const GestionEntidades = () => {
                     </span>
                   </div>
                 </div>
-                <button className="p-2 text-white/10 hover:text-red-500 hover:bg-red-500/10 rounded-md transition-all opacity-0 group-hover:opacity-100">
+                <button 
+                  onClick={() => {
+                    if (window.confirm(`¿Estás seguro de eliminar la entidad "${ent.nombre}"?`)) {
+                      eliminarEntidad(ent.clave);
+                    }
+                  }}
+                  className="p-2 text-white/10 hover:text-red-500 hover:bg-red-500/10 rounded-md transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
+                >
                   <BorrarIcono size={12} />
                 </button>
               </div>
@@ -418,7 +427,14 @@ const GestionEntidades = () => {
                     >
                       <ConfiguracionIcono size={12} />
                     </button>
-                    <button className="p-1.5 text-red-400 bg-red-400/20 rounded-md transition-all cursor-pointer">
+                    <button 
+                      onClick={() => {
+                        if (window.confirm(`¿Estás seguro de eliminar el atributo "${conf.nombreCampo}"?`)) {
+                          eliminarConfiguracion(conf.codigoSecuencial);
+                        }
+                      }}
+                      className="p-1.5 text-red-400 bg-red-400/20 rounded-md transition-all cursor-pointer"
+                    >
                       <BorrarIcono size={12} />
                     </button>
                   </div>

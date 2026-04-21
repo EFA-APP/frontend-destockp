@@ -218,15 +218,21 @@ const formatearFechaAfip = (fechaStr) => {
 // Helper para mapear Condicion IVA (de abreviado a nombre completo)
 const mapearCondicionIva = (condicion) => {
   const mapa = {
+    1: 'RESPONSABLE INSCRIPTO',
+    4: 'RESPONSABLE MONOTRIBUTO',
+    5: 'CONSUMIDOR FINAL',
+    6: 'IVA SUJETO EXENTO',
     'RI': 'RESPONSABLE INSCRIPTO',
     'RM': 'RESPONSABLE MONOTRIBUTO',
     'M': 'RESPONSABLE MONOTRIBUTO',
     'EX': 'IVA SUJETO EXENTO',
     'CF': 'CONSUMIDOR FINAL',
-    'NR': 'NO RESPONSABLE',
-    'NC': 'SUJETO NO CATEGORIZADO'
   };
   
+  if (typeof condicion === 'number' || !isNaN(Number(condicion))) {
+    return mapa[Number(condicion)] || 'CONSUMIDOR FINAL';
+  }
+
   const limpio = condicion?.toUpperCase().trim();
   return mapa[limpio] || condicion || 'CONSUMIDOR FINAL';
 };
@@ -236,9 +242,10 @@ const obtenerTituloComprobante = (tipo, fiscal) => {
   if (!fiscal) return "RECIBO";
   const t = Number(tipo);
   // Tipos AFIP estándar
-  if ([1, 6, 11, 51].includes(t)) return "FACTURA";
-  if ([2, 7, 12, 52].includes(t)) return "NOTA DE DÉBITO";
-  if ([3, 8, 13, 53].includes(t)) return "NOTA DE CRÉDITO";
+  if ([1, 6, 11, 51, 201, 206, 211].includes(t)) return "FACTURA";
+  if ([2, 7, 12, 52, 202, 207, 212].includes(t)) return "NOTA DE DÉBITO";
+  if ([3, 8, 13, 53, 203, 208, 213].includes(t)) return "NOTA DE CRÉDITO";
+  if ([4, 9, 15, 54].includes(t)) return "RECIBO";
   return "COMPROBANTE";
 };
 
@@ -258,7 +265,9 @@ const ComprobantePagina = ({ comprobante, emisor, labelCopia, conexionArca }) =>
     tipoDocumento,
     cbtesAsoc = [],
     ajustes = [],
-    observaciones
+    observaciones,
+    subtotal = 0,
+    iva = 0,
   } = comprobante;
 
   const nroFormateado = String(numeroComprobante).padStart(8, '0');
@@ -321,7 +330,7 @@ const ComprobantePagina = ({ comprobante, emisor, labelCopia, conexionArca }) =>
       <View style={styles.receptorSection}>
         <View style={styles.receptorLeft}>
           <Text style={styles.emisorDetailLabel}>CUIT: <Text style={styles.emisorDetailValue}>{receptor?.DocNro || '0'}</Text></Text>
-          <Text style={styles.emisorDetailLabel}>Condición frente al IVA: <Text style={styles.emisorDetailValue}>{mapearCondicionIva(receptor?.condicionIva)}</Text></Text>
+          <Text style={styles.emisorDetailLabel}>Condición frente al IVA: <Text style={styles.emisorDetailValue}>{mapearCondicionIva(receptor?.CondicionIVAReceptorId || receptor?.condicionIva)}</Text></Text>
           <Text style={styles.emisorDetailLabel}>Condición de venta: <Text style={styles.emisorDetailValue}>{comprobante.condicionVenta?.toUpperCase() || 'CONTADO'}</Text></Text>
         </View>
         <View style={styles.receptorRight}>
@@ -384,10 +393,16 @@ const ComprobantePagina = ({ comprobante, emisor, labelCopia, conexionArca }) =>
               ))}
               {/* Si soy una Factura, muestro quién me ajustó (ajustes) */}
               {ajustes?.map((aj, i) => {
-                const esNC = [3, 8, 13, 53].includes(Number(aj.tipo));
+                const tipo = Number(aj.tipo);
+                const esNC = [3, 8, 13, 53, 203, 208, 213].includes(tipo);
+                const esREC = [4, 9, 15, 54].includes(tipo);
+                
+                let label = esNC ? 'NOTA CRÉDITO' : esREC ? 'RECIBO' : 'NOTA DÉBITO';
+                let signo = (esNC || esREC) ? '-' : '+';
+
                 return (
                   <Text key={`ajuste-${i}`} style={{ fontSize: 7, marginBottom: 2 }}>
-                    {esNC ? 'NOTA CRÉDITO' : 'NOTA DÉBITO'}: {String(aj.ptoVta).padStart(4, '0')}-{String(aj.nro).padStart(8, '0')} | {esNC ? '-' : '+'}${aj.total?.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                    {label}: {String(aj.ptoVta).padStart(4, '0')}-{String(aj.nro).padStart(8, '0')} | {signo}${aj.total?.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                   </Text>
                 );
               })}
@@ -397,17 +412,30 @@ const ComprobantePagina = ({ comprobante, emisor, labelCopia, conexionArca }) =>
 
         {/* TOTALES (LADO DERECHO) */}
         <View style={styles.totalesBox}>
-          <View style={styles.totalRow}>
-            <Text>Subtotal: $</Text>
-            <Text>{total?.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</Text>
-          </View>
+          {letraComprobante === 'A' ? (
+            <>
+              <View style={styles.totalRow}>
+                <Text>Importe Neto: $</Text>
+                <Text>{subtotal?.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+              </View>
+              <View style={styles.totalRow}>
+                <Text>IVA 21%: $</Text>
+                <Text>{iva?.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+              </View>
+            </>
+          ) : (
+            <View style={styles.totalRow}>
+              <Text>Subtotal: $</Text>
+              <Text>{total?.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+            </View>
+          )}
           <View style={styles.totalRow}>
             <Text>Importe Otros Tributos: $</Text>
             <Text>0,00</Text>
           </View>
           <View style={[styles.totalRow, { fontSize: 12 }]}>
             <Text>Importe Total: $</Text>
-            <Text>{total?.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</Text>
+            <Text>{total?.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
           </View>
         </View>
       </View>

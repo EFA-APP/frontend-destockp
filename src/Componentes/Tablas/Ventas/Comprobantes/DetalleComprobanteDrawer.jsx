@@ -94,6 +94,20 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
     });
   };
 
+  const mapaIvaDescripcion = {
+    1: "RESPONSABLE INSCRIPTO",
+    4: "MONOTRIBUTO",
+    5: "CONSUMIDOR FINAL",
+    6: "EXENTO",
+  };
+
+  const formatearMonto = (monto) => {
+    return Number(monto || 0).toLocaleString("es-AR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
   const formatearFechaAfip = (fechaStr) => {
     if (!fechaStr || fechaStr.length !== 8) return fechaStr;
     const anio = fechaStr.substring(0, 4);
@@ -220,7 +234,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
                       </div>
                       <div className="text-right">
                         <p className={`text-xs font-black italic ${esNC ? 'text-rose-400' : 'text-blue-400'}`}>
-                          {esNC ? '-' : '+'}${ajuste.total?.toLocaleString()}
+                          {esNC ? '-' : '+'}${formatearMonto(ajuste.total)}
                         </p>
                       </div>
                     </div>
@@ -279,7 +293,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
                 <div>
                   <label className="block text-[8px] font-black text-white/20 uppercase tracking-widest mb-1 font-mono">Condición IVA</label>
                   <p className="text-[11px] font-bold text-white/70 uppercase">
-                    {data.receptor?.condicionIva || "CONSUMIDOR FINAL"}
+                    {mapaIvaDescripcion[data.receptor?.CondicionIVAReceptorId] || data.receptor?.condicionIva || "CONSUMIDOR FINAL"}
                   </p>
                 </div>
                 <div className="col-span-2">
@@ -365,8 +379,8 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
                     <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
                       <td className="px-4 py-4 font-bold text-white/80">{item.nombre}</td>
                       <td className="px-4 py-4 text-center text-white/60">{item.cantidad}</td>
-                      <td className="px-4 py-4 text-right text-white/60">${item.precioUnitario?.toLocaleString()}</td>
-                      <td className="px-4 py-4 text-right font-black text-white">${item.subtotal?.toLocaleString()}</td>
+                      <td className="px-4 py-4 text-right text-white/60">${formatearMonto(item.precioUnitario)}</td>
+                      <td className="px-4 py-4 text-right font-black text-white">${formatearMonto(item.subtotal)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -404,7 +418,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-black text-white italic tracking-tighter">${pago.monto?.toLocaleString()}</p>
+                        <p className="text-sm font-black text-white italic tracking-tighter">${formatearMonto(pago.monto)}</p>
                         <p className="text-[8px] text-white/20 font-bold">{pago.detalles || ""}</p>
                       </div>
                     </div>
@@ -432,7 +446,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
                    <div>
                     <p className="text-[9px] font-black text-blue-400/60 uppercase tracking-widest mb-1">Saldo Pendiente</p>
                     <p className="text-lg font-black text-blue-400 italic tracking-tighter">
-                      ${(data.total - (data.pagos?.reduce((acc, p) => acc + (p.monto || 0), 0) || 0)).toLocaleString()}
+                      ${formatearMonto(data.total - (data.pagos?.reduce((acc, p) => acc + (p.monto || 0), 0) || 0))}
                     </p>
                    </div>
                    <div className="w-12 h-12 rounded-full border border-blue-500/20 flex items-center justify-center">
@@ -447,16 +461,16 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
           <section className="bg-[var(--primary)]/5 border border-[var(--primary)]/20 rounded-3xl p-6 shadow-2xl space-y-3 mt-4">
             <div className="flex justify-between items-center text-white/40">
               <span className="text-[9px] font-black uppercase tracking-widest">Subtotal Bruto</span>
-              <span className="text-xs font-bold font-mono">${data.subtotal?.toLocaleString()}</span>
+              <span className="text-xs font-bold font-mono">${formatearMonto(data.subtotal)}</span>
             </div>
             <div className="flex justify-between items-center text-white/40">
               <span className="text-[9px] font-black uppercase tracking-widest">Impuestos (IVA)</span>
-              <span className="text-xs font-bold font-mono">${data.iva?.toLocaleString()}</span>
+              <span className="text-xs font-bold font-mono">${formatearMonto(data.iva)}</span>
             </div>
             <div className="h-px bg-white/10 my-1" />
             <div className="flex justify-between items-center">
               <span className="text-[10px] font-black text-white uppercase tracking-widest">Total del Comprobante</span>
-              <span className="text-2xl font-black text-white italic tracking-tighter">${data.total?.toLocaleString()}</span>
+              <span className="text-2xl font-black text-white italic tracking-tighter">${formatearMonto(data.total)}</span>
             </div>
           </section>
 

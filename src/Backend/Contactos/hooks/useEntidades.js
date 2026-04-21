@@ -1,5 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ListarEntidadesApi, CrearEntidadApi } from "../api/contactos.api";
+import {
+  ListarEntidadesApi,
+  CrearEntidadApi,
+  EliminarEntidadApi,
+} from "../api/contactos.api";
 
 export const useEntidades = () => {
   const queryClient = useQueryClient();
@@ -16,10 +20,18 @@ export const useEntidades = () => {
     },
   });
 
+  const mutationEliminar = useMutation({
+    mutationFn: EliminarEntidadApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["entidades-contacto"] });
+    },
+  });
+
   return {
     entidades,
     cargandoEntidades,
     crearEntidad: mutationCrear.mutateAsync,
+    eliminarEntidad: mutationEliminar.mutateAsync,
     cargandoCrear: mutationCrear.isPending,
   };
 };

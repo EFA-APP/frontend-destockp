@@ -11,7 +11,7 @@ import DrawerActualizarStock from "../../../Modales/Articulos/ModalActualizarSto
 /**
  * Componente TablaDepositoStock: Visualización de la matriz de stock global.
  */
-const TablaDepositoStock = () => {
+const TablaDepositoStock = ({ tipoArticulo = "PRODUCTO", titulo }) => {
   const [filtros, setFiltros] = React.useState({ pagina: 1, limite: 10 });
   const [busquedaInput, setBusquedaInput] = React.useState("");
   const [busquedaClave, setBusquedaClave] = React.useState("nombre"); // 'nombre' o 'codigo'
@@ -39,7 +39,7 @@ const TablaDepositoStock = () => {
   }, [busquedaInput, busquedaClave]);
 
   const { matrizStock, dataDepositosRaw, cargandoStock, meta } =
-    useDepositoUI(filtros);
+    useDepositoUI({ ...filtros, tipoArticulo });
 
   const [drawerData, setDrawerData] = React.useState({
     isOpen: false,
@@ -80,7 +80,7 @@ const TablaDepositoStock = () => {
             </div>
             <div>
               <h2 className="text-[16px] font-black text-white leading-tight uppercase tracking-tight">
-                Matriz de Inventario
+                {titulo || `Matriz de Inventario (${tipoArticulo === "MATERIA_PRIMA" ? "Materia Prima" : "Productos"})`}
               </h2>
               <p className="text-[12px] text-white/30 font-medium mt-0.5 uppercase tracking-widest">
                 Distribución geográfica por artículo
@@ -95,7 +95,7 @@ const TablaDepositoStock = () => {
           {/* Desktop View: DataTable */}
           <div className="hidden md:block">
             <DataTable
-              id_tabla="stock_deposito"
+              id_tabla={`stock_deposito_${tipoArticulo.toLowerCase()}`}
               columnas={columnasStock}
               datos={matrizConAcciones}
               mostrarBuscador={true}
@@ -173,7 +173,7 @@ const TablaDepositoStock = () => {
                       <div className="flex flex-col gap-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-[9px] font-mono font-black text-[var(--primary)] px-1.5 py-0.5 bg-[var(--primary)]/10 rounded border border-[var(--primary)]/30 shadow-sm uppercase tracking-tighter">
-                            {row.codigoProducto?.toString().padStart(4, "0") ||
+                            {(row.codigoProducto || row.codigoMateriaPrima)?.toString().padStart(4, "0") ||
                               "N/A"}
                           </span>
                           <span className="text-[9px] font-black text-white/60 uppercase tracking-widest bg-white/10 px-1.5 py-0.5 rounded border border-white/5">
@@ -290,7 +290,9 @@ const TablaDepositoStock = () => {
                 <div className="flex items-center gap-1.5 bg-[#181818] border border-white/10 rounded-lg p-1">
                   <button
                     disabled={!meta.prev}
-                    onClick={() => setPagina(meta.prev)}
+                    onClick={() =>
+                      setFiltros((prev) => ({ ...prev, pagina: meta.prev }))
+                    }
                     className="p-1 rounded text-white/60 hover:bg-white/5 disabled:opacity-30 transition-all font-bold text-[11px] px-3"
                   >
                     Anterior
@@ -300,7 +302,9 @@ const TablaDepositoStock = () => {
                   </span>
                   <button
                     disabled={!meta.next}
-                    onClick={() => setPagina(meta.next)}
+                    onClick={() =>
+                      setFiltros((prev) => ({ ...prev, pagina: meta.next }))
+                    }
                     className="p-1 rounded text-white/60 hover:bg-white/5 disabled:opacity-30 transition-all font-bold text-[11px] px-3"
                   >
                     Siguiente
