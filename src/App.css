@@ -7,11 +7,27 @@ body {
     ui-sans-serif,
     system-ui,
     sans-serif,
-    'Apple Color Emoji',
-    'Segoe UI Emoji',
-    'Segoe UI Symbol',
-    'Noto Color Emoji'
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol",
+    "Noto Color Emoji"
   );
+}
+
+.top-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: var(--primary);
+  animation: loading-progress 1.5s ease-in-out infinite;
+  z-index: 9999;
+}
+
+@keyframes loading-progress {
+  0% { width: 0%; opacity: 1; }
+  50% { width: 50%; opacity: 1; }
+  100% { width: 100%; opacity: 0; }
 }
 
 .fle-oca {
@@ -42,8 +58,8 @@ body {
   --p-h: 32;
   --p-s: 89%;
   --p-l: 54%;
-  
-  --primary: hsl(var(--p-h), var(--p-s), var(--p-l)); 
+
+  --primary: hsl(var(--p-h), var(--p-s), var(--p-l));
   --primary-hover: hsl(var(--p-h), var(--p-s), calc(var(--p-l) - 5%));
   --primary-active: hsl(var(--p-h), var(--p-s), calc(var(--p-l) - 10%));
   --primary-light: hsl(var(--p-h), var(--p-s), 70%);
@@ -58,7 +74,9 @@ body {
   --secondary-subtle: hsla(var(--s-h), var(--s-s), var(--s-l), 0.1);
 
   /* --- Global Tokens --- */
-  --font-sans: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-sans:
+    ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
   --spacing: 0.25rem;
   --radius-sm: 4px;
   --radius-md: 6px;
@@ -79,42 +97,43 @@ body {
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
+  /* --- Semantic Colors --- */
+  --fill: hsl(230, 25%, 96%); /* Fondo principal ligeramente más oscuro para dar contraste a las tarjetas blancas */
+  --fill-secondary: hsl(230, 25%, 92%);
+  --surface: rgba(255, 255, 255, 0.95); /* Superficies casi blancas pero con sutil transparencia */
+  --surface-hover: rgba(255, 255, 255, 1);
+  --surface-active: hsl(230, 20%, 98%);
 
-    --fill: hsl(260, 6%, 6%);
-  --fill-secondary: hsl(260, 6%, 9%);
-  --surface: hsl(260, 6%, 12%);
-  --surface-hover: hsl(260, 6%, 16%);
-  --surface-active: hsl(260, 6%, 18%);
-  
-  --text-primary: hsla(0, 0%, 100%, 0.95);
-  --text-secondary: hsla(0, 0%, 100%, 0.6);
-  --text-muted: hsla(0, 0%, 100%);
+  --text-primary: hsla(0, 0%, 0%, 0.9);
+  --text-secondary: hsla(0, 0%, 0%, 0.6);
+  --text-muted: hsla(0, 0%, 0%, 0.45);
   --text-theme: var(--text-primary);
-  
-  --border-subtle: hsla(0, 0%, 100%, 0.06);
-  --border-medium: hsla(0, 0%, 100%, 0.12);
+
+  --border-subtle: hsla(0, 0%, 0%, 0.08);
+  --border-medium: hsla(0, 0%, 0%, 0.12);
   --border-gray: var(--border-medium);
-  
+
   /* --- Global Colors --- */
   --success: #10d127;
   --error: #f43f5e;
   --warning: #f59e0b;
   --info: var(--primary);
 
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.5);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.6);
-  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8px 24px rgba(31, 38, 135, 0.04);
+  --shadow-lg: 0 16px 40px rgba(31, 38, 135, 0.06);
 }
 
 /* Fallback / Legacy Variables Sync */
 :root {
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
+  --color-white: #ffffff;
+  --color-black: #000000;
   --lightprimary: var(--primary-subtle);
   --lightsecondary: var(--secondary-subtle);
   --fill2: var(--surface);
-  --dark: var(--fill);
+  --dark: var(--fill-secondary);
 }
 
 :root {
@@ -126,7 +145,11 @@ body {
 }
 
 :root {
-  --lightsecondary: color-mix(in oklab, var(--color-secondary) 12%, transparent);
+  --lightsecondary: color-mix(
+    in oklab,
+    var(--color-secondary) 12%,
+    transparent
+  );
 }
 
 :root {
@@ -381,9 +404,13 @@ body {
 }
 
 .col-jcp {
-  transition-property: color, background-color, border-color, outline-color, text-decoration-color,
+  transition-property:
+    color, background-color, border-color, outline-color, text-decoration-color,
     fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
-  transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+  transition-timing-function: var(
+    --tw-ease,
+    var(--default-transition-timing-function)
+  );
   transition-duration: var(--tw-duration, var(--default-transition-duration));
 }
 
@@ -413,7 +440,6 @@ body {
   margin-bottom: calc(var(--spacing) * 2);
 }
 
-
 .rounded-as8 {
   border-radius: var(--radius-md);
 }
@@ -431,7 +457,6 @@ body {
   --tw-font-weight: var(--font-weight-semibold);
   font-weight: var(--font-weight-semibold);
 }
-
 
 .h-\[18px\] {
   height: 18px;
@@ -454,7 +479,7 @@ body {
   border-width: 1.5px;
 }
 
-[type='checkbox'] {
+[type="checkbox"] {
   color: var(--color-primary) !important;
 }
 
@@ -509,7 +534,7 @@ body {
 .sidebar-6sd {
   background: var(--bs-white);
   height: 100%;
-  transition: left 0.4s ease-in-out;
+  transition: left 0.4s;
   top: 0;
   left: 80px;
   width: 240px !important;
@@ -606,8 +631,12 @@ body {
 
 :where(.space-y-t5r > :not(:last-child)) {
   --tw-space-y-reverse: 0;
-  margin-block-start: calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));
-  margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
+  margin-block-start: calc(
+    calc(var(--spacing) * 2) * var(--tw-space-y-reverse)
+  );
+  margin-block-end: calc(
+    calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse))
+  );
 }
 
 .mb-ejw {
@@ -679,11 +708,11 @@ h5 {
   background-color: var(--color-gray-200);
 }
 
-.data-\[orientation\=horizontal\]\:h-px[data-orientation='horizontal'] {
+.data-\[orientation\=horizontal\]\:h-px[data-orientation="horizontal"] {
   height: 1px;
 }
 
-.data-\[orientation\=horizontal\]\:w-full[data-orientation='horizontal'] {
+.data-\[orientation\=horizontal\]\:w-full[data-orientation="horizontal"] {
   width: 100%;
 }
 
@@ -701,18 +730,21 @@ h5 {
 
 .transition-myx {
   transition-property: all;
-  transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+  transition-timing-function: var(
+    --tw-ease,
+    var(--default-transition-timing-function)
+  );
   transition-duration: var(--tw-duration, var(--default-transition-duration));
 }
 
-.duration-3gi {
+.gi {
   --tw-duration: 0.2s;
   transition-duration: 0.2s;
 }
 
-.ease-in-h62 {
-  --tw-ease: var(--ease-in-out);
-  transition-timing-function: var(--ease-in-out);
+. {
+  --tw-ease: var(--);
+  transition-timing-function: var(--);
 }
 
 @media (hover: hover) {
@@ -722,8 +754,8 @@ h5 {
   }
 
   .form-xlv:hover {
-    transform: var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x)
-      var(--tw-skew-y);
+    transform: var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z)
+      var(--tw-skew-x) var(--tw-skew-y);
   }
 
   .hoverbg-ks8:hover {
@@ -739,7 +771,7 @@ h5 {
   background-color: var(--primary);
 }
 
-.itnwp\!text-white {
+.itnwp\!text-black {
   color: var(--color-white) !important;
 }
 
@@ -877,4 +909,80 @@ svg {
 #style-TxIjy.style-TxIjy {
   min-width: 100%;
   display: table;
+}
+
+/* --- Sophisticated Loader Animations --- */
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(45px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(45px) rotate(-360deg); }
+}
+
+@keyframes pulsate-glow {
+  0% { transform: scale(0.95); opacity: 0.5; filter: blur(15px); }
+  50% { transform: scale(1.1); opacity: 0.8; filter: blur(25px); }
+  100% { transform: scale(0.95); opacity: 0.5; filter: blur(15px); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.loader-orbit-ring {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border: 2px solid var(--primary-subtle);
+  border-radius: 50%;
+  animation: spin-loader 3s linear infinite;
+}
+
+.loader-glow {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background: var(--primary);
+  border-radius: 50%;
+  filter: blur(20px);
+  opacity: 0.3;
+  animation: pulsate-glow 2s ease-in-out infinite;
+}
+
+@keyframes spin-loader {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Fallback for Tailwind animate-spin */
+.animate-spin {
+  animation: spin-loader 1s linear infinite !important;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes progress-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+
+/* --- Top Loading Bar --- */
+@keyframes loading-progress {
+  0% { width: 0%; left: 0; opacity: 1; }
+  50% { width: 70%; left: 0; opacity: 1; }
+  100% { width: 100%; left: 0; opacity: 0; }
+}
+
+.top-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(to right, transparent, var(--primary), #FF007F);
+  z-index: 10001;
+  box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
+  animation: loading-progress 1.5s ease-in-out infinite;
 }

@@ -1,7 +1,7 @@
 const tipoColor = {
-  VENTA: "bg-blue-500/20 text-blue-400 border-blue-400/30",
-  COMPRA: "bg-teal-500/20 text-teal-400 border-teal-400/30",
-  MANUAL: "bg-green-500/20 text-green-400 border-green-400/30",
+  VENTA: "bg-blue-700/20 text-blue-400 border-blue-400/30",
+  COMPRA: "bg-teal-700/20 text-teal-400 border-teal-400/30",
+  MANUAL: "bg-green-700/20 text-green-400 border-green-400/30",
 };
 export const columnasAsientos = [
   {
@@ -11,7 +11,7 @@ export const columnasAsientos = [
       <div className="text-xs flex flex-col gap-1">
         <span>{valor}</span>
         <span
-          className={`w-[60px] text-[10px] border rounded-full px-2 font-semibold ${
+          className={`w-[60px] text-[12px] border rounded-full px-2 font-semibold ${
             tipoColor[fila.origen]
           }`}
         >

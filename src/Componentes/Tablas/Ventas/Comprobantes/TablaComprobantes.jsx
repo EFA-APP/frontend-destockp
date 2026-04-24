@@ -43,11 +43,11 @@ const TablaComprobantes = () => {
     manejarEliminar,
     refetch,
   } = useFacturas();
-  
+
   const opcionesUnidad = useMemo(() => {
-    return (usuario?.unidadesNegocio || []).map(un => ({
-        valor: un.codigoSecuencial,
-        texto: un.nombre
+    return (usuario?.unidadesNegocio || []).map((un) => ({
+      valor: un.codigoSecuencial,
+      texto: un.nombre,
     }));
   }, [usuario]);
 
@@ -63,7 +63,7 @@ const TablaComprobantes = () => {
     ];
 
     return (
-      <div className="flex p-1 bg-zinc-950/60 backdrop-blur-xl border border-white/5 rounded-2xl shadow-inner gap-1">
+      <div className="flex p-1 bg-zinc-950/60 backdrop-blur-xl border border-black/5 rounded-2xl shadow-inner gap-1">
         {options.map((opt) => {
           const active = condicionVenta === opt.id;
           return (
@@ -71,14 +71,16 @@ const TablaComprobantes = () => {
               key={opt.id}
               onClick={() => setCondicionVenta(opt.id)}
               className={`
-                relative px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 cursor-pointer
-                ${active 
-                  ? "text-white shadow-xl shadow-[var(--primary)]/10" 
-                  : "text-white/30 hover:text-white/60 hover:bg-white/5"}
+                relative px-4 py-1.5 rounded-xl text-[12px] font-black uppercase tracking-widest   cursor-pointer
+                ${
+                  active
+                    ? "text-black shadow-xl shadow-[var(--primary)]/10"
+                    : "text-black/30 hover:text-black/60 hover:bg-black/5"
+                }
               `}
             >
               {active && (
-                <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-active)] rounded-xl -z-10 animate-in fade-in zoom-in-95" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-active)] rounded-xl -z-10   " />
               )}
               {opt.label}
             </button>
@@ -102,7 +104,7 @@ const TablaComprobantes = () => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      const fileName = `${fila.cae || 'SIN_CAE'}-${String(fila.puntoVenta || 1).padStart(5, '0')}-${String(fila.numeroComprobante || 0).padStart(8, '0')}.pdf`;
+      const fileName = `${fila.cae || "SIN_CAE"}-${String(fila.puntoVenta || 1).padStart(5, "0")}-${String(fila.numeroComprobante || 0).padStart(8, "0")}.pdf`;
       link.download = fileName;
       document.body.appendChild(link);
       link.click();
@@ -173,7 +175,7 @@ const TablaComprobantes = () => {
 
   if (!unidadNegocio) {
     return (
-      <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="space-y-8   ">
         <div className="rounded-2xl overflow-hidden shadow-2xl">
           <DataTable
             id_tabla="comprobantes_placeholder"
@@ -182,14 +184,14 @@ const TablaComprobantes = () => {
             loading={false}
             mostrarBuscador={false}
             elementosSuperior={
-              <div className="flex flex-wrap items-center gap-4 bg-zinc-950/40 backdrop-blur-md border border-white/5 p-2 rounded-2xl shadow-2xl">
+              <div className="flex flex-wrap items-center gap-4 bg-zinc-950/40 backdrop-blur-md border border-black/5 p-2 rounded-2xl shadow-2xl">
                 <div className="min-w-[220px]">
                   <Select
                     valor={unidadNegocio}
                     setValor={setUnidadNegocio}
                     options={[
                       { valor: null, texto: "SELECCIONE UNA UNIDAD" },
-                      ...opcionesUnidad
+                      ...opcionesUnidad,
                     ]}
                   />
                 </div>
@@ -197,16 +199,17 @@ const TablaComprobantes = () => {
             }
           />
         </div>
-        
-        <div className="flex flex-col items-center justify-center py-32 rounded-3xl bg-zinc-950/20 border border-white/5 border-dashed">
+
+        <div className="flex flex-col items-center justify-center py-32 rounded-3xl bg-zinc-950/20 border border-black/5 border-dashed">
           <div className="w-20 h-20 bg-[var(--primary)]/10 rounded-[2.5rem] flex items-center justify-center mb-6 border border-[var(--primary)]/20 rotate-3">
-             <LayoutGrid size={40} className="text-[var(--primary)]" />
+            <LayoutGrid size={40} className="text-[var(--primary)]" />
           </div>
-          <h2 className="text-2xl font-black text-white italic tracking-tighter mb-2">
+          <h2 className="text-2xl font-black text-black italic tracking-tighter mb-2">
             Contexto <span className="text-[var(--primary)]">Requerido</span>
           </h2>
-          <p className="text-white/40 text-sm font-medium uppercase tracking-[0.2em] max-w-[300px] text-center">
-            Debe seleccionar una unidad de negocio para visualizar el listado de comprobantes.
+          <p className="text-black/40 text-sm font-medium uppercase tracking-[0.2em] max-w-[300px] text-center">
+            Debe seleccionar una unidad de negocio para visualizar el listado de
+            comprobantes.
           </p>
         </div>
       </div>
@@ -214,7 +217,7 @@ const TablaComprobantes = () => {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8   ">
       <DetalleComprobanteDrawer
         open={modalAbierto}
         onClose={() => setModalAbierto(false)}
@@ -224,57 +227,57 @@ const TablaComprobantes = () => {
 
       {/* Tarjetas con Colores de Empresa */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="relative group overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#111] border border-white/5 p-6 rounded-md shadow-2xl transition-all hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)]/10 blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-[var(--primary)]/20 transition-all duration-700" />
+        <div className="relative group overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#111] border border-black/5 p-6 rounded-md shadow-2xl  hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)]/10 blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-[var(--primary)]/20  " />
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 bg-[var(--primary)]/10 rounded-2xl flex items-center justify-center border border-[var(--primary)]/20 text-[var(--primary)]">
               <DineroIcono size={24} />
             </div>
             <div>
-              <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">
+              <h3 className="text-[12px] font-black text-black/40 uppercase tracking-[0.2em]">
                 Facturación Listada
               </h3>
               <div className="flex items-center gap-2">
-                <span className="text-2xl font-black text-white italic tracking-tighter">
+                <span className="text-2xl font-black text-black italic tracking-tighter">
                   $
                   {totalFacturadoFacturas.toLocaleString("es-AR", {
                     minimumFractionDigits: 2,
                   })}
                 </span>
-                <TrendingUp size={14} className="text-emerald-500" />
+                <TrendingUp size={14} className="text-emerald-700" />
               </div>
             </div>
           </div>
         </div>
 
-        <div className="relative group overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#111] border border-white/5 p-6 rounded-md shadow-2xl transition-all hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-indigo-500/20 transition-all duration-700" />
+        <div className="relative group overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#111] border border-black/5 p-6 rounded-md shadow-2xl  hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-700/10 blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-indigo-700/20  " />
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center border border-indigo-500/20 text-indigo-400">
+            <div className="w-12 h-12 bg-indigo-700/10 rounded-2xl flex items-center justify-center border border-indigo-700/20 text-indigo-400">
               <LayoutGrid size={24} />
             </div>
             <div>
-              <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">
+              <h3 className="text-[12px] font-black text-black/40 uppercase tracking-[0.2em]">
                 Total Registros
               </h3>
-              <span className="text-2xl font-black text-white italic tracking-tighter">
+              <span className="text-2xl font-black text-black italic tracking-tighter">
                 {meta.totalItems || 0}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="relative group overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#111] border border-white/5 p-6 rounded-md shadow-2xl transition-all hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-emerald-500/20 transition-all duration-700" />
+        <div className="relative group overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#111] border border-black/5 p-6 rounded-md shadow-2xl  hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-700/10 blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-emerald-700/20  " />
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20 text-emerald-400">
+            <div className="w-12 h-12 bg-emerald-700/10 rounded-2xl flex items-center justify-center border border-emerald-700/20 text-emerald-400">
               <VentasIcono size={24} />
             </div>
             <div>
-              <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">
+              <h3 className="text-[12px] font-black text-black/40 uppercase tracking-[0.2em]">
                 Ticket Promedio
               </h3>
-              <span className="text-2xl font-black text-white italic tracking-tighter">
+              <span className="text-2xl font-black text-black italic tracking-tighter">
                 $
                 {(
                   totalFacturadoFacturas / (meta.totalItems || 1)
@@ -304,7 +307,7 @@ const TablaComprobantes = () => {
           })}
           mostrarFiltros={false}
           elementosSuperior={
-            <div className="flex flex-wrap items-center gap-4 bg-zinc-950/40 backdrop-blur-md border border-white/5 p-2 rounded-2xl shadow-2xl animate-in fade-in slide-in-from-right-4 duration-700">
+            <div className="flex flex-wrap items-center gap-4 bg-zinc-950/40 backdrop-blur-md border border-black/5 p-2 rounded-2xl shadow-2xl    ">
               {/* SELECTOR DE UNIDAD DE NEGOCIO */}
               <div className="min-w-[180px]">
                 <Select
@@ -312,18 +315,18 @@ const TablaComprobantes = () => {
                   setValor={setUnidadNegocio}
                   options={[
                     { valor: null, texto: "SIN UNIDAD SELECCIONADA" },
-                    ...opcionesUnidad
+                    ...opcionesUnidad,
                   ]}
                   placeholder="Elegir Unidad..."
                 />
               </div>
 
-              <div className="w-px h-8 bg-white/10 mx-1 hidden lg:block"></div>
+              <div className="w-px h-8 bg-black/10 mx-1 hidden lg:block"></div>
 
               {/* TABS DE CONDICIÓN DE VENTA */}
               <CondicionVentaTabs />
 
-              <div className="w-px h-8 bg-white/10 mx-1 hidden lg:block"></div>
+              <div className="w-px h-8 bg-black/10 mx-1 hidden lg:block"></div>
 
               {/* SELECTORES FISCALES */}
               {tieneConexionArca && (
@@ -354,7 +357,7 @@ const TablaComprobantes = () => {
               )}
 
               {/* RANGO DE FECHAS */}
-              <div className="flex items-center gap-1 border border-white/5 p-1 rounded-xl shadow-inner">
+              <div className="flex items-center gap-1 border border-black/5 p-1 rounded-xl shadow-inner">
                 <div className="flex items-center">
                   <FechaInput
                     value={fechaDesde}
@@ -363,7 +366,7 @@ const TablaComprobantes = () => {
                     className="bg-transparent! border-none! min-w-[115px]"
                   />
                 </div>
-                <div className="w-px h-6 bg-white/10 mx-1"></div>
+                <div className="w-px h-6 bg-black/10 mx-1"></div>
                 <div className="flex items-center">
                   <FechaInput
                     value={fechaHasta}

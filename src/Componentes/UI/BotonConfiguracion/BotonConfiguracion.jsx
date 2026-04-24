@@ -37,14 +37,14 @@ const BotonConfiguracion = () => {
                     rounded-lg shadow-sm
                     hover:border-[var(--primary)]/40 
                     hover:bg-[var(--primary-subtle)]/30
-                    transition-all duration-300 
+                      
                     ${menuAbierto ? 'scale-90 opacity-80' : 'hover:-translate-y-0.5'}
                 `}>
-                    <div className="absolute inset-0 rounded-lg bg-[var(--primary)]/0 group-hover:bg-[var(--primary)]/5 transition-colors duration-300" />
+                    <div className="absolute inset-0 rounded-lg bg-[var(--primary)]/0 group-hover:bg-[var(--primary)]/5  " />
                     <ConfiguracionIcono
                         size={16}
                         color={menuAbierto ? "var(--primary)" : "var(--text-muted)"}
-                        className={`transition-all duration-500 ${menuAbierto ? 'rotate-180' : 'group-hover:rotate-90 group-hover:text-[var(--primary)]'}`}
+                        className={`  ${menuAbierto ? 'rotate-180' : 'group-hover:rotate-90 group-hover:text-[var(--primary)]'}`}
                     />
                 </div>
             </button>

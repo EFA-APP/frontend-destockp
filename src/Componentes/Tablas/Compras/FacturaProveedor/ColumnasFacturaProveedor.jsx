@@ -1,6 +1,6 @@
 const estadoStyle = {
-  importado: "bg-green-500/20 text-green-400 border-green-400/30",
-  pendiente: "bg-yellow-500/20 text-yellow-400 border-yellow-400/30",
+  importado: "bg-green-700/20 text-green-400 border-green-400/30",
+  pendiente: "bg-yellow-700/20 text-yellow-400 border-yellow-400/30",
 };
 
 export const columnasFacturasProveedor = [
@@ -46,7 +46,7 @@ export const columnasFacturasProveedor = [
     renderizar: (valor) => {
       const tipo = valor.toLowerCase();
       const style =
-        estadoStyle[tipo] || "bg-gray-500/20 text-gray-400 border-gray-400/30";
+        estadoStyle[tipo] || "bg-gray-700/20 text-gray-400 border-gray-400/30";
 
       return (
         <span

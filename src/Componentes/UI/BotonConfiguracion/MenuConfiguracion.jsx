@@ -9,33 +9,33 @@ import { useAuthStore } from "../../../Backend/Autenticacion/store/authenticacio
 const MenuConfiguracion = ({ onClose, onOpenVisual }) => {
     const usuario = useAuthStore((state) => state.usuario);
     return (
-        <div className="absolute right-0 top-full mt-2 z-50 w-72 rounded-xl bg-[var(--surface)]/90 backdrop-blur-2xl border border-[var(--border-subtle)] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="absolute right-0 top-full mt-3 z-50 w-72 rounded-2xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-[0_12px_40px_rgba(0,0,0,0.08)] overflow-hidden">
             {/* Header */}
-            <div className="px-5 py-4 border-b border-[var(--border-subtle)] bg-[var(--primary-subtle)]/10">
+            <div className="px-5 py-5 border-b border-[var(--border-subtle)] bg-gradient-to-br from-[var(--surface-hover)] to-[var(--fill)]">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-[var(--primary)]/10 border border-[var(--primary)]/20">
-                        <ConfiguracionIcono size={16} color="var(--primary)" />
+                    <div className="p-2.5 rounded-xl bg-[var(--primary-subtle)] border border-[var(--primary)]/10 shadow-inner">
+                        <ConfiguracionIcono size={18} color="var(--primary)" />
                     </div>
-                    <div>
-                        <h3 className="text-[11px] font-bold text-[var(--text-primary)] uppercase tracking-widest">Configuración</h3>
-                        <p className="text-[8px] text-[var(--text-muted)] font-medium uppercase tracking-wider">Ajustes y Perfil</p>
+                    <div className="flex flex-col">
+                        <h3 className="text-[13px] font-black text-[var(--text-primary)] uppercase tracking-widest">Configuración</h3>
+                        <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider mt-0.5">Ajustes y Perfil</p>
                     </div>
                 </div>
             </div>
 
             {/* Content */}
-            <div className="p-2 space-y-1">
+            <div className="p-3 space-y-1">
                 <Link
                     to="/panel/configuracion"
                     onClick={onClose}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-md text-[10px] font-bold text-[var(--text-secondary)] hover:text-[var(--primary)] hover:bg-[var(--primary-subtle)] transition-all group"
+                    className="flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-200 hover:bg-[var(--primary-subtle)] group border border-transparent hover:border-[var(--primary)]/10"
                 >
-                    <div className="p-1.5 rounded-md bg-[var(--surface-hover)] border border-[var(--border-subtle)] group-hover:border-[var(--primary)]/20 transition-all">
-                        <CuentaIcono size={14} color="white" />
+                    <div className="p-2 rounded-lg bg-[var(--fill-secondary)] border border-[var(--border-subtle)] group-hover:bg-[var(--primary)] group-hover:border-[var(--primary)] transition-colors">
+                        <CuentaIcono size={16} className="text-[var(--text-secondary)] group-hover:text-white transition-colors" color="currentColor" />
                     </div>
-                    <div className="flex flex-col">
-                        <span className="uppercase tracking-widest font-normal text-white">Mi Perfil</span>
-                        <span className="text-[8px] font-normal text-[var(--text-muted)] group-hover:text-[var(--primary)]/70 uppercase pt-1">Gestionar cuenta</span>
+                    <div className="flex flex-col flex-1">
+                        <span className="text-[12px] font-bold text-[var(--text-primary)] uppercase tracking-widest group-hover:text-[var(--primary)] transition-colors">Mi Perfil</span>
+                        <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider pt-0.5">Gestionar cuenta</span>
                     </div>
                 </Link>
 
@@ -45,24 +45,25 @@ const MenuConfiguracion = ({ onClose, onOpenVisual }) => {
                             onClose();
                             onOpenVisual();
                         }}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-md text-[10px] font-bold text-[var(--text-secondary)] hover:text-[var(--primary)] hover:bg-[var(--primary-subtle)] transition-all group w-full text-left bg-transparent border-0 cursor-pointer"
+                        className="flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-200 hover:bg-[var(--primary-subtle)] group border border-transparent hover:border-[var(--primary)]/10 w-full text-left bg-transparent cursor-pointer"
                     >
-                        <div className="p-1.5 rounded-md bg-[var(--surface-hover)] border border-[var(--border-subtle)] group-hover:border-[var(--primary)]/20 transition-all">
-                            <ConfiguracionIcono size={14} color="white" />
+                        <div className="p-2 rounded-lg bg-[var(--fill-secondary)] border border-[var(--border-subtle)] group-hover:bg-[var(--primary)] group-hover:border-[var(--primary)] transition-colors">
+                            <ConfiguracionIcono size={16} className="text-[var(--text-secondary)] group-hover:text-white transition-colors" color="currentColor" />
                         </div>
-                        <div className="flex flex-col">
-                            <span className="uppercase tracking-widest font-normal text-white">Diseño Empresa</span>
-                            <span className="text-[8px] font-normal text-[var(--text-muted)] group-hover:text-[var(--primary)]/70 uppercase pt-1">Logo y Colores</span>
+                        <div className="flex flex-col flex-1">
+                            <span className="text-[12px] font-bold text-[var(--text-primary)] uppercase tracking-widest group-hover:text-[var(--primary)] transition-colors">Diseño Empresa</span>
+                            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider pt-0.5">Logo y Colores</span>
                         </div>
                     </button>
                 )}
             </div>
 
             {/* Footer */}
-            <div className="px-4 py-2 bg-[var(--surface-hover)] border-t border-[var(--border-subtle)]">
-                <p className="text-[7px] text-[var(--text-muted)] font-bold uppercase tracking-widest text-center">
-                    Sistema v1.0.4 - Premium
+            <div className="px-5 py-3 bg-[var(--fill)] border-t border-[var(--border-subtle)] flex justify-between items-center">
+                <p className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-widest">
+                    Sistema Premium
                 </p>
+                <span className="text-[9px] text-[var(--primary)] font-black bg-[var(--primary-subtle)] px-2 py-0.5 rounded-full uppercase tracking-wider">v1.0.4</span>
             </div>
         </div>
     );

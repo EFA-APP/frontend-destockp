@@ -7,7 +7,7 @@ const DesplegadorIcono = () => {
       xmlnsXlink="http://www.w3.org/1999/xlink"
       ariaHidden="true"
       role="img"
-      class="iconify iconify--solar hover:text-primary dark:text-primary group-hover/menu:text-primary"
+      class="iconify iconify--solar hover:text-primary  group-hover/menu:text-primary"
       width="12"
       height="12"
       viewBox="0 0 24 24"

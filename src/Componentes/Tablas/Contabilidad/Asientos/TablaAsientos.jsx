@@ -8,26 +8,26 @@ const TablaAsientos = () => {
     useAsientos();
 
   const renderDetalleAsiento = (asiento) => (
-    <div className="p-4 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl animate-in fade-in slide-in-from-top-1 duration-300">
+    <div className="p-4 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl    ">
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="border-b border-[var(--border-subtle)] bg-[var(--fill-secondary)]/10">
-            <th className="px-4 py-3 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap">Cuenta</th>
-            <th className="px-4 py-3 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap">Nombre</th>
-            <th className="px-4 py-3 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap text-right">Debe</th>
-            <th className="px-4 py-3 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap text-right">Haber</th>
+            <th className="px-4 py-3 text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap">Cuenta</th>
+            <th className="px-4 py-3 text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap">Nombre</th>
+            <th className="px-4 py-3 text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap text-right">Debe</th>
+            <th className="px-4 py-3 text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap text-right">Haber</th>
           </tr>
         </thead>
 
         <tbody>
           {asiento.movimientos.map((mov) => (
-            <tr key={mov.id} className="border-b border-[var(--border-subtle)] hover:bg-[var(--surface-hover)] transition-colors">
-              <td className="px-4 py-2.5 text-[11px] font-mono text-[var(--text-muted)]">{mov.cuenta}</td>
-              <td className="px-4 py-2.5 text-[11px] text-[var(--text-primary)]">{mov.nombreCuenta}</td>
-              <td className="px-4 py-2.5 text-[11px] text-right font-medium text-[var(--primary)]">
+            <tr key={mov.id} className="border-b border-[var(--border-subtle)] hover:bg-[var(--surface-hover)] ">
+              <td className="px-4 py-2.5 text-[13px] font-mono text-[var(--text-muted)]">{mov.cuenta}</td>
+              <td className="px-4 py-2.5 text-[13px] text-[var(--text-primary)]">{mov.nombreCuenta}</td>
+              <td className="px-4 py-2.5 text-[13px] text-right font-medium text-[var(--primary)]">
                 {mov.debe > 0 ? `$${mov.debe.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ""}
               </td>
-              <td className="px-4 py-2.5 text-[11px] text-right font-medium text-blue-400">
+              <td className="px-4 py-2.5 text-[13px] text-right font-medium text-blue-400">
                 {mov.haber > 0 ? `$${mov.haber.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ""}
               </td>
             </tr>
@@ -36,13 +36,13 @@ const TablaAsientos = () => {
 
         <tfoot>
           <tr className="bg-[var(--fill-secondary)]/5 font-bold">
-            <td colSpan={2} className="px-4 py-3 text-[10px] uppercase tracking-wider text-[var(--text-muted)] text-right">
+            <td colSpan={2} className="px-4 py-3 text-[12px] uppercase tracking-wider text-[var(--text-muted)] text-right">
               Totales
             </td>
-            <td className="px-4 py-3 text-[11px] text-right text-[var(--primary)]">
+            <td className="px-4 py-3 text-[13px] text-right text-[var(--primary)]">
               ${asiento.totalDebe.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </td>
-            <td className="px-4 py-3 text-[11px] text-right text-blue-400">
+            <td className="px-4 py-3 text-[13px] text-right text-blue-400">
               ${asiento.totalHaber.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </td>
           </tr>

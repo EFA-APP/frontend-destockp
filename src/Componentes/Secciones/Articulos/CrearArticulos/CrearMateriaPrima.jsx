@@ -137,7 +137,7 @@ const CrearMateriaPrima = () => {
 
   if (isEdit && cargando && !initialData) {
     return (
-      <div className="flex items-center justify-center p-20 animate-pulse text-emerald-500 font-black uppercase tracking-[0.2em]">
+      <div className="flex items-center justify-center p-20  text-emerald-700 font-black uppercase tracking-[0.2em]">
         Cargando Datos del Insumo...
       </div>
     );

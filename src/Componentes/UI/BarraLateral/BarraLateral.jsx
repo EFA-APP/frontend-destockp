@@ -1,8 +1,8 @@
 import Articulo from "./Articulo";
-import { useTamañoBarraLateral } from "../../../store/useTamanoBarraLateral";
 import { useAuthStore } from "../../../Backend/Autenticacion/store/authenticacion.store";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { cerrarSesion } from "../../../Backend/Autenticacion/store/cerrarSesion";
 
 import * as Icons from "../../../assets/Icons";
 import { useSeccionesUI } from "../../../Backend/Autenticacion/hooks/Secciones/useSeccionesUI";
@@ -24,9 +24,9 @@ const parseIcono = (iconStr) => {
 };
 
 const BarraLateral = () => {
-  const { isExpanded, setIsExpanded } = useTamañoBarraLateral();
   const usuario = useAuthStore((state) => state.usuario);
   const [openItem, setOpenItem] = useState(null);
+  const [hasAutoOpened, setHasAutoOpened] = useState(false);
 
   const { secciones: seccionesApi } = useSeccionesUI();
   const { codigosSeccionPermitidos } = usePermisosDeUsuario();
@@ -60,110 +60,85 @@ const BarraLateral = () => {
     return [...seccionesFiltradas];
   }, [seccionesApi, codigosSeccionPermitidos]);
 
-  const handleArticuloClick = (e, itemId) => {
-    if (!isExpanded) {
-      // Si está colapsado, expande y abre el submenú
-      e.preventDefault();
-      e.stopPropagation();
-      setIsExpanded(true);
+  // Abrir el primer item con submenú por defecto al cargar
+  useEffect(() => {
+    if (menuFiltrado.length > 0 && !hasAutoOpened) {
+      const firstWithSub = menuFiltrado.find(
+        (item) => item.submenu && item.submenu.length > 0,
+      );
+      if (firstWithSub) {
+        setOpenItem(firstWithSub.id);
+        setHasAutoOpened(true);
+      }
     }
-  };
-
-  const toggleItem = (id) => {
-    if (!isExpanded) {
-      setIsExpanded(true);
-      setOpenItem(id);
-    } else {
-      setOpenItem(openItem === id ? null : id);
-    }
-  };
+  }, [menuFiltrado, hasAutoOpened]);
 
   return (
-    <div className="relative">
-      <aside
-        className={`hidden md:flex bg-[var(--surface)]/80 backdrop-blur-xl border-r border-[var(--border-subtle)] fixed h-screen transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] z-[99999] flex-col ${
-          isExpanded ? "w-54" : "w-18"
-        }`}
-        onMouseEnter={() => setIsExpanded(true)}
-        onMouseLeave={() => {
-          setIsExpanded(false);
-          setOpenItem(null);
-        }}
-      >
+    <div className="relative z-50">
+      {/* Sidebar contenedor principal */}
+      <aside className="hidden md:flex bg-[var(--fill)] border-r border-[var(--border-subtle)] h-screen fixed top-0 flex-col w-64 flex-shrink-0 transition-all duration-300">
         {/* LOGO SECTION */}
-        <div
-          className={`flex items-center py-6 px-4 transition-all duration-300 ${
-            isExpanded ? "justify-start" : "justify-center"
-          }`}
-        >
-          <Link to="/" className="relative group/logo">
-            <div className="absolute -inset-1 bg-gradient-to-tr from-[var(--primary)] to-[var(--primary-subtle)] rounded-full blur opacity-25 group-hover/logo:opacity-50 transition duration-300" />
+        <div className="flex items-center pt-8 pb-6 px-6 justify-start">
+          <Link to="/" className="relative group/logo flex items-center gap-3">
             {usuario?.configuracionVisual?.logoUrl ? (
               <img
                 alt="logo"
-                className="relative w-10 h-10 rounded-full border-2 border-white shadow-sm object-contain bg-white"
+                className="w-12 h-12 rounded-2xl border border-[var(--border-subtle)] shadow-md object-contain bg-[var(--surface)] p-1 group-hover/logo:scale-105 transition-transform"
                 src={usuario?.configuracionVisual?.logoUrl}
               />
             ) : (
-              <div className="flex items-center justify-center relative w-10 h-10 rounded-full border-2 border-[var(--border-subtle)] shadow-sm bg-[var(--surface-hover)]">
-                <Icons.ConsolaIcono size={18} color="var(--primary)" />
+              <div className="flex items-center justify-center w-12 h-12 rounded-2xl border border-[var(--primary)]/20 shadow-lg bg-gradient-to-br from-[var(--primary)] to-[var(--primary-emphasis)] text-white group-hover/logo:scale-105 transition-transform">
+                <Icons.ConsolaIcono size={22} color="white" />
               </div>
             )}
-          </Link>
-          {isExpanded && (
-            <div className="ml-3 flex flex-col animate-in fade-in slide-in-from-left-2 duration-300">
+            <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <span className="text-[14px] font-extrabold text-[var(--text-primary)] leading-tight tracking-tight">
+                <span className="text-[15px] font-black text-[var(--text-primary)] leading-none tracking-tight">
                   {usuario?.nombreEmpresa || "SISTEMA"}
                 </span>
               </div>
-              <span className="text-[10px] text-[var(--text-muted)]/75 font-medium">
-                Panel de Control
+              <span className="text-[11px] text-[var(--text-muted)] font-bold uppercase tracking-widest mt-1">
+                Dashboard
               </span>
             </div>
-          )}
+          </Link>
         </div>
 
         {/* NAVIGATION ITEMS */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar py-4">
-          <nav className="px-3">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar py-2">
+          <nav className="px-4 space-y-1">
             {menuFiltrado.map((item) => (
-              <div
-                key={item.id}
-                onClick={(e) => handleArticuloClick(e, item.id)}
-              >
+              <div key={item.id}>
                 <Articulo
                   nombre={item.nombre}
                   icono={item.icono}
                   redireccion={item.redireccion}
                   submenu={item.submenu}
                   isOpen={openItem === item.id}
-                  onToggle={() => toggleItem(item.id)}
-                  isCollapsed={!isExpanded}
+                  onToggle={() =>
+                    setOpenItem(openItem === item.id ? null : item.id)
+                  }
+                  isCollapsed={false}
                 />
               </div>
             ))}
           </nav>
         </div>
 
-        {/* FOOTER / USER INFO SNEAK PEEK (Optional but premium) */}
-        {isExpanded && (
-          <div className="p-4 border-t border-[var(--border-subtle)] animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="bg-[var(--surface-hover)] p-3 rounded-2xl flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center text-white font-bold text-xs">
-                {usuario?.usuario?.split(" ")[0][0] || "U"}
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-[11px] font-bold text-[var(--text-primary)] truncate">
-                  {usuario?.correoElectronico || "Usuario"}
-                </span>
-                <span className="text-[9px] text-[var(--text-muted)] truncate capitalize">
-                  {usuario?.roles?.[0]?.nombre || "Colaborador"}
-                </span>
-              </div>
+        {/* FOOTER / USER INFO SNEAK PEEK */}
+        <div className="p-5 mt-auto">
+          <div
+            onClick={() => cerrarSesion()}
+            className="bg-red-700/10 border border-red-700/20 p-3 rounded-xl flex justify-center items-center gap-3 cursor-pointer hover:bg-red-700/20 hover:border-red-700 transition-all active:scale-[0.98] group"
+          >
+            <div className="shrink-0 flex items-center justify-center text-red-700 font-bold text-[13px] uppercase tracking-wider">
+              Cerrar Sesión
+            </div>
+            <div className="shrink-0 text-red-700/70 group-hover:text-red-700 transition-colors">
+              <Icons.CerrarSesionIcono size={18} />
             </div>
           </div>
-        )}
+        </div>
       </aside>
     </div>
   );

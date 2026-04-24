@@ -11,9 +11,9 @@ import {
   AlertCircle,
   ArrowRight,
   TrendingUp,
-  TrendingDown,
   Info,
   Loader2,
+  X,
 } from "lucide-react";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { useAlertas } from "../../../../store/useAlertas";
@@ -21,43 +21,35 @@ import { useContactos } from "../../../../Backend/Contactos/hooks/useContactos";
 import { axiosInitial } from "../../../../Backend/Config";
 
 const STEPS = [
-  { id: 1, title: "Proveedor", icon: Search },
-  { id: 2, title: "Archivo", icon: Upload },
-  { id: 3, title: "Mapeo", icon: Database },
-  { id: 4, title: "Preview", icon: FileSpreadsheet },
-  { id: 5, title: "Resultado", icon: CheckCircle2 },
+  { id: 1, label: "Proveedor" },
+  { id: 2, label: "Archivo" },
+  { id: 3, label: "Mapeo" },
+  { id: 4, label: "Preview" },
+  { id: 5, label: "Resultado" },
 ];
 
-export default function ImportadorPrecios({ onExito }) {
+export default function ImportadorPrecios({ onExito, onClose }) {
   const [step, setStep] = useState(1);
-  const { usuario, unidadActiva } = useAuthStore();
+  const { usuario } = useAuthStore();
   const { agregarAlerta } = useAlertas();
 
-  // Estado de Datos
   const [proveedorSeleccionado, setProveedorSeleccionado] = useState(null);
   const [file, setFile] = useState(null);
-  const [rawRows, setRawRows] = useState([]); // Primeras 20 filas para detectar cabecera
+  const [rawRows, setRawRows] = useState([]);
   const [headerIndex, setHeaderIndex] = useState(0);
   const [headers, setHeaders] = useState([]);
   const [fullData, setFullData] = useState([]);
-  const [mapping, setMapping] = useState({}); // { systemKey: excelHeader }
-  const [anchorKey, setAnchorKey] = useState("codigofabrica");
+  const [mapping, setMapping] = useState({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [results, setResults] = useState(null);
-
-  // Estado de IVA
   const [incluirIva, setIncluirIva] = useState(false);
-  const [tasaIvaImportacion, setTasaIvaImportacion] = useState(21);
-
-  // Filtros de Proveedor con Debounce
+  const [tasaIva, setTasaIva] = useState(21);
   const [busquedaProv, setBusquedaProv] = useState("");
   const [busquedaDebounced, setBusquedaDebounced] = useState("");
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setBusquedaDebounced(busquedaProv);
-    }, 500);
-    return () => clearTimeout(timer);
+    const t = setTimeout(() => setBusquedaDebounced(busquedaProv), 400);
+    return () => clearTimeout(t);
   }, [busquedaProv]);
 
   const { contactos: proveedores, cargandoContactos: loadingProvs } =
@@ -68,69 +60,46 @@ export default function ImportadorPrecios({ onExito }) {
       limite: 50,
     });
 
-  // Campos del sistema disponibles para mapear (Deben coincidir EXACTAMENTE con tu tabla de configuración)
   const systemFields = [
     { key: "codigoFabrica", label: "Código de Fábrica (ID)", required: true },
     { key: "precioLista", label: "Costo de Lista", required: true },
-    {
-      key: "margenGanancia",
-      label: "Margen de Ganancia (Opcional)",
-      required: false,
-    },
     { key: "nombre", label: "Nombre / Descripción", required: false },
   ];
 
-  // --- LÓGICA DE ARCHIVO ---
   const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setFile(file);
-
+    const f = e.target.files[0];
+    if (!f) return;
+    setFile(f);
     const reader = new FileReader();
     reader.onload = (evt) => {
-      const bstr = evt.target.result;
-      const wb = XLSX.read(bstr, { type: "binary" });
-      const wsname = wb.SheetNames[0];
-      const ws = wb.Sheets[wsname];
+      const wb = XLSX.read(evt.target.result, { type: "binary" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
       const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-
-      setRawRows(data.slice(0, 15)); // Solo para preview de cabecera
+      setRawRows(data.slice(0, 12));
       setFullData(data);
       setStep(2);
     };
-    reader.readAsBinaryString(file);
+    reader.readAsBinaryString(f);
   };
 
-  // Auto-mapeo inicial al seleccionar archivo
-  const performAutoMapping = (selectedHeaders) => {
-    const initialMapping = {};
-    selectedHeaders.forEach((h) => {
-      const lowerH = String(h).toLowerCase();
-      if (lowerH.includes("cod") || lowerH.includes("ref"))
-        initialMapping["codigoFabrica"] = h;
-      if (
-        lowerH.includes("precio") ||
-        lowerH.includes("costo") ||
-        lowerH.includes("lista")
-      )
-        initialMapping["precioLista"] = h;
-      if (lowerH.includes("margen") || lowerH.includes("ganancia"))
-        initialMapping["margenGanancia"] = h;
-      if (
-        lowerH.includes("nom") ||
-        lowerH.includes("desc") ||
-        lowerH.includes("art")
-      )
-        initialMapping["nombre"] = h;
+  const autoMap = (hdrs) => {
+    const m = {};
+    hdrs.forEach((h) => {
+      const l = String(h).toLowerCase();
+      if (l.includes("cod") || l.includes("ref")) m["codigoFabrica"] = h;
+      if (l.includes("precio") || l.includes("costo") || l.includes("lista"))
+        m["precioLista"] = h;
+      if (l.includes("nom") || l.includes("desc") || l.includes("art"))
+        m["nombre"] = h;
     });
-    setMapping(initialMapping);
+    setMapping(m);
   };
 
-  const confirmHeaders = (index) => {
-    setHeaderIndex(index);
-    const selectedHeaders = rawRows[index];
-    setHeaders(selectedHeaders);
-    performAutoMapping(selectedHeaders);
+  const confirmHeaders = (idx) => {
+    setHeaderIndex(idx);
+    const hdrs = rawRows[idx];
+    setHeaders(hdrs);
+    autoMap(hdrs);
     setStep(3);
   };
 
@@ -141,696 +110,568 @@ export default function ImportadorPrecios({ onExito }) {
         message: "Seleccione un proveedor",
       });
     if (!mapping.codigoFabrica || !mapping.precioLista)
-      return agregarAlerta({
-        type: "error",
-        message: "Debe mapear al menos el Código y el Costo",
-      });
+      return agregarAlerta({ type: "error", message: "Mapee Código y Costo" });
 
     setIsProcessing(true);
     try {
-      // Usamos CamelCase exacto de la base de datos
-      const anchorKeySystem = "codigoFabrica";
-
-      // Función para limpiar números
-      const cleanNumber = (val) => {
+      const clean = (val) => {
         if (typeof val === "number") return parseFloat(val.toFixed(2));
         if (!val) return 0;
-        // Quitar $, espacios, y puntos de miles, cambiar coma por punto
-        const cleaned = String(val)
-          .replace(/[$\s]/g, "")
-          .replace(/\./g, "")
-          .replace(",", ".");
-        const parsed = parseFloat(cleaned);
-        return isNaN(parsed) ? 0 : parseFloat(parsed.toFixed(2));
+        const n = parseFloat(
+          String(val)
+            .replace(/[$\s]/g, "")
+            .replace(/\./g, "")
+            .replace(",", "."),
+        );
+        return isNaN(n) ? 0 : parseFloat(n.toFixed(2));
       };
 
-      // Procesar datos según mapeo
       const processedData = fullData
         .slice(headerIndex + 1)
         .map((row) => {
           const obj = {};
-          Object.keys(mapping).forEach((sysKey) => {
-            const excelColIndex = headers.indexOf(mapping[sysKey]);
-            if (excelColIndex !== -1) {
-              const rawVal = row[excelColIndex];
-              // Si la clave sugiere un número (precio, margen, costo, lista), lo limpiamos
-              const lowerKey = sysKey.toLowerCase();
+          Object.keys(mapping).forEach((key) => {
+            const idx = headers.indexOf(mapping[key]);
+            if (idx !== -1) {
+              const raw = row[idx];
+              const l = key.toLowerCase();
               if (
-                lowerKey.includes("precio") ||
-                lowerKey.includes("margen") ||
-                lowerKey.includes("costo") ||
-                lowerKey.includes("lista")
+                l.includes("precio") ||
+                l.includes("margen") ||
+                l.includes("costo") ||
+                l.includes("lista")
               ) {
-                let val = cleanNumber(rawVal);
-                // Si es precioLista y el usuario quiere incluir IVA manualmente
-                if (sysKey === "precioLista" && incluirIva) {
-                  const multiplicador = 1 + tasaIvaImportacion / 100;
-                  val = parseFloat((val * multiplicador).toFixed(2));
-                }
-                obj[sysKey] = val;
+                let v = clean(raw);
+                if (key === "precioLista" && incluirIva)
+                  v = parseFloat((v * (1 + tasaIva / 100)).toFixed(2));
+                obj[key] = v;
               } else {
-                obj[sysKey] = rawVal;
+                obj[key] = raw;
               }
             }
           });
           return obj;
         })
-        .filter((item) => item[anchorKeySystem]);
-
-      // Atributos de contexto
-      const atributosExtra = {
-        codigoProveedor: proveedorSeleccionado.codigoSecuencial,
-        nombreProveedor:
-          proveedorSeleccionado.razonSocial || proveedorSeleccionado.nombre,
-        margenGanancia: Number(
-          proveedorSeleccionado.atributos?.margenGanancia || 0,
-        ),
-      };
+        .filter((i) => i["codigoFabrica"]);
 
       const payload = {
-        atributosExtra,
-        anclaKey: anchorKeySystem,
-        productos: processedData,
-      };
-
-      const config = {
-        params: {
-          codigoEmpresa: usuario.codigoEmpresa,
+        atributosExtra: {
+          codigoProveedor: proveedorSeleccionado.codigoSecuencial,
+          nombreProveedor:
+            proveedorSeleccionado.razonSocial || proveedorSeleccionado.nombre,
+          margenGanancia: Number(
+            proveedorSeleccionado.atributos?.margenGanancia || 0,
+          ),
         },
+        anclaKey: "codigoFabrica",
+        productos: processedData,
       };
 
       const res = await axiosInitial.post(
         "/producto/importar-lista-precios",
         payload,
-        {
-          showLoader: false,
-        },
-        config,
+        { showLoader: false },
       );
       setResults(res.data);
       setStep(5);
       agregarAlerta({ type: "exito", message: "Importación completada" });
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
       agregarAlerta({
         type: "error",
-        message:
-          "Error en la importación: " +
-          (error.response?.data?.message || error.message),
+        message: "Error: " + (err.response?.data?.message || err.message),
       });
     } finally {
       setIsProcessing(false);
     }
   };
 
-  return (
-    <div className="p-6 max-w-6xl mx-auto animate-in fade-in duration-500">
-      {/* HEADER */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-black text-[var(--text-primary)] uppercase tracking-tighter">
-            Importador de Precios{" "}
-            <span className="text-[var(--primary)] text-sm font-bold bg-[var(--primary-subtle)] px-2 py-0.5 rounded ml-2">
-              PRO
+  // ── STEPPER HEADER ─────────────────────────────────────────────
+  const StepBar = () => (
+    <div className="flex items-center px-5 py-3 border-b border-black/5 bg-[var(--fill)] gap-1">
+      {STEPS.map((s, i) => {
+        const done = step > s.id;
+        const active = step === s.id;
+        return (
+          <React.Fragment key={s.id}>
+            <div
+              className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-black uppercase tracking-widest transition-all
+              ${active ? "bg-[var(--primary)]/20 text-[var(--primary)] border border-[var(--primary)]/30" : done ? "text-emerald-600" : "text-black/50"}`}
+            >
+              {done ? (
+                <CheckCircle2 size={11} />
+              ) : (
+                <span className="w-3.5 h-3.5 rounded-full border border-current flex items-center justify-center text-[9px]">
+                  {s.id}
+                </span>
+              )}
+              {s.label}
+            </div>
+            {i < STEPS.length - 1 && (
+              <div
+                className={`h-px flex-1 ${done ? "bg-emerald-500" : "bg-black/10"}`}
+              />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+
+  // ── PASO 1: PROVEEDOR ──────────────────────────────────────────
+  const Paso1 = () => (
+    <div className="p-5 space-y-4">
+      <div className="relative">
+        <Search
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-black/50"
+          size={14}
+        />
+        <input
+          autoFocus
+          type="text"
+          placeholder="Buscar proveedor..."
+          className="w-full pl-9 pr-4 py-2.5 bg-[var(--surface-hover)] border border-black/10 rounded-md text-sm text-black focus:border-[var(--primary)] focus:outline-none"
+          value={busquedaProv}
+          onChange={(e) => setBusquedaProv(e.target.value)}
+        />
+      </div>
+
+      <div className="space-y-1.5 max-h-[280px] overflow-y-auto custom-scrollbar pr-1">
+        {loadingProvs ? (
+          <div className="flex justify-center py-8">
+            <Loader2 size={20} className="animate-spin text-black/60" />
+          </div>
+        ) : proveedores?.length === 0 ? (
+          <p className="text-center text-xs text-black/60 py-6">
+            Sin resultados
+          </p>
+        ) : (
+          proveedores?.map((p) => {
+            const sel =
+              proveedorSeleccionado?.codigoSecuencial === p.codigoSecuencial;
+            return (
+              <button
+                key={p.codigoSecuencial}
+                onClick={() => {
+                  setProveedorSeleccionado(p);
+                }}
+                className={`w-full flex items-center justify-between p-3 rounded-md border text-left transition-all
+                  ${sel ? "bg-[var(--primary)]/10 border-[var(--primary)]/40 text-black" : "bg-[var(--surface)] border-black/5 hover:border-black/20 text-black"}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-7 h-7 rounded-md flex items-center justify-center text-[11px] font-black shrink-0
+                    ${sel ? "bg-[var(--primary)]/20 text-black" : "bg-black/10 text-black/70"}`}
+                  >
+                    {(p.razonSocial?.[0] || p.nombre?.[0] || "P").toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-bold leading-tight">
+                      {p.razonSocial ||
+                        `${p.nombre || ""} ${p.apellido || ""}`.trim() ||
+                        "SIN NOMBRE"}
+                    </p>
+                    <p className="text-[11px] text-black/70 font-medium">
+                      #{String(p.codigoSecuencial).padStart(4, "0")} · Margen{" "}
+                      {p.atributos?.margenGanancia || 0}%
+                    </p>
+                  </div>
+                </div>
+                {sel && (
+                  <CheckCircle2
+                    size={16}
+                    className="text-[var(--primary)] shrink-0"
+                  />
+                )}
+              </button>
+            );
+          })
+        )}
+      </div>
+
+      {proveedorSeleccionado && (
+        <button
+          onClick={() => setStep(2)}
+          className="w-full py-2.5 bg-black text-white font-black text-[12px] uppercase tracking-widest rounded-md flex items-center justify-center gap-2 hover:bg-black/80 transition-colors"
+        >
+          Siguiente <ChevronRight size={16} />
+        </button>
+      )}
+    </div>
+  );
+
+  // ── PASO 2: ARCHIVO ────────────────────────────────────────────
+  const Paso2 = () => (
+    <div className="p-5 space-y-4">
+      {!file ? (
+        <label className="cursor-pointer block">
+          <div className="flex flex-col items-center justify-center h-36 border-2 border-dashed border-black/15 rounded-md bg-[var(--surface-hover)] hover:border-[var(--primary)]/50 hover:bg-[var(--primary)]/5 transition-all">
+            <input
+              type="file"
+              className="hidden"
+              accept=".xlsx,.xls"
+              onChange={handleFileUpload}
+            />
+            <FileSpreadsheet size={28} className="text-[var(--primary)] mb-2" />
+            <span className="text-[12px] font-black uppercase tracking-widest text-black/70">
+              Seleccionar Excel (.xlsx / .xls)
             </span>
-          </h1>
-          <p className="text-sm text-[var(--text-muted)] mt-1">
-            Sincronización masiva de costos y márgenes de proveedores
+          </div>
+        </label>
+      ) : (
+        <>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-[12px] font-black text-black/80 uppercase tracking-widest">
+              Selecciona la fila de cabeceras
+            </p>
+            <button
+              onClick={() => {
+                setFile(null);
+                setRawRows([]);
+              }}
+              className="text-[11px] text-red-400 hover:text-red-600 font-bold flex items-center gap-1"
+            >
+              <X size={12} /> Cambiar archivo
+            </button>
+          </div>
+          <div className="border border-black/10 rounded-md overflow-hidden">
+            <table className="w-full text-[11px]">
+              <thead className="bg-black/5">
+                <tr>
+                  <th className="p-2 text-left text-black/70 font-black w-10">
+                    #
+                  </th>
+                  <th className="p-2 text-left text-black/70 font-black">
+                    Datos
+                  </th>
+                  <th className="p-2 w-24"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {rawRows.map((row, idx) => (
+                  <tr
+                    key={idx}
+                    className={`cursor-pointer border-t border-black/5 hover:bg-[var(--primary)]/5 ${headerIndex === idx ? "bg-[var(--primary)]/10" : ""}`}
+                    onClick={() => confirmHeaders(idx)}
+                  >
+                    <td className="p-2 font-mono text-black/30">{idx + 1}</td>
+                    <td className="p-2">
+                      <div className="flex gap-1.5 overflow-hidden">
+                        {row.slice(0, 6).map((cell, ci) => (
+                          <span
+                            key={ci}
+                            className="px-1.5 py-0.5 bg-black/5 rounded text-black/80 whitespace-nowrap text-[10px] font-bold"
+                          >
+                            {String(cell || "–")}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="p-2 text-right">
+                      <span
+                        className={`px-2 py-1 rounded text-[10px] font-black uppercase ${headerIndex === idx ? "bg-[var(--primary)] text-black" : "bg-black/5 text-black/60"}`}
+                      >
+                        {headerIndex === idx ? "✓ Cabecera" : "Usar"}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+      <button
+        onClick={() => setStep(1)}
+        className="text-[11px] font-bold text-black/60 hover:text-black flex items-center gap-1"
+      >
+        <ChevronLeft size={13} /> Volver
+      </button>
+    </div>
+  );
+
+  // ── PASO 3: MAPEO ──────────────────────────────────────────────
+  const Paso3 = () => (
+    <div className="p-5 space-y-4">
+      {/* Mapeo de columnas */}
+      <div className="space-y-2">
+        <p className="text-[11px] font-black text-black/70 uppercase tracking-widest">
+          Mapeo de Columnas
+        </p>
+        {systemFields.map((f) => (
+          <div
+            key={f.key}
+            className="flex items-center gap-3 p-2.5 bg-[var(--surface-hover)] border border-black/5 rounded-md"
+          >
+            <div className="w-36 shrink-0">
+              <p className="text-[11px] font-black text-black leading-tight">
+                {f.label}
+              </p>
+              {f.required && (
+                <span className="text-[9px] text-red-400 font-bold">
+                  REQUERIDO
+                </span>
+              )}
+            </div>
+            <ArrowRight size={12} className="text-black/40 shrink-0" />
+            <select
+              value={mapping[f.key] || ""}
+              onChange={(e) =>
+                setMapping((prev) => ({ ...prev, [f.key]: e.target.value }))
+              }
+              className="flex-1 bg-white border border-black/10 rounded-md px-2 py-1.5 text-[12px] font-bold text-black focus:outline-none focus:border-[var(--primary)]"
+            >
+              <option value="">-- columna --</option>
+              {headers.map((h, i) => (
+                <option key={i} value={h}>
+                  {h}
+                </option>
+              ))}
+            </select>
+            {mapping[f.key] && (
+              <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* IVA toggle */}
+      <div className="flex items-center justify-between p-3 bg-[var(--surface-hover)] border border-black/5 rounded-md">
+        <div>
+          <p className="text-[12px] font-black text-black">
+            Incluir IVA al Costo
+          </p>
+          <p className="text-[10px] text-black/65 font-medium">
+            Multiplica el precio de lista por (1 + tasa)
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          {proveedorSeleccionado && (
-            <div className="flex items-center gap-3 bg-[var(--surface-hover)] border border-[var(--border-subtle)] px-4 py-2 rounded-md">
-              <div className="w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center text-white text-xs font-bold">
-                {(
-                  proveedorSeleccionado.razonSocial?.[0] ||
-                  proveedorSeleccionado.nombre?.[0] ||
-                  "P"
-                ).toUpperCase()}
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase">
-                  Proveedor Activo
-                </p>
-                <p className="text-xs font-bold text-[var(--text-primary)]">
-                  {proveedorSeleccionado.nombre}
-                </p>
-              </div>
+        <div className="flex items-center gap-3">
+          {incluirIva && (
+            <div className="relative">
+              <input
+                type="number"
+                value={tasaIva}
+                onChange={(e) => setTasaIva(parseFloat(e.target.value) || 0)}
+                className="w-14 bg-white border border-black/10 rounded px-2 py-1 text-xs font-black text-black text-center focus:outline-none"
+              />
+              <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-black/60">
+                %
+              </span>
             </div>
           )}
+          <button
+            onClick={() => setIncluirIva(!incluirIva)}
+            className={`w-9 h-5 rounded-full relative transition-colors ${incluirIva ? "bg-emerald-500" : "bg-black/15"}`}
+          >
+            <div
+              className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${incluirIva ? "left-4" : "left-0.5"}`}
+            />
+          </button>
         </div>
       </div>
 
-      {/* STEPS INDICATOR */}
-      <div className="flex items-center justify-between mb-12 bg-[var(--surface)] p-2 rounded-md border border-[var(--border-subtle)] shadow-sm">
-        {STEPS.map((s, idx) => {
-          const Icon = s.icon;
-          const isActive = step === s.id;
-          const isDone = step > s.id;
-          return (
-            <React.Fragment key={s.id}>
-              <div
-                className={`flex flex-col items-center gap-2 px-6 py-3 rounded-md transition-all duration-300 ${isActive ? "bg-[var(--primary-light)] text-white shadow-lg shadow-[var(--primary)]/20 scale-105" : "text-[var(--text-muted)]"}`}
-              >
-                <div
-                  className={`p-2 rounded-md ${isActive ? "bg-white/20" : isDone ? "bg-[var(--primary-subtle)] text-[var(--primary)]" : "bg-[var(--surface-hover)]"}`}
-                >
-                  {isDone ? <CheckCircle2 size={18} /> : <Icon size={18} />}
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-widest">
-                  {s.title}
-                </span>
-              </div>
-              {idx < STEPS.length - 1 && (
-                <div
-                  className={`flex-1 h-[2px] mx-2 ${isDone ? "bg-[var(--primary)]" : "bg-[var(--border-subtle)]"}`}
-                />
-              )}
-            </React.Fragment>
-          );
-        })}
+      {/* Info proveedor */}
+      {proveedorSeleccionado && (
+        <div className="flex items-start gap-2 p-3 bg-[var(--primary)]/5 border border-[var(--primary)]/20 rounded-md">
+          <Info size={14} className="text-[var(--primary)] mt-0.5 shrink-0" />
+          <p className="text-[11px] text-[var(--primary)]/80 font-medium leading-relaxed">
+            <b>
+              {proveedorSeleccionado.razonSocial ||
+                proveedorSeleccionado.nombre}
+            </b>{" "}
+            tiene margen del{" "}
+            <b>{proveedorSeleccionado.atributos?.margenGanancia || 0}%</b>. Se
+            aplica a todos los productos salvo que mapees la columna de margen.
+          </p>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between gap-3 pt-1">
+        <button
+          onClick={() => setStep(2)}
+          className="text-[11px] font-bold text-black/60 hover:text-black flex items-center gap-1"
+        >
+          <ChevronLeft size={13} /> Volver
+        </button>
+        <button
+          disabled={!mapping.codigoFabrica || !mapping.precioLista}
+          onClick={() => setStep(4)}
+          className="px-5 py-2 bg-black text-white text-[12px] font-black uppercase tracking-widest rounded-md disabled:opacity-30 hover:bg-black/80 transition-colors"
+        >
+          Ver Preview →
+        </button>
+      </div>
+    </div>
+  );
+
+  // ── PASO 4: PREVIEW / CONFIRMAR ────────────────────────────────
+  const Paso4 = () => (
+    <div className="p-5 space-y-4">
+      {/* Stats compactas */}
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          {
+            label: "Filas",
+            value: fullData.length - headerIndex - 1,
+            color: "text-black",
+          },
+          {
+            label: "Margen",
+            value: `${proveedorSeleccionado?.atributos?.margenGanancia || 0}%`,
+            color: "text-[var(--primary)]",
+          },
+          {
+            label: "IVA costo",
+            value: incluirIva ? `${tasaIva}%` : "No",
+            color: incluirIva ? "text-emerald-600" : "text-black/50",
+          },
+        ].map((s) => (
+          <div
+            key={s.label}
+            className="p-3 bg-[var(--surface-hover)] border border-black/5 rounded-md text-center"
+          >
+            <p className={`text-xl font-black ${s.color}`}>{s.value}</p>
+            <p className="text-[10px] font-black text-black/65 uppercase tracking-widest mt-0.5">
+              {s.label}
+            </p>
+          </div>
+        ))}
       </div>
 
-      {/* STEP CONTENT */}
-      <div className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md p-8 shadow-xl shadow-black/5 min-h-[400px]">
-        {/* PASO 1: SELECCIONAR PROVEEDOR */}
-        {step === 1 && (
-          <div className="max-w-2xl mx-auto space-y-6">
-            <div className="text-center space-y-2 mb-8">
-              <div className="w-16 h-16 bg-[var(--primary-subtle)] text-[var(--primary)] rounded-md flex items-center justify-center mx-auto mb-4">
-                <Search size={32} />
-              </div>
-              <h2 className="text-xl font-bold text-[var(--text-primary)]">
-                ¿A qué proveedor pertenece esta lista?
-              </h2>
-              <p className="text-sm text-[var(--text-muted)]">
-                Traeremos su margen de ganancia configurado para vincular los
-                productos.
-              </p>
-            </div>
-
-            <div className="relative">
-              <Search
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
-                size={18}
-              />
-              <input
-                type="text"
-                placeholder="Buscar proveedor por nombre o código..."
-                className="w-full pl-12 pr-4 py-4 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md text-sm text-[var(--text-theme)]! focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 transition-all outline-none placeholder:text-[var(--text-theme)]/50"
-                value={busquedaProv}
-                onChange={(e) => setBusquedaProv(e.target.value)}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-              {loadingProvs ? (
-                <div className="py-10 text-center text-sm text-[var(--text-muted)] flex items-center justify-center">
-                  <Loader2 className="animate-spin" size={24} />
-                </div>
-              ) : (
-                proveedores?.map((p) => (
-                  <button
-                    key={p.codigoSecuencial}
-                    onClick={() => {
-                      setProveedorSeleccionado(p);
-                      agregarAlerta({
-                        type: "info",
-                        message: `Margen detectado: ${p.atributos?.margenGanancia || 0}%`,
-                      });
-                    }}
-                    className={`flex items-center justify-between p-4 rounded-md border transition-all ${proveedorSeleccionado?.codigoSecuencial === p.codigoSecuencial ? "bg-[var(--primary-subtle)] border-[var(--primary)] text-white shadow-lg" : "bg-[var(--surface)] border-[var(--border-subtle)] hover:border-[var(--primary)]/50 text-[var(--text-primary)]"}`}
-                  >
-                    <div className="flex items-center gap-4 text-left">
-                      <div
-                        className={`w-10 h-10 rounded-md flex items-center justify-center font-bold ${proveedorSeleccionado?.codigoSecuencial === p.codigoSecuencial ? "bg-white/20" : "bg-[var(--primary-subtle)] text-[var(--primary)]"}`}
-                      >
-                        {(
-                          p.razonSocial?.[0] ||
-                          p.nombre?.[0] ||
-                          "P"
-                        ).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="font-bold text-sm tracking-tight">
-                          {p.razonSocial ||
-                            `${p.nombre || ""} ${p.apellido || ""}`.trim() ||
-                            "SIN NOMBRE"}
-                        </p>
-                        <p
-                          className={`text-[10px] ${proveedorSeleccionado?.codigoSecuencial === p.codigoSecuencial ? "text-white/70" : "text-[var(--text-muted)]"}`}
-                        >
-                          ID: {p.codigoSecuencial.toString().padStart(4, "0")} •
-                          Margen: {p.atributos?.margenGanancia || 0}%
-                        </p>
-                      </div>
-                    </div>
-                    {proveedorSeleccionado?.codigoSecuencial ===
-                      p.codigoSecuencial && <CheckCircle2 size={20} />}
-                  </button>
-                ))
-              )}
-            </div>
-
-            {proveedorSeleccionado && (
-              <button
-                onClick={() => setStep(2)}
-                className="w-full py-4 mt-8 bg-[var(--primary-light)] text-white font-bold rounded-md hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[var(--primary)]/20 cursor-pointer"
-              >
-                Siguiente Paso <ChevronRight size={20} />
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* PASO 2: SUBIR ARCHIVO Y DETECTAR CABECERA */}
-        {step === 2 && (
-          <div className="space-y-6">
-            {!file ? (
-              <div className="max-w-xl mx-auto py-12">
-                <div className="text-center space-y-4 mb-8">
-                  <div className="w-20 h-20 bg-[var(--primary-subtle)] text-[var(--primary)] rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-dashed border-[var(--primary)]/30 animate-pulse">
-                    <Upload size={40} />
-                  </div>
-                  <h2 className="text-xl font-bold text-[var(--text-primary)]">
-                    Subir Lista de Precios
-                  </h2>
-                  <p className="text-sm text-[var(--text-muted)]">
-                    Arrastrá tu archivo Excel (.xlsx o .xls) aquí o hacé clic
-                    para buscar.
-                  </p>
-                </div>
-
-                <label className="relative group cursor-pointer block">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-                  <div className="relative flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-[var(--border-subtle)] rounded-2xl bg-[var(--surface-hover)] group-hover:border-[var(--primary)]/50 transition-all">
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept=".xlsx, .xls"
-                      onChange={handleFileUpload}
-                    />
-                    <div className="flex flex-col items-center gap-2">
-                      <FileSpreadsheet
-                        className="text-[var(--primary)]"
-                        size={32}
-                      />
-                      <span className="text-xs font-black uppercase tracking-widest text-[var(--text-muted)]">
-                        Seleccionar Archivo
-                      </span>
-                    </div>
-                  </div>
-                </label>
-              </div>
-            ) : (
-              <>
-                <div className="text-center space-y-2 mb-8">
-                  <h2 className="text-xl font-bold text-[var(--text-primary)]">
-                    Detección de Archivo
-                  </h2>
-                  <p className="text-sm text-[var(--text-muted)]">
-                    Haga clic en la fila que contiene los nombres de las
-                    columnas (títulos).
-                  </p>
-                </div>
-
-                <div className="border border-[var(--border-subtle)] rounded-md overflow-hidden shadow-inner bg-black/5">
-                  <table className="w-full text-xs text-left border-collapse">
-                    <thead>
-                      <tr className="bg-[var(--primary-subtle)]/30 text-[var(--text-theme)]!">
-                        <th className="p-3 border-b border-[var(--border-subtle)] w-12">
-                          Fila
-                        </th>
-                        <th className="p-3 border-b border-[var(--border-subtle)]">
-                          Previsualización de Datos
-                        </th>
-                        <th className="p-3 border-b border-[var(--border-subtle)] text-right">
-                          Acción
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {rawRows.map((row, idx) => (
-                        <tr
-                          key={idx}
-                          className={`group hover:bg-[var(--primary-subtle)]/10 transition-colors cursor-pointer ${headerIndex === idx ? "bg-[var(--primary-subtle)]/20" : ""}`}
-                          onClick={() => confirmHeaders(idx)}
-                        >
-                          <td className="p-3 border-b border-[var(--border-subtle)] font-mono text-[var(--text-muted)]">
-                            {idx + 1}
-                          </td>
-                          <td className="p-3 border-b border-[var(--border-subtle)]">
-                            <div className="flex gap-2 overflow-hidden max-w-[800px]">
-                              {row.slice(0, 8).map((cell, cidx) => (
-                                <span
-                                  key={cidx}
-                                  className="px-2 py-1 bg-white/5 border border-[var(--border-subtle)] rounded text-[var(--text-primary)] whitespace-nowrap opacity-80 group-hover:opacity-100 uppercase text-[9px] font-bold"
-                                >
-                                  {String(cell || "-")}
-                                </span>
-                              ))}
-                            </div>
-                          </td>
-                          <td className="p-3 border-b border-[var(--border-subtle)] text-right">
-                            <button
-                              className={`px-4 py-1.5 rounded-md text-[10px] font-black uppercase transition-all ${headerIndex === idx ? "bg-[var(--primary)] text-white" : "bg-[var(--surface-hover)] text-[var(--text-muted)] group-hover:bg-[var(--primary)] group-hover:text-white"}`}
-                            >
-                              {headerIndex === idx
-                                ? "Seleccionada"
-                                : "Es Cabecera"}
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            )}
-
-            <div className="flex justify-between mt-8">
-              <button
-                onClick={() => setStep(1)}
-                className="flex items-center gap-2 text-sm font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-              >
-                <ChevronLeft size={18} /> Volver
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* PASO 3: MAPEO Y ANCLA */}
-        {step === 3 && (
-          <div className="space-y-8 animate-in slide-in-from-right-4 duration-300">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-              {/* Lado Izquierdo: Configuración */}
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <h3 className="text-lg font-bold text-[var(--text-primary)]">
-                    Mapa de Columnas
-                  </h3>
-                  <p className="text-xs text-[var(--text-muted)]">
-                    Vinculá las columnas de tu Excel con los campos del sistema.
-                  </p>
-                </div>
-
-                <div className="space-y-4">
-                  {systemFields.map((field) => (
-                    <div
-                      key={field.key}
-                      className="p-5 bg-[var(--surface-hover)] border border-[var(--border-subtle)] rounded-md space-y-3"
-                    >
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs font-black text-[var(--text-theme)] uppercase tracking-widest flex items-center gap-2">
-                          {field.label}
-                          {field.required && (
-                            <span className="text-red-400 font-black">*</span>
-                          )}
-                        </label>
-                        {field.key === "codigoFabrica" && (
-                          <div className="flex items-center gap-1.5 bg-[var(--primary)] text-white px-2.5 py-1 rounded-full text-[9px] font-black uppercase shadow-md shadow-[var(--primary)]/20 animate-pulse">
-                            <Database size={10} /> Identificador Ancla
-                          </div>
-                        )}
-                      </div>
-                      <select
-                        value={mapping[field.key] || ""}
-                        onChange={(e) =>
-                          setMapping((prev) => ({
-                            ...prev,
-                            [field.key]: e.target.value,
-                          }))
-                        }
-                        className="w-full p-3 bg-white/20 border border-[var(--border-subtle)] rounded-md text-sm font-bold outline-none focus:border-[var(--primary)] transition-all text-[var(--text-theme)]"
-                      >
-                        <option
-                          value=""
-                          className="bg-[var(--surface)] text-[var(--text-theme)]"
-                        >
-                          -- Seleccionar Columna --
-                        </option>
-                        {headers.map((h, i) => (
-                          <option
-                            key={i}
-                            value={h}
-                            className="bg-[var(--surface)] text-[var(--text-theme)]"
-                          >
-                            {h}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Lado Derecho: Info y Ayuda */}
-              <div className="space-y-6">
-                <div className="p-6 bg-[var(--primary-subtle)] border border-[var(--primary)]/20 rounded-md space-y-4">
-                  <div className="flex items-center gap-3 text-[var(--primary)]">
-                    <Info size={24} />
-                    <h4 className="font-bold">Información de Sincronización</h4>
-                  </div>
-                  <p className="text-sm text-[var(--primary)]/80 leading-relaxed">
-                    Hemos detectado que el proveedor{" "}
-                    <b>{proveedorSeleccionado.nombre}</b> tiene un margen del{" "}
-                    <b>
-                      {proveedorSeleccionado.atributos?.margenGanancia || 0}%
-                    </b>
-                    . Este valor se aplicará a todos los productos de la lista
-                    durante el recálculo, a menos que mapees una columna
-                    específica de ganancia.
-                  </p>
-                  <div className="space-y-2 mt-4">
-                    <div className="flex items-center gap-2 text-xs font-bold text-[var(--primary)] opacity-70">
-                      <ArrowRight size={14} /> Los productos existentes se
-                      actualizarán.
-                    </div>
-                    <div className="flex items-center gap-2 text-xs font-bold text-[var(--primary)] opacity-70">
-                      <ArrowRight size={14} /> No se crearán duplicados (Usamos
-                      el Ancla).
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-6 bg-[var(--surface-hover)] border border-[var(--border-subtle)] rounded-md space-y-4">
-                   <div className="flex items-center gap-2 text-[var(--primary)] mb-1">
-                     <TrendingUp size={18} />
-                     <h4 className="text-xs font-black uppercase tracking-widest">Ajustes de Precio</h4>
-                   </div>
-                   
-                   <div className="flex items-center justify-between p-3 bg-white/5 rounded border border-white/5">
-                     <div className="space-y-0.5">
-                       <p className="text-[10px] font-black text-white uppercase tracking-tighter">Incluir IVA al Costo</p>
-                       <p className="text-[9px] text-[var(--text-muted)] font-medium">Incrementa el precio de lista un %</p>
-                     </div>
-                     <button
-                        type="button"
-                        onClick={() => setIncluirIva(!incluirIva)}
-                        className={`w-10 h-5 rounded-full relative transition-all duration-300 ${incluirIva ? 'bg-emerald-500' : 'bg-white/10'}`}
-                     >
-                        <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-300 ${incluirIva ? 'left-6' : 'left-1'}`} />
-                     </button>
-                   </div>
-
-                   {incluirIva && (
-                     <div className="animate-in fade-in slide-in-from-top-2 duration-300 space-y-2">
-                       <label className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">Tasa de IVA (%)</label>
-                       <div className="relative">
-                        <input
-                          type="number"
-                          value={tasaIvaImportacion}
-                          onChange={(e) => setTasaIvaImportacion(parseFloat(e.target.value) || 0)}
-                          className="w-full bg-white/10 border border-white/10 rounded-md px-3 py-2 text-xs font-black text-white focus:outline-none focus:border-[var(--primary)]"
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-white/20">%</span>
-                       </div>
-                     </div>
-                   )}
-                 </div>
-
-                <div className="p-6 bg-[var(--surface-hover)] border border-[var(--border-subtle)] rounded-md">
-                  <h4 className="text-xs font-black text-[var(--text-muted)] uppercase mb-4">
-                    ¿Todo listo?
-                  </h4>
-                  <button
-                    disabled={!mapping.codigoFabrica || !mapping.precioLista}
-                    onClick={() => setStep(4)}
-                    className="w-full py-4 bg-[var(--primary)]/20 border border-[var(--primary)] hover:bg-[var(--primary)]/30 text-[var(--text-theme)] font-bold rounded-md shadow-xl shadow-[var(--primary)]/20 hover:-translate-y-1 transition-all disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
-                  >
-                    Ver Vista Previa
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setStep(2)}
-              className="flex items-center gap-2 text-sm font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+      {/* Mapeo resumen */}
+      <div className="p-3 bg-[var(--surface-hover)] border border-black/5 rounded-md space-y-1.5">
+        <p className="text-[10px] font-black text-black/70 uppercase tracking-widest mb-2">
+          Mapeo confirmado
+        </p>
+        {systemFields
+          .filter((f) => mapping[f.key])
+          .map((f) => (
+            <div
+              key={f.key}
+              className="flex items-center justify-between text-[12px]"
             >
-              <ChevronLeft size={18} /> Volver
-            </button>
-          </div>
-        )}
-
-        {/* PASO 4: PREVIEW */}
-        {step === 4 && (
-          <div className="space-y-8 animate-in zoom-in-95 duration-300">
-            <div className="text-center space-y-2 mb-8">
-              <h2 className="text-xl font-bold text-[var(--text-primary)]">
-                Vista Previa de Impacto
-              </h2>
-              <p className="text-sm text-[var(--text-muted)]">
-                Analizando los datos mapeados antes de enviarlos al servidor.
-              </p>
+              <span className="text-black/75 font-medium">{f.label}</span>
+              <span className="font-black text-black bg-black/5 px-2 py-0.5 rounded">
+                {mapping[f.key]}
+              </span>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="p-6 bg-[var(--surface-hover)] border border-[var(--border-subtle)] rounded-md text-center space-y-2">
-                <p className="text-[10px] font-black text-[var(--text-muted)] uppercase">
-                  Filas totales
-                </p>
-                <p className="text-3xl font-black text-[var(--text-primary)]">
-                  {fullData.length - headerIndex - 1}
-                </p>
-              </div>
-              <div className="p-6 bg-[var(--primary-subtle)]/30 border border-[var(--primary)]/20 rounded-md text-center space-y-2">
-                <p className="text-[10px] font-black text-[var(--primary)] uppercase">
-                  Margen Aplicar
-                </p>
-                <p className="text-3xl font-black text-[var(--primary)]">
-                  {proveedorSeleccionado.atributos?.margenGanancia || 0}%
-                </p>
-              </div>
-              <div className="p-6 bg-[var(--surface-hover)] border border-[var(--border-subtle)] rounded-md text-center space-y-2">
-                <p className="text-[10px] font-black text-[var(--text-muted)] uppercase">
-                  Clave Ancla
-                </p>
-                <p className="text-lg font-black text-[var(--text-primary)]">
-                  {mapping.codigoFabrica}
-                </p>
-              </div>
-              <div className="p-6 bg-[var(--surface-hover)] border border-[var(--border-subtle)] rounded-md text-center space-y-2">
-                <p className="text-[10px] font-black text-[var(--text-muted)] uppercase">
-                  IVA Incluido (Costo)
-                </p>
-                <p className={`text-lg font-black ${incluirIva ? 'text-emerald-500' : 'text-[var(--text-muted)]'}`}>
-                  {incluirIva ? `SÍ (${tasaIvaImportacion}%)` : 'NO'}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center gap-6">
-              <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-md flex items-center gap-4 max-w-lg">
-                <AlertCircle className="text-amber-500 shrink-0" size={24} />
-                <p className="text-xs text-amber-500 font-medium">
-                  Esta acción buscará productos existentes y actualizará sus
-                  costos y márgenes. Los cambios son permanentes una vez
-                  ejecutados.
-                </p>
-              </div>
-
-              <div className="flex gap-4 w-full max-w-md">
-                <button
-                  onClick={() => setStep(3)}
-                  className="flex-1 flex justify-center items-center gap-2 py-4 bg-[var(--surface-hover)] text-[var(--text-primary)] font-bold rounded-md border border-[var(--border-subtle)] hover:bg-[var(--surface)] transition-all cursor-pointer"
-                >
-                  Configurar Mapeo
-                </button>
-                <button
-                  onClick={handleImport}
-                  disabled={isProcessing}
-                  className="flex-1 flex justify-center items-center gap-2 py-4 bg-[var(--primary)]/20  text-[var(--text-primary)] font-bold rounded-md border border-[var(--border-subtle)] hover:bg-[var(--primary)] transition-all cursor-pointer"
-                >
-                  {isProcessing ? (
-                    <>
-                      <Database className="animate-spin" size={18} />
-                      Procesando...
-                    </>
-                  ) : (
-                    <>
-                      <Database size={18} />
-                      Confirmar e Importar
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* PASO 5: RESULTADO */}
-        {step === 5 && results && (
-          <div className="max-w-2xl mx-auto space-y-8 animate-in zoom-in-95 duration-500 text-center">
-            <div className="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 size={48} />
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-3xl font-black text-[var(--text-primary)] uppercase tracking-tight">
-                ¡Importación Completada!
-              </h2>
-              <p className="text-sm text-[var(--text-muted)]">
-                El servidor ha terminado de procesar la lista del proveedor.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div className="p-6 bg-[var(--surface-hover)] border-2 border-green-500/20 rounded-md space-y-2">
-                <TrendingUp className="text-green-500 mx-auto" size={24} />
-                <p className="text-3xl font-black text-[var(--text-primary)]">
-                  {results.stats?.actualizados || 0}
-                </p>
-                <p className="text-[10px] font-black text-[var(--text-muted)] uppercase">
-                  Actualizados
-                </p>
-              </div>
-              <div className="p-6 bg-[var(--surface-hover)] border-2 border-blue-500/20 rounded-md space-y-2">
-                <CheckCircle2 className="text-blue-500 mx-auto" size={24} />
-                <p className="text-3xl font-black text-[var(--text-primary)]">
-                  {results.stats?.creados || 0}
-                </p>
-                <p className="text-[10px] font-black text-[var(--text-muted)] uppercase">
-                  Nuevos Artículos
-                </p>
-              </div>
-              <div className="p-6 bg-[var(--surface-hover)] border border-[var(--border-subtle)] rounded-md space-y-2 opacity-60">
-                <AlertCircle className="text-amber-500 mx-auto" size={24} />
-                <p className="text-3xl font-black text-[var(--text-primary)]">
-                  {results.stats?.errores || 0}
-                </p>
-                <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
-                  Errores
-                </p>
-              </div>
-            </div>
-
-            {results.erroresDetalle?.length > 0 && (
-              <div className="p-5 bg-red-500/5 border border-red-500/20 rounded-md text-left">
-                <h4 className="text-[11px] font-black text-red-400 uppercase mb-3 flex items-center gap-2">
-                  <AlertCircle size={14} /> Detalle de Errores (Primeros 10)
-                </h4>
-                <ul className="space-y-1">
-                  {results.erroresDetalle.map((err, i) => (
-                    <li
-                      key={i}
-                      className="text-[10px] text-red-500/80 font-medium"
-                    >
-                      • {err}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <button
-              onClick={() => onExito && onExito()}
-              className="w-full py-4 bg-[var(--surface-hover)] text-[var(--text-primary)] font-bold rounded-md border border-[var(--border-subtle)] hover:bg-[var(--surface)] transition-all cursor-pointer"
-            >
-              Finalizar y Salir
-            </button>
-          </div>
-        )}
+          ))}
       </div>
+
+      {/* Aviso */}
+      <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-md">
+        <AlertCircle size={14} className="text-amber-600 mt-0.5 shrink-0" />
+        <p className="text-[11px] text-amber-700 font-medium">
+          Esta acción actualizará costos y márgenes de los productos existentes.
+          Los cambios son permanentes.
+        </p>
+      </div>
+
+      <div className="flex gap-3">
+        <button
+          onClick={() => setStep(3)}
+          className="flex-1 py-2.5 border border-black/15 rounded-md text-[12px] font-black text-black/75 hover:text-black hover:border-black/50 transition-colors"
+        >
+          Editar Mapeo
+        </button>
+        <button
+          onClick={handleImport}
+          disabled={isProcessing}
+          className="flex-[2] py-2.5 bg-black text-white rounded-md text-[12px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-black/80 disabled:opacity-50 transition-colors"
+        >
+          {isProcessing ? (
+            <>
+              <Loader2 size={14} className="animate-spin" /> Procesando...
+            </>
+          ) : (
+            <>
+              <Database size={14} /> Confirmar e Importar
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+
+  // ── PASO 5: RESULTADO ──────────────────────────────────────────
+  const Paso5 = () => (
+    <div className="p-5 space-y-4">
+      <div className="flex flex-col items-center gap-2 py-4">
+        <div className="w-14 h-14 rounded-full bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center">
+          <CheckCircle2 size={28} className="text-emerald-600" />
+        </div>
+        <p className="text-lg font-black text-black uppercase tracking-tight">
+          ¡Importación Completada!
+        </p>
+        <p className="text-[12px] text-black/65 font-medium">
+          El servidor procesó la lista correctamente.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          {
+            label: "Actualizados",
+            value: results?.stats?.actualizados || 0,
+            color: "text-emerald-600",
+            bg: "bg-emerald-50 border-emerald-200",
+          },
+          {
+            label: "Nuevos",
+            value: results?.stats?.creados || 0,
+            color: "text-blue-600",
+            bg: "bg-blue-50 border-blue-200",
+          },
+          {
+            label: "Errores",
+            value: results?.stats?.errores || 0,
+            color: "text-red-500",
+            bg: "bg-red-50 border-red-200",
+          },
+        ].map((s) => (
+          <div
+            key={s.label}
+            className={`p-3 border rounded-md text-center ${s.bg}`}
+          >
+            <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
+            <p className="text-[10px] font-black text-black/70 uppercase tracking-widest">
+              {s.label}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {results?.erroresDetalle?.length > 0 && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-[11px] font-black text-red-500 uppercase mb-2 flex items-center gap-1">
+            <AlertCircle size={12} /> Detalle de Errores
+          </p>
+          <ul className="space-y-0.5">
+            {results.erroresDetalle.slice(0, 8).map((err, i) => (
+              <li key={i} className="text-[11px] text-red-600 font-medium">
+                • {err}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <button
+        onClick={() => onExito && onExito()}
+        className="w-full py-2.5 bg-black text-white text-[12px] font-black uppercase tracking-widest rounded-md hover:bg-black/80 transition-colors"
+      >
+        Finalizar y Cerrar
+      </button>
+    </div>
+  );
+
+  return (
+    <div>
+      <StepBar />
+      {step === 1 && <Paso1 />}
+      {step === 2 && <Paso2 />}
+      {step === 3 && <Paso3 />}
+      {step === 4 && <Paso4 />}
+      {step === 5 && results && <Paso5 />}
     </div>
   );
 }

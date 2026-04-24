@@ -25,7 +25,7 @@ function TablaConTabs({ vistas = [], vistaInicial = 0 }) {
               onClick={() => setVistaActiva(index)}
               className={`
                 flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-md
-                text-xs font-black uppercase tracking-widest transition-all duration-300
+                text-xs font-black uppercase tracking-widest  
                 ${isActive
                   ? 'bg-[var(--surface)] text-[var(--primary)] shadow-sm ring-1 ring-[var(--border-subtle)]'
                   : 'text-[var(--text-theme)]/50 hover:text-[var(--text-theme)] hover:bg-[var(--surface)]/50'
@@ -33,14 +33,14 @@ function TablaConTabs({ vistas = [], vistaInicial = 0 }) {
               `}
             >
               {vista.icono && (
-                <span className={`transition-colors duration-300 ${isActive ? 'text-[var(--primary)]' : 'text-[var(--text-theme)]/40'}`}>
+                <span className={`  ${isActive ? 'text-[var(--primary)]' : 'text-[var(--text-theme)]/40'}`}>
                   {vista.icono}
                 </span>
               )}
               {vista.titulo}
               {vista.badge && (
                 <span className={`
-                  ml-1 px-2 py-0.5 text-[10px] font-black rounded-sm transition-all
+                  ml-1 px-2 py-0.5 text-[12px] font-black rounded-sm 
                   ${isActive
                     ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
                     : 'bg-black/5 text-[var(--text-theme)]/30'
@@ -55,7 +55,7 @@ function TablaConTabs({ vistas = [], vistaInicial = 0 }) {
       </div>
 
       {/* Contenido de la vista activa con animación de entrada */}
-      <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div className="   ">
         {vistaActual.renderTabla()}
       </div>
     </div>

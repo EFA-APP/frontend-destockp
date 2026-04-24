@@ -1,8 +1,8 @@
 const tipoColor = {
-  ACTIVO: "bg-blue-500/20 text-blue-400 border-blue-400/30",
-  PASIVO: "bg-teal-500/20 text-teal-400 border-teal-400/30",
-  RESULTADO: "bg-green-500/20 text-green-400 border-green-400/30",
-  PATRIMONIO: "bg-purple-500/20 text-purple-400 border-purple-400/30",
+  ACTIVO: "bg-blue-700/20 text-blue-400 border-blue-400/30",
+  PASIVO: "bg-teal-700/20 text-teal-400 border-teal-400/30",
+  RESULTADO: "bg-green-700/20 text-green-400 border-green-400/30",
+  PATRIMONIO: "bg-purple-700/20 text-purple-400 border-purple-400/30",
 };
 
 export const columnasPlanDeCuentas = [
@@ -12,7 +12,7 @@ export const columnasPlanDeCuentas = [
     renderizar: (valor, fila) => (
       <span
         className={`font-mono text-xs ${
-          !fila.imputable ? "font-bold text-white" : ""
+          !fila.imputable ? "font-bold text-black" : ""
         }`}
       >
         {valor}

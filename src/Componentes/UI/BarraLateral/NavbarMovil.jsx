@@ -89,14 +89,14 @@ const NavbarMovil = () => {
       {/* Overlay para cerrar menú al hacer clic fuera */}
       {menuAbierto && (
         <div
-          className="fixed inset-0 bg-black/50 z-[9998] animate-in fade-in duration-200 md:hidden"
+          className="fixed inset-0 bg-black/50 z-[9998]    md:hidden"
           onClick={cerrarMenu}
         />
       )}
 
       {/* Popover de Submenús o Más Opciones (Estilo Fijo) */}
       {menuAbierto && (
-        <div className="fixed bottom-[64px] left-0 right-0 bg-[var(--surface)]/95 backdrop-blur-2xl rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] z-[9999] max-h-[70vh] overflow-y-auto animate-in slide-in-from-bottom duration-300 md:hidden border-t border-[var(--border-subtle)]">
+        <div className="fixed bottom-[64px] left-0 right-0 bg-[var(--surface)]/95 backdrop-blur-2xl rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] z-[9999] max-h-[70vh] overflow-y-auto    md:hidden border-t border-[var(--border-subtle)]">
           {menuAbierto === "mas_opciones" ? (
             /* LISTA DE ITEMS EXTRAS */
             <div>
@@ -109,7 +109,7 @@ const NavbarMovil = () => {
                   <div key={item.id} className="flex flex-col">
                     <Link
                       to={item.subMenus?.length > 0 ? "#" : item.redireccion}
-                      className={`flex items-center justify-between px-5 py-3 transition-all duration-200 border-l-4 ${
+                      className={`flex items-center justify-between px-5 py-3   border-l-4 ${
                         esSeccionActiva(item)
                           ? "bg-[var(--primary)]/10 border-l-[var(--primary)] text-[var(--primary)] font-bold"
                           : "border-l-transparent text-[var(--text-muted)] active:bg-[var(--surface-hover)]"
@@ -148,7 +148,7 @@ const NavbarMovil = () => {
                       <Link
                         key={index}
                         to={sm.redireccion}
-                        className={`flex items-center justify-between px-5 py-3 transition-all duration-200 border-l-4 ${
+                        className={`flex items-center justify-between px-5 py-3   border-l-4 ${
                           location.pathname === sm.redireccion
                             ? "bg-[var(--primary)]/10 border-l-[var(--primary)] text-[var(--primary)] font-bold"
                             : "border-l-transparent text-[var(--text-muted)] active:bg-[var(--surface-hover)]"
@@ -178,16 +178,16 @@ const NavbarMovil = () => {
               return (
                 <button
                   key={item.id}
-                  className={`flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all duration-300 relative group bg-transparent border-none cursor-pointer active:scale-90 ${isActive ? "text-[var(--primary)]" : "text-[var(--text-muted)]"}`}
+                  className={`flex flex-col items-center justify-center gap-1 flex-1 py-1   relative group bg-transparent border-none cursor-pointer active:scale-90 ${isActive ? "text-[var(--primary)]" : "text-[var(--text-muted)]"}`}
                   onClick={() => toggleMenu(item.id)}
                 >
                   <div
-                    className={`p-1 rounded-lg transition-all duration-300 ${isActive ? "text-[var(--primary)] scale-110" : "group-hover:bg-[var(--surface-hover)]"}`}
+                    className={`p-1 rounded-lg   ${isActive ? "text-[var(--primary)] scale-110" : "group-hover:bg-[var(--surface-hover)]"}`}
                   >
                     {item.icono}
                   </div>
                   <span
-                    className={`text-[9px] uppercase tracking-tighter transition-all duration-300 ${isActive ? "font-black opacity-100" : "font-medium opacity-60"}`}
+                    className={`text-[11px] uppercase tracking-tighter   ${isActive ? "font-black opacity-100" : "font-medium opacity-60"}`}
                   >
                     {item.nombre}
                   </span>
@@ -199,16 +199,16 @@ const NavbarMovil = () => {
               <Link
                 key={item.id}
                 to={item.redireccion}
-                className={`flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all duration-300 relative group active:scale-90 ${isActive ? "text-[var(--primary)]" : "text-[var(--text-muted)]"}`}
+                className={`flex flex-col items-center justify-center gap-1 flex-1 py-1   relative group active:scale-90 ${isActive ? "text-[var(--primary)]" : "text-[var(--text-muted)]"}`}
                 onClick={() => manejarNavegacion(item.redireccion)}
               >
                 <div
-                  className={`p-1 rounded-lg transition-all duration-300 ${isActive ? "text-[var(--primary)] scale-110" : "group-hover:bg-[var(--surface-hover)]"}`}
+                  className={`p-1 rounded-lg   ${isActive ? "text-[var(--primary)] scale-110" : "group-hover:bg-[var(--surface-hover)]"}`}
                 >
                   {item.icono}
                 </div>
                 <span
-                  className={`text-[9px] uppercase tracking-tighter transition-all duration-300 ${isActive ? "font-black opacity-100" : "font-medium opacity-60"}`}
+                  className={`text-[11px] uppercase tracking-tighter   ${isActive ? "font-black opacity-100" : "font-medium opacity-60"}`}
                 >
                   {item.nombre}
                 </span>
@@ -219,7 +219,7 @@ const NavbarMovil = () => {
           {/* BOTÓN MÁS OPCIONES */}
           {tieneExtras && (
             <button
-              className={`flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all duration-300 relative group bg-transparent border-none cursor-pointer active:scale-90 ${
+              className={`flex flex-col items-center justify-center gap-1 flex-1 py-1   relative group bg-transparent border-none cursor-pointer active:scale-90 ${
                 menuAbierto === "mas_opciones" ||
                 itemsExtras.some(esSeccionActiva)
                   ? "text-[var(--primary)]"
@@ -228,12 +228,12 @@ const NavbarMovil = () => {
               onClick={() => toggleMenu("mas_opciones")}
             >
               <div
-                className={`p-1 rounded-lg transition-all duration-300 ${menuAbierto === "mas_opciones" || itemsExtras.some(esSeccionActiva) ? "text-[var(--primary)] scale-110" : "group-hover:bg-[var(--surface-hover)]"}`}
+                className={`p-1 rounded-lg   ${menuAbierto === "mas_opciones" || itemsExtras.some(esSeccionActiva) ? "text-[var(--primary)] scale-110" : "group-hover:bg-[var(--surface-hover)]"}`}
               >
                 <LayoutGrid size={20} />
               </div>
               <span
-                className={`text-[9px] uppercase tracking-tighter transition-all duration-300 ${menuAbierto === "mas_opciones" || itemsExtras.some(esSeccionActiva) ? "font-black opacity-100" : "font-medium opacity-60"}`}
+                className={`text-[11px] uppercase tracking-tighter   ${menuAbierto === "mas_opciones" || itemsExtras.some(esSeccionActiva) ? "font-black opacity-100" : "font-medium opacity-60"}`}
               >
                 Más
               </span>

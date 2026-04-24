@@ -4,15 +4,15 @@ const TarjetaMes = ({ mes, index, activo, onClick }) => {
   return (
     <button
       onClick={onClick}
-      className={`relative flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-300 group overflow-hidden ${
+      className={`relative flex flex-col items-center justify-center p-3 rounded-xl border   group overflow-hidden ${
         activo
           ? "bg-[var(--primary)] border-[var(--primary)] shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] scale-[1.02]"
-          : "bg-[var(--surface)] border-white/5 hover:border-white/20 hover:bg-white/[0.05]"
+          : "bg-[var(--surface)] border-black/5 hover:border-black/20 hover:bg-white/[0.05]"
       }`}
     >
       <span
-        className={`text-[13px] font-black uppercase tracking-widest transition-colors ${
-          activo ? "text-black" : "text-white/60 group-hover:text-white"
+        className={`text-[15px] font-black uppercase tracking-widest  ${
+          activo ? "text-black" : "text-black/60 group-hover:text-black"
         }`}
       >
         {mes}

@@ -4,7 +4,7 @@ export const columnasLibroMayor = [
     etiqueta: "Cuenta",
     renderizar: (valor, fila) => (
       <div>
-        <div className="font-mono text-xs text-white">{valor}</div>
+        <div className="font-mono text-xs text-black">{valor}</div>
         <div className="text-xs text-[var(--primary-light)]">
           {fila.nombreCuenta}
         </div>

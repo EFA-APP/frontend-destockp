@@ -22,10 +22,11 @@ const IniciarSesion = () => {
         onError: (err) => {
           agregarAlerta({
             type: "error",
-            message: err?.response?.data?.message || "Correo o contraseña incorrectos",
+            message:
+              err?.response?.data?.message || "Correo o contraseña incorrectos",
           });
         },
-      }
+      },
     );
   };
 
@@ -38,17 +39,13 @@ const IniciarSesion = () => {
           name: "email",
           label: "Email",
           type: "text",
-          placeholder: "ejemplo@gmail.com"
+          placeholder: "ejemplo@gmail.com",
         },
         {
           name: "contrasena",
           label: "Contraseña",
           type: "password",
           placeholder: "**********",
-          enlace: {
-            to: "/recuperar-contrasena",
-            texto: "¿Olvidaste tu contraseña?",
-          },
         },
       ]}
       onSubmit={handleSubmit}

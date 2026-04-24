@@ -1,7 +1,7 @@
 const estadoStyle = {
-  pagado: "bg-green-500/20 text-green-400 border-green-400/30",
-  pendiente: "bg-yellow-500/20 text-yellow-400 border-yellow-400/30",
-  anulado: "bg-red-500/20 text-red-400 border-red-400/30",
+  pagado: "bg-green-700/20 text-green-400 border-green-400/30",
+  pendiente: "bg-yellow-700/20 text-yellow-400 border-yellow-400/30",
+  anulado: "bg-red-700/20 text-red-400 border-red-400/30",
 };
 
 export const columnasRecibos = [
@@ -25,7 +25,7 @@ export const columnasRecibos = [
       <div>
         <div className="font-medium">{valor}</div>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-xs px-1.5 py-0.5 bg-blue-500/20 text-blue-400 rounded">
+          <span className="text-xs px-1.5 py-0.5 bg-blue-700/20 text-blue-400 rounded">
             {fila.curso}
           </span>
         </div>
@@ -83,13 +83,13 @@ export const columnasRecibos = [
     renderizar: (valor) => {
       if (valor === 0) {
         return (
-          <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-green-500/20 text-green-400 border border-green-400/30 w-[72px]">
+          <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-green-700/20 text-green-400 border border-green-400/30 w-[72px]">
             A tiempo
           </span>
         );
       }
       return (
-        <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-orange-500/20 text-orange-400 border border-orange-400/30">
+        <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-orange-700/20 text-orange-400 border border-orange-400/30">
           {valor} {valor === 1 ? "día" : "días"}
         </span>
       );
@@ -102,7 +102,7 @@ export const columnasRecibos = [
     renderizar: (valor) => {
       const tipo = valor.toLowerCase();
       const style =
-        estadoStyle[tipo] || "bg-gray-500/20 text-gray-400 border-gray-400/30";
+        estadoStyle[tipo] || "bg-gray-700/20 text-gray-400 border-gray-400/30";
 
       return (
         <span

@@ -3,12 +3,12 @@ import { InicioIcono } from "../assets/Icons";
 
 const Error = () => {
   return (
-    <div className="bg-[var(--fill)]! min-h-screen flex flex-col items-center justify-center bg-white px-4">
+    <div className="bg-[var(--fill)]! min-h-screen flex flex-col items-center justify-center bg-[var(--surface)] px-4">
       {/* Imagen */}
       <img src="/error404.png" alt="404 Error" className="w-[320px] mb-8" />
 
       {/* Texto */}
-      <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
+      <h1 className="text-2xl md:text-3xl font-bold text-black mb-2">
         Página no encontrada
       </h1>
 
@@ -19,7 +19,7 @@ const Error = () => {
       {/* Botón */}
       <Link
         to="/panel"
-        className="px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-md"
+        className="px-6 py-3 rounded-lg font-semibold text-black  shadow-md"
         style={{ backgroundColor: "#f29222" }}
       >
         <InicioIcono />

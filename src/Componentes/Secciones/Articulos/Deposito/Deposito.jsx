@@ -9,7 +9,7 @@ import {
   UbicacionIcono,
   DescargarIcono,
 } from "../../../../assets/Icons";
-import { Building2, Trash2 } from "lucide-react";
+import { Building2, Trash2, Loader2 } from "lucide-react";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { useDepositoUI } from "../../../../Backend/Articulos/hooks/Deposito/useDepositoUI.jsx";
 import { useDepositosConStock } from "../../../../Backend/Articulos/queries/Deposito/useDepositosConStock.query";
@@ -63,11 +63,14 @@ const Deposito = () => {
     }
   }, [depositoAEliminar, borrarStock, eliminarDeposito]);
 
-  const handleEditarSucursal = useCallback((suc) => {
-    navigate(
-      `/panel/inventario/depositos/editar?codigoSecuencial=${suc.codigoSecuencial}`,
-    );
-  }, [navigate]);
+  const handleEditarSucursal = useCallback(
+    (suc) => {
+      navigate(
+        `/panel/inventario/depositos/editar?codigoSecuencial=${suc.codigoSecuencial}`,
+      );
+    },
+    [navigate],
+  );
 
   const handleCerrarModalEliminar = useCallback(() => {
     setDepositoAEliminar(null);
@@ -75,7 +78,9 @@ const Deposito = () => {
   }, []);
 
   const matrizStockCompletaPDF = useMemo(() => {
-    const data = Array.isArray(stockCompletoData?.data) ? stockCompletoData.data : [];
+    const data = Array.isArray(stockCompletoData?.data)
+      ? stockCompletoData.data
+      : [];
     const productosMap = {};
 
     data.forEach((producto) => {
@@ -102,13 +107,17 @@ const Deposito = () => {
       <StockDepositoPDF
         matrizStock={matrizStockCompletaPDF}
         depositos={depositos}
-        empresaNombre={usuario?.nombreEmpresa || usuario?.datosFiscales?.razonSocial}
+        empresaNombre={
+          usuario?.nombreEmpresa || usuario?.datosFiscales?.razonSocial
+        }
       />
     ),
     [matrizStockCompletaPDF, depositos],
   );
   const matrizStockCompletaPDFMp = useMemo(() => {
-    const data = Array.isArray(stockCompletoMpData?.data) ? stockCompletoMpData.data : [];
+    const data = Array.isArray(stockCompletoMpData?.data)
+      ? stockCompletoMpData.data
+      : [];
     const productosMap = {};
 
     data.forEach((producto) => {
@@ -136,10 +145,17 @@ const Deposito = () => {
       <StockDepositoPDF
         matrizStock={matrizStockCompletaPDFMp}
         depositos={depositos}
-        empresaNombre={usuario?.nombreEmpresa || usuario?.datosFiscales?.razonSocial}
+        empresaNombre={
+          usuario?.nombreEmpresa || usuario?.datosFiscales?.razonSocial
+        }
       />
     ),
-    [matrizStockCompletaPDFMp, depositos, usuario?.nombreEmpresa, usuario?.datosFiscales?.razonSocial],
+    [
+      matrizStockCompletaPDFMp,
+      depositos,
+      usuario?.nombreEmpresa,
+      usuario?.datosFiscales?.razonSocial,
+    ],
   );
 
   // Fuerza remount del PDFDownloadLink cuando cambia la data de origen
@@ -158,39 +174,28 @@ const Deposito = () => {
   return (
     <ContenedorSeccion className="px-3 py-2">
       {/* Header / Navigation Card */}
-      <div className="card no-inset no-ring bg-[var(--surface)] shadow-md rounded-md! mb-6 overflow-hidden">
-        <EncabezadoSeccion
-          ruta={"Inventario > Depósitos   "}
-          icono={<Building2 size={18} />}
-        />
-      </div>
+      <EncabezadoSeccion
+        ruta={"Inventario > Depósitos   "}
+        icono={<Building2 size={18} />}
+      />
 
-      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-10">
+      <div className="space-y-8 pb-10">
         {/* Warehouse Grid Section */}
         <section>
           <div className="flex items-center justify-between mb-6 px-2">
-            <div className="flex items-center gap-2.5 text-[var(--surface)]">
-              <UbicacionIcono size={14} color="var(--primary-light)" />
-              <h4 className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">
-                DEPOSITOS
-              </h4>
-            </div>
             <div className="h-[1px] flex-1 mx-4 bg-gradient-to-r from-white/10 to-transparent" />
             <button
               onClick={handleNuevaSucursal}
-              className="flex items-center gap-2.5 px-4 py-2 bg-[var(--primary)] text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-md shadow-lg shadow-amber-500/10 hover:shadow-amber-500/20 hover:-translate-y-0.5 transition-all active:scale-95 cursor-pointer group"
+              className="flex items-center gap-2 px-6 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary-subtle)] border border-[var(--primary)]/20! rounded-md! font-bold! text-[13px]! uppercase! tracking-wider! cursor-pointer! text-[var(--primary)]!"
             >
-              <AgregarIcono
-                size={10}
-                className="group-hover:rotate-90 transition-transform duration-500"
-              />
+              <AgregarIcono size={10} className="group-hover:rotate-90  " />
               Nuevo Depósito
             </button>
           </div>
 
-          <div className="flex flex-wrap gap-4 w-auto">
+          <div className="flex flex-wrap items-center w-full gap-4">
             {cargando
-              ? Array.from({ length: 4 }).map((_, n) => (
+              ? Array.from({ length: 2 }).map((_, n) => (
                   <SkeletonTarjeta key={n} />
                 ))
               : depositos.map((suc) => (
@@ -207,12 +212,6 @@ const Deposito = () => {
         {/* Stock Matrix Section - Productos */}
         <section>
           <div className="flex items-center justify-between mb-4 px-2">
-            <h4 className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] flex items-center gap-2.5">
-              <VentasIcono size={14} color="var(--primary-light)" />
-              Inventario de Depósitos
-            </h4>
-            <div className="h-[1px] flex-1 mx-4 bg-gradient-to-r from-white/10 to-transparent" />
-
             {/* PDF Download Button */}
             <PDFDownloadLink
               key={pdfLinkKey}
@@ -227,12 +226,16 @@ const Deposito = () => {
                     cargandoStockCompleto ||
                     matrizStockCompletaPDF.length === 0
                   }
-                  className="flex items-center gap-2.5 px-4 py-2 bg-white/5 hover:bg-white/[0.08] text-white/60 hover:text-white border border-white/10 hover:border-white/20 rounded-md font-bold text-[10px] uppercase tracking-widest transition-all cursor-pointer active:scale-95 group/pdf disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2.5 px-4 py-2 bg-black/5 hover:bg-white/[0.08] text-black/60 hover:text-black border border-black/10 hover:border-black/20 rounded-md font-bold text-[12px] uppercase tracking-widest  cursor-pointer active:scale-95 group/pdf disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <DescargarIcono
-                    size={20}
-                    className="group-hover:rotate-90 transition-transform duration-500"
-                  />
+                  {loading || cargandoStockCompleto ? (
+                    <Loader2 size={16} className="animate-spin text-[var(--primary)]" />
+                  ) : (
+                    <DescargarIcono
+                      size={20}
+                      className="group-hover:rotate-90"
+                    />
+                  )}
 
                   {loading || cargandoStockCompleto
                     ? "Preparando..."
@@ -241,16 +244,15 @@ const Deposito = () => {
               )}
             </PDFDownloadLink>
           </div>
-          <TablaDepositoStock tipoArticulo="PRODUCTO" titulo="Matriz de Inventario (Productos)" />
+          <TablaDepositoStock
+            tipoArticulo="PRODUCTO"
+            titulo="Matriz de Inventario (Productos)"
+          />
         </section>
 
         {/* Stock Matrix Section - Materia Prima */}
         <section>
           <div className="flex items-center justify-between mb-4 px-2">
-            <h4 className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] flex items-center gap-2.5">
-              <VentasIcono size={14} color="var(--primary-light)" />
-              Inventario de Materia Prima
-            </h4>
             <div className="h-[1px] flex-1 mx-4 bg-gradient-to-r from-white/10 to-transparent" />
 
             <PDFDownloadLink
@@ -266,12 +268,16 @@ const Deposito = () => {
                     cargandoStockCompletoMp ||
                     matrizStockCompletaPDFMp.length === 0
                   }
-                  className="flex items-center gap-2.5 px-4 py-2 bg-white/5 hover:bg-white/[0.08] text-white/60 hover:text-white border border-white/10 hover:border-white/20 rounded-md font-bold text-[10px] uppercase tracking-widest transition-all cursor-pointer active:scale-95 group/pdf disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2.5 px-4 py-2 bg-black/5 hover:bg-white/[0.08] text-black/60 hover:text-black border border-black/10 hover:border-black/20 rounded-md font-bold text-[12px] uppercase tracking-widest  cursor-pointer active:scale-95 group/pdf disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <DescargarIcono
-                    size={20}
-                    className="group-hover:rotate-90 transition-transform duration-500"
-                  />
+                  {loading || cargandoStockCompletoMp ? (
+                    <Loader2 size={16} className="animate-spin text-[var(--primary)]" />
+                  ) : (
+                    <DescargarIcono
+                      size={20}
+                      className="group-hover:rotate-90"
+                    />
+                  )}
                   {loading || cargandoStockCompletoMp
                     ? "Preparando..."
                     : "Descargar Reporte"}
@@ -289,35 +295,35 @@ const Deposito = () => {
       {/* Modal de Confirmación para Eliminar */}
       {depositoAEliminar && (
         <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[var(--surface)] border border-white/10 rounded-md max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="bg-[var(--surface)] border border-black/10 rounded-md max-w-md w-full p-6 shadow-2xl   ">
             <div className="flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-full bg-red-700/10 border border-red-700/20 flex items-center justify-center mb-4">
                 <Trash2 className="text-red-400" size={24} />
               </div>
-              <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2">
+              <h3 className="text-lg font-black text-black uppercase tracking-wider mb-2">
                 ¿Eliminar Depósito?
               </h3>
-              <p className="text-sm text-white/60 mb-6">
+              <p className="text-sm text-black/60 mb-6">
                 Esta acción eliminará el depósito{" "}
-                <strong className="text-white">
+                <strong className="text-black">
                   {depositoAEliminar.nombre}
                 </strong>{" "}
                 y todo su historial de stock local.
               </p>
 
               {/* Checkbox para borrar stock general */}
-              <label className="flex items-center gap-3 w-full bg-white/5 p-4 rounded-md border border-white/5 hover:border-white/10 transition-all cursor-pointer mb-6 group/check">
+              <label className="flex items-center gap-3 w-full bg-black/5 p-4 rounded-md border border-black/5 hover:border-black/10  cursor-pointer mb-6 group/check">
                 <input
                   type="checkbox"
                   checked={borrarStock}
                   onChange={(e) => setBorrarStock(e.target.checked)}
-                  className="rounded border-white/20 bg-black/40 text-[var(--primary)] focus:ring-[var(--primary)]/20 cursor-pointer"
+                  className="rounded border-black/20 bg-black/40 text-[var(--primary)] focus:ring-[var(--primary)]/20 cursor-pointer"
                 />
                 <div className="text-left">
-                  <span className="text-xs font-bold text-white block group-hover/check:text-[var(--primary)] transition-colors">
+                  <span className="text-xs font-bold text-black block group-hover/check:text-[var(--primary)] ">
                     ¿Limpiar stock productos?
                   </span>
-                  <span className="text-[10px] text-white/40 block mt-0.5">
+                  <span className="text-[12px] text-black/40 block mt-0.5">
                     Si activas esto, se reseteará a 0 el stock global de todos
                     los productos.
                   </span>
@@ -328,14 +334,14 @@ const Deposito = () => {
                 <button
                   onClick={handleCerrarModalEliminar}
                   disabled={procesando}
-                  className="flex-1 px-4 py-2.5 bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-wider rounded-md transition-all cursor-pointer disabled:opacity-50"
+                  className="flex-1 px-4 py-2.5 bg-black/5 hover:bg-black/10 text-black font-bold text-xs uppercase tracking-wider rounded-md  cursor-pointer disabled:opacity-50"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleConfirmarEliminar}
                   disabled={procesando}
-                  className="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white font-bold text-xs uppercase tracking-wider rounded-md transition-all cursor-pointer shadow-lg shadow-red-500/10 flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="flex-1 px-4 py-2.5 bg-red-700 hover:bg-red-600 text-black font-bold text-xs uppercase tracking-wider rounded-md  cursor-pointer shadow-lg shadow-red-700/10 flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {procesando ? "Borrando..." : "Confirmar"}
                 </button>

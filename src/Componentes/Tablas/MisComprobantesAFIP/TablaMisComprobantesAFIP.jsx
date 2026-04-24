@@ -68,7 +68,8 @@ const TablaMisComprobantesAFIP = () => {
       </div>
 
       {/* Tabla */}
-      <DataTable id_tabla="miscomprobantesafip"
+      <DataTable
+        id_tabla="miscomprobantesafip"
         columnas={columnasMisComprobantesAFIP}
         datos={comprobantesAFIP}
         mostrarAcciones={true}
@@ -84,10 +85,8 @@ const TablaMisComprobantesAFIP = () => {
           <div className="flex items-center justify-center">
             <button
               type="button"
-              className="group flex items-center gap-2 px-4 py-2 bg-violet-500/10 text-violet-400 border border-violet-500/20 rounded-lg hover:bg-violet-500/20 transition-all text-[11px] font-bold uppercase tracking-wider cursor-pointer"
-              onClick={() =>
-                document.getElementById("importar-excel").click()
-              }
+              className="group flex items-center gap-2 px-4 py-2 bg-violet-700/10 text-violet-400 border border-violet-700/20 rounded-lg hover:bg-violet-700/20  text-[13px] font-bold uppercase tracking-wider cursor-pointer"
+              onClick={() => document.getElementById("importar-excel").click()}
             >
               <DescargarIcono size={14} />
               Importar Excel / CSV

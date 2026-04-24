@@ -18,7 +18,7 @@ const ProduccionReportePage = () => {
                 redireccionAnterior={-1}
             />
 
-            <section className="bg-[var(--surface)] border border-white/5 rounded-md p-6 shadow-sm min-h-[600px]">
+            <section className="bg-[var(--surface)] border border-black/5 rounded-md p-6 shadow-sm min-h-[600px]">
                 <ListaMovimientos
                     codigoArticulo={null}
                     tipoArticulo="PRODUCTO"

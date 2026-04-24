@@ -3,7 +3,6 @@ import {
   ListarEntidadesApi,
   ObtenerContactoApi,
 } from "../../../../../Backend/Contactos/api/contactos.api";
-import { ListarConfiguracionCamposApi } from "../../../../../Backend/Articulos/api/Producto/producto.api";
 import { useFacturas } from "../../../../../Backend/hooks/Ventas/Facturas/useFacturas";
 import { useAuthStore } from "../../../../../Backend/Autenticacion/store/authenticacion.store";
 import { useAlertas } from "../../../../../store/useAlertas";
@@ -19,6 +18,26 @@ import {
   calcularTotalItem,
 } from "../utils/fiscal.utils";
 import { ObtenerTiposComprobanteApi } from "../../../../../Backend/Arca/api/arca.api";
+
+// Sub-hooks refactorizados
+import { useVentaCart } from "./useVentaCart";
+import { useVentaFiscal } from "./useVentaFiscal";
+import { useVentaPagos } from "./useVentaPagos";
+
+/**
+ * Deriva la letra del comprobante AFIP a partir del tipoDocumento numérico.
+ * Tipos 1-5  → A (Responsable Inscripto)
+ * Tipos 6-10 → B (Consumidor Final)
+ * Tipos 11-15 → C (Monotributo)
+ * Resto      → X (Interno / sin validez fiscal)
+ */
+const obtenerLetraDeComprobante = (tipoDocumento) => {
+  const tipo = Number(tipoDocumento);
+  if (tipo >= 1 && tipo <= 5)   return "A";
+  if (tipo >= 6 && tipo <= 10)  return "B";
+  if (tipo >= 11 && tipo <= 15) return "C";
+  return "X";
+};
 
 const MESES_MAP = {
   ENERO: "01",
@@ -44,24 +63,38 @@ export const useComprobantes = () => {
   const { agregarAlerta } = useAlertas();
   const location = useLocation();
 
-  // === 1.1 ESTADO LOCAL DE UNIDAD DE NEGOCIO ===
-  // Permite que el POS opere en una unidad distinta a la global (BarraNavegacion)
   const [unidadLocal, setUnidadLocal] = useState(
     unidadActiva?.codigoSecuencial || 0,
   );
 
-  // Sincronizar unidadLocal con unidadActiva global solo al cargar si no se ha seleccionado nada aún
-  useEffect(() => {
-    if (!unidadLocal && unidadActiva?.codigoSecuencial) {
-      setUnidadLocal(unidadActiva.codigoSecuencial);
-    }
-  }, [unidadActiva]);
+  // === 2. MODULOS REFACTORIZADOS ===
+  const fiscal = useVentaFiscal(usuario, arcaConectado, infoIva);
+  const cart = useVentaCart(agregarAlerta, "precioVenta", fiscal.aplicaIva);
+  const [condicionVenta, setCondicionVenta] = useState("contado");
+  const pagos = useVentaPagos(
+    cart.totales.total,
+    condicionVenta,
+    setCondicionVenta,
+  );
 
-  // === 2. ESTADOS DE ENTIDADES Y CONTACTOS ===
+  // Destructuración para lógica interna
+  const { items, setItems, agregarItem, eliminarItem, actualizarItem } = cart;
+  const {
+    listaPagos,
+    setListaPagos,
+    agregarPago,
+    eliminarPago,
+    agregarPagoConVuelto,
+    nuevoPago,
+    setNuevoPago,
+  } = pagos;
+  const { tipoDocumento, setTipoDocumento, enBlanco, setEnBlanco } = fiscal;
   const [entidades, setEntidades] = useState([]);
   const [entidadSeleccionada, setEntidadSeleccionada] = useState("");
   const [busquedaCliente, setBusquedaCliente] = useState("");
   const [mostrarDropdownCliente, setMostrarDropdownCliente] = useState(false);
+  const [mostrarFormularioContacto, setMostrarFormularioContacto] =
+    useState(false);
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   const [highlightedIndexCliente, setHighlightedIndexCliente] = useState(-1);
 
@@ -91,9 +124,7 @@ export const useComprobantes = () => {
   // Solo habilitamos la búsqueda si hay algo escrito para evitar el fetch inicial masivo.
   const productUI =
     useProductoUI(filtrosProductos, {
-      enabled: !!(
-        filtrosProductos.buscarPorNombre || filtrosProductos.buscarPorCodigo
-      ),
+      enabled: !!filtrosProductos.buscarPorGeneral,
       staleTime: 1000 * 60 * 5, // 5 minutos de cache para evitar re-fetch constante
     }) || {};
   const productos = Array.isArray(productUI.productos)
@@ -107,21 +138,18 @@ export const useComprobantes = () => {
   const [mostrarDropdownProducto, setMostrarDropdownProducto] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
-  // === 3. ESTADOS FISCALES Y DE FACTURACIÓN ===
-  const [tiposComprobante, setTiposComprobante] = useState([]);
-  const [cargandoVouchers, setCargandoVouchers] = useState(false);
-  const [tipoDocumento, setTipoDocumento] = useState(99);
-  const [enBlanco, setEnBlanco] = useState("si");
-  const [condicionVenta, setCondicionVenta] = useState("contado");
-  const [metodoPago, setMetodoPago] = useState("efectivo");
-  const [listaPagos, setListaPagos] = useState([]);
-  const [nuevoPago, setNuevoPago] = useState({
-    metodo: "efectivo",
-    monto: 0,
-    pagaCon: 0, // <--- Importe recibido para calcular vuelto
-    detalles: "",
-    referencia: "",
-  });
+  // === EFECTO: Sincronizar búsqueda con filtros (Debounce) ===
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setFiltrosProductos((prev) => ({
+        ...prev,
+        buscarPorGeneral: codigoBusqueda || undefined,
+      }));
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [codigoBusqueda]);
+
   const [comprobanteAsociado, setComprobanteAsociado] = useState("");
   const [busquedaFactura, setBusquedaFactura] = useState("");
   const [mostrarDropdownFactura, setMostrarDropdownFactura] = useState(false);
@@ -137,8 +165,26 @@ export const useComprobantes = () => {
     useState("precioVenta");
   const [periodo, setPeriodo] = useState(null);
 
-  // === 5. EL TICKET (ITEMS) ===
-  const [items, setItems] = useState([]);
+  // === 5.5 GESTIÓN DE PASOS (STEPPER) ===
+  const [paso, setPaso] = useState(1); // 1: Productos, 2: Config/Cliente, 3: Pagos, 4: Preview
+
+  const siguientePaso = useCallback(() => {
+    setPaso((prev) => {
+      if (prev === 1 && items.length === 0) {
+        agregarAlerta({
+          title: "Carrito vacío",
+          message: "Agregue productos antes de continuar",
+          type: "warning",
+        });
+        return prev;
+      }
+      return Math.min(prev + 1, 4);
+    });
+  }, [items.length, agregarAlerta]);
+
+  const anteriorPaso = useCallback(() => {
+    setPaso((prev) => Math.max(prev - 1, 1));
+  }, []);
 
   // === 6. REFERENCIAS PARA FOCO ===
   const inputCodigoRef = useRef(null);
@@ -147,186 +193,15 @@ export const useComprobantes = () => {
   // === 6.1 MUTACIONES ===
   const mutationGenerar = useGenerarComprobante();
 
-  // === 7. DERIVACIONES FISCALES ===
-  const aplicaIva = arcaConectado && enBlanco === "si"; // Simplificamos: si es fiscal y hay conexión, aplicamos desglose si tasaIva > 0
+  const puedeHacerFiscal =
+    usuario?.conexionArca || usuario?.configuracionArca?.activo;
 
-  const totales = useMemo(() => {
-    let subtotal = 0,
-      iva = 0,
-      total = 0;
-    items.forEach((item) => {
-      subtotal += calcularNetoItem(item, aplicaIva);
-      iva += calcularIVA(item, aplicaIva);
-      total += calcularTotalItem(item);
-    });
-    return { subtotal, iva, total };
-  }, [items, aplicaIva]);
-
-  const vuelto = useMemo(() => {
-    if (nuevoPago.metodo !== "efectivo" || !nuevoPago.pagaCon) return 0;
-    const totalPagado = listaPagos.reduce((acc, p) => acc + p.monto, 0);
-    const restante = totales.total - totalPagado;
-    return Math.max(0, nuevoPago.pagaCon - restante);
-  }, [nuevoPago.pagaCon, nuevoPago.metodo, totales.total, listaPagos]);
-
-  // === 8. EFECTOS DE INICIALIZACIÓN Y SINCRONIZACIÓN ===
-
-  // Carga de campos dinámicos y Entidades
+  // Forzar Interno si no puede hacer fiscal
   useEffect(() => {
-    const cargarConfigs = async () => {
-      setCargandoConfigs(true);
-      try {
-        const data = await ListarConfiguracionCamposApi("PRODUCTO");
-        setCamposDinamicos(data || []);
-        setColumnaPrecioSeleccionada("precioVenta");
-
-        // Cargar entidades activas para el dropdown
-        const entData = await ListarEntidadesApi();
-        setEntidades(entData || []);
-      } catch (e) {
-        console.error("Error configs:", e);
-      } finally {
-        setCargandoConfigs(false);
-      }
-    };
-    cargarConfigs();
-  }, [unidadLocal]); // <--- Escuchar unidadLocal en lugar de la global
-
-  // Limpiar carrito al cambiar de unidad de negocio para evitar inconsistencias
-  useEffect(() => {
-    if (items.length > 0) {
-      setItems([]);
-      agregarAlerta({
-        title: "Contexto Cambiado",
-        message:
-          "Se ha vaciado el carrito debido al cambio de Unidad de Negocio.",
-        type: "info",
-      });
+    if (!puedeHacerFiscal && enBlanco === "si") {
+      setEnBlanco("no");
     }
-    // Refrescar configs cuando cambia la unidad local
-  }, [unidadLocal]);
-
-  // Carga de Tipos de Comprobante ARCA
-  useEffect(() => {
-    const cargarVouchers = async () => {
-      if (usuario?.conexionArca || usuario?.configuracionArca?.activo) {
-        setCargandoVouchers(true);
-        try {
-          const res = await ObtenerTiposComprobanteApi();
-          const vouchersRaw = Array.isArray(res) ? res : res?.data;
-          if (Array.isArray(vouchersRaw)) {
-            const filtrados = vouchersRaw.map((v) => ({
-              id: v.Id,
-              label: v.Desc,
-            }));
-            setTiposComprobante(filtrados);
-            if (filtrados.length > 0 && !tipoDocumento)
-              setTipoDocumento(filtrados[0].id);
-          }
-        } catch (e) {
-          console.error("Error vouchers:", e);
-        } finally {
-          setCargandoVouchers(false);
-        }
-      }
-    };
-    cargarVouchers();
-  }, [usuario]);
-
-  // Sync Modo (X vs ARCA)
-  useEffect(() => {
-    if (enBlanco === "no") {
-      setTipoDocumento(99);
-      setItems((prev) => prev.map((i) => ({ ...i, iva: 0 })));
-    } else if (enBlanco === "si" && tipoDocumento === 99) {
-      if (tiposComprobante.length > 0) setTipoDocumento(tiposComprobante[0].id);
-    }
-  }, [enBlanco, tiposComprobante]);
-
-  // Sync automático con preferencia de ARCA
-  useEffect(() => {
-    if (arcaConectado && infoIva?.tipoFacturaDefault) {
-      setTipoDocumento(infoIva.tipoFacturaDefault);
-    }
-  }, [arcaConectado, infoIva]);
-
-  // Sugerencia automática de Tipo de Comprobante según el Cliente seleccionado
-  useEffect(() => {
-    if (
-      clienteSeleccionado &&
-      enBlanco === "si" &&
-      tiposComprobante.length > 0
-    ) {
-      const condicion = (
-        clienteSeleccionado.condicionIva ||
-        clienteSeleccionado.condicionIVA ||
-        ""
-      ).toUpperCase();
-
-      // Si el cliente es Responsable Inscripto, sugerimos Factura A (ID 1)
-      // Siempre que estemos en una factura normal (no nota de crédito/débito vinculada)
-      const esFacturaNormal = [1, 6, 11, 99].includes(Number(tipoDocumento));
-
-      if (esFacturaNormal) {
-        if (condicion === "RI") {
-          setTipoDocumento(1); // Factura A
-        } else {
-          setTipoDocumento(6); // Factura B
-        }
-      }
-    }
-  }, [clienteSeleccionado, enBlanco, tiposComprobante]);
-
-  // Debounce búsqueda productos
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setFiltrosProductos((prev) => {
-        const nuevos = { ...prev, pagina: 1 };
-        delete nuevos.buscarPorNombre;
-        delete nuevos.buscarPorCodigo;
-        if (codigoBusqueda) {
-          if (busquedaClaveProducto === "nombre")
-            nuevos.buscarPorNombre = codigoBusqueda;
-          else if (
-            busquedaClaveProducto === "codigo" &&
-            !isNaN(Number(codigoBusqueda))
-          )
-            nuevos.buscarPorCodigo = Number(codigoBusqueda);
-        }
-        return nuevos;
-      });
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [codigoBusqueda, busquedaClaveProducto]);
-
-  // Actualizar precios si cambia la columna seleccionada
-  useEffect(() => {
-    setItems((prev) =>
-      prev.map((item) => ({
-        ...item,
-        precioUnitario: getPrecio(item, columnaPrecioSeleccionada),
-      })),
-    );
-  }, [columnaPrecioSeleccionada]);
-
-  // Actualizar monto sugerido del nuevo pago y automatizar condición de venta
-  useEffect(() => {
-    const totalPagado = listaPagos.reduce((acc, p) => acc + p.monto, 0);
-    const restante = Math.max(0, totales.total - totalPagado);
-
-    // Automatización: Si el monto pagado cubre el total, cambiar de Cuenta Corriente a Contado
-    if (
-      totalPagado >= totales.total - 0.01 &&
-      condicionVenta === "cuenta_corriente"
-    ) {
-      setCondicionVenta("contado");
-    }
-
-    setNuevoPago((prev) => ({
-      ...prev,
-      monto: Math.round(restante * 100) / 100,
-    }));
-  }, [totales.total, listaPagos, condicionVenta]);
+  }, [puedeHacerFiscal, enBlanco, setEnBlanco]);
 
   // === EFECTO: Carga desde Navegación (Ej: Escuela -> POS) ===
   useEffect(() => {
@@ -515,208 +390,123 @@ export const useComprobantes = () => {
     inputCodigoRef.current?.focus();
   }, []);
 
-  const agregarItem = useCallback((p = null, c = null) => {
-    const targetProduct = p || productoEncontrado;
-    if (!targetProduct) return;
+  // === 4.1 AGREGAR ITEM MANUAL ===
+  const [nombreManual, setNombreManual] = useState("");
+  const [precioManual, setPrecioManual] = useState("");
+  const [mostrandoManual, setMostrandoManual] = useState(false);
 
-    const cantidad = c !== null ? parseFloat(c) : parseFloat(cantidadInput);
-    if (isNaN(cantidad) || cantidad <= 0) {
+  const agregarItemManual = useCallback(() => {
+    if (!nombreManual || !precioManual) {
       agregarAlerta({
-        title: "Advertencia",
-        message: "La cantidad debe ser mayor a 0",
+        title: "Datos incompletos",
+        message: "Escriba un nombre y precio para el producto manual",
         type: "warning",
       });
       return;
     }
 
-    let finalIndex = -1;
-    setItems((prev) => {
-      const itemIndex = prev.findIndex(
-        (i) => i.codigoSecuencial === targetProduct.codigoSecuencial,
-      );
-      if (itemIndex > -1) {
-        finalIndex = itemIndex;
-        const nuevosItems = [...prev];
-        nuevosItems[itemIndex] = {
-          ...nuevosItems[itemIndex],
-          cantidad: nuevosItems[itemIndex].cantidad + cantidad,
-        };
-        return nuevosItems;
-      }
+    const nuevoItem = {
+      codigoSecuencial: Date.now(), // ID temporal
+      nombre: nombreManual.toUpperCase(),
+      cantidad: parseFloat(cantidadInput) || 1,
+      precioVenta: parseFloat(precioManual),
+      precioBase: parseFloat(precioManual),
+      esManual: true,
+    };
 
-      finalIndex = prev.length;
-      return [
-        ...prev,
-        {
-          ...targetProduct,
-          cantidad,
-          precioUnitario: getPrecio(targetProduct, columnaPrecioSeleccionada),
-          descuento: 0,
-          tasaIva: parseFloat(targetProduct.tasaIva) || 0,
-        },
-      ];
-    });
-
-    limpiarCaptura();
-
-    // Notificar enfoque al componente TablaTicket (después del render)
-    setTimeout(() => {
-      const input = document.getElementById(`input-cant-${finalIndex}`);
-      if (input) {
-        input.focus();
-        input.select();
-      }
-    }, 50);
-  }, [
-    productoEncontrado,
-    cantidadInput,
-    agregarAlerta,
-    columnaPrecioSeleccionada,
-    limpiarCaptura,
-  ]);
-
-  const eliminarItem = useCallback((index) => {
-    setItems((prev) => prev.filter((_, i) => i !== index));
+    setItems((prev) => [...prev, nuevoItem]);
+    setNombreManual("");
+    setPrecioManual("");
+    setMostrandoManual(false);
     inputCodigoRef.current?.focus();
-  }, []);
+  }, [nombreManual, precioManual, cantidadInput, agregarAlerta]);
 
-  const actualizarItem = useCallback((index, campo, valor) => {
-    setItems((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [campo]: valor } : item)),
-    );
-  }, []);
+  const handleCodigoKeyDown = useCallback(
+    (e) => {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        const maxIndex =
+          codigoBusqueda.length > 0 ? productos.length : productos.length - 1;
+        setHighlightedIndex((p) => (p < maxIndex ? p + 1 : p));
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setHighlightedIndex((p) => (p > 0 ? p - 1 : 0));
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        const queryTrimmed = codigoBusqueda.trim();
+        let p =
+          highlightedIndex >= 0
+            ? highlightedIndex < productos.length
+              ? productos[highlightedIndex]
+              : queryTrimmed
+                ? {
+                    id: `m-${Date.now()}`,
+                    codigoSecuencial: `M-${Date.now().toString().slice(-4)}`,
+                    nombre: queryTrimmed.toUpperCase(),
+                    descripcion: "ITEM MANUAL",
+                    manual: true,
+                  }
+                : null
+            : productos[0] ||
+              (queryTrimmed
+                ? {
+                    id: `m-${Date.now()}`,
+                    codigoSecuencial: `M-${Date.now().toString().slice(-4)}`,
+                    nombre: queryTrimmed.toUpperCase(),
+                    descripcion: "ITEM MANUAL",
+                    manual: true,
+                  }
+                : null);
 
-  const agregarPagoConVuelto = useCallback((recibido, montoAImputar, vueltoCalculado) => {
-    if (recibido <= 0) return;
+        if (p) {
+          agregarItem(p, 1);
+          setMostrarDropdownProducto(false);
+        }
+      } else if (e.key === "Escape") setMostrarDropdownProducto(false);
+    },
+    [
+      codigoBusqueda,
+      productos,
+      highlightedIndex,
+      busquedaClaveProducto,
+      agregarItem,
+    ],
+  );
 
-    const nuevosPagos = [
-      {
-        id: `recibido-${Date.now()}`,
-        metodo: "efectivo",
-        monto: recibido,
-        detalles: "DINERO RECIBIDO",
-      },
-    ];
+  const handleClienteKeyDown = useCallback(
+    (e) => {
+      if (!mostrarDropdownCliente) return;
 
-    if (vueltoCalculado > 0) {
-      nuevosPagos.push({
-        id: `vuelto-${Date.now() + 1}`,
-        metodo: "efectivo",
-        monto: -vueltoCalculado,
-        detalles: "VUELTO ENTREGADO",
-      });
-    }
-
-    setListaPagos((prev) => [...prev, ...nuevosPagos]);
-
-    // Limpiar campos de pago
-    setNuevoPago((prev) => ({
-      ...prev,
-      monto: 0,
-      pagaCon: 0,
-    }));
-  }, []);
-
-  const agregarPago = useCallback(() => {
-    if (nuevoPago.monto <= 0) return;
-    setListaPagos((prev) => [...prev, { ...nuevoPago, id: Date.now() }]);
-    setNuevoPago({
-      metodo: "efectivo",
-      monto: 0,
-      pagaCon: 0,
-      detalles: "",
-      referencia: "",
-    });
-  }, [nuevoPago]);
-
-  const eliminarPago = useCallback((index) => {
-    setListaPagos((prev) => prev.filter((_, i) => i !== index));
-  }, []);
-
-  const handleCodigoKeyDown = useCallback((e) => {
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      const maxIndex =
-        codigoBusqueda.length > 0 ? productos.length : productos.length - 1;
-      setHighlightedIndex((p) => (p < maxIndex ? p + 1 : p));
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setHighlightedIndex((p) => (p > 0 ? p - 1 : 0));
-    } else if (e.key === "Enter") {
-      e.preventDefault();
-      const queryTrimmed = codigoBusqueda.trim();
-      let p =
-        highlightedIndex >= 0
-          ? highlightedIndex < productos.length
-            ? productos[highlightedIndex]
-            : queryTrimmed
-              ? {
-                  id: `m-${Date.now()}`,
-                  codigoSecuencial: `M-${Date.now().toString().slice(-4)}`,
-                  nombre: queryTrimmed.toUpperCase(),
-                  descripcion: "ITEM MANUAL",
-                  manual: true,
-                }
-              : null
-          : productos[0] ||
-            (queryTrimmed
-              ? {
-                  id: `m-${Date.now()}`,
-                  codigoSecuencial: `M-${Date.now().toString().slice(-4)}`,
-                  nombre: queryTrimmed.toUpperCase(),
-                  descripcion: "ITEM MANUAL",
-                  manual: true,
-                }
-              : null);
-
-      if (p) {
-        agregarItem(p, 1);
-        setMostrarDropdownProducto(false);
-      }
-    } else if (e.key === "Escape") setMostrarDropdownProducto(false);
-  }, [
-    codigoBusqueda,
-    productos,
-    highlightedIndex,
-    busquedaClaveProducto,
-    agregarItem,
-  ]);
-
-  const handleClienteKeyDown = useCallback((e) => {
-    if (!mostrarDropdownCliente) return;
-
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setHighlightedIndexCliente((p) =>
-        p < clientesFiltrados.length - 1 ? p + 1 : p,
-      );
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setHighlightedIndexCliente((p) => (p > 0 ? p - 1 : 0));
-    } else if (e.key === "Enter") {
-      e.preventDefault();
-      if (
-        highlightedIndexCliente >= 0 &&
-        highlightedIndexCliente < clientesFiltrados.length
-      ) {
-        const c = clientesFiltrados[highlightedIndexCliente];
-        setClienteSeleccionado(c);
-        setBusquedaCliente(`${c.razonSocial || c.nombre + " " + c.apellido}`);
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setHighlightedIndexCliente((p) =>
+          p < clientesFiltrados.length - 1 ? p + 1 : p,
+        );
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setHighlightedIndexCliente((p) => (p > 0 ? p - 1 : 0));
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        if (
+          highlightedIndexCliente >= 0 &&
+          highlightedIndexCliente < clientesFiltrados.length
+        ) {
+          const c = clientesFiltrados[highlightedIndexCliente];
+          setClienteSeleccionado(c);
+          setBusquedaCliente(`${c.razonSocial || c.nombre + " " + c.apellido}`);
+          setMostrarDropdownCliente(false);
+          setHighlightedIndexCliente(-1);
+        }
+      } else if (e.key === "Escape") {
         setMostrarDropdownCliente(false);
         setHighlightedIndexCliente(-1);
       }
-    } else if (e.key === "Escape") {
-      setMostrarDropdownCliente(false);
-      setHighlightedIndexCliente(-1);
-    }
-  }, [
-    mostrarDropdownCliente,
-    clientesFiltrados,
-    highlightedIndexCliente,
-  ]);
+    },
+    [mostrarDropdownCliente, clientesFiltrados, highlightedIndexCliente],
+  );
 
   const handleFinalizar = useCallback(() => {
-    if (items.length === 0) {
+    if (cart.items.length === 0) {
       agregarAlerta({
         title: "Carrito vacío",
         message: "Agregue al menos un producto para facturar",
@@ -725,35 +515,21 @@ export const useComprobantes = () => {
       return;
     }
     setMostrarPreview(true);
-  }, [items.length, agregarAlerta]);
+  }, [cart.items.length, agregarAlerta]);
 
   const confirmarVentaFinal = useCallback(async () => {
     if (mutationGenerar.isPending) return;
 
-    const letraDerivada =
-      tipoDocumento === 99
-        ? "X"
-        : [1, 2, 3, 4, 5].includes(Number(tipoDocumento))
-          ? "A"
-          : [6, 7, 8, 9, 10].includes(Number(tipoDocumento))
-            ? "B"
-            : "C";
-
-    // Función auxiliar para redondear a 2 decimales
     const r2 = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
-    // Recalculamos los items asegurando el desglose Neto/IVA para AFIP
-    const itemsProcesados = items.map((i) => {
-      const subtotalLinea = r2(calcularTotalItem(i)); // ANTES NO ESTABA REDONDEADO
-      const netoLinea = r2(calcularNetoItem(i, aplicaIva));
+    const itemsProcesados = cart.items.map((i) => {
+      const subtotalLinea = r2(calcularTotalItem(i));
+      const netoLinea = r2(calcularNetoItem(i, fiscal.aplicaIva));
       const ivaLinea = r2(subtotalLinea - netoLinea);
       const precioUnitarioNeto = r2(netoLinea / (i.cantidad || 1));
 
-      // Obtenemos el ID original para saber si es manual o de DB
-      const rawId = i.codigoSecuencial || i.id;
-
       return {
-        rawId,
+        rawId: i.codigoSecuencial || i.id,
         nombre: i.nombre,
         cantidad: i.cantidad,
         precioUnitario: precioUnitarioNeto,
@@ -765,278 +541,173 @@ export const useComprobantes = () => {
       };
     });
 
-    // Recalculamos totales globales para que coincidan EXACTO con la suma de los items redondeados
-    const totalNetoFinal = r2(
-      itemsProcesados.reduce((acc, i) => acc + i.neto, 0),
-    );
-    const totalIvaFinal = r2(
-      itemsProcesados.reduce((acc, i) => acc + (i.iva || 0), 0),
-    );
-    const totalVentaFinal = r2(totalNetoFinal + totalIvaFinal);
-
-    console.log("clienteSeleccionado", clienteSeleccionado);
-    // VALIDACIÓN PREVIA PARA FACTURA A
-    if (
-      letraDerivada === "A" &&
-      (!clienteSeleccionado ||
-        (clienteSeleccionado.condicionIva !== "RI" &&
-          clienteSeleccionado.condicionIVA !== "RI"))
-    ) {
-      agregarAlerta({
-        title: "Cliente No Válido",
-        message:
-          "Para emitir una Factura A es obligatorio seleccionar un cliente que sea Responsable Inscripto.",
-        type: "error",
-      });
-      return;
-    }
-
-    // La venta solo puede ser fiscal si el modo está en "si" Y el usuario tiene permiso/conexión real
-    const esFiscalFinal = enBlanco === "si" && usuario?.conexionArca === true;
-
-    console.log(
-      "[POS] Generando comprobante. Cliente:",
-      clienteSeleccionado?.codigoSecuencial || "NULO",
-      "Periodo:",
-      periodo,
-    );
-
-    // Mapeo detallado del DTO para el backend
-    const dto = {
-      puntoVenta: tipoDocumento === 99 ? 99 : 1,
-      codigoUsuario: usuario?.id || 1,
-      tipoDocumento: Number(tipoDocumento),
-      letraComprobante: letraDerivada,
-      fiscal: esFiscalFinal,
+    const body = {
+      puntoVenta: Number(unidadActiva?.puntoVenta || 1),
+      codigoUsuario: Number(usuario?.codigoUsuario || usuario?.id || 1),
       codigoCliente: clienteSeleccionado?.codigoSecuencial || null,
-      condicionVenta: condicionVenta || "Contado",
-      observaciones: observaciones,
-      periodo: periodo, // CAMPO ESTRUCTURADO
-      pagos: listaPagos.map((p) => ({
-        metodo: p.metodo.toUpperCase(),
-        monto: p.monto,
-        detalles: p.detalles,
+      tipoDocumento: Number(fiscal.tipoDocumento),
+      letraComprobante: fiscal.enBlanco === "si"
+        ? obtenerLetraDeComprobante(fiscal.tipoDocumento)
+        : "X",
+      metodoPago: pagos.metodoPago,
+      pagos: pagos.listaPagos.map((p) => ({
+        metodo: p.metodo,
+        monto: r2(p.monto),
         referencia: p.referencia,
+        detalles: p.detalles || "",
       })),
-      totales: {
-        subtotal: totalNetoFinal,
-        iva: totalIvaFinal,
-        total: totalVentaFinal,
-      },
-      items: itemsProcesados.map((i) => {
-        // Aseguramos que el codigoProducto sea numérico o null para que el DTO valide bien
-        const rawIdStr = String(i.rawId || "");
-        const isManual = rawIdStr.toLowerCase().startsWith("m-");
-        const codigoNumerico = isManual ? null : Number(i.rawId);
-
+      condicionVenta: condicionVenta,
+      items: cart.items.map((item) => {
+        const pUnit = r2(item.precioUnitario || item.precioVenta);
+        const cant = Number(item.cantidad);
         return {
-          codigoProducto:
-            codigoNumerico && !isNaN(codigoNumerico) ? codigoNumerico : null,
-          nombre: i.nombre,
-          cantidad: i.cantidad,
-          precioUnitario: i.precioUnitario,
-          descuento: i.descuento,
-          tasaIva: i.tasaIva,
-          subtotal: i.subtotal,
+          codigoProducto: Number(item.id_producto || item.id) || undefined,
+          nombre: item.nombre || item.descripcion,
+          cantidad: cant,
+          precioUnitario: pUnit,
+          subtotal: r2(pUnit * cant),
+          tasaIva: 21, // O el que corresponda
         };
       }),
-      comprobantesAsociados: (() => {
-        if (!comprobanteAsociado) return undefined;
-        // Buscamos la factura origen para sacar los datos técnicos (Tipo, PtoVta, Nro)
-        const facturaOrigen = facturas.find((f) => {
-          const nroFormateado = `${String(f.puntoVenta).padStart(5, "0")}-${String(f.numeroComprobante).padStart(8, "0")}`;
-          return nroFormateado === comprobanteAsociado;
-        });
-
-        if (facturaOrigen) {
-          return [
+      totales: {
+        total: r2(cart.totales.total),
+        iva: r2(cart.totales.iva),
+        subtotal: r2(cart.totales.subtotal),
+      },
+      fiscal: fiscal.enBlanco === "si",
+      comprobantesAsociados: comprobanteAsociado
+        ? [
             {
-              tipo: Number(facturaOrigen.tipoDocumento),
-              ptoVta: Number(facturaOrigen.puntoVenta),
-              nro: Number(facturaOrigen.numeroComprobante),
+              tipo: 1, // Por ahora fijo, luego se puede mapear
+              ptoVta: Number(comprobanteAsociado.split("-")[0]),
+              nro: Number(comprobanteAsociado.split("-")[1]),
             },
-          ];
-        }
-        return undefined;
-      })(),
-      receptor: clienteSeleccionado
-        ? (() => {
-            // Si el alumno tiene un ente facturador (responsable), le facturamos a él
-            // pero el código de cliente que enviamos al backend sigue siendo el del alumno
-            const ente = clienteSeleccionado.enteFacturacion;
-            const target = ente?.codigoSecuencial ? ente : clienteSeleccionado;
-
-            // Mapeo de Condicion IVA (Sigla -> ID AFIP)
-            const mapaIva = {
-              RI: 1, // Responsable Inscripto
-              RM: 4, // Responsable Monotributo
-              MO: 4, // Monotributista
-              EX: 6, // IVA Sujeto Exento
-              CF: 5, // Consumidor Final
-            };
-
-            const nroDoc =
-              Number(target.documento?.toString().replace(/-/g, "")) || 0;
-
-            return {
-              razonSocial:
-                target.razonSocial || `${target.nombre} ${target.apellido}`,
-              DocTipo:
-                nroDoc === 0
-                  ? 99 // Consumidor Final (Requerido por AFIP si nro es 0)
-                  : letraDerivada === "A"
-                    ? 80
-                    : nroDoc.toString().length > 8
-                      ? 80
-                      : 96,
-              DocNro: nroDoc,
-              CondicionIVAReceptorId:
-                nroDoc === 0
-                  ? 5
-                  : mapaIva[target.condicionIva] ||
-                    mapaIva[target.condicionIVA] ||
-                    5,
-              domicilio: target.domicilio || target.direccion || "",
-            };
-          })()
-        : receptorVinculado
-          ? {
-              razonSocial: receptorVinculado.razonSocial || "CONSUMIDOR FINAL",
-              DocTipo: Number(receptorVinculado.DocTipo) || 99,
-              DocNro: Number(receptorVinculado.DocNro) || 0,
-              CondicionIVAReceptorId:
-                Number(receptorVinculado.CondicionIVAReceptorId) || 5,
-              domicilio: receptorVinculado.domicilio || "",
-            }
-          : {
-              razonSocial: "CONSUMIDOR FINAL",
-              DocTipo: 99,
-              DocNro: 0,
-              CondicionIVAReceptorId: 5,
-              domicilio: "",
-            },
+          ]
+        : [],
+      observaciones: observaciones || "",
+      periodo: periodo || null,
     };
 
-    console.log(dto);
+    console.log("Enviando DTO Final:", body);
 
-    try {
-      await mutationGenerar.mutateAsync({
-        dto,
-        codigoEmpresa: usuario?.codigoEmpresa || 1,
-        codigoUnidadNegocio: unidadLocal || 0, // <--- Usamos la local
-      });
-
-      // Si la petición es exitosa:
-      setItems([]);
-      setObservaciones("");
-      setMostrarPreview(false);
-      limpiarCaptura();
-    } catch (error) {
-      console.error("Error al procesar la venta en el frontend:", error);
-    }
+    mutationGenerar.mutate(
+      {
+        dto: body,
+        codigoEmpresa: Number(usuario?.codigoEmpresa || 1),
+        codigoUnidadNegocio: Number(unidadLocal),
+      },
+      {
+        onSuccess: () => {
+          agregarAlerta({
+            title: "Venta Exitosa",
+            message: "Comprobante generado correctamente",
+            type: "success",
+          });
+          cart.setItems([]);
+          pagos.setListaPagos([]);
+          setClienteSeleccionado(null);
+          setBusquedaCliente("");
+          setComprobanteAsociado("");
+          setObservaciones("");
+          setMostrarPreview(false);
+          limpiarCaptura();
+        },
+        onError: (err) => {
+          console.error("Error al generar venta:", err);
+        },
+      },
+    );
   }, [
-    mutationGenerar,
-    tipoDocumento,
-    items,
+    cart,
+    fiscal,
+    pagos,
     clienteSeleccionado,
-    enBlanco,
-    usuario,
-    periodo,
     condicionVenta,
-    observaciones,
-    listaPagos,
     comprobanteAsociado,
-    facturas,
-    receptorVinculado,
-    aplicaIva,
+    observaciones,
+    periodo,
     unidadLocal,
-    limpiarCaptura,
+    mutationGenerar,
     agregarAlerta,
+    limpiarCaptura,
+    usuario,
+    unidadActiva, // AÑADIDAS DEPENDENCIAS CRÍTICAS
   ]);
 
-  // Exponer API del hook
   return {
-    // Datos
-    items,
-    totales,
-    productos,
-    cargandoProductos,
-    tiposComprobante,
-    cargandoVouchers,
-    clientes: clientesRaw,
-    facturas,
+    ...cart,
+    ...fiscal,
+    ...pagos,
     usuario,
+    unidadLocal,
+    setUnidadLocal,
     entidades,
-    // Estados UI
+    entidadSeleccionada,
+    setEntidadSeleccionada,
+    busquedaCliente,
+    setBusquedaCliente,
+    clienteSeleccionado,
+    setClienteSeleccionado,
+    mostrarDropdownCliente,
+    setMostrarDropdownCliente,
+    highlightedIndexCliente,
+    setHighlightedIndexCliente,
+    clientesFiltrados,
+    filtrosProductos,
+    setFiltrosProductos,
+    busquedaClaveProducto,
+    setBusquedaClaveProducto,
     codigoBusqueda,
     setCodigoBusqueda,
     cantidadInput,
     setCantidadInput,
-    product: productoEncontrado,
     mostrarDropdownProducto,
     setMostrarDropdownProducto,
     highlightedIndex,
     setHighlightedIndex,
-    busquedaClaveProducto,
-    setBusquedaClaveProducto,
-    columnaPrecioSeleccionada,
-    setColumnaPrecioSeleccionada,
-    camposDinamicos,
-    cargandoConfigs,
-    tipoDocumento,
-    setTipoDocumento,
-    enBlanco,
-    setEnBlanco,
-    aplicaIva,
-    metodoPago,
-    setMetodoPago,
-    clienteSeleccionado,
-    setClienteSeleccionado,
-    busquedaCliente,
-    setBusquedaCliente,
-    mostrarDropdownCliente,
-    setMostrarDropdownCliente,
-    condicionVenta,
-    setCondicionVenta,
-    entidadSeleccionada,
-    setEntidadSeleccionada,
-    clientesFiltrados,
-    highlightedIndexCliente,
-    setHighlightedIndexCliente,
-    observaciones,
-    setObservaciones,
-    // Pagos multiples
-    listaPagos,
-    setListaPagos,
-    vuelto,
-    nuevoPago,
-    setNuevoPago,
-    agregarPago,
-    agregarPagoConVuelto,
-    eliminarPago,
-    busquedaFactura,
-    setBusquedaFactura,
+    productos,
+    cargandoProductos,
     comprobanteAsociado,
     setComprobanteAsociado,
+    busquedaFactura,
+    setBusquedaFactura,
     mostrarDropdownFactura,
     setMostrarDropdownFactura,
     mostrarPreview,
     setMostrarPreview,
     tabActiva,
     setTabActiva,
-    unidadLocal,
-    setUnidadLocal,
-    // Refs
+    observaciones,
+    setObservaciones,
+    camposDinamicos,
+    cargandoConfigs,
+    columnaPrecioSeleccionada,
+    setColumnaPrecioSeleccionada,
+    periodo,
     inputCodigoRef,
     inputCantidadRef,
-    // Handlers
-    agregarItem,
-    eliminarItem,
-    actualizarItem,
     handleCodigoKeyDown,
     handleClienteKeyDown,
     handleFinalizar,
     confirmarVentaFinal,
+    condicionVenta,
+    setCondicionVenta,
     cargandoCobro: mutationGenerar.isPending,
+    paso,
+    setPaso,
+    siguientePaso,
+    anteriorPaso,
+    // Manual
+    nombreManual,
+    setNombreManual,
+    precioManual,
+    setPrecioManual,
+    mostrandoManual,
+    setMostrandoManual,
+    agregarItemManual,
+    // Contactos
+    mostrarFormularioContacto,
+    setMostrarFormularioContacto,
+    puedeHacerFiscal,
   };
 };

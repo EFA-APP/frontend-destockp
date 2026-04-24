@@ -147,7 +147,7 @@ const DrawerActualizarStock = ({
     <div className="fixed inset-0 z-[100] flex justify-end">
       {/* Overlay background (blur) */}
       <div
-        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 bg-black/20 backdrop-blur-sm   ${isOpen ? "opacity-100" : "opacity-0"}`}
         onClick={!isPending ? onClose : undefined}
       />
 
@@ -156,7 +156,7 @@ const DrawerActualizarStock = ({
         className={`
                 relative w-full max-w-md h-full bg-[var(--surface-active)] shadow-[-10px_0_30px_max(rgba(0,0,0,0.5))] 
                 border-l border-[var(--border-subtle)] flex flex-col
-                transform transition-transform duration-400 cubic-bezier(0.16, 1, 0.3, 1)
+                transform   cubic-bezier(0.16, 1, 0.3, 1)
                 ${isOpen ? "translate-x-0" : "translate-x-full"}
             `}
       >
@@ -167,10 +167,10 @@ const DrawerActualizarStock = ({
               <InventarioIcono size={20} strokeWidth={2.5} />
             </div>
             <div className="flex flex-col">
-              <p className="text-[16px] font-black text-white leading-tight uppercase tracking-tight">
+              <p className="text-[18px] font-black text-black leading-tight uppercase tracking-tight">
                 {fila.nombre}
               </p>
-              <h2 className="text-[11px] text-[var(--primary-light)] font-medium uppercase tracking-widest mt-0.5">
+              <h2 className="text-[13px] text-[var(--primary-light)] font-medium uppercase tracking-widest mt-0.5">
                 Operación de Stock
               </h2>
             </div>
@@ -178,25 +178,25 @@ const DrawerActualizarStock = ({
           <button
             onClick={onClose}
             disabled={isPending}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-secondary)] hover:text-white hover:bg-white/10 transition-colors"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-secondary)] hover:text-black hover:bg-black/10 "
           >
             <X size={18} strokeWidth={2.5} />
           </button>
         </div>
 
         {/* Sub-Header: Selector de Modo (Tabs) */}
-        <div className="px-6 py-3 border-b border-white/5 bg-black/20 flex gap-2 shrink-0">
+        <div className="px-6 py-3 border-b border-black/5 bg-[var(--border-subtle)] flex gap-2 shrink-0">
           <button
             type="button"
             onClick={() => setModo("ajuste")}
-            className={`flex-1 py-2 rounded-lg text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${modo === "ajuste" ? "bg-[var(--primary)]/20 border border-[var(--primary)]/30 text-[var(--primary)] shadow-md" : "text-white/40 hover:bg-white/5 border border-transparent"}`}
+            className={`flex-1 py-2 rounded-lg text-[13px] font-black uppercase tracking-wider flex items-center justify-center gap-2  ${modo === "ajuste" ? "bg-[var(--primary)]/20 border border-[var(--primary)]/30 text-[var(--primary)] shadow-md" : "text-[var(--text-theme)] hover:bg-black/5 border border-transparent"}`}
           >
             <TrendingUp size={14} /> Ajuste manual
           </button>
           <button
             type="button"
             onClick={() => setModo("transferencia")}
-            className={`flex-1 py-2 rounded-lg text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${modo === "transferencia" ? "bg-blue-500/20 border border-blue-500/30 text-blue-400 shadow-md" : "text-white/40 hover:bg-white/5 border border-transparent"}`}
+            className={`flex-1 py-2 rounded-lg text-[13px] font-black uppercase tracking-wider flex items-center justify-center gap-2  ${modo === "transferencia" ? "bg-blue-700/20 border border-blue-700/30 text-blue-400 shadow-md" : "text-[var(--text-theme)] hover:bg-black/5 border border-transparent"}`}
           >
             <ArrowLeftRight size={14} /> Transferencia
           </button>
@@ -214,7 +214,7 @@ const DrawerActualizarStock = ({
               <>
                 {/* Selector de Depósito */}
                 <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-1.5 ml-1">
+                  <label className="text-[13px] font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-1.5 ml-1">
                     <Database size={14} className="text-[var(--primary)]/70" />
                     Depósito
                   </label>
@@ -223,12 +223,12 @@ const DrawerActualizarStock = ({
                       value={depositoSeleccionado}
                       onChange={(e) => setDepositoSeleccionado(e.target.value)}
                       disabled={isPending}
-                      className="w-full h-12 bg-black/40 border border-white/10 rounded-xl pl-4 pr-10 text-[14px] font-medium text-white focus:outline-none focus:border-[var(--primary)]/50 appearance-none transition-all group-hover:border-white/20"
+                      className="w-full h-12 bg-[var(--border-subtle)] border border-black/10 rounded-xl pl-4 pr-10 text-[16px] font-medium text-black focus:outline-none focus:border-[var(--primary)]/50 appearance-none  group-hover:border-black/20"
                     >
                       <option
                         value=""
                         disabled
-                        className="bg-[var(--surface)] text-white/50"
+                        className="bg-[var(--surface)] text-black/50"
                       >
                         Seleccione un depósito...
                       </option>
@@ -236,47 +236,47 @@ const DrawerActualizarStock = ({
                         <option
                           key={dep.codigoSecuencial}
                           value={dep.codigoSecuencial}
-                          className="bg-[var(--surface)] text-white"
+                          className="bg-[var(--surface)] text-black"
                         >
                           {dep.nombre}
                         </option>
                       ))}
                     </select>
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                      <ChevronDown size={16} className="text-white/30" />
+                      <ChevronDown size={16} className="text-black/30" />
                     </div>
                   </div>
                 </div>
 
                 {/* Tipo de Ajuste */}
                 <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  <label className="text-[13px] font-bold text-[var(--text-muted)] uppercase tracking-widest ml-1">
                     Tipo de Ajuste
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       type="button"
                       onClick={() => setTipoAjuste("agregar")}
-                      className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-300 relative overflow-hidden ${tipoAjuste === "agregar" ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" : "bg-black/20 border-white/5 text-white/40 hover:bg-white/5"}`}
+                      className={`flex flex-col items-center justify-center p-3 rounded-xl border   relative overflow-hidden ${tipoAjuste === "agregar" ? "bg-emerald-700/10 border-emerald-700/30 text-emerald-700" : "bg-black/10 border-black/5 text-black/40 hover:bg-black/5"}`}
                     >
                       {tipoAjuste === "agregar" && (
-                        <div className="absolute inset-x-0 top-0 h-0.5 bg-emerald-500" />
+                        <div className="absolute inset-x-0 top-0 h-0.5 bg-emerald-700" />
                       )}
                       <TrendingUp size={22} className="mb-1.5" />
-                      <span className="text-[11px] font-black uppercase tracking-widest">
+                      <span className="text-[13px]  font-black uppercase tracking-widest">
                         Aumentar
                       </span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setTipoAjuste("quitar")}
-                      className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-300 relative overflow-hidden ${tipoAjuste === "quitar" ? "bg-red-500/10 border-red-500/30 text-red-400" : "bg-black/20 border-white/5 text-white/40 hover:bg-white/5"}`}
+                      className={`flex flex-col items-center justify-center p-3 rounded-xl border   relative overflow-hidden ${tipoAjuste === "quitar" ? "bg-red-700/10 border-red-700/30 text-red-700" : "bg-black/10 border-black/5 text-black/40 hover:bg-black/5"}`}
                     >
                       {tipoAjuste === "quitar" && (
-                        <div className="absolute inset-x-0 top-0 h-0.5 bg-red-500" />
+                        <div className="absolute inset-x-0 top-0 h-0.5 bg-red-700" />
                       )}
                       <TrendingDown size={22} className="mb-1.5" />
-                      <span className="text-[11px] font-black uppercase tracking-widest">
+                      <span className="text-[13px] font-black uppercase tracking-widest">
                         Disminuir
                       </span>
                     </button>
@@ -290,8 +290,8 @@ const DrawerActualizarStock = ({
               <>
                 {/* Depósito Origen */}
                 <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-red-400/80 uppercase tracking-widest flex items-center gap-1.5 ml-1">
-                    <Database size={14} className="text-red-400/70" />
+                  <label className="text-[13px] font-bold text-[var(--text-theme)]/80 uppercase tracking-widest flex items-center gap-1.5 ml-1">
+                    <Database size={14} className="text-red-700" />
                     Depósito de Origen (Egreso)
                   </label>
                   <div className="relative group">
@@ -299,12 +299,12 @@ const DrawerActualizarStock = ({
                       value={depositoOrigen}
                       onChange={(e) => setDepositoOrigen(e.target.value)}
                       disabled={isPending}
-                      className="w-full h-12 bg-black/40 border border-red-500/10 rounded-xl pl-4 pr-10 text-[14px] font-medium text-white focus:outline-none focus:border-red-500/50 appearance-none transition-all"
+                      className="w-full h-12 bg-[var(--border-subtle)] border border-black/10 rounded-xl pl-4 pr-10 text-[16px] font-medium text-black focus:outline-none focus:border-[var(--primary)]/50 appearance-none"
                     >
                       <option
                         value=""
                         disabled
-                        className="bg-[var(--surface)] text-white/50"
+                        className="bg-[var(--surface)] text-black/50"
                       >
                         Seleccione origen...
                       </option>
@@ -312,27 +312,27 @@ const DrawerActualizarStock = ({
                         <option
                           key={dep.codigoSecuencial}
                           value={dep.codigoSecuencial}
-                          className="bg-[var(--surface)] text-white"
+                          className="bg-[var(--surface)] text-black"
                         >
                           {dep.nombre}
                         </option>
                       ))}
                     </select>
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                      <ChevronDown size={16} className="text-white/30" />
+                      <ChevronDown size={16} className="text-black/30" />
                     </div>
                   </div>
-                  <span className="text-[10px] text-white/40 ml-1">
-                    Stock actual en origen:{" "}
-                    <b className="text-white">{stockOrigenActual}</b>
+                  <span className="text-[14px] font-semibold text-[var(--text-theme)] ml-1">
+                    Stock actual:{" "}
+                    <b className="text-[var(--primary)]">{stockOrigenActual}</b>
                   </span>
                 </div>
 
                 {/* Icono Intermedio */}
                 <div className="flex justify-center -my-2">
-                  <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/30 text-blue-400">
+                  <div className="w-8 h-8 rounded-full bg-blue-700/10 flex items-center justify-center border border-blue-700 text-blue-700">
                     <ArrowLeftRight
-                      size={14}
+                      size={16}
                       className="rotate-90 md:rotate-0"
                     />
                   </div>
@@ -340,21 +340,21 @@ const DrawerActualizarStock = ({
 
                 {/* Depósito Destino */}
                 <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-emerald-400/80 uppercase tracking-widest flex items-center gap-1.5 ml-1">
-                    <Database size={14} className="text-emerald-400/70" />
-                    Depósito de Destino (Ingreso)
+                  <label className="text-[13px] font-bold text-[var(--text-theme)]/80 uppercase tracking-widest flex items-center gap-1.5 ml-1">
+                    <Database size={14} className="text-green-600" />
+                    Depósito de Destino
                   </label>
                   <div className="relative group">
                     <select
                       value={depositoDestino}
                       onChange={(e) => setDepositoDestino(e.target.value)}
                       disabled={isPending}
-                      className="w-full h-12 bg-black/40 border border-emerald-500/10 rounded-xl pl-4 pr-10 text-[14px] font-medium text-white focus:outline-none focus:border-emerald-500/50 appearance-none transition-all"
+                      className="w-full h-12 bg-[var(--border-subtle)] border border-black/10 rounded-xl pl-4 pr-10 text-[16px] font-medium text-black focus:outline-none focus:border-[var(--primary)]/50 appearance-none "
                     >
                       <option
                         value=""
                         disabled
-                        className="bg-[var(--surface)] text-white/50"
+                        className="bg-[var(--surface)] text-black/50"
                       >
                         Seleccione destino...
                       </option>
@@ -365,14 +365,14 @@ const DrawerActualizarStock = ({
                           disabled={
                             dep.codigoSecuencial?.toString() === depositoOrigen
                           }
-                          className="bg-[var(--surface)] disabled:opacity-30 text-white"
+                          className="bg-[var(--surface)] disabled:opacity-30 text-black"
                         >
                           {dep.nombre}
                         </option>
                       ))}
                     </select>
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                      <ChevronDown size={16} className="text-white/30" />
+                      <ChevronDown size={16} className="text-black/30" />
                     </div>
                   </div>
                 </div>
@@ -381,16 +381,16 @@ const DrawerActualizarStock = ({
 
             {/* Cantidad Input Enorme */}
             <div className="space-y-2">
-              <label className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest ml-1 flex justify-between items-end">
+              <label className="text-[13px] font-bold text-[var(--text-theme)]/80 uppercase tracking-widest ml-1 flex justify-between items-end">
                 <span>
                   Cantidad a {modo === "ajuste" ? "Modificar" : "Transferir"}
                 </span>
               </label>
               <div
-                className={`relative flex items-center justify-center bg-black/40 border rounded-xl p-2 transition-all focus-within:border-[var(--primary)]/50 ${modo === "transferencia" ? "border-blue-500/10 focus-within:border-blue-500/50" : "border-white/10"}`}
+                className={`relative flex items-center justify-center bg-[var(--border-subtle)] border rounded-xl p-2  focus-within:border-[var(--primary)]/50 ${modo === "transferencia" ? "border-blue-700/10 focus-within:border-blue-700/50" : "border-black/10"}`}
               >
                 <div
-                  className={`px-4 text-3xl font-black ${modo === "transferencia" ? "text-blue-400" : tipoAjuste === "agregar" ? "text-emerald-500" : "text-red-500"}`}
+                  className={`px-4 text-3xl font-black ${modo === "transferencia" ? "text-blue-400" : tipoAjuste === "agregar" ? "text-emerald-700" : "text-red-700"}`}
                 >
                   {modo === "transferencia"
                     ? "⇋"
@@ -406,35 +406,34 @@ const DrawerActualizarStock = ({
                   placeholder="0"
                   max={modo === "transferencia" ? stockOrigenActual : undefined} // Sugerido max en transfer
                   disabled={isPending}
-                  className="w-full bg-transparent text-center text-[25px] font-black text-white focus:outline-none py-4"
+                  className="w-full bg-transparent text-center text-[27px] font-black text-black focus:outline-none py-4"
                 />
-                <div className="px-4 text-[10px] font-bold uppercase tracking-widest text-white/20">
+                <div className="px-4 text-[12px] font-bold uppercase tracking-widest text-black/20">
                   {fila.unidadMedida || "UNI"}
                 </div>
               </div>
               {modo === "transferencia" &&
                 Number(cantidad) > stockOrigenActual && (
-                  <p className="text-[10px] text-red-500 font-bold ml-1">
-                    ⚠ La cantidad supera el stock actual disponible en el
-                    origen.
+                  <p className="text-[12px] text-red-700 font-semibold ml-1">
+                    La cantidad supera el stock actual disponible en el origen.
                   </p>
                 )}
             </div>
 
             {/* Previsualización del cálculo si seleccionó cantidad */}
             {modo === "ajuste" && depositoSeleccionado && cantidad && (
-              <div className="flex items-center justify-center gap-4 bg-white/[0.02] p-3 rounded-lg border border-white/5">
-                <span className="text-[10px] uppercase font-bold text-white">
+              <div className="flex items-center justify-center gap-4 bg-white/[0.02] p-3 rounded-lg border border-black/5">
+                <span className="text-[12px] uppercase font-bold text-black">
                   Act:{" "}
-                  <b className="text-[13px] font-black text-[var(--primary)]">
+                  <b className="text-[15px] font-black text-[var(--primary)]">
                     {stockActualCalculado}
                   </b>
                 </span>
-                <ArrowRight size={14} className="text-blue-500" />
-                <span className="text-[10px] uppercase font-bold text-white">
+                <ArrowRight size={14} className="text-blue-700" />
+                <span className="text-[12px] uppercase font-bold text-black">
                   Post:{" "}
                   <b
-                    className={`text-[15px] font-black ${proximoStock < 0 ? "text-red-500" : "text-emerald-500"}`}
+                    className={`text-[17px] font-black ${proximoStock < 0 ? "text-red-700" : "text-emerald-700"}`}
                   >
                     {proximoStock}
                   </b>
@@ -444,8 +443,8 @@ const DrawerActualizarStock = ({
 
             {/* Observación */}
             <div className="space-y-1 pt-2">
-              <label className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-1.5 ml-1">
-                <Info size={14} className="text-white/30" /> Observación
+              <label className="text-[13px] font-bold text-[var(--text-theme)]/80 uppercase tracking-widest flex items-center gap-1.5 ml-1">
+                <Info size={14} className="text-black/30" /> Observación
                 (Opcional)
               </label>
               <textarea
@@ -454,14 +453,14 @@ const DrawerActualizarStock = ({
                 placeholder="Escribe motivos de la operación..."
                 disabled={isPending}
                 rows={2}
-                className="w-full bg-black/30 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-[var(--primary)]/50 transition-colors resize-none"
+                className="w-full bg-[var(--border-subtle)] border border-black/10 rounded-xl p-3 text-sm text-black focus:outline-none focus:border-[var(--primary)]/50  resize-none"
               />
             </div>
           </form>
         </div>
 
         {/* Footer Flotante Interno */}
-        <div className="p-6 md:pb-6 pb-20 border-t border-[var(--border-subtle)] bg-black/40 shrink-0">
+        <div className="p-6 md:pb-6 pb-20 border-t border-[var(--border-subtle)] bg-[var(--primary-subtle)] shrink-0">
           <button
             type="submit"
             form="stock-drawer-form"
@@ -475,7 +474,7 @@ const DrawerActualizarStock = ({
                   Number(cantidad) > stockOrigenActual))
             }
             className={`
-                            w-full h-14 rounded-xl text-[13px] font-black uppercase tracking-[0.1em] text-white transition-all duration-300 flex items-center justify-center gap-3 shadow-xl border
+                            w-full h-14 rounded-xl text-[15px] font-black uppercase tracking-[0.1em] text-black   flex items-center justify-center gap-3 shadow-xl border cursor-pointer!
                             ${
                               !cantidad ||
                               (modo === "ajuste" && !depositoSeleccionado) ||
@@ -483,19 +482,19 @@ const DrawerActualizarStock = ({
                                 (!depositoOrigen ||
                                   !depositoDestino ||
                                   Number(cantidad) > stockOrigenActual))
-                                ? "bg-white/5 border-white/10 text-white/20 cursor-not-allowed"
+                                ? "bg-black/5 border-black/10 text-black/20 cursor-not-allowed"
                                 : modo === "transferencia"
-                                  ? "bg-gradient-to-r from-blue-600 to-blue-500 hover:to-blue-400 border-blue-500/50 shadow-blue-500/30"
+                                  ? "bg-gradient-to-r from-blue-600/20 to-blue-700/20 hover:to-blue-400 border-blue-700/50 shadow-blue-700/30 text-blue-600"
                                   : tipoAjuste === "agregar"
-                                    ? "bg-gradient-to-r from-emerald-600 to-emerald-500 hover:to-emerald-400 border-emerald-500/50 shadow-emerald-500/30"
-                                    : "bg-gradient-to-r from-red-600 to-red-500 hover:to-red-400 border-red-500/50 shadow-red-500/30"
+                                    ? "bg-gradient-to-r from-emerald-600/20 to-emerald-700/20 hover:to-emerald-400 border-emerald-700 shadow-emerald-700/30 text-emerald-600"
+                                    : "bg-gradient-to-r from-red-600/20 to-red-700/20 hover:to-red-400 border-red-700/50 shadow-red-700/30 text-red-600"
                             }
                         `}
           >
             {isPending ? (
               <>
                 <svg
-                  className="animate-spin h-5 w-5 text-white"
+                  className=" h-5 w-5 text-black"
                   fill="none"
                   viewBox="0 0 24 24"
                 >

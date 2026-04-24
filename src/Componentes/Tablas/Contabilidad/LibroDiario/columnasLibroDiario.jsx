@@ -1,9 +1,9 @@
 // columnasLibroDiario.js
 
 const origenColor = {
-  VENTA: "bg-blue-500/20 text-blue-400 border-blue-400/30",
-  COMPRA: "bg-teal-500/20 text-teal-400 border-teal-400/30",
-  MANUAL: "bg-green-500/20 text-green-400 border-green-400/30",
+  VENTA: "bg-blue-700/20 text-blue-400 border-blue-400/30",
+  COMPRA: "bg-teal-700/20 text-teal-400 border-teal-400/30",
+  MANUAL: "bg-green-700/20 text-green-400 border-green-400/30",
 };
 
 export const columnasLibroDiario = [
@@ -39,7 +39,9 @@ export const columnasLibroDiario = [
           >
             {fila.origen}
           </span>
-          <span className="text-xs text-[var(--primary-light)]">Ref: {fila.referencia}</span>
+          <span className="text-xs text-[var(--primary-light)]">
+            Ref: {fila.referencia}
+          </span>
         </div>
       </div>
     ),

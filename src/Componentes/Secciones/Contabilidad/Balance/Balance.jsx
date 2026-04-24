@@ -39,7 +39,7 @@ const Balance = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
           {/* ACTIVO */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">Activo</h3>
+            <h3 className="text-lg font-semibold text-black">Activo</h3>
 
             <div className="rounded-md border border-gray-700/40 bg-[var(--fill2)]">
               <FilaCuenta label="Caja y Bancos" monto={15000} />
@@ -57,7 +57,7 @@ const Balance = () => {
 
           {/* PASIVO + PATRIMONIO */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">
+            <h3 className="text-lg font-semibold text-black">
               Pasivo y Patrimonio
             </h3>
 
@@ -81,7 +81,7 @@ const Balance = () => {
         {/* Estado del balance */}
         <div className="bg-[var(--primary-opacity-10)] px-6 py-4 border-t border-[var(--primary)] flex justify-between items-center">
           <p className="text-sm text-[var(--primary)] font-semibold">
-            Total Activo: <span className="text-white">$73.000</span>
+            Total Activo: <span className="text-black">$73.000</span>
           </p>
 
           <p className="text-sm text-red-400 font-semibold">Desbalanceado ✖</p>
@@ -96,7 +96,7 @@ const Balance = () => {
 const FilaCuenta = ({ label, monto }) => (
   <div className="flex justify-between px-4 py-2 text-sm text-gray-300">
     <span>{label}</span>
-    <span className="text-white">${monto.toLocaleString()}</span>
+    <span className="text-black">${monto.toLocaleString()}</span>
   </div>
 );
 

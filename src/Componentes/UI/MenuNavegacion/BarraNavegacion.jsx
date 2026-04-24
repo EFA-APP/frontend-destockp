@@ -10,7 +10,6 @@ import { useEffect } from "react";
 
 import { Link } from "react-router-dom";
 // import MenuNotificacion from "../MenuNotificacion/MenuNotificacion";
-import { cerrarSesion } from "../../../Backend/Autenticacion/store/cerrarSesion";
 import BotonConfiguracion from "../BotonConfiguracion/BotonConfiguracion";
 import { useAuthStore } from "../../../Backend/Autenticacion/store/authenticacion.store";
 import { useSeleccionarUnidad } from "../../../Backend/Autenticacion/queries/Usuario/useSeleccionarUnidad.mutation";
@@ -36,10 +35,8 @@ const BarraNavegacion = () => {
 
   return (
     <header className="sticky top-0 z-[50]">
-      <nav className="px-5 bg-[var(--surface)] border-b border-[var(--border-subtle)] shadow-sm h-14 flex items-center justify-between transition-all duration-300">
-        <div className="flex-1 flex items-center md:hidden">
-          {/* Logo Mobile */}
-        </div>
+      <nav className="px-5 bg-[var(--fill)] border-b border-[var(--border-subtle)] h-14 flex items-center justify-between">
+        <div className="flex-1 flex items-center">{/* Logo Mobile */}</div>
 
         <div className="flex-1"></div>
 
@@ -57,23 +54,23 @@ const BarraNavegacion = () => {
               <button
                 onClick={() => verificarSesion(usuario)}
                 disabled={cargando}
-                className={`text-[var(--text-muted)] hover:text-[var(--primary)] transition-all duration-300 ${cargando ? "animate-spin" : "group-hover:rotate-180"}`}
+                className={`text-[var(--text-muted)] hover:text-[var(--primary)]   ${cargando ? "" : "group-hover:rotate-180"}`}
               >
                 <RefrescarIcono size={14} />
               </button>
-              <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest hidden sm:inline">
+              <span className="text-[12px] font-black text-[var(--text-muted)] uppercase tracking-widest hidden sm:inline">
                 ARCA{" "}
-                <span className="opacity-50 text-[8px]">
+                <span className="opacity-50 text-[10px]">
                   ({usuario?.datosFiscales?.esProduccion ? "PROD" : "HOMO"})
                 </span>
                 :
               </span>
               <div className="relative flex items-center">
                 {conectado && (
-                  <span className="absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
+                  <span className="absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75 "></span>
                 )}
                 <span
-                  className={`relative inline-flex h-2 w-2 rounded-full ${conectado ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-red-500"}`}
+                  className={`relative inline-flex h-2 w-2 rounded-full ${conectado ? "bg-emerald-700 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-red-700"}`}
                 ></span>
               </div>
             </div>
@@ -83,10 +80,10 @@ const BarraNavegacion = () => {
 
           {/* PERFIL */}
           <div className="flex items-center gap-4 ml-2 ">
-            <div className="flex-col items-end hidden md:flex">
-              <span className="text-[11px] font-bold text-[var(--text-primary)] leading-none">
+            <div className="flex-col items-end flex">
+              <span className="text-[13px] font-bold text-[var(--text-primary)] leading-none">
                 {`${usuario.nombre.toUpperCase()} ${usuario.apellido.toUpperCase()} `}{" "}
-                <span className="text-[11px] text-[var(--primary-light)] font-bold uppercase tracking-widest">
+                <span className="text-[13px] text-[var(--primary-light)] font-bold uppercase tracking-widest">
                   {!usuario.conexionArca
                     ? ""
                     : "(" +
@@ -95,21 +92,13 @@ const BarraNavegacion = () => {
                 </span>
               </span>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-[9px] text-[var(--secondary)] font-bold uppercase tracking-widest">
+                <span className="text-[11px] text-[var(--secondary)] font-bold uppercase tracking-widest">
                   {usuario.roles
                     ?.map((rol) => rol.nombre.toUpperCase())
                     .join(", ")}
                 </span>
               </div>
             </div>
-
-            <button
-              onClick={cerrarSesion}
-              className="p-2 rounded-md! bg-red-500/5! text-red-500! hover:bg-red-500! hover:text-white! transition-all! duration-300! cursor-pointer! border! border-red-500/20!"
-              title="Cerrar Sesión"
-            >
-              <CerrarSesionIcono size={16} />
-            </button>
           </div>
 
           {/* CONFIGURACION */}

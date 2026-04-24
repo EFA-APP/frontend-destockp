@@ -10,7 +10,7 @@ const TablaRoles = () => {
     const { roles, cargandoRol, eliminarRol } = useRolesUI();
 
     return (
-        <div className="animate-in fade-in duration-300">
+        <div className="  ">
             <DataTable id_tabla="roles"
                 datos={roles || []}
                 columnas={columnasRoles}

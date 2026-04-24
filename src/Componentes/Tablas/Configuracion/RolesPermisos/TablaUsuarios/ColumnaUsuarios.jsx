@@ -5,7 +5,7 @@ export const columnasUsuarios = [
         etiqueta: "Rol Asignado",
         key: "roles",
         renderizar: (valor) => valor ? (
-            <span className="px-2 py-1 bg-[var(--primary-subtle)] border border-[var(--primary)]/20 text-[var(--primary)] text-[10px] font-bold rounded-md uppercase">
+            <span className="px-2 py-1 bg-[var(--primary-subtle)] border border-[var(--primary)]/20 text-[var(--primary)] text-[12px] font-bold rounded-md uppercase">
                 {valor.map(rol => rol.nombre).join(", ")}
             </span>
         ) : (

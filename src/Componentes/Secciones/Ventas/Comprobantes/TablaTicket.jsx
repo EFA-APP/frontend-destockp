@@ -12,12 +12,12 @@ const TablaTicket = ({
     <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
       <div className="bg-[var(--surface)] rounded-md border border-[var(--border-subtle)] shadow-sm overflow-hidden min-h-full flex flex-col">
         <table className="w-full text-left border-collapse">
-          <thead className="bg-[#151515] sticky top-0 border-b border-white/5 shadow-sm">
-            <tr className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-wider">
-              <th className="px-4 py-3 w-12 text-center">Cant</th>
+          <thead className="bg-[var(--primary)]/10 sticky top-0 border-b border-[var(--primary)]/50 shadow-sm">
+            <tr className="text-[12px] font-black text-[var(--text-theme)] uppercase tracking-wider">
+              <th className="px-4 py-3 w-16 text-center">Cantidad</th>
               <th className="px-4 py-3">Descripción</th>
               <th className="px-4 py-3 text-right hidden lg:table-cell">
-                P. Unit
+                Precio Unit.
               </th>
               <th className="px-4 py-3 text-right">Subtotal</th>
               <th className="px-2 py-3 w-10"></th>
@@ -26,12 +26,20 @@ const TablaTicket = ({
           <tbody className="divide-y divide-[var(--border-subtle)]">
             {items.length === 0 ? (
               <tr>
-                <td colSpan="5" className="h-[30vh] text-center">
-                  <div className="flex flex-col items-center justify-center opacity-30 text-[var(--text-primary)] gap-3">
-                    <CarritoIcono size={48} />
-                    <span className="text-sm font-bold uppercase tracking-widest">
-                      Ticket Vacío
-                    </span>
+                <td colSpan="5" className="h-[40vh] text-center">
+                  <div className="flex flex-col items-center justify-center text-[var(--text-primary)] gap-4">
+                    <div className="p-5 bg-[var(--surface-hover)] rounded-full text-[var(--text-muted)] opacity-50">
+                      <CarritoIcono size={48} />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-lg font-black text-black">
+                        El comprobante está vacío
+                      </span>
+                      <span className="text-[14px] font-medium text-[var(--text-muted)]">
+                        Utilice el buscador superior para agregar productos o
+                        servicios.
+                      </span>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -41,7 +49,7 @@ const TablaTicket = ({
                 return (
                   <tr
                     key={index}
-                    className={`hover:bg-[var(--surface-hover)] transition-colors group`}
+                    className={`hover:bg-[var(--surface-hover)]  group`}
                   >
                     {/* Cantidad Editable */}
                     <td className="px-2 py-2 w-20 text-center relative border-r border-[var(--border-subtle)]/50">
@@ -79,16 +87,16 @@ const TablaTicket = ({
                               e.target.value.toUpperCase(),
                             )
                           }
-                          className="bg-transparent text-sm font-bold text-[var(--text-primary)] focus:outline-none focus:bg-[var(--fill)] rounded w-full border-none p-0 transition-colors"
+                          className="bg-transparent text-sm font-bold text-[var(--text-primary)] focus:outline-none focus:bg-[var(--fill)] rounded w-full border-none p-0 "
                         />
                         <input
                           type="text"
                           value={item.descripcion || ""}
-                          placeholder="Agregar detalle..."
+                          placeholder="Agregar nota o detalle del ítem..."
                           onChange={(e) =>
                             actualizarItem(index, "descripcion", e.target.value)
                           }
-                          className="bg-transparent text-[10px] font-medium text-[var(--primary-light)] uppercase tracking-widest focus:outline-none focus:bg-[var(--fill)] rounded w-full border-none p-0"
+                          className="bg-transparent text-[12px] font-medium text-[var(--primary-light)] uppercase tracking-widest focus:outline-none focus:bg-[var(--fill)] rounded w-full border-none p-0"
                         />
                       </div>
                     </td>
@@ -96,7 +104,7 @@ const TablaTicket = ({
                     {/* Precio Unitario Editable */}
                     <td className="px-3 py-2 text-right w-28 hidden lg:table-cell">
                       <div className="relative flex items-center justify-end">
-                        <span className="absolute left-2 text-[10px] text-[var(--text-muted)]">
+                        <span className="absolute left-2 text-[12px] text-[var(--text-muted)]">
                           $
                         </span>
                         <input
@@ -129,7 +137,7 @@ const TablaTicket = ({
                     <td className="px-2 py-2 text-center">
                       <button
                         onClick={() => eliminarItem(index)}
-                        className="p-2 text-red-500 bg-red-500/10 rounded-md transition-colors "
+                        className="p-2 text-red-700 bg-red-700/10 rounded-md  "
                         title="Quitar item"
                       >
                         <BorrarIcono size={16} />

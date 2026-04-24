@@ -111,13 +111,13 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
   const content = (
     <div className="space-y-6 py-2">
       {/* Configuración Global */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-black/5 p-4 rounded-2xl border border-black/10">
         <div className="space-y-1.5">
-          <label className="text-[11px] font-bold text-white/50 uppercase ml-1">Tipo de Movimiento</label>
+          <label className="text-[13px] font-bold text-black/50 uppercase ml-1">Tipo de Movimiento</label>
           <select
             value={globalConfig.tipoMovimiento}
             onChange={(e) => setGlobalConfig(prev => ({ ...prev, tipoMovimiento: e.target.value }))}
-            className="w-full bg-[#1a1c1e] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/50 transition-all cursor-pointer"
+            className="w-full bg-[#1a1c1e] border border-black/10 rounded-xl px-4 py-2.5 text-sm text-black focus:outline-none focus:border-amber-500/50  cursor-pointer"
           >
             <option value="INGRESO">Ingreso (+)</option>
             <option value="EGRESO">Egreso (-)</option>
@@ -126,11 +126,11 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[11px] font-bold text-white/50 uppercase ml-1">Origen / Destino</label>
+          <label className="text-[13px] font-bold text-black/50 uppercase ml-1">Origen / Destino</label>
           <select
             value={globalConfig.origenMovimiento}
             onChange={(e) => setGlobalConfig(prev => ({ ...prev, origenMovimiento: e.target.value }))}
-            className="w-full bg-[#1a1c1e] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/50 transition-all cursor-pointer"
+            className="w-full bg-[#1a1c1e] border border-black/10 rounded-xl px-4 py-2.5 text-sm text-black focus:outline-none focus:border-amber-500/50  cursor-pointer"
           >
             {globalConfig.tipoMovimiento === "INGRESO" && (
               <>
@@ -152,20 +152,20 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
         </div>
 
         <div className="md:col-span-2 space-y-1.5">
-          <label className="text-[11px] font-bold text-white/50 uppercase ml-1">Observación General (Opcional)</label>
+          <label className="text-[13px] font-bold text-black/50 uppercase ml-1">Observación General (Opcional)</label>
           <textarea
             value={globalConfig.observacion}
             onChange={(e) => setGlobalConfig(prev => ({ ...prev, observacion: e.target.value }))}
             rows="1"
             placeholder="Razón del movimiento masivo..."
-            className="w-full bg-[#1a1c1e] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/50 transition-all resize-none"
+            className="w-full bg-[#1a1c1e] border border-black/10 rounded-xl px-4 py-2.5 text-sm text-black focus:outline-none focus:border-amber-500/50  resize-none"
           />
         </div>
       </div>
 
       {/* Buscador de Items */}
       <div className="relative group">
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-amber-500/50 group-focus-within:text-amber-500 transition-colors">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-amber-500/50 group-focus-within:text-amber-500 ">
           <BuscadorIcono size={18} />
         </div>
         <input
@@ -173,25 +173,25 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder={`Buscar ${tipo === "PRODUCTO" ? "productos" : "materias primas"} por nombre o código...`}
-          className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm text-white focus:outline-none focus:border-amber-500/50 focus:bg-white/[0.08] transition-all"
+          className="w-full bg-black/5 border border-black/10 rounded-2xl pl-12 pr-4 py-4 text-sm text-black focus:outline-none focus:border-amber-500/50 focus:bg-white/[0.08] "
         />
 
         {/* Sugerencias */}
         {filteredItems.length > 0 && (
-          <div className="absolute z-50 left-0 right-0 mt-2 bg-[#1a1c1e] border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="absolute z-50 left-0 right-0 mt-2 bg-[#1a1c1e] border border-black/10 rounded-2xl shadow-2xl overflow-hidden    ">
             {filteredItems.map(item => (
               <button
                 key={item.codigoSecuencial}
                 onClick={() => handleAddItem(item)}
-                className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 text-left"
+                className="w-full flex items-center justify-between px-4 py-3 hover:bg-black/5  border-b border-black/5 last:border-0 text-left"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
                     <Package size={14} className="text-amber-500" />
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-white">{item.nombre}</div>
-                    <div className="text-[10px] text-white/40 font-bold uppercase tracking-widest">#{item.codigoSecuencial} • Stock: {item.stock} {item.unidadMedida}</div>
+                    <div className="text-sm font-bold text-black">{item.nombre}</div>
+                    <div className="text-[12px] text-black/40 font-bold uppercase tracking-widest">#{item.codigoSecuencial} • Stock: {item.stock} {item.unidadMedida}</div>
                   </div>
                 </div>
                 <Plus size={18} className="text-amber-500" />
@@ -204,23 +204,23 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
       {/* Lista de Seleccionados */}
       <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
         {selectedItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-white/20 border-2 border-dashed border-white/5 rounded-3xl">
+          <div className="flex flex-col items-center justify-center py-12 text-black/20 border-2 border-dashed border-black/5 rounded-3xl">
             <Package size={48} strokeWidth={1} className="mb-4 opacity-20" />
             <p className="text-sm font-bold uppercase tracking-widest">No hay items seleccionados</p>
-            <p className="text-[10px] uppercase tracking-[0.2em] mt-1">Usa el buscador para añadir artículos</p>
+            <p className="text-[12px] uppercase tracking-[0.2em] mt-1">Usa el buscador para añadir artículos</p>
           </div>
         ) : (
           selectedItems.map((item) => (
             <div
               key={item.codigoSecuencial}
-              className="group flex items-center gap-4 bg-white/5 hover:bg-white/[0.08] p-4 rounded-2xl border border-white/10 transition-all animate-in slide-in-from-right-4 duration-300"
+              className="group flex items-center gap-4 bg-black/5 hover:bg-white/[0.08] p-4 rounded-2xl border border-black/10    "
             >
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-bold text-white truncate">{item.nombre}</div>
+                <div className="text-sm font-bold text-black truncate">{item.nombre}</div>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-[10px] text-amber-500 font-bold uppercase tracking-widest">#{item.codigoSecuencial}</span>
-                  <span className="text-[10px] text-white/30">•</span>
-                  <span className="text-[10px] text-white/40 font-medium">Stock: {item.stock} {item.unidadMedida}</span>
+                  <span className="text-[12px] text-amber-500 font-bold uppercase tracking-widest">#{item.codigoSecuencial}</span>
+                  <span className="text-[12px] text-black/30">•</span>
+                  <span className="text-[12px] text-black/40 font-medium">Stock: {item.stock} {item.unidadMedida}</span>
                 </div>
               </div>
 
@@ -231,7 +231,7 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
                     value={item.cantidadCarga}
                     onChange={(e) => handleUpdateQuantity(item.codigoSecuencial, e.target.value)}
                     placeholder="Cant."
-                    className="w-24 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50 text-center font-bold transition-all"
+                    className="w-24 bg-black/40 border border-black/10 rounded-xl px-3 py-2 text-sm text-black focus:outline-none focus:border-amber-500/50 text-center font-bold "
                   />
                   {!item.cantidadCarga && (
                     <div className="absolute -top-1 -right-1">
@@ -242,7 +242,7 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
 
                 <button
                   onClick={() => handleRemoveItem(item.codigoSecuencial)}
-                  className="p-2 text-white/20 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all"
+                  className="p-2 text-black/20 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg "
                 >
                   <Trash2 size={18} />
                 </button>
@@ -256,24 +256,24 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
 
   const footer = (
     <div className="flex items-center justify-between w-full">
-      <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">
+      <div className="text-[12px] font-black uppercase tracking-[0.2em] text-black/30">
         {selectedItems.length} {selectedItems.length === 1 ? 'Artículo' : 'Artículos'}
       </div>
       <div className="flex gap-3">
         <button
           type="button"
           onClick={onClose}
-          className="px-6 py-2.5 text-xs font-black text-white/60 hover:text-white uppercase tracking-widest transition-colors"
+          className="px-6 py-2.5 text-xs font-black text-black/60 hover:text-black uppercase tracking-widest "
         >
           Cancelar
         </button>
         <button
           onClick={handleSubmit}
           disabled={processing || selectedItems.length === 0 || selectedItems.some(i => !i.cantidadCarga || parseFloat(i.cantidadCarga) <= 0)}
-          className="flex items-center gap-3 px-8 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed text-white rounded-xl font-black text-[11px] uppercase tracking-widest transition-all shadow-xl shadow-amber-500/20 active:scale-95"
+          className="flex items-center gap-3 px-8 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed text-black rounded-xl font-black text-[13px] uppercase tracking-widest  shadow-xl shadow-amber-500/20 active:scale-95"
         >
           {processing ? (
-            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full " />
           ) : (
             <GuardarIcono size={16} />
           )}

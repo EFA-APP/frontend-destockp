@@ -120,9 +120,9 @@ const ModalConfiguracionFiscal = ({ isOpen, onClose }) => {
       // Actualizar Store Local
       setUsuario({
         ...usuario,
-        datosFiscales: { 
+        datosFiscales: {
           ...datosFiscales,
-          esProduccion: configArca.esProduccion 
+          esProduccion: configArca.esProduccion,
         },
         conexionArca: {
           ...usuario.conexionArca,
@@ -151,17 +151,17 @@ const ModalConfiguracionFiscal = ({ isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-md animate-in fade-in duration-300"
+        className="absolute inset-0 bg-black/70 backdrop-blur-md   "
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-2xl bg-[var(--surface)] border border-[var(--border-subtle)] rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+      <div className="relative w-full max-w-2xl bg-[var(--surface)] border border-[var(--border-subtle)] rounded-2xl shadow-2xl overflow-hidden   ">
         <div className="px-8 py-6 border-b border-[var(--border-subtle)] bg-[var(--primary-subtle)]/10 flex justify-between items-center">
           <div>
-            <h2 className="text-[15px] font-bold text-white uppercase tracking-wider mb-1">
+            <h2 className="text-[17px] font-bold text-black uppercase tracking-wider mb-1">
               🛠️ Configuración Fiscal y AFIP
             </h2>
-            <p className="text-[11px] text-[var(--text-muted)] font-medium">
+            <p className="text-[13px] text-[var(--text-muted)] font-medium">
               Gestión de identidad fiscal, entorno y credenciales de
               facturación.
             </p>
@@ -170,13 +170,13 @@ const ModalConfiguracionFiscal = ({ isOpen, onClose }) => {
           <div className="flex bg-[var(--surface-hover)] p-1.5 rounded-md border border-[var(--border-subtle)] shadow-inner">
             <button
               onClick={() => setTab("fiscal")}
-              className={`px-4 py-2 text-[11px] font-bold rounded-md transition-all duration-300 ${tab === "fiscal" ? "bg-[var(--primary)] text-white shadow-md" : "text-[var(--text-muted)] hover:text-white"}`}
+              className={`px-4 py-2 text-[13px] font-bold rounded-md   ${tab === "fiscal" ? "bg-[var(--primary)] text-black shadow-md" : "text-[var(--text-muted)] hover:text-black"}`}
             >
               DATOS FISCALES
             </button>
             <button
               onClick={() => setTab("arca")}
-              className={`px-4 py-2 text-[11px] font-bold rounded-md transition-all duration-300 ${tab === "arca" ? "bg-[var(--primary)] text-white shadow-md" : "text-[var(--text-muted)] hover:text-white"}`}
+              className={`px-4 py-2 text-[13px] font-bold rounded-md   ${tab === "arca" ? "bg-[var(--primary)] text-black shadow-md" : "text-[var(--text-muted)] hover:text-black"}`}
             >
               ENTORNO AFIP
             </button>
@@ -186,7 +186,7 @@ const ModalConfiguracionFiscal = ({ isOpen, onClose }) => {
         {/* Body */}
         <div className="p-8 h-[500px] overflow-y-auto scrollbar-thin">
           {tab === "fiscal" && (
-            <div className="space-y-6 animate-in fade-in duration-500">
+            <div className="space-y-6   ">
               <div className="grid grid-cols-2 gap-6">
                 <InputReutilizable
                   label="Razón Social"
@@ -206,14 +206,14 @@ const ModalConfiguracionFiscal = ({ isOpen, onClose }) => {
 
               <div className="grid grid-cols-2 gap-6">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest pl-0.5">
+                  <label className="text-[13px] font-bold text-[var(--text-muted)] uppercase tracking-widest pl-0.5">
                     Condición IVA
                   </label>
                   <select
                     name="condicionIva"
                     value={datosFiscales.condicionIva}
                     onChange={handleChangeFiscal}
-                    className="flex h-10 w-full rounded-md px-4 text-[13px] bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-white focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] transition-all outline-none"
+                    className="flex h-10 w-full rounded-md px-4 text-[15px] bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-black focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]  outline-none"
                   >
                     <option value="RI">Responsable Inscripto</option>
                     <option value="RM">Responsable Monotributo</option>
@@ -250,14 +250,14 @@ const ModalConfiguracionFiscal = ({ isOpen, onClose }) => {
           )}
 
           {tab === "arca" && (
-            <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="space-y-8   ">
               {/* Switch Entorno */}
               <div className="bg-[var(--surface-hover)]/50 border-2 border-[var(--border-subtle)] p-6 rounded-md flex items-center justify-between shadow-xl">
                 <div>
-                  <h4 className="text-[13px] font-bold text-white uppercase tracking-tight mb-1">
+                  <h4 className="text-[15px] font-bold text-black uppercase tracking-tight mb-1">
                     Entorno de Operación
                   </h4>
-                  <p className="text-[11px] text-[var(--text-muted)] font-medium">
+                  <p className="text-[13px] text-[var(--text-muted)] font-medium">
                     Determina si los comprobantes tienen validez fiscal ante
                     AFIP.
                   </p>
@@ -274,13 +274,13 @@ const ModalConfiguracionFiscal = ({ isOpen, onClose }) => {
                       esProduccion: nuevoEstado,
                     }));
                   }}
-                  className={`relative w-16 h-8 rounded-md p-1 cursor-pointer transition-all duration-500 flex items-center ${configArca.esProduccion ? "bg-emerald-600 shadow-lg shadow-emerald-500/20" : "bg-[var(--primary)] shadow-lg shadow-[var(--primary)]/20"}`}
+                  className={`relative w-16 h-8 rounded-md p-1 cursor-pointer   flex items-center ${configArca.esProduccion ? "bg-emerald-600 shadow-lg shadow-emerald-700/20" : "bg-[var(--primary)] shadow-lg shadow-[var(--primary)]/20"}`}
                 >
                   <div
-                    className={`w-6 h-6 bg-white rounded-md shadow-md transform transition-transform duration-500 ${configArca.esProduccion ? "translate-x-8" : "translate-x-0"}`}
+                    className={`w-6 h-6 bg-[var(--surface)] rounded-md shadow-md transform   ${configArca.esProduccion ? "translate-x-8" : "translate-x-0"}`}
                   />
                   <span
-                    className={`absolute ${configArca.esProduccion ? "-ml-10" : "ml-10"} text-[10px] font-black text-white uppercase tracking-tighter`}
+                    className={`absolute ${configArca.esProduccion ? "-ml-10" : "ml-10"} text-[12px] font-black text-black uppercase tracking-tighter`}
                   >
                     {configArca.esProduccion ? "PROD" : "HOMO"}
                   </span>
@@ -305,70 +305,70 @@ const ModalConfiguracionFiscal = ({ isOpen, onClose }) => {
               <div className="grid grid-cols-2 gap-8">
                 {/* HOMOLOGACION */}
                 <div className="space-y-4 p-5 border border-[var(--border-subtle)] rounded-md bg-[var(--primary)]/5">
-                  <h5 className="text-[11px] font-black text-[var(--primary)] uppercase tracking-[0.2em] border-b border-[var(--primary)]/20 pb-2 mb-4">
+                  <h5 className="text-[13px] font-black text-[var(--primary)] uppercase tracking-[0.2em] border-b border-[var(--primary)]/20 pb-2 mb-4">
                     HOMOLOGACIÓN
                   </h5>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-wider">
+                    <label className="text-[12px] text-[var(--text-muted)] uppercase font-black tracking-wider">
                       Certificado (.crt)
                     </label>
                     <input
                       type="file"
                       onChange={(e) => handleFileChange(e, "certHomo")}
-                      className="block w-full text-[10px] text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-black file:bg-[var(--primary)]/20 file:text-[var(--primary)] hover:file:bg-[var(--primary)]/30 cursor-pointer transition-all"
+                      className="block w-full text-[12px] text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[12px] file:font-black file:bg-[var(--primary)]/20 file:text-[var(--primary)] hover:file:bg-[var(--primary)]/30 cursor-pointer "
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-wider">
+                    <label className="text-[12px] text-[var(--text-muted)] uppercase font-black tracking-wider">
                       Clave Privada (.key)
                     </label>
                     <input
                       type="file"
                       onChange={(e) => handleFileChange(e, "keyHomo")}
-                      className="block w-full text-[10px] text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-black file:bg-[var(--primary)]/20 file:text-[var(--primary)] hover:file:bg-[var(--primary)]/30 cursor-pointer transition-all"
+                      className="block w-full text-[12px] text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[12px] file:font-black file:bg-[var(--primary)]/20 file:text-[var(--primary)] hover:file:bg-[var(--primary)]/30 cursor-pointer "
                     />
                   </div>
                 </div>
 
                 {/* PRODUCCION */}
-                <div className="space-y-4 p-5 border border-[var(--border-subtle)] rounded-md bg-emerald-500/5">
-                  <h5 className="text-[11px] font-black text-emerald-500 uppercase tracking-[0.2em] border-b border-emerald-500/20 pb-2 mb-4">
+                <div className="space-y-4 p-5 border border-[var(--border-subtle)] rounded-md bg-emerald-700/5">
+                  <h5 className="text-[13px] font-black text-emerald-700 uppercase tracking-[0.2em] border-b border-emerald-700/20 pb-2 mb-4">
                     PRODUCCIÓN
                   </h5>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-wider">
+                    <label className="text-[12px] text-[var(--text-muted)] uppercase font-black tracking-wider">
                       Certificado (.crt)
                     </label>
                     <input
                       type="file"
                       onChange={(e) => handleFileChange(e, "certProd")}
-                      className="block w-full text-[10px] text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-black file:bg-emerald-500/20 file:text-emerald-500 hover:file:bg-emerald-500/30 cursor-pointer transition-all"
+                      className="block w-full text-[12px] text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[12px] file:font-black file:bg-emerald-700/20 file:text-emerald-700 hover:file:bg-emerald-700/30 cursor-pointer "
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-wider">
+                    <label className="text-[12px] text-[var(--text-muted)] uppercase font-black tracking-wider">
                       Clave Privada (.key)
                     </label>
                     <input
                       type="file"
                       onChange={(e) => handleFileChange(e, "keyProd")}
-                      className="block w-full text-[10px] text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-black file:bg-emerald-500/20 file:text-emerald-500 hover:file:bg-emerald-500/30 cursor-pointer transition-all"
+                      className="block w-full text-[12px] text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[12px] file:font-black file:bg-emerald-700/20 file:text-emerald-700 hover:file:bg-emerald-700/30 cursor-pointer "
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-[var(--surface-hover)] p-4 rounded-md border-l-4 border-emerald-500 shadow-md">
-                <p className="text-[11px] text-[var(--text-muted)] leading-relaxed font-medium">
-                  <strong className="text-emerald-500 uppercase">
+              <div className="bg-[var(--surface-hover)] p-4 rounded-md border-l-4 border-emerald-700 shadow-md">
+                <p className="text-[13px] text-[var(--text-muted)] leading-relaxed font-medium">
+                  <strong className="text-emerald-700 uppercase">
                     Aviso de Producción:
                   </strong>{" "}
                   Para operar en entorno fiscal real, debés delegar el servicio{" "}
-                  <span className="text-white">"Facturación Electrónica"</span>{" "}
+                  <span className="text-black">"Facturación Electrónica"</span>{" "}
                   en el portal de AFIP utilizando el certificado cargado.
                 </p>
               </div>
@@ -381,18 +381,18 @@ const ModalConfiguracionFiscal = ({ isOpen, onClose }) => {
           <button
             onClick={onClose}
             disabled={cargando}
-            className="px-6 py-2.5 border border-[var(--border-subtle)] hover:bg-[var(--surface-active)] text-[11px] font-bold text-[var(--text-secondary)] rounded-md transition-all uppercase tracking-widest"
+            className="px-6 py-2.5 border border-[var(--border-subtle)] hover:bg-[var(--surface-active)] text-[13px] font-bold text-[var(--text-secondary)] rounded-md  uppercase tracking-widest"
           >
             Cancelar
           </button>
           <button
             onClick={manejarGuardar}
             disabled={cargando}
-            className="px-8 py-2.5 bg-white text-black hover:bg-gray-200 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed text-[11px] font-black rounded-md shadow-xl transition-all flex items-center gap-3 uppercase tracking-widest"
+            className="px-8 py-2.5 bg-[var(--surface)] text-black hover:bg-gray-200 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed text-[13px] font-black rounded-md shadow-xl  flex items-center gap-3 uppercase tracking-widest"
           >
             {cargando ? (
               <>
-                <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full " />
                 Sincronizando...
               </>
             ) : (

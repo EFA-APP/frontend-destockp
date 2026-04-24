@@ -60,7 +60,7 @@ const hexToHsl = (hex) => {
 
 export default function App() {
   const location = useLocation();
-  const setCargando = useCargadorStore((state) => state.setCargando);
+  const { cargando, setCargando } = useCargadorStore((state) => state);
   const usuario = useAuthStore((state) => state.usuario);
 
   // Inicializamos el hook de verificación de token
@@ -91,6 +91,7 @@ export default function App() {
 
   return (
     <>
+      {cargando && <div className="top-loading-bar" />}
       <Cargador />
       <ContenedorAlerta />
       <ControladorVersiones />

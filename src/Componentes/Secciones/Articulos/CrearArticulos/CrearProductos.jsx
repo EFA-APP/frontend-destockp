@@ -14,7 +14,7 @@ import {
 import ContenedorSeccion from "../../../ContenidoPanel/ContenedorSeccion";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import FormularioDinamico from "../../../UI/FormularioReutilizable/FormularioDinamico";
-import { ListarConfiguracionCamposApi } from "../../../../Backend/Articulos/api/Producto/producto.api";
+import { useConfiguracionProducto } from "../../../../Backend/Articulos/queries/Producto/useConfiguracionProducto.query";
 
 const CrearProductos = () => {
   const navigate = useNavigate();
@@ -49,43 +49,32 @@ const CrearProductos = () => {
     }
   }, [isEdit, id, productos, initialData]);
 
-  const [camposDinamicos, setCamposDinamicos] = useState([]);
-  const [configCargada, setConfigCargada] = useState(false);
+  const { data: configData } = useConfiguracionProducto();
 
-  useEffect(() => {
-    const cargarConfigs = async () => {
-      try {
-        const data = await ListarConfiguracionCamposApi("PRODUCTO");
-        if (Array.isArray(data)) {
-          const mapeados = data.map((c) => ({
-            name: c.claveCampo,
-            label: c.nombreCampo,
-            type:
-              c.tipoDato === "TEXTO"
-                ? "text"
-                : c.tipoDato === "NUMERO"
-                  ? "number"
-                  : c.tipoDato === "BOOLEANO"
-                    ? "boolean"
-                    : "select",
-            options: c.opciones
-              ? c.opciones.map((o) => ({ value: o, label: o }))
-              : [],
-            required: c.requerido,
-            formula: c.formula,
-            section: "Atributos Adicionales",
-            sectionIcon: <ConfiguracionIcono />,
-          }));
-          setCamposDinamicos(mapeados);
-        }
-        setConfigCargada(true);
-      } catch (e) {
-        console.error("Error cargando configs dinámicas:", e);
-        setConfigCargada(true);
-      }
-    };
-    cargarConfigs();
-  }, []);
+  const camposDinamicos = useMemo(() => {
+    if (!Array.isArray(configData)) return [];
+    return configData.map((c) => ({
+      name: c.claveCampo,
+      label: c.nombreCampo,
+      type:
+        c.tipoDato === "TEXTO"
+          ? "text"
+          : c.tipoDato === "NUMERO"
+            ? "number"
+            : c.tipoDato === "BOOLEANO"
+              ? "boolean"
+              : "select",
+      options: c.opciones
+        ? c.opciones.map((o) => ({ value: o, label: o }))
+        : [],
+      required: c.requerido,
+      formula: c.formula,
+      section: "Atributos Adicionales",
+      sectionIcon: <ConfiguracionIcono />,
+    }));
+  }, [configData]);
+
+  const configCargada = !!configData;
 
   // Configuración para PRODUCTOS
   const camposProductos = [
@@ -192,7 +181,7 @@ const CrearProductos = () => {
   if (isEdit && cargando && !initialData) {
     return (
       <ContenedorSeccion className="flex items-center justify-center p-20">
-        <div className="animate-pulse text-[var(--primary)] font-black uppercase tracking-[0.2em]">
+        <div className=" text-[var(--primary)] font-black uppercase tracking-[0.2em]">
           Cargando Datos del Producto...
         </div>
       </ContenedorSeccion>
@@ -207,18 +196,18 @@ const CrearProductos = () => {
     return (
       <ContenedorSeccion>
         <div className="flex flex-col items-center justify-center min-h-[60vh] w-full">
-          <div className="max-w-lg w-full bg-[#1a1a1a] border border-white/5 rounded-[2.5rem] p-10 text-center shadow-2xl relative overflow-hidden group">
+          <div className="max-w-lg w-full bg-[#1a1a1a] border border-black/5 rounded-[2.5rem] p-10 text-center shadow-2xl relative overflow-hidden group">
             {/* Decoración de fondo */}
-            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-[var(--primary)]/5 rounded-full blur-3xl group-hover:bg-[var(--primary)]/10 transition-all duration-700"></div>
+            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-[var(--primary)]/5 rounded-full blur-3xl group-hover:bg-[var(--primary)]/10  "></div>
 
             <div className="relative z-10">
               {/* Contenedor del Icono */}
-              <div className="w-20 h-20 bg-[var(--primary)]/10 rounded-[2rem] flex items-center justify-center mx-auto mb-6 border border-[var(--primary)]/20 rotate-3 group-hover:rotate-6 transition-transform duration-500">
+              <div className="w-20 h-20 bg-[var(--primary)]/10 rounded-[2rem] flex items-center justify-center mx-auto mb-6 border border-[var(--primary)]/20 rotate-3 group-hover:rotate-6  ">
                 <AdvertenciaIcono size={40} color="var(--primary)" />
               </div>
 
               {/* Texto Principal */}
-              <h2 className="text-3xl font-black text-white mb-4 tracking-tight leading-tight">
+              <h2 className="text-3xl font-black text-black mb-4 tracking-tight leading-tight">
                 ¡Catálogo <br />{" "}
                 <span className="text-[var(--primary)] italic font-medium">
                   Requerido
@@ -226,7 +215,7 @@ const CrearProductos = () => {
                 !
               </h2>
 
-              <p className="text-white/40 text-sm leading-relaxed mb-10 max-w-[280px] mx-auto font-medium">
+              <p className="text-black/40 text-sm leading-relaxed mb-10 max-w-[280px] mx-auto font-medium">
                 Es necesario que hables con el administrador del sistema para
                 configurar los campos del producto.
               </p>
@@ -235,7 +224,7 @@ const CrearProductos = () => {
               <div className="flex justify-center items-center">
                 <button
                   onClick={() => navigate("/panel/inventario/productos")}
-                  className="px-10 py-4 bg-white/5 text-white/70 font-bold uppercase tracking-[0.15em] text-xs rounded-2xl hover:bg-white/10 transition-all border border-white/5 hover:border-white/10 w-full sm:w-auto"
+                  className="px-10 py-4 bg-black/5 text-black/70 font-bold uppercase tracking-[0.15em] text-xs rounded-2xl hover:bg-black/10  border border-black/5 hover:border-black/10 w-full sm:w-auto"
                 >
                   Volver Atrás
                 </button>
@@ -252,18 +241,16 @@ const CrearProductos = () => {
 
   return (
     <ContenedorSeccion className="px-3 py-4">
-      <div className="card no-inset no-ring bg-[var(--surface)] shadow-md rounded-md mb-6">
-        <EncabezadoSeccion
-          ruta={
-            isEdit
-              ? `Gestión de Catálogo > Editar Producto`
-              : "Gestión de Catálogo"
-          }
-          icono={isEdit ? <EditarIcono /> : <AgregarIcono />}
-          volver={true}
-          redireccionAnterior={isEdit ? -1 : "/panel/inventario/productos"}
-        />
-      </div>
+      <EncabezadoSeccion
+        ruta={
+          isEdit
+            ? `Gestión de Catálogo > Editar Producto`
+            : "Gestión de Catálogo"
+        }
+        icono={isEdit ? <EditarIcono /> : <AgregarIcono />}
+        volver={true}
+        redireccionAnterior={isEdit ? -1 : "/panel/inventario/productos"}
+      />
 
       <FormularioDinamico
         titulo={isEdit ? "Edición de Producto" : "Alta de Producto"}

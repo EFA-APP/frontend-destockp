@@ -18,8 +18,11 @@ const createAxiosInstance = (baseURL) => {
   // 🔹 REQUEST
   instance.interceptors.request.use(
     (config) => {
-      // Loader
-      if (config.showLoader !== false) {
+      const showLoader = config.showLoader !== undefined 
+        ? config.showLoader 
+        : config.method !== 'get';
+
+      if (showLoader) {
         useCargadorStore.getState().setCargando(true);
       }
 

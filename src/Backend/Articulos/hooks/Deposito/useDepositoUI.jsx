@@ -55,28 +55,43 @@ export const useDepositoUI = (filtros = {}) => {
 
   // Procesamiento de datos para la matriz de stock (Recorriendo Productos)
   const matrizStock = useMemo(() => {
-    const data = Array.isArray(queryStock.data?.data)
-      ? queryStock.data.data
-      : [];
+    // Manejar tanto { data: [] } como [] directamente por seguridad
+    const rawData = queryStock.data;
+    const data = Array.isArray(rawData)
+      ? rawData
+      : Array.isArray(rawData?.data)
+        ? rawData.data
+        : [];
 
     const productosMap = {};
 
     data.forEach((producto) => {
       const prodCodigo = producto.codigoSecuencial;
+      if (!prodCodigo) return;
 
       if (!productosMap[prodCodigo]) {
         productosMap[prodCodigo] = {
           ...producto,
-          codigoProducto: prodCodigo,
+          codigoProducto:
+            filtros?.tipoArticulo === "MATERIA_PRIMA" ? undefined : prodCodigo,
           codigoMateriaPrima:
             filtros?.tipoArticulo === "MATERIA_PRIMA" ? prodCodigo : undefined,
         };
       }
 
-      producto.stockPorDeposito?.forEach((sp) => {
-        const depCodigo = sp.codigoDeposito;
-        productosMap[prodCodigo][`dep_${depCodigo}`] =
-          (productosMap[prodCodigo][`dep_${depCodigo}`] || 0) + (sp.stock || 0);
+      // El backend puede devolver stockPorDeposito o stockProductos dependiendo de la entidad
+      const stocks = producto.stockPorDeposito || producto.stockProductos || [];
+
+      stocks.forEach((sp) => {
+        // Fallback para el código de depósito (ID secuencial)
+        const depCodigo = sp.codigoDeposito || sp.deposito?.codigoSecuencial;
+
+        if (depCodigo !== undefined && depCodigo !== null) {
+          const key = `dep_${depCodigo}`;
+          const valorStock = Number(sp.stock || 0);
+          productosMap[prodCodigo][key] =
+            (productosMap[prodCodigo][key] || 0) + valorStock;
+        }
       });
     });
 
@@ -99,7 +114,11 @@ export const useDepositoUI = (filtros = {}) => {
         ? query.data.data
         : []
     ).filter((d) => d.activo !== false),
-    cargandoStock: queryStock.isLoading || queryStock.isFetching, // <- Added isFetching for loader during search
+    cargandoStock:
+      queryStock.isLoading ||
+      queryStock.isFetching ||
+      query.isLoading ||
+      query.isFetching, // Esperar a que ambos carguen para evitar columnas vacías
 
     busqueda,
     setBusqueda,

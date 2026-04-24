@@ -73,13 +73,13 @@ const TablaRecibos = () => {
         />
 
         <div className="px-4 py-3 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl shadow-sm">
-          <h3 className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-3">Métodos de pago</h3>
+          <h3 className="text-[13px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-3">Métodos de pago</h3>
           <div className="space-y-2">
             {Object.entries(estadisticas.recaudacionPorMetodo).map(
               ([metodo, monto]) => (
                 <div
                   key={metodo}
-                  className="flex justify-between items-center text-[10px]"
+                  className="flex justify-between items-center text-[12px]"
                 >
                   <span className="text-[var(--text-secondary)] font-medium">{metodo}</span>
                   <span className="font-bold text-[var(--primary)]">

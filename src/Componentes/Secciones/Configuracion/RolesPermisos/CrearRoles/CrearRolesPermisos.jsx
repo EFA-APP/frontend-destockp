@@ -62,11 +62,11 @@ const CrearRolesPermisos = ({ editandoRol }) => {
                     <button
                         type="button"
                         onClick={() => setFormData({ ...formData, activo: !formData.activo })}
-                        className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${formData.activo ? 'bg-[var(--primary)]' : 'bg-[var(--surface-active)]'}`}
+                        className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent    focus:outline-none ${formData.activo ? 'bg-[var(--primary)]' : 'bg-[var(--surface-active)]'}`}
                     >
-                        <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${formData.activo ? 'translate-x-5' : 'translate-x-0'}`} />
+                        <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-[var(--surface)] shadow ring-0 transition   ${formData.activo ? 'translate-x-5' : 'translate-x-0'}`} />
                     </button>
-                    <span className={`text-[11px] font-bold uppercase tracking-wider ${formData.activo ? 'text-[var(--primary)]' : 'text-[var(--text-secondary)]'}`}>
+                    <span className={`text-[13px] font-bold uppercase tracking-wider ${formData.activo ? 'text-[var(--primary)]' : 'text-[var(--text-secondary)]'}`}>
                         {formData.activo ? 'ACTIVO (Visible)' : 'INACTIVO (Oculto)'}
                     </span>
                 </div>
@@ -81,14 +81,14 @@ const CrearRolesPermisos = ({ editandoRol }) => {
             fullWidth: true,
             render: (formData, setFormData) => {
                 if (cargandoPermisos) {
-                    return <p className="text-[11px] text-[var(--text-muted)] italic py-2">Cargando permisos desde el sistema...</p>;
+                    return <p className="text-[13px] text-[var(--text-muted)] italic py-2">Cargando permisos desde el sistema...</p>;
                 }
 
                 return (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
                         {permisosBackend.map((permiso) => (
-                            <label key={permiso.codigoSecuencial || permiso.id} className="group flex items-center gap-3 p-3 bg-[var(--surface-hover)]/20 border border-[var(--border-subtle)] rounded-md! cursor-pointer hover:border-[var(--primary)]/50 hover:bg-[var(--primary-subtle)]/10 transition-all duration-300">
-                                <div className="flex items-center justify-center w-5 h-5 rounded border border-[var(--border-medium)] bg-[var(--surface)] group-hover:border-[var(--primary)] transition-colors">
+                            <label key={permiso.codigoSecuencial || permiso.id} className="group flex items-center gap-3 p-3 bg-[var(--surface-hover)]/20 border border-[var(--border-subtle)] rounded-md! cursor-pointer hover:border-[var(--primary)]/50 hover:bg-[var(--primary-subtle)]/10  ">
+                                <div className="flex items-center justify-center w-5 h-5 rounded border border-[var(--border-medium)] bg-[var(--surface)] group-hover:border-[var(--primary)] ">
                                     <input
                                         type="checkbox"
                                         className="peer hidden"
@@ -102,10 +102,10 @@ const CrearRolesPermisos = ({ editandoRol }) => {
                                         }}
                                     />
                                     {formData.permisos?.includes(permiso.nombre) && (
-                                        <div className="w-3 h-3 bg-[var(--primary)] rounded-sm animate-in zoom-in-50 duration-200" />
+                                        <div className="w-3 h-3 bg-[var(--primary)] rounded-sm   " />
                                     )}
                                 </div>
-                                <span className={`text-[11px] font-bold uppercase tracking-wider transition-colors ${formData.permisos?.includes(permiso.nombre) ? 'text-[var(--primary)]' : 'text-[var(--text-secondary)]'}`}>
+                                <span className={`text-[13px] font-bold uppercase tracking-wider  ${formData.permisos?.includes(permiso.nombre) ? 'text-[var(--primary)]' : 'text-[var(--text-secondary)]'}`}>
                                     {permiso.nombre}
                                 </span>
                             </label>
@@ -164,16 +164,16 @@ const CrearRolesPermisos = ({ editandoRol }) => {
             />
 
             {esEdicion && initialData && (
-                <div className="bg-[var(--surface-hover)]/40 p-5 rounded-md border border-[var(--primary)]/20 border-l-[4px] border-l-[var(--primary)] flex items-center justify-between animate-in slide-in-from-left-4 duration-500">
+                <div className="bg-[var(--surface-hover)]/40 p-5 rounded-md border border-[var(--primary)]/20 border-l-[4px] border-l-[var(--primary)] flex items-center justify-between   ">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-[var(--primary-subtle)]/20 flex items-center justify-center border border-[var(--primary)]/10">
                             <UsuarioIcono size={20} color="var(--primary)" />
                         </div>
                         <div>
-                            <h3 className="text-[14px] font-bold text-[var(--text-primary)] uppercase tracking-tight">Estas Editando: {initialData.nombre}</h3>
+                            <h3 className="text-[16px] font-bold text-[var(--text-primary)] uppercase tracking-tight">Estas Editando: {initialData.nombre}</h3>
                             <div className="flex items-center gap-3 mt-1">
-                                <span className="text-[10px] bg-[var(--surface-active)] text-[var(--text-secondary)] px-2 py-0.5 rounded font-mono">CÓDIGO: {initialData.codigoSecuencial || initialData.codigo}</span>
-                                <span className="text-[10px] text-[var(--text-muted)] italic">Creado el {new Date(initialData.creadoEn).toLocaleDateString()}</span>
+                                <span className="text-[12px] bg-[var(--surface-active)] text-[var(--text-secondary)] px-2 py-0.5 rounded font-mono">CÓDIGO: {initialData.codigoSecuencial || initialData.codigo}</span>
+                                <span className="text-[12px] text-[var(--text-muted)] italic">Creado el {new Date(initialData.creadoEn).toLocaleDateString()}</span>
                             </div>
                         </div>
                     </div>

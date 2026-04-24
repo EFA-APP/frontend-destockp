@@ -1,29 +1,34 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMateriaPrimaUI } from "../../../../Backend/Articulos/hooks/MateriaPrima/useMateriaPrimaUI";
 import DataTable from "../../../UI/DataTable/DataTable";
 import ModalConfirmacion from "../../../UI/ModalConfirmacion/ModalConfirmacion";
 import { accionesMateriaPrimas } from "./AccionesMateriaPrima";
 import { columnasMateriaPrima } from "./ColumnaMateriaPrima";
-import {
-  BorrarIcono,
-  MovimientoIcono,
-  HistorialIcono,
-  EditarIcono,
-} from "../../../../assets/Icons";
+import { BorrarIcono, HistorialIcono } from "../../../../assets/Icons";
 import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
-// import ModalCargaMasivaMovimientos from "../../../Modales/Articulos/ModalCargaMasivaMovimientos";
+import { useDepositoUI } from "../../../../Backend/Articulos/hooks/Deposito/useDepositoUI.jsx";
+import DrawerActualizarStock from "../../../Modales/Articulos/ModalActualizarStock";
 
 const TablaMateriaPrima = () => {
   const navigate = useNavigate();
+
+  // Estados para filtros API y paginación
+  const [filtros, setFiltros] = useState({
+    pagina: 1,
+    limite: 10,
+    tipoArticulo: "MATERIA_PRIMA",
+  });
+
   const {
-    materiasPrimas,
+    matrizStock: materiasPrimas,
     busqueda,
     setBusqueda,
     eliminarMateriaPrima,
-    cargando,
+    cargandoStock: cargando,
     estaEliminando,
-  } = useMateriaPrimaUI();
+    meta,
+    dataDepositosRaw,
+  } = useDepositoUI(filtros);
 
   const [confirmarEliminar, setConfirmarEliminar] = useState({
     open: false,
@@ -31,7 +36,18 @@ const TablaMateriaPrima = () => {
     nombre: "",
   });
 
-  // const [modalMasivoOpen, setModalMasivoOpen] = useState(false);
+  const [drawerData, setDrawerData] = useState({
+    isOpen: false,
+    fila: null,
+  });
+
+  const handleAbrirDrawer = useCallback((fila) => {
+    setDrawerData({ isOpen: true, fila });
+  }, []);
+
+  const cerrarDrawer = useCallback(() => {
+    setDrawerData({ isOpen: false, fila: null });
+  }, []);
 
   const handleEditarClick = (materiaPrima) => {
     navigate(
@@ -59,6 +75,11 @@ const TablaMateriaPrima = () => {
     }
   };
 
+  const columnasAMostrar = useMemo(
+    () => columnasMateriaPrima(handleAbrirDrawer),
+    [handleAbrirDrawer],
+  );
+
   return (
     <div className="space-y-6">
       <ModalConfirmacion
@@ -71,16 +92,21 @@ const TablaMateriaPrima = () => {
         mensaje={`¿Estás seguro de que deseas eliminar "${confirmarEliminar.nombre}"? No aparecerá en el listado activo.`}
         textoConfirmar={estaEliminando ? "Eliminando..." : "Confirmar"}
         textoCancelar="Cancelar"
-        icono={<BorrarIcono size={40} className="text-red-500" />}
+        icono={<BorrarIcono size={40} className="text-red-700" />}
         colorConfirmar="bg-red-600!"
       />
 
       <DataTable
         id_tabla="materiaprima"
         llaveTituloMobile="nombre"
-        columnas={columnasMateriaPrima}
+        columnas={columnasAMostrar}
         datos={materiasPrimas}
         loading={cargando}
+        meta={meta}
+        onPageChange={(pagina) => setFiltros((prev) => ({ ...prev, pagina }))}
+        onLimitChange={(limite) =>
+          setFiltros((prev) => ({ ...prev, limite, pagina: 1 }))
+        }
         mostrarAcciones={true}
         acciones={accionesMateriaPrimas({
           handleEliminarClick,
@@ -93,23 +119,12 @@ const TablaMateriaPrima = () => {
         }}
         elementosSuperior={
           <div className="flex items-center gap-2">
-            <TieneAccion accion="AJUSTE_STOCK_MATERIAPRIMA">
-              <button
-                onClick={() =>
-                  navigate("/panel/inventario/ajuste-stock/MATERIA_PRIMA")
-                }
-                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-[11px] font-bold text-white uppercase tracking-wider transition-all cursor-pointer"
-              >
-                <MovimientoIcono size={14} />
-                Ajustes
-              </button>
-            </TieneAccion>
             <TieneAccion accion="HISTORIAL_MATERIAPRIMA">
               <button
                 onClick={() =>
                   navigate("/panel/inventario/historial-stock/MATERIA_PRIMA")
                 }
-                className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border border-[var(--primary)]/20 rounded-md text-[11px] font-bold text-[var(--primary)] uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-amber-500/5 group"
+                className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border border-[var(--primary)]/20 rounded-md text-[11px] font-bold text-[var(--primary)] uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-amber-700/5 group"
               >
                 <HistorialIcono
                   size={14}
@@ -126,11 +141,12 @@ const TablaMateriaPrima = () => {
         placeholderBuscador="Filtrar por ingrediente o código..."
       />
 
-      {/* <ModalCargaMasivaMovimientos
-        open={modalMasivoOpen}
-        onClose={() => setModalMasivoOpen(false)}
-        tipo="MATERIA_PRIMA"
-      /> */}
+      <DrawerActualizarStock
+        isOpen={drawerData.isOpen}
+        onClose={cerrarDrawer}
+        fila={drawerData.fila}
+        depositosRaw={dataDepositosRaw}
+      />
     </div>
   );
 };

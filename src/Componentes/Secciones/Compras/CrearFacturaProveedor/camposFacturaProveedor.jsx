@@ -242,15 +242,15 @@ export const camposFacturaProveedor = ({ comprobante }) => [
       return (
         <div className="flex justify-end">
           <div className="w-full md:w-1/3 space-y-2">
-            <div className="flex justify-between text-white/85">
+            <div className="flex justify-between text-black/85">
               <span>Subtotal:</span>
               <span>${subtotal.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-white/85">
+            <div className="flex justify-between text-black/85">
               <span>IVA:</span>
               <span>${iva.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-xl font-bold border-t pt-2 text-white">
+            <div className="flex justify-between text-xl font-bold border-t pt-2 text-black">
               <span>TOTAL:</span>
               <span>${total.toFixed(2)}</span>
             </div>

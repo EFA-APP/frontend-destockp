@@ -8,37 +8,36 @@ const ModalImportarListaPrecios = ({ open, onClose, onExito }) => {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300" 
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      
-      {/* Contenedor del Modal */}
-      <div className="relative w-full max-w-6xl max-h-[95vh] bg-[var(--surface)] border border-white/5 rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/5 bg-white/[0.02]">
-          <div className="space-y-1">
-            <h2 className="text-xl font-black text-white uppercase tracking-tight">
-              Motor de Importación de Precios
-            </h2>
-            <p className="text-xs text-[var(--text-muted)] font-medium">
-              Actualizá costos y márgenes de forma masiva mediante Excel.
-            </p>
+
+      {/* Contenedor del Modal — compacto */}
+      <div className="relative w-full max-w-2xl max-h-[85vh] bg-[var(--surface)] border border-black/10 rounded-xl shadow-2xl overflow-hidden flex flex-col">
+
+        {/* Header slim */}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-black/5 bg-[var(--surface-hover)] shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="text-[13px] font-black text-black uppercase tracking-widest">
+              Importador de Precios
+            </span>
+            <span className="text-[10px] font-black bg-[var(--primary)]/20 text-[var(--primary)] px-2 py-0.5 rounded uppercase tracking-widest border border-[var(--primary)]/30">
+              PRO
+            </span>
           </div>
-          <button 
+          <button
             onClick={onClose}
-            className="p-2 hover:bg-white/5 rounded-full text-white/50 hover:text-white transition-all"
+            className="p-1.5 hover:bg-black/5 rounded-md text-black/40 hover:text-black transition-colors"
           >
-            <X size={24} />
+            <X size={16} />
           </button>
         </div>
 
         {/* Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto p-2 bg-gradient-to-b from-transparent to-black/20">
-          <ImportadorPrecios onExito={onExito} />
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <ImportadorPrecios onExito={onExito} onClose={onClose} />
         </div>
-
       </div>
     </div>
   );

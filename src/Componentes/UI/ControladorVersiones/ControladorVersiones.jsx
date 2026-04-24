@@ -61,12 +61,12 @@ export const ControladorVersiones = () => {
   if (!mostrarModal) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-[var(--surface)] p-6 rounded-lg shadow-2xl border border-[var(--border-medium)] max-w-sm w-full mx-4 text-center animate-in zoom-in-95 duration-300">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/20 backdrop-blur-sm   ">
+      <div className="bg-[var(--surface)] p-6 rounded-lg shadow-2xl border border-[var(--border-medium)] max-w-sm w-full mx-4 text-center   ">
         <div className="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] mb-4">
-          <RefreshCw size={24} className="animate-spin-slow" />
+          <RefreshCw size={24} className="-slow" />
         </div>
-        <h2 className="text-lg font-bold text-white mb-2">
+        <h2 className="text-lg font-bold text-black mb-2">
           {versionInfo.titulo}
         </h2>
         <p className="text-xs text-[var(--text-muted)] mb-6">
@@ -76,7 +76,7 @@ export const ControladorVersiones = () => {
         <button
           onClick={handleRecargar}
           disabled={cargando}
-          className="w-full py-2.5 bg-gradient-to-r from-[var(--primary)] to-[var(--primary-subtle)] hover:from-[var(--primary)] hover:to-[var(--primary)] text-white font-bold rounded-md shadow-lg shadow-[var(--primary)]/20 transition-all cursor-pointer flex items-center justify-center gap-2 group"
+          className="w-full py-2.5 bg-gradient-to-r from-[var(--primary)] to-[var(--primary-subtle)] hover:from-[var(--primary)] hover:to-[var(--primary)] text-black font-bold rounded-md shadow-lg shadow-[var(--primary)]/20  cursor-pointer flex items-center justify-center gap-2 group"
         >
           {cargando ? "Actualizando..." : <>Recargar Página</>}
         </button>

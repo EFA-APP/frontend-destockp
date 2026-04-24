@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  AgregarIcono,
-  BuscadorIcono,
-  ConfiguracionIcono,
-  ErrorIcono,
-  FiltroIcono,
-} from "../../../assets/Icons";
+import { AgregarIcono, BuscadorIcono } from "../../../assets/Icons";
 import {
   ChevronDown,
   ChevronUp,
@@ -68,10 +62,10 @@ const ActionMenu = ({
               onClick={() => !cargando && accion.onClick(fila)}
               disabled={cargando}
               title={accion.label || accion.etiqueta}
-              className={`p-1.5 rounded-md hover:bg-[var(--primary-subtle)] text-[var(--text-muted)] hover:text-[var(--primary)] transition-all cursor-pointer border border-transparent hover:border-[var(--primary)]/20 disabled:opacity-50`}
+              className={`p-1.5 rounded-md hover:bg-[var(--primary-subtle)] text-[var(--text-muted)] hover:text-[var(--primary)] cursor-pointer border border-transparent hover:border-[var(--primary)]/20 disabled:opacity-50`}
             >
               {cargando ? (
-                <div className="w-3.5 h-3.5 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
+                <Loader2 size={14} className="animate-spin text-amber-700" />
               ) : accion.icono && React.isValidElement(accion.icono) ? (
                 React.cloneElement(accion.icono, { size: 14 })
               ) : (
@@ -116,12 +110,12 @@ const DataRow = ({
   return (
     <>
       <tr
-        className={`border-b border-[var(--border-subtle)] transition-all duration-200 group ${estaExpandida ? "bg-[var(--primary-subtle)]/30" : "hover:bg-[var(--surface-hover)]"}`}
+        className={`border-b border-[var(--border-subtle)] group ${estaExpandida ? "bg-[var(--primary-subtle)]/30" : "hover:bg-[var(--surface-hover)]"}`}
       >
         {columnas.map((col, index) => (
           <td
             key={col.key}
-            className={`px-4 py-3 text-[13px] text-[var(--text-primary)] transition-colors ${index === 0 ? "font-medium" : ""}`}
+            className={`px-4 py-3 text-[15px] text-[var(--text-primary)] ${index === 0 ? "font-medium" : ""}`}
             onClick={manejarClick}
           >
             <div
@@ -130,7 +124,7 @@ const DataRow = ({
             >
               {/* Icono de Toggle (Jerárquico) */}
               {index === 0 && tieneHijos && (
-                <button className="text-[var(--primary)] transition-transform duration-200">
+                <button className="text-[var(--primary)]">
                   {abiertoInterno ? (
                     <ChevronUp size={12} />
                   ) : (
@@ -141,7 +135,7 @@ const DataRow = ({
 
               {/* Icono de Toggle (Expandible Detalle) */}
               {index === 0 && esExpandible && !tieneHijos && (
-                <button className="text-[var(--text-muted)] group-hover:text-[var(--primary)] transition-all">
+                <button className="text-[var(--text-muted)]">
                   {estaExpandida ? (
                     <ChevronUp size={12} className="text-[var(--primary)]" />
                   ) : (
@@ -186,7 +180,7 @@ const DataRow = ({
 
       {/* Render Detalle (Expandible) */}
       {estaExpandida && esExpandible && (
-        <tr className="bg-[var(--fill-secondary)]/10 animate-in fade-in duration-300">
+        <tr className="bg-[var(--fill-secondary)]/10">
           <td colSpan={columnas.length + (accionesProps ? 1 : 0)}>
             <div className="p-4 overflow-hidden border-x border-[var(--primary)]/10">
               {renderDetalle(fila)}
@@ -229,19 +223,19 @@ const DataCard = ({
     {
       key: "editar",
       show: permisos?.editar !== false && onEditar,
-      icon: <Edit size={20} className="text-amber-500" />,
+      icon: <Edit size={20} className="text-amber-700" />,
       onClick: onEditar,
     },
     {
       key: "descargar",
       show: permisos?.descargar !== false && onDescargar,
-      icon: <Download size={20} className="text-emerald-500" />,
+      icon: <Download size={20} className="text-emerald-700" />,
       onClick: onDescargar,
     },
     {
       key: "eliminar",
       show: permisos?.eliminar !== false && onEliminar,
-      icon: <Trash2 size={20} className="text-red-500" />,
+      icon: <Trash2 size={20} className="text-red-700" />,
       onClick: onEliminar,
     },
   ].filter((a) => a.show);
@@ -253,13 +247,12 @@ const DataCard = ({
         className={`
                 relative overflow-hidden
                 p-5 rounded-2xl 
-                border-t border-l border-white/10
-                bg-gradient-to-br from-[var(--surface)]/80 to-[var(--surface)]/40
-                backdrop-blur-xl shadow-2xl
+                border-t border-l border-[var(--border-subtle)]
+                bg-[var(--surface)]
+                shadow-2xl
                 flex flex-col gap-5 
-                animate-in fade-in slide-in-from-bottom-5 duration-500
-                cursor-pointer hover:bg-gradient-to-br hover:from-[var(--primary-subtle)]/10 active:scale-[0.98] transition-all
-                ${estaExpandida ? "ring-2 ring-[var(--primary)]/40 border-white/20" : "border-[var(--border-subtle)]/30"}
+                cursor-pointer hover:bg-[var(--primary-subtle)]/10 active:scale-[0.98]
+                ${estaExpandida ? "ring-2 ring-[var(--primary)]/40 border-[var(--primary)]/20" : "border-[var(--border-subtle)]/30"}
             `}
       >
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-[var(--primary)]/5 rounded-full blur-3xl pointer-events-none" />
@@ -267,12 +260,12 @@ const DataCard = ({
         <div className="flex items-center justify-between gap-4 relative z-10 w-full">
           <div className="flex flex-col gap-1.5 flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] animate-pulse" />
-              <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]" />
+              <span className="text-[11px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em]">
                 {columnaTitulo?.etiqueta}
               </span>
             </div>
-            <div className="text-[16px] font-black text-[var(--text-primary)] leading-tight break-words">
+            <div className="text-[18px] font-black text-[var(--text-primary)] leading-tight break-words">
               {columnaTitulo?.renderizar
                 ? columnaTitulo.renderizar(fila[columnaTitulo.key], fila)
                 : formatVal(fila[columnaTitulo?.key])}
@@ -287,26 +280,24 @@ const DataCard = ({
       {actionSheetOpen && accionesProps && (
         <div className="fixed inset-0 z-[10000] flex flex-col justify-end pointer-events-auto">
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-md animate-in fade-in duration-300"
+            className="absolute inset-0 bg-black/20 backdrop-blur-md   "
             onClick={() => setActionSheetOpen(false)}
           ></div>
-          <div className="relative bg-[#111111] w-full rounded-t-[40px] border-t border-white/10 shadow-[0_-20px_50px_rgba(0,0,0,0.6)] flex flex-col animate-in slide-in-from-bottom duration-500 pb-safe pb-8">
+          <div className="relative bg-[var(--surface)] w-full rounded-t-[40px] border-t border-[var(--border-subtle)] shadow-[0_-20px_50px_rgba(0,0,0,0.1)] flex flex-col pb-safe pb-8">
             <div
               className="w-full flex justify-center pt-5 pb-4"
               onClick={() => setActionSheetOpen(false)}
             >
-              <div className="w-14 h-1.5 bg-white/10 rounded-full relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
-              </div>
+              <div className="w-14 h-1.5 bg-black/10 rounded-full relative overflow-hidden" />
             </div>
 
             <div className="px-7">
               <div className="flex justify-between items-center mb-2">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[10px] uppercase tracking-wider text-[var(--primary)] font-bold">
+                  <span className="text-[12px] uppercase tracking-wider text-[var(--primary)] font-bold">
                     Detalles de Registro
                   </span>
-                  <h3 className="text-white font-black text-xl tracking-tight leading-tight">
+                  <h3 className="text-black font-black text-xl tracking-tight leading-tight">
                     {columnas[0]?.renderizar
                       ? columnas[0].renderizar(fila[columnas[0].key], fila)
                       : formatVal(fila[columnas[0]?.key])}
@@ -314,13 +305,13 @@ const DataCard = ({
                 </div>
                 <button
                   onClick={() => setActionSheetOpen(false)}
-                  className="w-10 h-10 rounded-full bg-white/5 text-white/40 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center border border-white/10"
+                  className="w-10 h-10 rounded-full bg-black/5 text-black/40 hover:bg-black/10 hover:text-black flex items-center justify-center border border-black/10"
                 >
                   <X size={18} />
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-x-6 gap-y-4 py-4 border-y border-white/5 mb-4 max-h-[40vh] overflow-y-auto no-scrollbar">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-4 py-4 border-y border-black/5 mb-4 max-h-[40vh] overflow-y-auto no-scrollbar">
                 {columnas.map((col) => {
                   if (col.key === columnaTitulo?.key || col.visible === false)
                     return null;
@@ -329,10 +320,10 @@ const DataCard = ({
                       key={col.key}
                       className="flex flex-col gap-1 overflow-hidden"
                     >
-                      <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                      <span className="text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
                         {col.etiqueta}
                       </span>
-                      <div className="text-[14px] font-medium text-white break-words">
+                      <div className="text-[16px] font-medium text-black break-words">
                         {col.renderizar
                           ? col.renderizar(fila[col.key], fila)
                           : formatVal(fila[col.key])}
@@ -343,13 +334,13 @@ const DataCard = ({
               </div>
 
               {renderDetalle && (
-                <div className="p-4 rounded-xl bg-black/30 border border-white/10 mb-6 text-sm overflow-y-auto max-h-[30vh] border-dashed">
+                <div className="p-4 rounded-xl bg-black/5 border border-black/10 mb-6 text-sm overflow-y-auto max-h-[30vh] border-dashed">
                   {renderDetalle(fila)}
                 </div>
               )}
 
-              <div className="mb-4 pt-2 border-t border-white/5">
-                <span className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] font-black">
+              <div className="mb-4 pt-2 border-t border-black/5">
+                <span className="text-[13px] uppercase tracking-wider text-[var(--text-muted)] font-black">
                   Acciones Disponibles
                 </span>
               </div>
@@ -371,11 +362,14 @@ const DataCard = ({
                           }
                         }}
                         disabled={cargando}
-                        className="group relative w-full h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center px-6 gap-5 text-white hover:bg-white/10 active:scale-[0.97] transition-all disabled:opacity-50"
+                        className="group relative w-full h-16 bg-black/5 border border-black/10 rounded-2xl flex items-center px-6 gap-5 text-black hover:bg-black/10 active:scale-[0.97] disabled:opacity-50"
                       >
-                        <div className="w-11 h-11 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                        <div className="w-11 h-11 rounded-xl bg-black/5 flex items-center justify-center flex-shrink-0 ">
                           {cargando ? (
-                            <div className="w-5 h-5 border-2 border-[var(--primary)]/20 border-t-[var(--primary)] rounded-full animate-spin" />
+                            <Loader2
+                              size={20}
+                              className="animate-spin text-[var(--primary)]"
+                            />
                           ) : accion.icono &&
                             React.isValidElement(accion.icono) ? (
                             React.cloneElement(accion.icono, {
@@ -401,10 +395,10 @@ const DataCard = ({
                           setActionSheetOpen(false);
                           accion.onClick(fila);
                         }}
-                        className={`w-full h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center px-6 gap-5 text-white hover:bg-white/10 active:scale-[0.97] transition-all group`}
+                        className={`w-full h-16 bg-black/5 border border-black/10 rounded-2xl flex items-center px-6 gap-5 text-black hover:bg-black/10 active:scale-[0.97] group`}
                       >
                         <div
-                          className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform bg-white/5`}
+                          className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0  bg-black/5`}
                         >
                           {React.cloneElement(accion.icon, { size: 20 })}
                         </div>
@@ -423,7 +417,7 @@ const DataCard = ({
 
               <button
                 onClick={() => setActionSheetOpen(false)}
-                className="w-full h-14 mt-6 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/50 font-black uppercase text-[11px] tracking-[0.2em] hover:bg-white/10 hover:text-white active:scale-[0.97] transition-all mb-4"
+                className="w-full h-14 mt-6 bg-black/5 border border-black/10 rounded-2xl flex items-center justify-center text-black/50 font-black uppercase text-[13px] tracking-[0.2em] hover:bg-black/10 hover:text-black active:scale-[0.97] mb-4"
               >
                 Cerrar Panel
               </button>
@@ -488,30 +482,24 @@ const DataTable = ({
 
   // --- SUBCOMPONENTES DE CARGA ---
   const SkeletonRow = () => (
-    <tr className="border-b border-white/5 animate-pulse bg-white/[0.01]">
+    <tr className="border-b border-black/5 bg-black/[0.01]">
       {columnasVisibles
         .filter((c) => c.visible !== false)
         .map((_, i) => (
           <td key={i} className="px-4 py-4.5">
-            <div className="h-2.5 bg-white/10 rounded-full w-full overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" />
+            <div className="h-2.5 bg-black/10 rounded-full w-full overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
             </div>
           </td>
         ))}
       {mostrarAcciones && (
         <td className="px-4 py-4.5">
           <div className="flex justify-end pr-2">
-            <div className="w-8 h-8 rounded-lg bg-white/5 animate-pulse" />
+            <div className="w-8 h-8 rounded-lg bg-black/5" />
           </div>
         </td>
       )}
     </tr>
-  );
-
-  const TopProgressBar = () => (
-    <div className="absolute top-0 left-0 right-0 h-[2.5px] overflow-hidden z-[60] bg-transparent">
-      <div className="h-full bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent w-1/2 animate-loading-bar shadow-[0_0_15px_var(--primary)]" />
-    </div>
   );
 
   const { usuario } = useAuthStore();
@@ -521,13 +509,15 @@ const DataTable = ({
   const inicializadoRef = React.useRef(false);
   const interaccionUsuarioRef = React.useRef(false);
 
-  const mostrarSkeleton = loading && datos.length === 0;
+  const mostrarSkeleton = loading;
   const mostrarTopBar = isFetching && datos.length > 0;
 
   // 1. Sincronizar columnas y cargar preferencias
   React.useEffect(() => {
     setColumnasVisibles((prev) => {
       const pref = id_tabla && usuario?.preferenciasTabla?.[id_tabla];
+
+      // Caso A: Tenemos preferencias guardadas (solo la primera vez o si no hubo interacción)
       if (
         pref &&
         pref.orden &&
@@ -547,22 +537,31 @@ const DataTable = ({
         inicializadoRef.current = true;
         return nuevas;
       }
-      if (inicializadoRef.current && prev.length > 0) {
+
+      // Caso B: El componente ya tiene columnas (prev.length > 0)
+      // Debemos sincronizar con las nuevas 'columnas' para detectar cambios (columnas dinámicas que llegan tarde)
+      if (prev.length > 0) {
         const actualizadas = prev
           .map((p) => {
             const nuevaInfo = columnas.find((c) => c.key === p.key);
+            // Actualizar info de la columna pero mantener visibilidad previa
             return nuevaInfo ? { ...nuevaInfo, visible: p.visible } : p;
           })
           .filter((p) => columnas.some((c) => c.key === p.key));
+
+        // Agregar columnas nuevas que no estaban en 'prev'
         columnas.forEach((col) => {
           if (!actualizadas.some((a) => a.key === col.key))
             actualizadas.push({ ...col, visible: true });
         });
+
+        inicializadoRef.current = true;
         return actualizadas;
       }
-      return prev.length > 0
-        ? prev
-        : columnas.map((c) => ({ ...c, visible: true }));
+
+      // Caso C: Primera carga sin columnas previas y sin preferencias
+      inicializadoRef.current = true;
+      return columnas.map((c) => ({ ...c, visible: true }));
     });
   }, [
     columnas,
@@ -654,10 +653,7 @@ const DataTable = ({
   return (
     <div className={`flex flex-col gap-4 ${className} relative`}>
       <style>{`
-        @keyframes loading-bar { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
-        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-        .animate-loading-bar { animation: loading-bar 1.5s infinite linear; }
-        .animate-shimmer { animation: shimmer 1.5s infinite linear; }
+        /* Animaciones desactivadas por optimización */
       `}</style>
 
       {(botonAgregar ||
@@ -671,7 +667,7 @@ const DataTable = ({
                 <TieneAccion accion={botonAgregar?.tieneAccion}>
                   <button
                     onClick={manejarAgregarClick}
-                    className="flex items-center gap-2 px-6 py-2 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-active)]! text-white! rounded-md! font-bold! text-[11px]! uppercase! tracking-wider! cursor-pointer!"
+                    className="flex items-center gap-2 px-6 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary-subtle)] border border-[var(--primary)]/20! rounded-md! font-bold! text-[13px]! uppercase! tracking-wider! cursor-pointer! text-[var(--primary)]!"
                   >
                     <AgregarIcono size={14} /> {botonAgregar.texto}
                   </button>
@@ -680,7 +676,7 @@ const DataTable = ({
               {mostrarFiltros && (
                 <button
                   onClick={() => setFiltrosAbiertos(!filtrosAbiertos)}
-                  className={`flex items-center! gap-2! px-4! py-2! rounded-lg! border! text-[11px]! font-bold! uppercase! ${filtrosAbiertos ? "bg-[var(--primary-subtle)]! text-[var(--primary)]!" : "bg-[var(--surface)]!"}`}
+                  className={`flex items-center! gap-2! px-4! py-2! rounded-lg! border! text-[13px]! font-bold! uppercase! ${filtrosAbiertos ? "bg-[var(--primary-subtle)]! text-[var(--primary)]!" : "bg-[var(--surface)]!"}`}
                 >
                   <FiltroIcono size={14} /> {textoFiltros}
                 </button>
@@ -694,41 +690,47 @@ const DataTable = ({
                 </div>
               )}
               {mostrarBuscador && setBusqueda && (
-                <div className="flex bg-[var(--surface)]/40 backdrop-blur-md border border-[var(--border-medium)]/50 rounded-xl md:rounded-md w-full lg:w-96 focus-within:border-[var(--primary)] transition-all">
+                <div className="flex bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl w-full lg:w-[480px] shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all duration-500 focus-within:ring-4 focus-within:ring-[var(--primary)]/5 border-[var(--primary)]/40 group overflow-hidden">
                   {opcionesBusqueda && setBusquedaClave && (
-                    <select
-                      value={busquedaClave}
-                      onChange={(e) => setBusquedaClave(e.target.value)}
-                      className="bg-transparent border-r text-white! border-[var(--border-medium)] px-3 text-[12px] font-bold outline-none cursor-pointer"
-                    >
-                      {opcionesBusqueda.map((op) => (
-                        <option
-                          key={op.value}
-                          value={op.value}
-                          className="text-black!"
-                        >
-                          {op.label}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative border-r border-[var(--border-subtle)] flex items-center bg-[var(--fill-secondary)]/30 group-focus-within:bg-[var(--primary)]/5 transition-colors">
+                      <select
+                        value={busquedaClave}
+                        onChange={(e) => setBusquedaClave(e.target.value)}
+                        className="bg-transparent text-[var(--text-primary)] font-bold text-[11px] uppercase tracking-widest pl-4 pr-9 py-3 outline-none appearance-none cursor-pointer z-10"
+                      >
+                        {opcionesBusqueda.map((op) => (
+                          <option
+                            key={op.value}
+                            value={op.value}
+                            className="text-black bg-white"
+                          >
+                            {op.label}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown
+                        size={12}
+                        className="absolute right-3 text-[var(--text-muted)] pointer-events-none z-0 group-focus-within:text-[var(--primary)] transition-colors"
+                      />
+                    </div>
                   )}
-                  <div className="relative flex-1">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--primary)]">
-                      <BuscadorIcono size={14} />
+                  <div className="relative flex-1 flex items-center">
+                    <div className="absolute left-4.5 text-[var(--text-theme)] group-focus-within:text-[var(--primary)]">
+                      <BuscadorIcono size={18} color={"var(--primary)"} />
                     </div>
                     <input
                       type="text"
                       value={busqueda}
                       onChange={(e) => setBusqueda(e.target.value)}
-                      className="w-full h-10 pl-10 pr-10 bg-transparent outline-none text-[13px] text-[var(--text-primary)]"
+                      className="w-full h-12 pl-13 pr-12 bg-transparent outline-none text-[15px] font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)]/50 placeholder:font-normal"
                       placeholder={placeholderBuscador}
                     />
                     {busqueda && (
                       <button
                         onClick={() => setBusqueda("")}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--primary)] cursor-pointer"
+                        className="absolute right-3.5 p-1.5 rounded-xl text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer active:scale-90"
                       >
-                        <X size={14} />
+                        <X size={16} />
                       </button>
                     )}
                   </div>
@@ -737,10 +739,10 @@ const DataTable = ({
             </div>
           </div>
           {mostrarFiltros && filtrosAbiertos && (
-            <div className="relative bg-[var(--surface)]/60 backdrop-blur-xl border border-[var(--border-subtle)] rounded-xl animate-in slide-in-from-top-4 fade-in duration-500">
+            <div className="relative bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl">
               <div className="flex items-center gap-3 px-5 py-3.5 border-b border-[var(--border-subtle)] bg-[var(--primary)]/5">
                 <FiltroIcono size={14} />{" "}
-                <h4 className="text-[11px] font-bold uppercase tracking-wider">
+                <h4 className="text-[13px] font-bold uppercase tracking-wider">
                   Filtros Avanzados
                 </h4>
               </div>
@@ -756,10 +758,7 @@ const DataTable = ({
       <div className="md:hidden grid grid-cols-1 gap-4">
         {mostrarSkeleton ? (
           Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-32 bg-white/5 rounded-2xl animate-pulse"
-            />
+            <div key={i} className="h-32 bg-black/5 rounded-2xl" />
           ))
         ) : datos.length > 0 ? (
           datos.map((fila, index) => (
@@ -785,8 +784,8 @@ const DataTable = ({
             />
           ))
         ) : (
-          <div className="py-10 text-center opacity-40 text-white!">
-            <Package size={30} className="mx-auto" color="white" />{" "}
+          <div className="py-10 text-center opacity-40 text-black!">
+            <Package size={30} className="mx-auto" color="black" />{" "}
             {emptyMessage}
           </div>
         )}
@@ -797,30 +796,24 @@ const DataTable = ({
         ref={tableRef}
         className="hidden md:block w-full overflow-x-auto rounded-md border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm relative min-h-[200px]"
       >
-        {mostrarTopBar && <TopProgressBar />}
-        {loading && !mostrarSkeleton && (
-          <div className="absolute inset-0 z-[50] bg-[var(--surface)]/60 backdrop-blur-[2px] flex items-center justify-center animate-in fade-in duration-300">
-            <div className="w-10 h-10 rounded-full border-2 border-[var(--primary)] border-t-transparent animate-spin" />
-          </div>
-        )}
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-[var(--fill-secondary)]/30 border-b border-[var(--border-subtle)]">
+            <tr className="bg-[var(--primary-light)]/20 border-b border-[var(--primary-light)]/50">
               {columnasVisibles
                 .filter((c) => c.visible !== false)
                 .map((col, idx) => (
                   <th
                     key={col.key}
                     onClick={(e) => handleHeaderClick(e, col)}
-                    className="px-4 py-3 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest cursor-pointer hover:bg-[var(--surface-hover)] group/th relative"
+                    className="px-4 py-3 text-[12px] font-bold text-[var(--text-theme)] uppercase tracking-widest cursor-pointer hover:bg-[var(--surface-hover)] group/th relative"
                   >
-                    <div className="flex items-center gap-1.5 transition-colors">
+                    <div className="flex items-center gap-1.5 ">
                       {col.etiqueta}{" "}
                       {tieneAccion("COLUMNAS") && (
                         <ChevronDown
                           size={12}
                           className={`
-                            transition-all duration-300
+                             
                             ${
                               columnaMenuAbierta?.key === col.key
                                 ? "opacity-100 text-[var(--primary)] rotate-180"
@@ -840,15 +833,15 @@ const DataTable = ({
                           }}
                         />
                         <div
-                          className="fixed z-[9999] bg-[var(--surface)] border border-[var(--border-medium)]/50 rounded-lg shadow-2xl py-1.5 w-44 animate-in fade-in zoom-in-95 duration-150 text-left"
+                          className="fixed z-[9999] bg-[var(--surface)] border border-[var(--border-medium)]/50 rounded-lg shadow-2xl py-1.5 w-44     text-left"
                           style={{
                             left: `${columnaMenuAbierta.x}px`,
                             top: `${columnaMenuAbierta.y + 4}px`,
                           }}
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <div className="px-3 py-1 border-b border-[var(--border-subtle)] mb-1">
-                            <p className="text-[9px] font-black text-[var(--text-primary)] uppercase tracking-wider truncate">
+                          <div className="px-3 py-1 bg-[var(--primary)]/20 rounded-t-md border-b border-[var(--primary)]">
+                            <p className="text-[11px] font-black text-[var(--primary)] uppercase tracking-wider truncate">
                               {col.etiqueta}
                             </p>
                           </div>
@@ -865,7 +858,7 @@ const DataTable = ({
                               );
                               setColumnaMenuAbierta(null);
                             }}
-                            className="w-full px-3 py-1.5 text-left text-[11px] font-bold text-red-400 hover:bg-red-500/10 flex items-center gap-2 cursor-pointer transition-colors"
+                            className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-red-400 hover:bg-red-700/10 flex items-center gap-2 cursor-pointer "
                           >
                             <X size={12} /> Ocultar Columna
                           </button>
@@ -878,7 +871,7 @@ const DataTable = ({
                               setColumnaMenuAbierta(null);
                             }}
                             disabled={idx === 0}
-                            className="w-full px-3 py-1.5 text-left text-[11px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                            className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
                           >
                             <ChevronUp size={12} className="-rotate-90" /> Mover
                             Izquierda
@@ -896,7 +889,7 @@ const DataTable = ({
                               ).length -
                                 1
                             }
-                            className="w-full px-3 py-1.5 text-left text-[11px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                            className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
                           >
                             <ChevronUp size={12} className="rotate-90" /> Mover
                             Derecha
@@ -918,7 +911,7 @@ const DataTable = ({
                               setColumnaMenuAbierta(null);
                             }}
                             disabled={idx === 0}
-                            className="w-full px-3 py-1.5 text-left text-[11px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                            className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
                           >
                             <ChevronUp
                               size={12}
@@ -947,7 +940,7 @@ const DataTable = ({
                               ).length -
                                 1
                             }
-                            className="w-full px-3 py-1.5 text-left text-[11px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                            className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
                           >
                             <ChevronUp
                               size={12}
@@ -961,13 +954,13 @@ const DataTable = ({
                   </th>
                 ))}
               {mostrarAcciones && (
-                <th className="px-4 py-3 text-[10px] font-bold text-[var(--text-muted)] uppercase text-right">
+                <th className="px-4 py-3 text-[12px] font-bold text-[var(--text-theme)] uppercase text-right">
                   Acciones
                 </th>
               )}
             </tr>
           </thead>
-          <tbody className="animate-in fade-in duration-700">
+          <tbody className="  ">
             {mostrarSkeleton ? (
               Array.from({ length: 8 }).map((_, i) => <SkeletonRow key={i} />)
             ) : datos.length > 0 ? (
@@ -1003,9 +996,9 @@ const DataTable = ({
                     columnasVisibles.filter((c) => c.visible !== false).length +
                     1
                   }
-                  className="py-20 text-center opacity-30 text-white"
+                  className="py-20 text-center opacity-30 text-black"
                 >
-                  <Package size={40} className="mx-auto mb-2 text-white" />{" "}
+                  <Package size={40} className="mx-auto mb-2 text-black" />{" "}
                   {emptyMessage}
                 </td>
               </tr>
@@ -1016,7 +1009,7 @@ const DataTable = ({
 
       {/* FOOTER */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-1">
-        <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
+        <p className="text-[12px] font-bold text-[var(--text-theme)] uppercase tracking-widest">
           Total: {meta?.total || datos.length} registros
         </p>
         {meta && (
@@ -1026,10 +1019,10 @@ const DataTable = ({
               onChange={(e) =>
                 onLimitChange && onLimitChange(Number(e.target.value))
               }
-              className="bg-[#111] border border-white/10 text-white text-[11px] font-bold rounded px-2 py-1 outline-none appearance-none"
+              className="bg-[var(--surface)] border border-black/10 text-black text-[13px] font-bold rounded px-2 py-1 outline-none appearance-none"
             >
               {[10, 20, 50, 100].map((v) => (
-                <option key={v} value={v} className="bg-[#111] text-white">
+                <option key={v} value={v} className="text-black">
                   {v} FILAS
                 </option>
               ))}
@@ -1038,17 +1031,17 @@ const DataTable = ({
               <button
                 disabled={!meta.prev}
                 onClick={() => onPageChange && onPageChange(meta.prev)}
-                className="px-3 py-1 text-[11px] font-bold text-white hover:text-[var(--primary)] transition-colors disabled:opacity-30"
+                className="px-3 py-1 text-[13px] font-bold text-black hover:text-[var(--primary)]  disabled:opacity-30"
               >
                 Anterior
               </button>
-              <span className="text-[11px] font-black text-white/90">
+              <span className="text-[13px] font-black text-black/90">
                 {meta.currentPage} / {meta.lastPage || 1}
               </span>
               <button
                 disabled={!meta.next}
                 onClick={() => onPageChange && onPageChange(meta.next)}
-                className="px-3 py-1 text-[11px] font-bold text-white hover:text-[var(--primary)] transition-colors disabled:opacity-30"
+                className="px-3 py-1 text-[13px] font-bold text-black hover:text-[var(--primary)]  disabled:opacity-30"
               >
                 Siguiente
               </button>

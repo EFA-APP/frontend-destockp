@@ -350,7 +350,7 @@ const SistemaContable = () => {
   const resetearDatos = async () => {
     if (
       confirm(
-        "¿Está seguro que desea resetear todos los datos? Esta acción no se puede deshacer."
+        "¿Está seguro que desea resetear todos los datos? Esta acción no se puede deshacer.",
       )
     ) {
       await localStorage.removeItem("cuentas");
@@ -365,8 +365,8 @@ const SistemaContable = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="max-w-7xl mx-auto p-6">
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-white">
+        <div className="bg-[var(--surface)] rounded-xl shadow-lg overflow-hidden mb-6">
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-black">
             <h1 className="text-3xl font-bold flex items-center gap-3">
               <Calculator className="w-8 h-8" />
               Sistema Contable Institucional - EFA
@@ -387,10 +387,10 @@ const SistemaContable = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 px-6 py-4 font-semibold transition-all flex items-center justify-center gap-2 ${
+                className={`flex-1 px-6 py-4 font-semibold  flex items-center justify-center gap-2 ${
                   activeTab === tab.id
-                    ? "bg-white text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-600 hover:bg-white hover:text-blue-500"
+                    ? "bg-[var(--surface)] text-blue-600 border-b-2 border-blue-600"
+                    : "text-gray-600 hover:bg-[var(--surface)] hover:text-blue-700"
                 }`}
               >
                 <tab.icon className="w-5 h-5" />
@@ -400,7 +400,7 @@ const SistemaContable = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="bg-[var(--surface)] rounded-xl shadow-lg p-6">
           {activeTab === "plan" && <PlanCuentas cuentas={cuentas} />}
           {activeTab === "asientos" && (
             <Asientos
@@ -422,7 +422,7 @@ const SistemaContable = () => {
         <div className="mt-6 text-center">
           <button
             onClick={resetearDatos}
-            className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg"
+            className="bg-red-700 hover:bg-red-600 text-black px-6 py-3 rounded-lg font-semibold  shadow-md hover:shadow-lg"
           >
             <Trash2 className="w-5 h-5 inline mr-2" />
             Resetear Todos los Datos
@@ -448,12 +448,12 @@ const PlanCuentas = ({ cuentas }) => {
     return (
       <div key={cuenta.codigo}>
         <div
-          className={`flex items-center py-3 px-4 hover:bg-slate-50 rounded-lg transition-all cursor-pointer ${
+          className={`flex items-center py-3 px-4 hover:bg-slate-50 rounded-lg  cursor-pointer ${
             cuenta.tipo === "titulo"
               ? "bg-blue-50 font-bold text-blue-900"
               : cuenta.tipo === "subtitulo"
-              ? "bg-slate-50 font-semibold text-slate-800"
-              : "text-slate-700"
+                ? "bg-slate-50 font-semibold text-slate-800"
+                : "text-slate-700"
           }`}
           style={{ paddingLeft: `${cuenta.nivel * 24}px` }}
           onClick={() => tieneHijos && toggleExpand(cuenta.codigo)}
@@ -583,7 +583,7 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
               type="date"
               value={fecha}
               onChange={(e) => setFecha(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700"
             />
           </div>
           <div>
@@ -595,7 +595,7 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
               value={detalle}
               onChange={(e) => setDetalle(e.target.value)}
               placeholder="Descripción del asiento..."
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700"
             />
           </div>
         </div>
@@ -604,14 +604,14 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
           {movimientos.map((mov, index) => (
             <div
               key={index}
-              className="flex gap-3 items-center bg-white p-3 rounded-lg"
+              className="flex gap-3 items-center bg-[var(--surface)] p-3 rounded-lg"
             >
               <select
                 value={mov.cuenta}
                 onChange={(e) =>
                   actualizarMovimiento(index, "cuenta", e.target.value)
                 }
-                className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700"
               >
                 <option value="">Seleccione cuenta...</option>
                 {cuentas.map((cuenta) => (
@@ -628,7 +628,7 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
                   actualizarMovimiento(index, "debe", e.target.value)
                 }
                 placeholder="Debe"
-                className="w-32 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-32 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700"
               />
               <input
                 type="number"
@@ -638,12 +638,12 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
                   actualizarMovimiento(index, "haber", e.target.value)
                 }
                 placeholder="Haber"
-                className="w-32 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-32 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700"
               />
               {movimientos.length > 2 && (
                 <button
                   onClick={() => eliminarMovimiento(index)}
-                  className="text-red-500 hover:text-red-700 p-2"
+                  className="text-red-700 hover:text-red-700 p-2"
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>
@@ -655,7 +655,7 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
         <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-300">
           <button
             onClick={agregarMovimiento}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-semibold transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-semibold "
           >
             <Plus className="w-4 h-4" />
             Agregar Movimiento
@@ -689,7 +689,7 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
         <button
           onClick={guardarAsiento}
           disabled={!balanceado}
-          className="w-full mt-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2"
+          className="w-full mt-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-black px-6 py-3 rounded-lg font-semibold  flex items-center justify-center gap-2"
         >
           <Save className="w-5 h-5" />
           Guardar Asiento
@@ -701,7 +701,7 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
           Asientos Registrados
         </h3>
         {asientos.length === 0 ? (
-          <p className="text-slate-500 text-center py-8">
+          <p className="text-slate-700 text-center py-8">
             No hay asientos registrados aún.
           </p>
         ) : (
@@ -727,7 +727,7 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
                     </div>
                     <button
                       onClick={() => eliminarAsiento(asiento.numero)}
-                      className="text-red-500 hover:text-red-700 p-2"
+                      className="text-red-700 hover:text-red-700 p-2"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -735,12 +735,12 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
                   <div className="space-y-2">
                     {asiento.movimientos.map((mov, idx) => {
                       const cuenta = cuentas.find(
-                        (c) => c.codigo === mov.cuenta
+                        (c) => c.codigo === mov.cuenta,
                       );
                       return (
                         <div
                           key={idx}
-                          className="flex justify-between text-sm bg-white p-2 rounded"
+                          className="flex justify-between text-sm bg-[var(--surface)] p-2 rounded"
                         >
                           <span className="font-mono">
                             {mov.cuenta} - {cuenta?.nombre}
@@ -772,7 +772,7 @@ const LibroDiario = ({ asientos, cuentas }) => {
       <h2 className="text-2xl font-bold mb-6 text-slate-800">Libro Diario</h2>
 
       {asientos.length === 0 ? (
-        <p className="text-slate-500 text-center py-8">
+        <p className="text-slate-700 text-center py-8">
           No hay asientos registrados en el libro diario.
         </p>
       ) : (
@@ -869,7 +869,7 @@ const LibroMayor = ({ mayores }) => {
   const [cuentaSeleccionada, setCuentaSeleccionada] = useState("");
 
   const mayoresConMovimientos = Object.values(mayores).filter(
-    (m) => m.movimientos.length > 0
+    (m) => m.movimientos.length > 0,
   );
 
   return (
@@ -877,7 +877,7 @@ const LibroMayor = ({ mayores }) => {
       <h2 className="text-2xl font-bold mb-6 text-slate-800">Libro Mayor</h2>
 
       {mayoresConMovimientos.length === 0 ? (
-        <p className="text-slate-500 text-center py-8">
+        <p className="text-slate-700 text-center py-8">
           No hay movimientos registrados en el libro mayor.
         </p>
       ) : (
@@ -889,7 +889,7 @@ const LibroMayor = ({ mayores }) => {
             <select
               value={cuentaSeleccionada}
               onChange={(e) => setCuentaSeleccionada(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700"
             >
               <option value="">Ver todas las cuentas con movimientos</option>
               {mayoresConMovimientos.map((mayor) => (
@@ -928,7 +928,7 @@ const LibroMayor = ({ mayores }) => {
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full border-collapse bg-white">
+                <table className="w-full border-collapse bg-[var(--surface)]">
                   <thead>
                     <tr className="bg-slate-100">
                       <th className="border border-slate-300 px-4 py-3 text-left">
@@ -982,7 +982,7 @@ const LibroMayor = ({ mayores }) => {
                         ${mayor.haber.toFixed(2)}
                       </td>
                     </tr>
-                    <tr className="bg-slate-800 text-white font-bold">
+                    <tr className="bg-slate-800 text-black font-bold">
                       <td
                         colSpan="3"
                         className="border border-slate-300 px-4 py-3 text-right"
@@ -1031,7 +1031,7 @@ const Balance = ({ balance, mayores }) => {
             <div className="bg-blue-100 px-4 py-2 font-bold text-blue-900 rounded-t">
               ACTIVO
             </div>
-            <div className="bg-white p-4 space-y-2">
+            <div className="bg-[var(--surface)] p-4 space-y-2">
               <div className="flex justify-between">
                 <span className="font-semibold">Activo Corriente</span>
                 <span className="font-mono">
@@ -1058,7 +1058,7 @@ const Balance = ({ balance, mayores }) => {
             <div className="bg-orange-100 px-4 py-2 font-bold text-orange-900 rounded-t">
               PASIVO
             </div>
-            <div className="bg-white p-4 space-y-2">
+            <div className="bg-[var(--surface)] p-4 space-y-2">
               <div className="flex justify-between">
                 <span className="font-semibold">Pasivo Corriente</span>
                 <span className="font-mono">
@@ -1082,7 +1082,7 @@ const Balance = ({ balance, mayores }) => {
             <div className="bg-purple-100 px-4 py-2 font-bold text-purple-900 mt-4">
               PATRIMONIO NETO
             </div>
-            <div className="bg-white p-4 space-y-2">
+            <div className="bg-[var(--surface)] p-4 space-y-2">
               <div className="flex justify-between">
                 <span className="font-semibold">
                   Capital y Resultados Acumulados
@@ -1137,7 +1137,7 @@ const Balance = ({ balance, mayores }) => {
             Estado de Resultados
           </h3>
 
-          <div className="bg-white p-4 space-y-4">
+          <div className="bg-[var(--surface)] p-4 space-y-4">
             <div>
               <div className="bg-green-100 px-4 py-2 font-bold text-green-900 rounded-t">
                 INGRESOS
@@ -1199,7 +1199,7 @@ const Balance = ({ balance, mayores }) => {
           Detalle de Saldos por Cuenta
         </h3>
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse bg-white">
+          <table className="w-full border-collapse bg-[var(--surface)]">
             <thead>
               <tr className="bg-slate-100">
                 <th className="border border-slate-300 px-4 py-3 text-left">

@@ -20,49 +20,49 @@ const ModalDetalle = ({
       glow: "bg-[var(--primary)]/5",
     },
     amber: {
-      iconBg: "bg-amber-500/10",
-      iconText: "text-amber-500",
-      iconBorder: "border-amber-500/10",
-      line: "bg-amber-500/40",
+      iconBg: "bg-amber-700/10",
+      iconText: "text-amber-700",
+      iconBorder: "border-amber-700/10",
+      line: "bg-amber-700/40",
       bgGradient:
         "bg-gradient-to-br from-[#1a1610]! via-[#0f0f0f]! to-[#0a0a0a]!",
-      glow: "bg-amber-500/5",
+      glow: "bg-amber-700/5",
     },
     emerald: {
-      iconBg: "bg-emerald-500/10",
-      iconText: "text-emerald-500",
-      iconBorder: "border-emerald-500/10",
-      line: "bg-emerald-500/40",
+      iconBg: "bg-emerald-700/10",
+      iconText: "text-emerald-700",
+      iconBorder: "border-emerald-700/10",
+      line: "bg-emerald-700/40",
       bgGradient:
         "bg-gradient-to-br from-[#101a14]! via-[#0f0f0f]! to-[#0a0a0a]!",
-      glow: "bg-emerald-500/5",
+      glow: "bg-emerald-700/5",
     },
     blue: {
-      iconBg: "bg-blue-500/10",
-      iconText: "text-blue-500",
-      iconBorder: "border-blue-500/10",
-      line: "bg-blue-500/40",
+      iconBg: "bg-blue-700/10",
+      iconText: "text-blue-700",
+      iconBorder: "border-blue-700/10",
+      line: "bg-blue-700/40",
       bgGradient:
         "bg-gradient-to-br from-[#10141a]! via-[#0f0f0f]! to-[#0a0a0a]!",
-      glow: "bg-blue-500/5",
+      glow: "bg-blue-700/5",
     },
     rose: {
-      iconBg: "bg-rose-500/10",
-      iconText: "text-rose-500",
-      iconBorder: "border-rose-500/10",
-      line: "bg-rose-500/40",
+      iconBg: "bg-rose-700/10",
+      iconText: "text-rose-700",
+      iconBorder: "border-rose-700/10",
+      line: "bg-rose-700/40",
       bgGradient:
         "bg-gradient-to-br from-[#1a1012]! via-[#0f0f0f]! to-[#0a0a0a]!",
-      glow: "bg-rose-500/5",
+      glow: "bg-rose-700/5",
     },
     indigo: {
-      iconBg: "bg-indigo-500/10",
-      iconText: "text-indigo-500",
-      iconBorder: "border-indigo-500/10",
-      line: "bg-indigo-500/40",
+      iconBg: "bg-indigo-700/10",
+      iconText: "text-indigo-700",
+      iconBorder: "border-indigo-700/10",
+      line: "bg-indigo-700/40",
       bgGradient:
         "bg-gradient-to-br from-[#12101a]! via-[#0f0f0f]! to-[#0a0a0a]!",
-      glow: "bg-indigo-500/5",
+      glow: "bg-indigo-700/5",
     },
   };
 
@@ -77,7 +77,7 @@ const ModalDetalle = ({
         ${
           isStandalone
             ? "bg-transparent! border-none!"
-            : "bg-[var(--surface-active)]! shadow-2xl border-x md:border border-white/10 rounded-md!"
+            : "bg-[var(--surface-active)]! shadow-2xl border-x md:border border-black/10 rounded-md!"
         }
       `}
     >
@@ -90,7 +90,7 @@ const ModalDetalle = ({
       {/* Header - Conditional for Standalone */}
       {!isStandalone && (
         <div
-          className={`relative z-10 flex items-center justify-between px-5 py-4 md:px-6 md:py-5 border-b border-white/5 shadow-sm shrink-0`}
+          className={`relative z-10 flex items-center justify-between px-5 py-4 md:px-6 md:py-5 border-b border-black/5 shadow-sm shrink-0`}
         >
           <div className="flex items-center gap-3.5">
             {icon && (
@@ -101,7 +101,7 @@ const ModalDetalle = ({
               </div>
             )}
             <div>
-              <h2 className="text-sm md:text-base font-bold text-white tracking-tight">
+              <h2 className="text-sm md:text-base font-bold text-black tracking-tight">
                 {title}
               </h2>
               <div className={`h-0.5 w-4 ${theme.line} rounded-full mt-0.5`} />
@@ -110,7 +110,7 @@ const ModalDetalle = ({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-md text-white/20 hover:text-white hover:bg-white/5 transition-all cursor-pointer active:scale-90"
+            className="p-1.5 rounded-md text-black/20 hover:text-black hover:bg-black/5  cursor-pointer active:scale-90"
           >
             <svg
               width="18"
@@ -139,7 +139,7 @@ const ModalDetalle = ({
       {/* Footer - Solid & Formal */}
       {footer && (
         <div
-          className={`px-4 py-4 md:px-6 md:py-5 border-t border-white/5 ${isStandalone ? "bg-black/5" : "bg-black/20"} flex flex-col sm:flex-row justify-end gap-3 shrink-0 rounded-b-md`}
+          className={`px-4 py-4 md:px-6 md:py-5 border-t border-black/5 ${isStandalone ? "bg-black/5" : "bg-black/20"} flex flex-col sm:flex-row justify-end gap-3 shrink-0 rounded-b-md`}
         >
           {footer}
         </div>

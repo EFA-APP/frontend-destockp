@@ -5,9 +5,12 @@
   font-optical-sizing: auto;
   font-style: normal;
   box-sizing: border-box;
+  /* Sacar todas las animaciones por optimización */
+  transition: none !important;
+  animation: none !important;
 }
 
-/* Scrollbar elegante */
+/* Scrollbar elegante adaptada a blanco */
 .custom-scrollbar::-webkit-scrollbar {
   width: 2px;
 }
@@ -17,10 +20,10 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.199);
+  background-color: rgba(0, 0, 0, 0.2);
   border-radius: 4px;
 }
 
 .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0);
+  background-color: rgba(0, 0, 0, 0.4);
 }

@@ -62,9 +62,9 @@ export const columnasMisComprobantesAFIP = [
     filtrable: true,
     renderizar: (valor) => {
       const estilos = {
-        pendiente: "bg-yellow-500/20 text-yellow-400",
-        importado: "bg-green-500/20 text-green-400",
-        observado: "bg-red-500/20 text-red-400",
+        pendiente: "bg-yellow-700/20 text-yellow-400",
+        importado: "bg-green-700/20 text-green-400",
+        observado: "bg-red-700/20 text-red-400",
       };
       const tipo = valor?.toLowerCase();
 

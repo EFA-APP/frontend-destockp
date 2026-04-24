@@ -296,15 +296,15 @@ const FormularioDinamico = ({
         ? field.readOnly(formData)
         : field.readOnly;
 
-    const commonClasses = `w-full px-5 py-3 md:px-4 md:py-2.5 rounded-xl! border transition-all duration-300 bg-[var(--surface-hover)]/20! backdrop-blur-md! shadow-sm ${
+    const commonClasses = `w-full px-5 py-3 md:px-4 md:py-2.5 rounded-xl! border   bg-[var(--surface-hover)]/20! backdrop-blur-md! shadow-sm ${
       errors[field.name]
-        ? "border-red-500/40! focus:ring-red-500/10!"
-        : "border-[var(--border-medium)]/40! focus:border-[var(--primary)]! focus:ring-[var(--primary)]/10!"
+        ? "border-red-700/40! focus:ring-red-700/10!"
+        : "border-[var(--border-medium)]/40! border-[var(--primary)]/30! focus:ring-[var(--primary)]/10!"
     } focus:ring-4! focus:outline-none placeholder-[var(--text-muted)] ${
       isReadOnly
         ? "cursor-not-allowed opacity-60"
         : "hover:border-[var(--border-medium)]/80 hover:bg-[var(--surface-hover)]/40!"
-    } ${formData[field.name] || field.defaultValue ? "text-[var(--primary-light)]! font-bold!" : "text-[var(--text-primary)]!"}`;
+    } ${formData[field.name] || field.defaultValue ? "text-[var(--secondary)]! font-bold!" : "text-[var(--text-primary)]!"}`;
 
     switch (field.type) {
       case "textarea":
@@ -383,7 +383,7 @@ const FormularioDinamico = ({
                 input?.showPicker?.();
                 input?.focus();
               }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--primary)]  cursor-pointer"
             >
               <CalendarioIcono size={16} color="currentColor" />
             </button>
@@ -415,12 +415,12 @@ const FormularioDinamico = ({
                 <div
                   className="
               relative z-40
-              bg-white/10
+              bg-black/10
               flex items-center justify-center
               h-28 mt-2 w-full max-w-[8rem] mx-auto
               rounded-md
               shadow-[0px_10px_50px_rgba(0,0,0,0.1)]
-              transition-all duration-300 ease-out
+                
               group-hover/file:shadow-2xl
               group-hover/file:opacity-90
               group-hover/file:translate-x-5
@@ -436,7 +436,7 @@ const FormularioDinamico = ({
               border-2 border-dashed border-[var(--primary)]/30
               rounded-md!
               opacity-0
-              transition-opacity duration-300
+               
               group-hover/file:opacity-100
             "
                 />
@@ -455,7 +455,7 @@ const FormularioDinamico = ({
                   </p>
                 </div>
                 <div className="flex text-sm md:flex-row flex-col items-start md:items-center w-full mt-2 justify-between">
-                  <p className="px-3 py-1 rounded-md! bg-[var(--primary-subtle)] text-[var(--primary)] text-[10px] font-bold uppercase tracking-wider">
+                  <p className="px-3 py-1 rounded-md! bg-[var(--primary-subtle)] text-[var(--primary)] text-[12px] font-bold uppercase tracking-wider">
                     {file.type || "desconocido"}
                   </p>
                 </div>
@@ -479,7 +479,7 @@ const FormularioDinamico = ({
                 disabled={isReadOnly}
               />
               <div
-                className={`w-11 h-6 bg-[var(--surface-hover)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--primary)]/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--primary)] transition-colors border border-[var(--border-medium)]`}
+                className={`w-11 h-6 bg-[var(--surface-hover)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--primary)]/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-[var(--border-subtle)] after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-[var(--surface)] after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after: peer-checked:bg-[var(--primary)]  border border-[var(--border-medium)]`}
               ></div>
             </label>
           </div>
@@ -532,10 +532,10 @@ const FormularioDinamico = ({
               key={itemField.name}
               className={`${itemField.colSpan}` || "col-span-2"}
             >
-              <label className="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 ml-1">
+              <label className="block text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 ml-1">
                 {itemField.label}{" "}
                 {itemField.required && (
-                  <span className="text-red-500 font-bold">*</span>
+                  <span className="text-red-700 font-bold">*</span>
                 )}
               </label>
               {itemField.type === "select" ? (
@@ -552,7 +552,7 @@ const FormularioDinamico = ({
                         : e.target.value,
                     )
                   }
-                  className="w-full px-3 py-2 bg-[var(--surface-hover)]/30! backdrop-blur-sm! border! border-[var(--border-medium)]/50! rounded-md! text-[var(--text-primary)]! focus:border-[var(--primary)]! focus:ring-4! focus:ring-[var(--primary)]/10! transition-all duration-300"
+                  className="w-full px-3 py-2 bg-[var(--surface-hover)]/30! backdrop-blur-sm! border! border-[var(--border-medium)]/50! rounded-md! text-[var(--text-primary)]! border-[var(--primary)]! focus:ring-4! focus:ring-[var(--primary)]/10!  "
                 >
                   {itemField.options?.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -577,7 +577,7 @@ const FormularioDinamico = ({
                       className="sr-only peer"
                     />
                     <div
-                      className={`w-11 h-6 bg-[var(--surface-hover)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--primary)] transition-colors border border-[var(--border-medium)]`}
+                      className={`w-11 h-6 bg-[var(--surface-hover)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-[var(--border-subtle)] after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-[var(--surface)] after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after: peer-checked:bg-[var(--primary)]  border border-[var(--border-medium)]`}
                     ></div>
                   </label>
                 </div>
@@ -607,7 +607,7 @@ const FormularioDinamico = ({
                         : e.target.value,
                     )
                   }
-                  className={`w-full px-3 py-2 bg-[var(--surface-hover)]/30! backdrop-blur-sm! border! border-[var(--border-medium)]/50! rounded-md! text-[var(--text-primary)]! focus:border-[var(--primary)]! focus:ring-4! focus:ring-[var(--primary)]/10! transition-all duration-300`}
+                  className={`w-full px-3 py-2 bg-[var(--surface-hover)]/30! backdrop-blur-sm! border! border-[var(--border-medium)]/50! rounded-md! text-[var(--text-primary)]! border-[var(--primary)]! focus:ring-4! focus:ring-[var(--primary)]/10!  `}
                   placeholder={itemField.placeholder}
                 />
               )}
@@ -617,7 +617,7 @@ const FormularioDinamico = ({
             <button
               type="button"
               onClick={() => addItem(field)}
-              className="w-full py-1 bg-[var(--primary-subtle)]! text-[var(--primary)]! rounded-md! hover:bg-[var(--primary)]! hover:text-white! font-bold text-[10px] uppercase tracking-wider transition-all duration-300 flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md"
+              className="w-full py-1 bg-[var(--primary-subtle)]! text-[var(--primary)]! rounded-md! hover:bg-[var(--primary)]! hover:text-black! font-bold text-[12px] uppercase tracking-wider   flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md"
             >
               <AgregarIcono size={16} />
             </button>
@@ -632,16 +632,16 @@ const FormularioDinamico = ({
               {items.map((item, idx) => (
                 <div
                   key={item.id}
-                  className="relative p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-300"
+                  className="relative p-5 rounded-2xl bg-black/5 border border-black/10 backdrop-blur-md shadow-xl    "
                 >
                   <div className="flex justify-between items-start mb-4">
-                    <span className="px-3 py-1 rounded-full bg-[var(--primary-subtle)]/50 text-[var(--primary)] text-[9px] font-black uppercase tracking-widest">
+                    <span className="px-3 py-1 rounded-full bg-[var(--primary-subtle)]/50 text-[var(--primary)] text-[11px] font-black uppercase tracking-widest">
                       Ítem #{idx + 1}
                     </span>
                     <button
                       type="button"
                       onClick={() => removeItem(field.name, item.id)}
-                      className="w-8 h-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center border border-red-500/10 active:scale-90 transition-all"
+                      className="w-8 h-8 rounded-full bg-red-700/10 text-red-700 flex items-center justify-center border border-red-700/10 active:scale-90 "
                     >
                       <BorrarIcono size={14} />
                     </button>
@@ -649,10 +649,10 @@ const FormularioDinamico = ({
                   <div className="grid grid-cols-2 gap-4">
                     {field.tableColumns?.map((col) => (
                       <div key={col.key} className="flex flex-col gap-1">
-                        <span className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-wider opacity-60">
+                        <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-wider opacity-60">
                           {col.label}
                         </span>
-                        <div className="text-[13px] font-bold text-[var(--text-primary)]">
+                        <div className="text-[15px] font-bold text-[var(--text-primary)]">
                           {col.render ? col.render(item) : item[col.key]}
                         </div>
                       </div>
@@ -670,7 +670,7 @@ const FormularioDinamico = ({
                     {field.tableColumns?.map((col) => (
                       <th
                         key={col.key}
-                        className={`px-4 py-3 text-[10px] font-bold uppercase tracking-widest ${col.align || "text-left"}`}
+                        className={`px-4 py-3 text-[12px] font-bold uppercase tracking-widest ${col.align || "text-left"}`}
                       >
                         {col.label}
                       </th>
@@ -682,7 +682,7 @@ const FormularioDinamico = ({
                   {items.map((item) => (
                     <tr
                       key={item.id}
-                      className="bg-[var(--surface)]/50 backdrop-blur-sm border border-[var(--border-subtle)] hover:bg-[var(--surface-hover)]/30 transition-colors"
+                      className="bg-[var(--surface)]/50 backdrop-blur-sm border border-[var(--border-subtle)] hover:bg-[var(--surface-hover)]/30 "
                     >
                       {field.tableColumns?.map((col) => (
                         <td
@@ -696,7 +696,7 @@ const FormularioDinamico = ({
                         <button
                           type="button"
                           onClick={() => removeItem(field.name, item.id)}
-                          className="p-2 rounded-lg text-red-500 hover:bg-red-500/10 transition-all cursor-pointer"
+                          className="p-2 rounded-lg text-red-700 hover:bg-red-700/10  cursor-pointer"
                         >
                           <BorrarIcono size={16} />
                         </button>
@@ -730,7 +730,7 @@ const FormularioDinamico = ({
   return (
     <div className="w-full bg-[var(--surface)] rounded-md! shadow-md overflow-hidden">
       {/* Header */}
-      <div className="relative bg-gradient-to-r from-[var(--primary)]/10 to-transparent px-8 py-4 md:flex md:flex-col md:items-center md:justify-center border-b border-[var(--border-subtle)]">
+      <div className="relative bg-[var(--primary)]/10 px-8 py-4 md:flex md:flex-col md:items-center md:justify-center border-b border-[var(--border-subtle)]">
         <h2 className="text-xl md:text-3xl font-bold text-[var(--text-primary)] tracking-tight">
           {titulo}
         </h2>
@@ -773,16 +773,16 @@ const FormularioDinamico = ({
                       }
                     >
                       {field.type !== "items-table" && (
-                        <label className="block text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 ml-1">
+                        <label className="block text-[13px] font-bold text-[var(--text-theme)] uppercase tracking-wider mb-2 ml-1">
                           {field.label}{" "}
                           {field.required && (
-                            <span className="text-red-500 font-bold">*</span>
+                            <span className="text-red-700 font-bold">*</span>
                           )}
                         </label>
                       )}
                       <div className="col-span-6">{renderField(field)}</div>
                       {field.type !== "items-table" && errors[field.name] && (
-                        <p className="text-red-500 text-xs font-medium mt-1.5 ml-1">
+                        <p className="text-red-700 text-xs font-medium mt-1.5 ml-1">
                           {errors[field.name]}
                         </p>
                       )}
@@ -802,13 +802,13 @@ const FormularioDinamico = ({
             </div>
           ))}
           {/* Botones */}
-          <div className="mt-8 pt-8 border-t border-white/5">
+          <div className="mt-8 pt-8 border-t border-black/5">
             <div className="flex flex-col md:flex-row justify-end gap-4">
               {onCancel && (
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="w-full md:w-auto px-8 py-3.5 rounded-xl! border border-white/10 text-[var(--text-muted)] font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-white/5 hover:text-white transition-all cursor-pointer text-center"
+                  className="w-full md:w-auto px-8 py-3.5 rounded-md! bg-black/20! border border-[var(--border-subtle)]! text-[var(--text-theme)]! font-bold! text-[12px]! uppercase! tracking-[0.2em]!  cursor-pointer text-center"
                 >
                   {cancelLabel}
                 </button>
@@ -816,9 +816,8 @@ const FormularioDinamico = ({
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="w-full md:w-auto px-10 py-4 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-active)]! text-white! rounded-xl! hover:-translate-y-1! active:translate-y-0.5! transition-all! duration-300! shadow-2xl! shadow-[var(--primary)]/30! hover:shadow-[var(--primary)]/50! font-black! text-[11px]! uppercase! tracking-[0.2em]! cursor-pointer! flex items-center justify-center gap-3 border-t border-white/20"
+                className="w-full md:w-auto px-10 py-4 border border-[var(--primary)]/20 bg-[var(--primary)]/20! text-[var(--primary)]! rounded-md! hover:-translate-y-0.5! active:translate-y-0.5! shadow-sm! shadow-[var(--primary)]/10! hover:shadow-[var(--primary)]/20! font-bold! text-[15px]! uppercase! tracking-[0.2em]! cursor-pointer! flex items-center justify-center gap-3 border-t border-[var(--border-subtle)]"
               >
-                <GuardarIcono size={18} />
                 {submitLabel}
               </button>
             </div>
