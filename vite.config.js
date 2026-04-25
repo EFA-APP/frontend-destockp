@@ -9,11 +9,5 @@ export default defineConfig({
   server: {
     host: true,
     port: 5177,
-    allowedHosts: ["localhost", "ventryx.fun"],
-    hmr: {
-      protocol: "wss",
-      host: "ventryx.fun",
-      port: 443,
-    },
   },
 });

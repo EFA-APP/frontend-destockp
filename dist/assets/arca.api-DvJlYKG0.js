@@ -1,0 +1,1 @@
+import{c as a}from"./index-g64Au8nd.js";const t=async()=>(await a.get("/arca/sesion/iniciar",{showLoader:!1})).data,r=async()=>(await a.get("/arca/comprobantes/tipos",{showLoader:!1})).data;export{t as I,r as O};

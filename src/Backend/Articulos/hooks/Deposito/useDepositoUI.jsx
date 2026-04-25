@@ -17,7 +17,9 @@ export const useDepositoUI = (filtros = {}) => {
 
   // Query para obtener los datos desde la API
   const query = useDepositos();
-  const queryStock = useDepositosConStock(filtros);
+  const queryStock = useDepositosConStock(filtros, {
+    enabled: !!filtros.tipoArticulo,
+  });
 
   // Mutaciones
   const mutationCrear = useCrearDeposito();

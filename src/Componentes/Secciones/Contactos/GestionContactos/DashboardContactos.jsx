@@ -41,18 +41,18 @@ const DashboardContactos = () => {
   });
 
   return (
-    <div className="flex flex-col h-screen bg-[#050505] text-black overflow-hidden p-4">
+    <div className="flex flex-col h-screen bg-[var(--fill)] text-[var(--text-primary)] overflow-hidden p-4 lg:p-6 gap-4">
       <EncabezadoSeccion
         ruta={modoAdmin ? "CONTACTOS / CONFIGURACIÓN" : "GESTIÓN DE CONTACTOS"}
         icono={<CuentaIcono size={18} />}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {!modoAdmin && (
             <button
               onClick={() => setVerImportar(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-md text-[12px] font-black  border uppercase tracking-widest bg-emerald-700/10 text-emerald-700 border-emerald-700/20 hover:bg-emerald-700/20"
+              className="flex items-center gap-2 px-4 py-2 rounded-md text-[11px] font-black border uppercase tracking-widest bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20 transition-all cursor-pointer"
             >
-              <FileSpreadsheet size={12} />
+              <FileSpreadsheet size={14} />
               Carga Masiva
             </button>
           )}
@@ -60,70 +60,75 @@ const DashboardContactos = () => {
           <TieneAccion accion="CONFIGURAR_CONTACTO">
             <button
               onClick={() => setModoAdmin(!modoAdmin)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-[12px] font-black  border uppercase tracking-widest ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-[11px] font-black border uppercase tracking-widest transition-all cursor-pointer ${
                 modoAdmin
-                  ? "bg-[var(--primary)] text-black border-[var(--primary)] shadow-lg shadow-[var(--primary)]/20"
-                  : "bg-white/[0.03] text-black/40 border-black/5 hover:bg-black/10 hover:text-black"
+                  ? "bg-[var(--primary)] text-white border-[var(--primary)] shadow-lg shadow-[var(--primary)]/20"
+                  : "bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] shadow-sm"
               }`}
             >
-              <ConfiguracionIcono size={12} />
+              <ConfiguracionIcono size={14} />
               {modoAdmin ? "VOLVER" : "CONFIGURAR"}
             </button>
           </TieneAccion>
         </div>
       </EncabezadoSeccion>
 
-      <div className="flex-1 flex gap-4 overflow-hidden">
-        {/* Sidebar Ultra-Compacta */}
-        <div className="w-52 shrink-0 flex flex-col gap-1.5 bg-[#0a0a0a] rounded-md border border-black/5 p-3 overflow-y-auto custom-scrollbar">
-          <span className="text-[11px] font-black text-black/30 uppercase tracking-[0.2em] px-2 mb-2">
+      <div className="flex-1 flex gap-4 lg:gap-6 overflow-hidden">
+        {/* Sidebar Moderna */}
+        <div className="w-64 shrink-0 flex flex-col gap-1.5 bg-[var(--surface)] rounded-md border border-[var(--border-subtle)] p-4 overflow-y-auto custom-scrollbar shadow-sm">
+          <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] px-3 mb-3">
             Entidades
           </span>
 
           {cargandoEntidades ? (
-            <div className="space-y-2 px-2">
+            <div className="space-y-3 px-1">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-9 bg-black/5  rounded-md" />
+                <div
+                  key={i}
+                  className="h-10 bg-[var(--fill-secondary)] animate-pulse rounded-md"
+                />
               ))}
             </div>
           ) : (
-            <>
-              {entidades.map((ent) => (
-                <button
-                  key={ent.codigoSecuencial}
-                  onClick={() => {
-                    setEntidadSeleccionada(ent);
-                    setModoAdmin(false);
-                    setFiltros((prev) => ({ ...prev, pagina: 1 }));
-                  }}
-                  className={`w-full text-left px-3 py-2.5 rounded-md text-[12px] font-bold  flex items-center justify-between group tracking-wide ${
-                    entidadSeleccionada?.clave === ent.clave && !modoAdmin
-                      ? "bg-black/5 text-black border border-black/10"
-                      : "text-black/40 hover:bg-black/5"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-1.5 h-1.5 rounded-full  "
-                      style={{ backgroundColor: ent.color || "var(--primary)" }}
-                    />
-                    <span className="uppercase">{ent.nombre}</span>
-                  </div>
-                  {entidadSeleccionada?.clave === ent.clave && !modoAdmin && (
-                    <div
-                      className="w-1 h-1 rounded-full"
-                      style={{ backgroundColor: ent.color || "var(--primary)" }}
-                    />
-                  )}
-                </button>
-              ))}
-            </>
+            <div className="flex flex-col gap-1">
+              {entidades.map((ent) => {
+                const isActive =
+                  entidadSeleccionada?.clave === ent.clave && !modoAdmin;
+                return (
+                  <button
+                    key={ent.codigoSecuencial}
+                    onClick={() => {
+                      setEntidadSeleccionada(ent);
+                      setModoAdmin(false);
+                      setFiltros((prev) => ({ ...prev, pagina: 1 }));
+                    }}
+                    className={`w-full text-left px-4 py-3 rounded-md text-[12px] font-bold flex items-center justify-between group transition-all tracking-wide cursor-pointer ${
+                      isActive
+                        ? "bg-[var(--primary-subtle)] text-[var(--primary-emphasis)] border border-[var(--primary)]/20 shadow-sm"
+                        : "text-[var(--text-secondary)] hover:bg-[var(--fill-secondary)] hover:text-[var(--text-primary)] border border-transparent"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-2 h-2 rounded-full shadow-sm"
+                        style={{
+                          backgroundColor: ent.color || "var(--primary)",
+                        }}
+                      />
+                      <span className="uppercase">{ent.nombre}</span>
+                    </div>
+                    {isActive && (
+                      <div className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           )}
         </div>
 
-        {/* Content Area con Glassmorphism */}
-        <div className="flex-1 bg-[#0a0a0a] rounded-md border border-black/5 overflow-hidden flex flex-col relative group/content shadow-2xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
+        {/* Content Area Refinada */}
+        <div className="flex-1 bg-[var(--surface)] rounded-md border border-[var(--border-subtle)] overflow-hidden flex flex-col relative shadow-md">
           {modoAdmin ? (
             <GestionEntidades />
           ) : (

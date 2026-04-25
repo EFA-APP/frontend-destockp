@@ -1,0 +1,1 @@
+import{k as o}from"./index-g64Au8nd.js";const e=[["path",{d:"m9 18 6-6-6-6",key:"mthhwq"}]],r=o("chevron-right",e);const c=[["path",{d:"M21 12a9 9 0 1 1-6.219-8.56",key:"13zald"}]],a=o("loader-circle",c);export{r as C,a as L};

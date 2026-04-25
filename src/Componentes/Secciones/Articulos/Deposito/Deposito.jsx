@@ -17,6 +17,7 @@ import TarjetaDeposito from "./TarjetaDeposito.jsx";
 import TablaDepositoStock from "../../../Tablas/Articulos/Deposito/TablaDepositoStock";
 import StockDepositoPDF from "../../../Reportes/StockDepositoPDF.jsx";
 import SkeletonTarjeta from "../../../UI/Skeletons/SkeletonTarjeta.jsx";
+import { usePermisosDeUsuario } from "../../../../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
 
 /**
  * Componente Deposito: Gestión de sucursales y stock global.
@@ -25,20 +26,37 @@ const Deposito = () => {
   const [depositoAEliminar, setDepositoAEliminar] = useState(null);
   const [borrarStock, setBorrarStock] = useState(false);
   const [procesando, setProcesando] = useState(false);
+  const { tieneAccion } = usePermisosDeUsuario();
   const { depositos, cargando, eliminarDeposito } = useDepositoUI();
   const usuario = useAuthStore((state) => state.usuario);
-  const { data: stockCompletoData, isFetching: cargandoStockCompleto } =
-    useDepositosConStock({
+  const [activarDescarga, setActivarDescarga] = useState(false);
+  const [activarDescargaMp, setActivarDescargaMp] = useState(false);
+
+  const {
+    data: stockCompletoData,
+    isFetching: cargandoStockCompleto,
+    isSuccess: listoStock,
+  } = useDepositosConStock(
+    {
       pagina: 1,
       limite: 100000,
       tipoArticulo: "PRODUCTO",
-    });
-  const { data: stockCompletoMpData, isFetching: cargandoStockCompletoMp } =
-    useDepositosConStock({
+    },
+    { enabled: activarDescarga },
+  );
+
+  const {
+    data: stockCompletoMpData,
+    isFetching: cargandoStockCompletoMp,
+    isSuccess: listoStockMp,
+  } = useDepositosConStock(
+    {
       pagina: 1,
       limite: 100000,
       tipoArticulo: "MATERIA_PRIMA",
-    });
+    },
+    { enabled: activarDescargaMp },
+  );
   const navigate = useNavigate();
 
   const handleNuevaSucursal = useCallback(() => {
@@ -213,36 +231,45 @@ const Deposito = () => {
         <section>
           <div className="flex items-center justify-between mb-4 px-2">
             {/* PDF Download Button */}
-            <PDFDownloadLink
-              key={pdfLinkKey}
-              document={stockPdfDocument}
-              fileName={`Reporte_Stock_Productos_${new Date().toLocaleDateString()}.pdf`}
-            >
-              {({ loading }) => (
-                <button
-                  disabled={
-                    loading ||
-                    cargando ||
-                    cargandoStockCompleto ||
-                    matrizStockCompletaPDF.length === 0
-                  }
-                  className="flex items-center gap-2.5 px-4 py-2 bg-black/5 hover:bg-white/[0.08] text-black/60 hover:text-black border border-black/10 hover:border-black/20 rounded-md font-bold text-[12px] uppercase tracking-widest  cursor-pointer active:scale-95 group/pdf disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading || cargandoStockCompleto ? (
-                    <Loader2 size={16} className="animate-spin text-[var(--primary)]" />
-                  ) : (
-                    <DescargarIcono
-                      size={20}
-                      className="group-hover:rotate-90"
-                    />
-                  )}
-
-                  {loading || cargandoStockCompleto
-                    ? "Preparando..."
-                    : "Descargar Reporte"}
-                </button>
-              )}
-            </PDFDownloadLink>
+            {!activarDescarga || !listoStock ? (
+              <button
+                onClick={() => setActivarDescarga(true)}
+                disabled={cargando || cargandoStockCompleto}
+                className="flex items-center gap-2.5 px-4 py-2 bg-black/5 hover:bg-white/[0.08] text-black/60 hover:text-black border border-black/10 hover:border-black/20 rounded-md font-bold text-[12px] uppercase tracking-widest cursor-pointer active:scale-95 group/pdf disabled:opacity-50"
+              >
+                {cargandoStockCompleto ? (
+                  <Loader2
+                    size={16}
+                    className="animate-spin text-[var(--primary)]"
+                  />
+                ) : (
+                  <DescargarIcono size={20} className="group-hover:rotate-90" />
+                )}
+                {cargandoStockCompleto
+                  ? "Preparando Datos..."
+                  : "Descargar Reporte"}
+              </button>
+            ) : (
+              <PDFDownloadLink
+                key={pdfLinkKey}
+                document={stockPdfDocument}
+                fileName={`Reporte_Stock_Productos_${new Date().toLocaleDateString()}.pdf`}
+              >
+                {({ loading }) => (
+                  <button
+                    disabled={loading}
+                    className="flex items-center gap-2.5 px-4 py-2 bg-[var(--primary)] text-white border border-[var(--primary)] rounded-md font-bold text-[12px] uppercase tracking-widest cursor-pointer active:scale-95 group/pdf shadow-lg shadow-[var(--primary)]/20 animate-bounce"
+                  >
+                    {loading ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <DescargarIcono size={20} />
+                    )}
+                    {loading ? "Generando PDF..." : "Listo! Click para Guardar"}
+                  </button>
+                )}
+              </PDFDownloadLink>
+            )}
           </div>
           <TablaDepositoStock
             tipoArticulo="PRODUCTO"
@@ -251,45 +278,62 @@ const Deposito = () => {
         </section>
 
         {/* Stock Matrix Section - Materia Prima */}
-        <section>
-          <div className="flex items-center justify-between mb-4 px-2">
-            <div className="h-[1px] flex-1 mx-4 bg-gradient-to-r from-white/10 to-transparent" />
+        {tieneAccion("DEPOSITO_MATERIA_PRIMA") && (
+          <section>
+            <div className="flex items-center justify-between mb-4 px-2">
+              <div className="h-[1px] flex-1 mx-4 bg-gradient-to-r from-white/10 to-transparent" />
 
-            <PDFDownloadLink
-              key={pdfLinkKeyMp}
-              document={stockPdfDocumentMp}
-              fileName={`Reporte_Stock_MateriaPrima_${new Date().toLocaleDateString()}.pdf`}
-            >
-              {({ loading }) => (
+              {!activarDescargaMp || !listoStockMp ? (
                 <button
-                  disabled={
-                    loading ||
-                    cargando ||
-                    cargandoStockCompletoMp ||
-                    matrizStockCompletaPDFMp.length === 0
-                  }
-                  className="flex items-center gap-2.5 px-4 py-2 bg-black/5 hover:bg-white/[0.08] text-black/60 hover:text-black border border-black/10 hover:border-black/20 rounded-md font-bold text-[12px] uppercase tracking-widest  cursor-pointer active:scale-95 group/pdf disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => setActivarDescargaMp(true)}
+                  disabled={cargando || cargandoStockCompletoMp}
+                  className="flex items-center gap-2.5 px-4 py-2 bg-black/5 hover:bg-white/[0.08] text-black/60 hover:text-black border border-black/10 hover:border-black/20 rounded-md font-bold text-[12px] uppercase tracking-widest cursor-pointer active:scale-95 group/pdf disabled:opacity-50"
                 >
-                  {loading || cargandoStockCompletoMp ? (
-                    <Loader2 size={16} className="animate-spin text-[var(--primary)]" />
+                  {cargandoStockCompletoMp ? (
+                    <Loader2
+                      size={16}
+                      className="animate-spin text-[var(--primary)]"
+                    />
                   ) : (
                     <DescargarIcono
                       size={20}
                       className="group-hover:rotate-90"
                     />
                   )}
-                  {loading || cargandoStockCompletoMp
-                    ? "Preparando..."
+                  {cargandoStockCompletoMp
+                    ? "Preparando Datos..."
                     : "Descargar Reporte"}
                 </button>
+              ) : (
+                <PDFDownloadLink
+                  key={pdfLinkKeyMp}
+                  document={stockPdfDocumentMp}
+                  fileName={`Reporte_Stock_MateriaPrima_${new Date().toLocaleDateString()}.pdf`}
+                >
+                  {({ loading }) => (
+                    <button
+                      disabled={loading}
+                      className="flex items-center gap-2.5 px-4 py-2 bg-[var(--primary)] text-white border border-[var(--primary)] rounded-md font-bold text-[12px] uppercase tracking-widest cursor-pointer active:scale-95 group/pdf shadow-lg shadow-[var(--primary)]/20 animate-bounce"
+                    >
+                      {loading ? (
+                        <Loader2 size={16} className="animate-spin" />
+                      ) : (
+                        <DescargarIcono size={20} />
+                      )}
+                      {loading
+                        ? "Generando PDF..."
+                        : "Listo! Click para Guardar"}
+                    </button>
+                  )}
+                </PDFDownloadLink>
               )}
-            </PDFDownloadLink>
-          </div>
-          <TablaDepositoStock
-            tipoArticulo="MATERIA_PRIMA"
-            titulo="Matriz de Inventario (Materia Prima)"
-          />
-        </section>
+            </div>
+            <TablaDepositoStock
+              tipoArticulo="MATERIA_PRIMA"
+              titulo="Matriz de Inventario (Materia Prima)"
+            />
+          </section>
+        )}
       </div>
 
       {/* Modal de Confirmación para Eliminar */}

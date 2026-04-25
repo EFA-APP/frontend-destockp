@@ -1,0 +1,1 @@
+import{j as r}from"./index-g64Au8nd.js";const e=({size:o,color:t})=>r.jsx("svg",{xmlns:"http://www.w3.org/2000/svg",width:o||"24",height:o||"24",viewBox:"0 0 24 24",fill:"none",stroke:t||"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round",children:r.jsx("polyline",{points:"20 6 9 17 4 12"})});export{e as C};

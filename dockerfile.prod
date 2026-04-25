@@ -1,14 +1,7 @@
-# Etapa única: entorno de desarrollo
-FROM node:20-slim
+FROM nginx:alpine
 
-WORKDIR /app
+COPY . /usr/share/nginx/html
 
-COPY package*.json ./
-RUN npm ci
+EXPOSE 80
 
-COPY . .
-
-# Expone el puerto de desarrollo asignado
-EXPOSE 5177
-
-CMD ["npx", "vite", "--host", "0.0.0.0", "--port", "5177"]
+CMD ["nginx", "-g", "daemon off;"]

@@ -7,6 +7,7 @@ import {
 import { useConfiguracionContactos } from "../../../../Backend/Contactos/hooks/useConfiguracionContactos";
 import { useEntidades } from "../../../../Backend/Contactos/hooks/useEntidades";
 import { useContactos } from "../../../../Backend/Contactos/hooks/useContactos";
+import { Search } from "lucide-react";
 
 const FormularioContacto = ({
   entidad: entidadProp,
@@ -121,95 +122,67 @@ const FormularioContacto = ({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-end bg-black/40 backdrop-blur-[2px]   "
+      className="fixed inset-0 z-[100] flex items-center justify-end bg-black/50 backdrop-blur-sm transition-all"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm h-full bg-[var(--surface)] border-l border-black/5 shadow-[-20px_0_50px_rgba(0,0,0,0.5)] flex flex-col   "
+        className="w-full max-w-sm h-full bg-[var(--surface)] border-l border-[var(--border-subtle)] shadow-2xl flex flex-col animate-in slide-in-from-right duration-300"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header Minimalista */}
-        <div className="px-6 py-4 border-b border-black/5 flex items-center justify-between bg-white/[0.02]">
+        {/* Header Elegante */}
+        <div className="px-6 py-5 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--surface-hover)]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-md flex items-center justify-center bg-black/5 border border-black/10 text-[var(--primary)] text-emerald-700!">
-              <CuentaIcono size={16} />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--primary-subtle)] border border-[var(--primary)]/20 text-[var(--primary)] shadow-sm">
+              <CuentaIcono size={18} />
             </div>
             <div>
-              <h2 className="text-[13px] font-black text-black uppercase tracking-widest">
+              <h2 className="text-[14px] font-black text-[var(--text-primary)] uppercase tracking-widest leading-none mb-1">
                 {contacto ? "EDITAR" : "NUEVO"}{" "}
                 {entidadActual?.nombre || "CONTACTO"}
               </h2>
+              <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
+                {contacto
+                  ? `ID: ${contacto.codigoSecuencial.toString().padStart(4, "0")}`
+                  : "REGISTRO DE FICHA"}
+              </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 cursor-pointer rounded-md  text-red-700 bg-red-700/10 hover:bg-red-700/20 border border-red-700 "
+            className="p-2 cursor-pointer rounded-md text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all"
           >
-            <CerrarIcono size={16} />
+            <CerrarIcono size={20} />
           </button>
         </div>
 
         {cargandoEntidades || cargandoConfigs ? (
-          <div className="flex-1 p-6 space-y-8  overflow-hidden">
-            {/* Skeleton: Tipo de Entidad */}
+          <div className="flex-1 p-6 space-y-8 overflow-hidden animate-pulse">
             <div className="space-y-3">
-              <div className="h-2 w-24 bg-black/10 rounded" />
+              <div className="h-2 w-24 bg-[var(--fill-secondary)] rounded" />
               <div className="grid grid-cols-2 gap-2">
-                <div className="h-10 bg-black/5 rounded-md" />
-                <div className="h-10 bg-black/5 rounded-md" />
+                <div className="h-10 bg-[var(--fill-secondary)] rounded-md" />
+                <div className="h-10 bg-[var(--fill-secondary)] rounded-md" />
               </div>
             </div>
-
-            {/* Skeleton: Identidad */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-16 bg-[var(--primary)]/20 rounded" />
-                <div className="h-px flex-1 bg-black/5" />
-              </div>
+            <div className="space-y-4 pt-6">
+              <div className="h-px bg-[var(--border-subtle)]" />
               <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <div className="h-2 w-12 bg-black/10 rounded" />
-                  <div className="h-9 bg-black/5 rounded-md" />
-                </div>
-                <div className="space-y-2">
-                  <div className="h-2 w-12 bg-black/10 rounded" />
-                  <div className="h-9 bg-black/5 rounded-md" />
-                </div>
+                <div className="h-14 bg-[var(--fill-secondary)] rounded-md" />
+                <div className="h-14 bg-[var(--fill-secondary)] rounded-md" />
               </div>
-              <div className="space-y-2">
-                <div className="h-2 w-20 bg-black/10 rounded" />
-                <div className="h-9 bg-black/5 rounded-md" />
-              </div>
-            </div>
-
-            {/* Skeleton: Fiscal */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <div className="h-2 w-16 bg-black/10 rounded" />
-                <div className="h-9 bg-black/5 rounded-md" />
-              </div>
-              <div className="space-y-2">
-                <div className="h-2 w-16 bg-black/10 rounded" />
-                <div className="h-9 bg-black/5 rounded-md" />
-              </div>
-            </div>
-
-            {/* Skeleton: Sección Inferior */}
-            <div className="space-y-3 pt-4">
-              <div className="h-20 bg-black/5 rounded-md border border-black/10 border-dashed" />
-              <div className="h-10 bg-[var(--primary)]/10 rounded-md" />
+              <div className="h-12 bg-[var(--fill-secondary)] rounded-md" />
             </div>
           </div>
         ) : (
           <form
             onSubmit={handleSubmit}
-            className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6"
+            className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8"
           >
-            {/* 1. SELECCIÓN DE TIPO Pro */}
+            {/* 1. SELECCIÓN DE TIPO */}
             {!entidadProp && !contacto && (
-              <div className="space-y-2">
-                <label className="text-[13px] font-black text-black/50 uppercase tracking-[0.15em] ml-1">
-                  TIPO DE ENTIDAD
+              <div className="space-y-2.5">
+                <label className="text-[11px] font-black text-[var(--text-muted)] uppercase tracking-[0.15em] ml-1">
+                  Categoría de Contacto
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {entidades.map((ent) => (
@@ -217,14 +190,14 @@ const FormularioContacto = ({
                       key={ent.clave}
                       type="button"
                       onClick={() => handleChange("tipoEntidad", ent.clave)}
-                      className={`px-3 py-2 rounded-md border text-[12px] font-black  flex items-center gap-2 tracking-wider ${
+                      className={`px-3 py-2.5 rounded-md border text-[11px] font-black flex items-center gap-2.5 tracking-wider transition-all cursor-pointer ${
                         form.tipoEntidad === ent.clave
-                          ? "bg-black/10 text-black border-black/20 shadow-lg"
-                          : "bg-black/5 text-black/30 border-transparent hover:bg-black/10"
+                          ? "bg-[var(--primary-subtle)] text-[var(--primary-emphasis)] border-[var(--primary)]/30 shadow-sm"
+                          : "bg-[var(--fill-secondary)] text-[var(--text-muted)] border-transparent hover:bg-[var(--border-subtle)]"
                       }`}
                     >
                       <div
-                        className="w-1.5 h-1.5 rounded-md"
+                        className="w-2 h-2 rounded-full shadow-sm"
                         style={{
                           backgroundColor: ent.color || "var(--primary)",
                         }}
@@ -236,140 +209,162 @@ const FormularioContacto = ({
               </div>
             )}
 
-            {/* 2. DATOS DE IDENTIDAD Refined */}
+            {/* 2. DATOS DE IDENTIDAD */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[13px] font-black text-[var(--primary)] uppercase tracking-[0.15em]">
-                  Identidad
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-[12px] font-black text-[var(--primary)] uppercase tracking-[0.2em] whitespace-nowrap">
+                  Ficha Personal
                 </span>
-                <div className="h-px flex-1 bg-black/5" />
+                <div className="h-px w-full bg-[var(--border-subtle)]" />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-[12px] font-black text-black/50 uppercase tracking-widest ml-1">
-                    Nombre
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                    Nombres
                   </label>
                   <input
                     type="text"
                     value={form.nombre}
                     onChange={(e) => handleChange("nombre", e.target.value)}
-                    className="w-full bg-white/[0.03] border border-black/5 rounded-md px-3 py-2 text-[13px] font-bold text-black focus:outline-none focus:border-[var(--primary)]/50 "
+                    className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all"
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[11px] font-black text-black/60 uppercase  ml-1">
-                    Apellido
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                    Apellidos
                   </label>
                   <input
                     type="text"
                     value={form.apellido}
                     onChange={(e) => handleChange("apellido", e.target.value)}
-                    className="w-full bg-white/[0.03] border border-black/5 rounded-md px-3 py-2 text-[13px] font-bold text-black focus:outline-none focus:border-[var(--primary)]/50 "
+                    className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-[11px] font-black text-black/60 uppercase  ml-1">
-                  Razón Social
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  Razón Social / Denominación
                 </label>
                 <input
                   type="text"
                   placeholder="Empresa o nombre completo"
                   value={form.razonSocial}
                   onChange={(e) => handleChange("razonSocial", e.target.value)}
-                  className="w-full bg-white/[0.03] border border-black/5 rounded-md px-3 py-2 text-[13px] font-bold text-black focus:outline-none focus:border-[var(--primary)]/50  placeholder:text-black/10"
+                  className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all placeholder:text-[var(--text-muted)] uppercase tracking-widest"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-[11px] font-black text-black/60 uppercase  ml-1">
-                    DNI/CUIT
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                    DNI / CUIT
                   </label>
                   <input
                     type="text"
                     value={form.documento}
                     onChange={(e) => handleChange("documento", e.target.value)}
-                    className="w-full bg-white/[0.03] border border-black/5 rounded-md px-3 py-2 text-[13px] font-bold text-black focus:outline-none focus:border-[var(--primary)]/50 "
+                    className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all"
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[11px] font-black text-black/60 uppercase  ml-1">
-                    IVA
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                    Cond. Fiscal
                   </label>
-                  <select
-                    value={form.condicionIva}
-                    onChange={(e) =>
-                      handleChange("condicionIva", e.target.value)
-                    }
-                    className="w-full bg-white/[0.03] border border-black/5 rounded-md px-3 py-2 text-[13px] font-bold text-black focus:outline-none focus:border-[var(--primary)]/50  appearance-none cursor-pointer"
-                  >
-                    <option className="text-black" value="CF">
-                      CONSUMIDOR FINAL
-                    </option>
-                    <option className="text-black" value="RI">
-                      RESP. INSCRIPTO
-                    </option>
-                    <option className="text-black" value="MO">
-                      MONOTRIBUTISTA
-                    </option>
-                    <option className="text-black" value="EX">
-                      EXENTO
-                    </option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={form.condicionIva}
+                      onChange={(e) =>
+                        handleChange("condicionIva", e.target.value)
+                      }
+                      className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[12px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] appearance-none cursor-pointer transition-all uppercase"
+                    >
+                      <option value="CF">Consumidor Final</option>
+                      <option value="RI">Resp. Inscripto</option>
+                      <option value="MO">Monotributista</option>
+                      <option value="EX">Exento</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-[var(--text-muted)]">
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="m6 9 6 6 6-6" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* 3. RESPONSABLE DE FACTURACIÓN (ENTE) Pro */}
-            <div className="space-y-3 pt-4 border-t border-black/5 bg-white/[0.01] p-4 rounded-md border border-black/10">
-              <div className="flex items-center justify-between">
-                <span className="text-[13px] font-bold text-black/50 uppercase ">
-                  Responsable de Facturación
+            {/* 3. RESPONSABLE DE FACTURACIÓN */}
+            <div className="space-y-4 pt-6 border-t border-[var(--border-subtle)]">
+              <div className="flex items-center justify-between gap-3 mb-1">
+                <span className="text-[12px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] whitespace-nowrap">
+                  Facturación
                 </span>
                 {!form.enteFacturacion && (
-                  <span className="text-[10px] font-black text-emerald-700 uppercase tracking-tighter">
-                    Factura a sí mismo
+                  <span className="text-[9px] font-black text-emerald-600 uppercase bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                    Factura Directa
                   </span>
                 )}
               </div>
 
               {!form.enteFacturacion?.codigoSecuencial ? (
-                <div className="flex gap-2">
-                  <div className="flex-1 flex flex-col gap-2">
-                    <select
-                      value={busquedaEnte.entidad}
-                      onChange={(e) =>
-                        setBusquedaEnte({
-                          ...busquedaEnte,
-                          entidad: e.target.value,
-                        })
-                      }
-                      className="w-full bg-black/5 border border-black/10 rounded-md px-2 py-1.5 text-[11px] font-bold text-black focus:outline-none focus:border-[var(--primary)] cursor-pointer"
-                    >
-                      <option className="text-black" value="">
-                        FILTRAR ENTIDAD...
-                      </option>
-                      {entidades.map((ent) => (
-                        <option
-                          className="text-black"
-                          key={ent.clave}
-                          value={ent.clave}
+                <div className="space-y-3 bg-[var(--fill-secondary)] p-4 rounded-xl border border-[var(--border-subtle)] shadow-inner">
+                  <div className="space-y-2">
+                    <div className="relative">
+                      <select
+                        value={busquedaEnte.entidad}
+                        onChange={(e) =>
+                          setBusquedaEnte({
+                            ...busquedaEnte,
+                            entidad: e.target.value,
+                          })
+                        }
+                        className="w-full bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[11px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] cursor-pointer appearance-none uppercase"
+                      >
+                        <option value="">Seleccionar Entidad...</option>
+                        {entidades.map((ent) => (
+                          <option key={ent.clave} value={ent.clave}>
+                            {ent.nombre.toUpperCase()}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-[var(--text-muted)]">
+                        <svg
+                          width="10"
+                          height="10"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
                         >
-                          {ent.nombre.toUpperCase()}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="relative w-full">
+                          <path d="m6 9 6 6 6-6" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--text-muted)]">
+                        <Search size={12} />
+                      </div>
                       <input
                         type="text"
                         disabled={!busquedaEnte.entidad}
                         placeholder={
                           !busquedaEnte.entidad
-                            ? "SELECCIONE QUÉ ENTIDAD BUSCAR..."
-                            : "BUSCAR RESPONSABLE..."
+                            ? "Elija entidad primero..."
+                            : "Buscar responsable..."
                         }
                         value={busquedaEnte.query}
                         onChange={(e) => {
@@ -380,128 +375,77 @@ const FormularioContacto = ({
                           }));
                           setHighlightedIndexEnte(-1);
                         }}
-                        onFocus={() => {
-                          if (busquedaEnte.entidad) {
-                            setBusquedaEnte((prev) => ({
-                              ...prev,
-                              mostrarDropdown: true,
-                            }));
-                            setHighlightedIndexEnte(-1);
-                          }
-                        }}
+                        onFocus={() =>
+                          busquedaEnte.entidad &&
+                          setBusquedaEnte((p) => ({
+                            ...p,
+                            mostrarDropdown: true,
+                          }))
+                        }
                         onBlur={() =>
                           setTimeout(
                             () =>
-                              setBusquedaEnte((prev) => ({
-                                ...prev,
+                              setBusquedaEnte((p) => ({
+                                ...p,
                                 mostrarDropdown: false,
                               })),
                             200,
                           )
                         }
-                        onKeyDown={(e) => {
-                          if (!busquedaEnte.mostrarDropdown) return;
-                          const filtered = (
-                            Array.isArray(listaEntes) ? listaEntes : []
-                          ).filter((c) => {
-                            const searchIndex =
-                              `${c.codigoSecuencial} ${c.razonSocial} ${c.nombre} ${c.apellido} ${c.documento}`.toLowerCase();
-                            return searchIndex.includes(
-                              busquedaEnte.query.toLowerCase(),
-                            );
-                          });
-
-                          if (e.key === "ArrowDown") {
-                            e.preventDefault();
-                            setHighlightedIndexEnte((prev) =>
-                              prev < filtered.length - 1 ? prev + 1 : prev,
-                            );
-                          } else if (e.key === "ArrowUp") {
-                            e.preventDefault();
-                            setHighlightedIndexEnte((prev) =>
-                              prev > 0 ? prev - 1 : 0,
-                            );
-                          } else if (
-                            e.key === "Enter" &&
-                            highlightedIndexEnte >= 0
-                          ) {
-                            e.preventDefault();
-                            const c = filtered[highlightedIndexEnte];
-                            if (c) {
-                              const nombre =
-                                c.razonSocial || `${c.nombre} ${c.apellido}`;
-                              setForm((prev) => ({
-                                ...prev,
-                                enteFacturacion: c, // Guardamos el objeto completo
-                              }));
-                              setBusquedaEnte((prev) => ({
-                                ...prev,
-                                query: nombre,
-                                mostrarDropdown: false,
-                              }));
-                            }
-                          }
-                        }}
-                        className="w-full bg-black/5 border border-black/10 rounded-md px-2 py-1.5 text-[11px] font-bold text-black focus:outline-none focus:border-[var(--primary)] disabled:opacity-30 placeholder:opacity-40"
+                        className="w-full bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md pl-9 pr-3 py-2 text-[11px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] disabled:opacity-50 transition-all"
                       />
 
                       {cargandoEntes && (
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                          <div className="w-3 h-3 border border-[var(--primary)] border-t-transparent rounded-full " />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <div className="w-3 h-3 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
                         </div>
                       )}
 
                       {busquedaEnte.mostrarDropdown && (
-                        <div className="absolute top-full mt-1 left-0 right-0 max-h-40 overflow-y-auto custom-scrollbar bg-[#0a0a0a] border border-[var(--border-subtle)] rounded-md shadow-2xl z-50 p-1 flex flex-col">
+                        <div className="absolute top-full mt-1 left-0 right-0 max-h-48 overflow-y-auto custom-scrollbar bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl shadow-2xl z-50 p-1 animate-in fade-in zoom-in-95 duration-200">
                           {Array.isArray(listaEntes) &&
-                            listaEntes
-                              .filter((c) => {
-                                const searchIndex =
-                                  `${c.codigoSecuencial} ${c.razonSocial} ${c.nombre} ${c.apellido} ${c.documento}`.toLowerCase();
-                                return searchIndex.includes(
-                                  busquedaEnte.query.toLowerCase(),
-                                );
-                              })
-                              .map((c, idx) => (
-                                <div
-                                  key={c.codigoSecuencial}
-                                  onClick={() => {
-                                    const nombre =
-                                      c.razonSocial ||
-                                      `${c.nombre} ${c.apellido}`;
-                                    setForm((prev) => ({
-                                      ...prev,
-                                      enteFacturacion: c, // Guardamos el objeto completo
-                                    }));
-                                    setBusquedaEnte((prev) => ({
-                                      ...prev,
-                                      query: nombre,
-                                      mostrarDropdown: false,
-                                    }));
-                                  }}
-                                  className={`px-3 py-2 text-[12px] font-black hover:text-black cursor-pointer rounded-md uppercase tracking-tighter  ${idx === highlightedIndexEnte ? "bg-[var(--primary)] text-black" : "text-black/70 hover:bg-[var(--primary)]/20"}`}
-                                >
-                                  {c.razonSocial || `${c.nombre} ${c.apellido}`}
-                                </div>
-                              ))}
-                          {Array.isArray(listaEntes) &&
-                            listaEntes.length === 0 && (
-                              <div className="px-3 py-2 text-[12px] text-black/20 text-center">
-                                Sin resultados
+                          listaEntes.length > 0 ? (
+                            listaEntes.map((c, idx) => (
+                              <div
+                                key={c.codigoSecuencial}
+                                onClick={() => {
+                                  const nombre =
+                                    c.razonSocial ||
+                                    `${c.nombre} ${c.apellido}`;
+                                  setForm((p) => ({
+                                    ...p,
+                                    enteFacturacion: c,
+                                  }));
+                                  setBusquedaEnte((p) => ({
+                                    ...p,
+                                    query: nombre,
+                                    mostrarDropdown: false,
+                                  }));
+                                }}
+                                className={`px-4 py-2.5 text-[11px] font-bold cursor-pointer rounded-md uppercase transition-colors ${idx === highlightedIndexEnte ? "bg-[var(--primary)] text-white" : "text-[var(--text-primary)] hover:bg-[var(--primary-subtle)] hover:text-[var(--primary)]"}`}
+                              >
+                                {c.razonSocial || `${c.nombre} ${c.apellido}`}
                               </div>
-                            )}
+                            ))
+                          ) : (
+                            <div className="px-4 py-3 text-[11px] text-[var(--text-muted)] text-center font-bold uppercase italic">
+                              {busquedaEnte.query
+                                ? "Sin resultados"
+                                : "Escriba para buscar..."}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-between p-2 bg-[var(--primary)]/5 border border-[var(--primary)]/20 rounded-md">
+                <div className="flex items-center justify-between p-4 bg-[var(--primary-subtle)] border border-[var(--primary)]/20 rounded-xl shadow-sm">
                   <div className="flex flex-col">
-                    <span className="text-[11px] font-black text-[var(--primary)] uppercase tracking-tighter">
-                      FACTURAR A:
+                    <span className="text-[10px] font-black text-[var(--primary)] uppercase tracking-widest mb-0.5">
+                      ENTE FACTURADOR:
                     </span>
-                    <span className="text-[12px] font-bold text-black/80">
+                    <span className="text-[13px] font-black text-[var(--primary-emphasis)] uppercase truncate max-w-[200px]">
                       {form.enteFacturacion?.razonSocial ||
                         `${form.enteFacturacion?.nombre || ""} ${form.enteFacturacion?.apellido || ""}`}
                     </span>
@@ -509,112 +453,112 @@ const FormularioContacto = ({
                   <button
                     type="button"
                     onClick={() =>
-                      setForm((prev) => ({
-                        ...prev,
-                        enteFacturacion: null,
-                      }))
+                      setForm((p) => ({ ...p, enteFacturacion: null }))
                     }
-                    className="p-1 px-3 text-[10px] font-black bg-red-700/10 text-red-700 border border-red-700/20 rounded-md hover:bg-red-700/20  font-black"
+                    className="p-2 text-rose-600 hover:bg-rose-100 rounded-md transition-colors cursor-pointer"
                   >
-                    QUITAR
+                    <BorrarIcono size={16} />
                   </button>
                 </div>
               )}
             </div>
 
             {/* 4. Vínculos / Relaciones */}
-            <div className="space-y-4 pt-4 border-t border-black/5">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[11px] font-black text-black/30 uppercase tracking-[0.2em]">
-                  Vínculos / Relaciones
+            <div className="space-y-4 pt-6 border-t border-[var(--border-subtle)]">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-[12px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] whitespace-nowrap">
+                  Vínculos
                 </span>
-                <div className="h-px flex-1 bg-black/5" />
+                <div className="h-px w-full bg-[var(--border-subtle)]" />
               </div>
 
-              {/* Listado de relaciones actuales */}
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {form.relaciones.map((rel, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between p-2 bg-black/5 rounded-md border border-black/5 group"
+                    className="flex items-center justify-between p-3.5 bg-[var(--fill-secondary)] rounded-xl border border-[var(--border-subtle)] group hover:border-[var(--primary)]/30 transition-all shadow-sm"
                   >
                     <div className="flex flex-col">
-                      <span className="text-[11px] font-black text-[var(--primary)] uppercase tracking-tighter">
-                        {rel.tipo?.toUpperCase()}
+                      <span className="text-[9px] font-black text-[var(--primary)] uppercase tracking-widest mb-0.5">
+                        {rel.tipo}
                       </span>
-                      <span className="text-[12px] font-bold text-black/70">
-                        ID: {rel.codigoSecuencial}{" "}
-                        {rel.entidad ? `[${rel.entidad?.toUpperCase()}]` : ""} -{" "}
-                        {rel.nombre?.toUpperCase() || "S/N"}
+                      <span className="text-[12px] font-black text-[var(--text-primary)] uppercase">
+                        {rel.nombre}
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={() =>
-                        setForm((prev) => ({
-                          ...prev,
-                          relaciones: prev.relaciones.filter(
-                            (_, i) => i !== idx,
-                          ),
+                        setForm((p) => ({
+                          ...p,
+                          relaciones: p.relaciones.filter((_, i) => i !== idx),
                         }))
                       }
-                      className="p-1.5 text-black/10 hover:text-red-700 hover:bg-red-700/10 rounded-md  opacity-0 group-hover:opacity-100"
+                      className="p-2 text-[var(--text-muted)] hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                     >
-                      <BorrarIcono size={12} />
+                      <BorrarIcono size={14} />
                     </button>
                   </div>
                 ))}
               </div>
 
-              {/* Formulario para agregar relación */}
-              <div className="bg-white/[0.03] p-3 rounded-md border border-dashed border-black/10 space-y-3">
+              <div className="bg-[var(--surface-hover)] p-4 rounded-xl border border-dashed border-[var(--border-subtle)] space-y-3 shadow-sm">
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="text"
-                    placeholder="VÍNCOLO (EJ: PADRE)"
+                    placeholder="VÍNCULO (EJ: PADRE)"
                     value={nuevaRelacion.tipo}
                     onChange={(e) =>
-                      setNuevaRelacion({
-                        ...nuevaRelacion,
+                      setNuevaRelacion((p) => ({
+                        ...p,
                         tipo: e.target.value.toUpperCase(),
-                      })
+                      }))
                     }
-                    className="bg-black/5 border border-black/10 rounded-md px-2 py-1.5 text-[11px] font-bold text-black focus:outline-none focus:border-[var(--primary)] "
+                    className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[11px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] uppercase transition-all"
                   />
-                  <select
-                    value={nuevaRelacion.entidad}
-                    onChange={(e) =>
-                      setNuevaRelacion({
-                        ...nuevaRelacion,
-                        entidad: e.target.value,
-                      })
-                    }
-                    className="bg-black/5 border border-black/10 rounded-md px-2 py-1.5 text-[11px] font-bold text-black focus:outline-none focus:border-[var(--primary)] cursor-pointer"
-                  >
-                    <option className="text-black" value="">
-                      ENTIDAD...
-                    </option>
-                    {entidades.map((ent) => (
-                      <option
-                        className="text-black"
-                        key={ent.clave}
-                        value={ent.clave}
+                  <div className="relative">
+                    <select
+                      value={nuevaRelacion.entidad}
+                      onChange={(e) =>
+                        setNuevaRelacion((p) => ({
+                          ...p,
+                          entidad: e.target.value,
+                        }))
+                      }
+                      className="w-full bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[11px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] appearance-none cursor-pointer uppercase transition-all"
+                    >
+                      <option value="">Entidad...</option>
+                      {entidades.map((ent) => (
+                        <option key={ent.clave} value={ent.clave}>
+                          {ent.nombre.toUpperCase()}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-[var(--text-muted)]">
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       >
-                        {ent.nombre.toUpperCase()}
-                      </option>
-                    ))}
-                  </select>
+                        <path d="m6 9 6 6 6-6" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--text-muted)]">
+                    <Search size={12} />
+                  </div>
                   <input
                     type="text"
                     disabled={!nuevaRelacion.entidad}
-                    placeholder={
-                      !nuevaRelacion.entidad
-                        ? "SELECCIONE QUÉ ENTIDAD BUSCAR..."
-                        : "BUSCAR AL CONTACTO (DNI, NOMBRE)..."
-                    }
+                    placeholder="Buscar contacto..."
                     value={busquedaVinculo.query}
                     onChange={(e) => {
                       setBusquedaVinculo({
@@ -623,122 +567,62 @@ const FormularioContacto = ({
                       });
                       setHighlightedIndexVinculo(-1);
                     }}
-                    onFocus={() => {
-                      if (nuevaRelacion.entidad) {
-                        setBusquedaVinculo((prev) => ({
-                          ...prev,
-                          mostrarDropdown: true,
-                        }));
-                        setHighlightedIndexVinculo(-1);
-                      }
-                    }}
+                    onFocus={() =>
+                      nuevaRelacion.entidad &&
+                      setBusquedaVinculo((p) => ({
+                        ...p,
+                        mostrarDropdown: true,
+                      }))
+                    }
                     onBlur={() =>
                       setTimeout(
                         () =>
-                          setBusquedaVinculo((prev) => ({
-                            ...prev,
+                          setBusquedaVinculo((p) => ({
+                            ...p,
                             mostrarDropdown: false,
                           })),
                         200,
                       )
                     }
-                    onKeyDown={(e) => {
-                      if (!busquedaVinculo.mostrarDropdown) return;
-                      const filtered = (
-                        Array.isArray(listaVinculos) ? listaVinculos : []
-                      ).filter((c) => {
-                        const searchIndex =
-                          `${c.codigoSecuencial} ${c.razonSocial} ${c.nombre} ${c.apellido} ${c.documento}`.toLowerCase();
-                        return searchIndex.includes(
-                          busquedaVinculo.query.toLowerCase(),
-                        );
-                      });
-
-                      if (e.key === "ArrowDown") {
-                        e.preventDefault();
-                        setHighlightedIndexVinculo((prev) =>
-                          prev < filtered.length - 1 ? prev + 1 : prev,
-                        );
-                      } else if (e.key === "ArrowUp") {
-                        e.preventDefault();
-                        setHighlightedIndexVinculo((prev) =>
-                          prev > 0 ? prev - 1 : 0,
-                        );
-                      } else if (
-                        e.key === "Enter" &&
-                        highlightedIndexVinculo >= 0
-                      ) {
-                        e.preventDefault();
-                        const c = filtered[highlightedIndexVinculo];
-                        if (c) {
-                          const nombre =
-                            c.razonSocial ||
-                            `${c.nombre || ""} ${c.apellido || ""}`.trim();
-                          setNuevaRelacion((prev) => ({
-                            ...prev,
-                            codigoSecuencial: String(c.codigoSecuencial),
-                            nombre,
-                          }));
-                          setBusquedaVinculo({
-                            query: nombre,
-                            mostrarDropdown: false,
-                          });
-                        }
-                      }
-                    }}
-                    className="w-full bg-black/5 border border-black/10 rounded-md px-2 py-1.5 text-[11px] font-bold text-black focus:outline-none focus:border-[var(--primary)] disabled:opacity-30 placeholder:opacity-40"
+                    className="w-full bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md pl-9 pr-3 py-2 text-[11px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all disabled:opacity-50"
                   />
 
-                  {cargandoVinculos && (
-                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                      <div className="w-3 h-3 border border-[var(--primary)] border-t-transparent rounded-full " />
-                    </div>
-                  )}
-
                   {busquedaVinculo.mostrarDropdown && (
-                    <div className="absolute top-full mt-1 left-0 right-0 max-h-40 overflow-y-auto custom-scrollbar bg-[#0a0a0a] border border-[var(--border-subtle)] rounded-md shadow-2xl z-50 p-1 flex flex-col">
+                    <div className="absolute top-full mt-1 left-0 right-0 max-h-48 overflow-y-auto custom-scrollbar bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl shadow-2xl z-50 p-1">
                       {Array.isArray(listaVinculos) &&
-                        listaVinculos
-                          .filter((c) => {
-                            const searchIndex =
-                              `${c.codigoSecuencial} ${c.razonSocial} ${c.nombre} ${c.apellido} ${c.documento}`.toLowerCase();
-                            return searchIndex.includes(
-                              busquedaVinculo.query.toLowerCase(),
-                            );
-                          })
-                          .map((c, idx) => (
-                            <div
-                              key={c.codigoSecuencial}
-                              onClick={() => {
-                                const nombre =
-                                  c.razonSocial ||
-                                  `${c.nombre || ""} ${c.apellido || ""}`.trim();
-                                setNuevaRelacion((prev) => ({
-                                  ...prev,
-                                  codigoSecuencial: String(c.codigoSecuencial),
-                                  nombre,
-                                }));
-                                setBusquedaVinculo({
-                                  query: nombre,
-                                  mostrarDropdown: false,
-                                });
-                              }}
-                              className={`px-3 py-2 flex flex-col cursor-pointer rounded-md  ${idx === highlightedIndexVinculo ? "bg-[var(--primary)]/50" : "hover:bg-[var(--primary)]/20"}`}
-                            >
-                              <span className="text-[12px] font-black text-black/90 uppercase tracking-tighter">
-                                {c.razonSocial || `${c.nombre} ${c.apellido}`}
-                              </span>
-                              <span className="text-[10px] font-bold text-black/40">
-                                DNI: {c.documento || "S/D"}
-                              </span>
-                            </div>
-                          ))}
-                      {Array.isArray(listaVinculos) &&
-                        listaVinculos.length === 0 && (
-                          <div className="px-3 py-2 text-[12px] text-black/20 text-center">
-                            No hay registros
+                      listaVinculos.length > 0 ? (
+                        listaVinculos.map((c, idx) => (
+                          <div
+                            key={c.codigoSecuencial}
+                            onClick={() => {
+                              const nombre =
+                                c.razonSocial ||
+                                `${c.nombre || ""} ${c.apellido || ""}`.trim();
+                              setNuevaRelacion((p) => ({
+                                ...p,
+                                codigoSecuencial: String(c.codigoSecuencial),
+                                nombre,
+                              }));
+                              setBusquedaVinculo({
+                                query: nombre,
+                                mostrarDropdown: false,
+                              });
+                            }}
+                            className={`px-4 py-2 flex flex-col cursor-pointer rounded-md transition-all ${idx === highlightedIndexVinculo ? "bg-[var(--primary)] text-white" : "hover:bg-[var(--primary-subtle)] hover:text-[var(--primary)]"}`}
+                          >
+                            <span className="text-[11px] font-black uppercase">
+                              {c.razonSocial || `${c.nombre} ${c.apellido}`}
+                            </span>
+                            <span className="text-[9px] font-bold opacity-60">
+                              DNI: {c.documento || "S/D"}
+                            </span>
                           </div>
-                        )}
+                        ))
+                      ) : (
+                        <div className="px-4 py-3 text-[11px] text-[var(--text-muted)] text-center font-bold uppercase italic">
+                          Sin resultados
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -748,30 +632,16 @@ const FormularioContacto = ({
                   onClick={() => {
                     if (!nuevaRelacion.tipo || !nuevaRelacion.codigoSecuencial)
                       return;
-
-                    // Use the stored name, or fallback if available
-                    const contactoVinculado = listaVinculos?.find(
-                      (c) =>
-                        c.codigoSecuencial ===
-                        Number(nuevaRelacion.codigoSecuencial),
-                    );
-                    let nombreFinal = nuevaRelacion.nombre;
-                    if (!nombreFinal && contactoVinculado) {
-                      nombreFinal =
-                        contactoVinculado.razonSocial ||
-                        `${contactoVinculado.nombre || ""} ${contactoVinculado.apellido || ""}`.trim();
-                    }
-
-                    setForm((prev) => ({
-                      ...prev,
+                    setForm((p) => ({
+                      ...p,
                       relaciones: [
-                        ...prev.relaciones,
+                        ...p.relaciones,
                         {
                           ...nuevaRelacion,
                           codigoSecuencial: Number(
                             nuevaRelacion.codigoSecuencial,
                           ),
-                          nombre: nombreFinal || "S/N",
+                          nombre: nuevaRelacion.nombre || "S/N",
                         },
                       ],
                     }));
@@ -783,65 +653,75 @@ const FormularioContacto = ({
                     });
                     setBusquedaVinculo({ query: "", mostrarDropdown: false });
                   }}
-                  className="w-full py-1.5 bg-black/5 hover:bg-black/10 border border-black/10 rounded-md text-[11px] font-black uppercase tracking-widest "
+                  className="w-full py-2 bg-[var(--surface)] hover:bg-[var(--primary)] hover:text-white border border-[var(--border-subtle)] hover:border-[var(--primary)] rounded-md text-[10px] font-black uppercase tracking-widest transition-all shadow-sm cursor-pointer"
                 >
-                  VINCULAR CONTACTO
+                  AÑADIR VÍNCULO
                 </button>
               </div>
             </div>
 
-            {/* 5. CAMPOS DINÁMICOS Refined */}
+            {/* 5. CAMPOS DINÁMICOS */}
             {configsEntidad.length > 0 && (
-              <div className="space-y-4 pt-4 border-t border-black/5">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[13px] font-black text-black/50 uppercase tracking-[0.15em]">
-                    Extra [{entidadActual?.nombre}]
+              <div className="space-y-5 pt-6 border-t border-[var(--border-subtle)]">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-[12px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] whitespace-nowrap">
+                    Atributos {entidadActual?.nombre}
                   </span>
-                  <div className="h-px flex-1 bg-black/5" />
+                  <div className="h-px w-full bg-[var(--border-subtle)]" />
                 </div>
 
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 gap-5">
                   {configsEntidad.map((conf) => (
-                    <div key={conf.claveCampo} className="space-y-1">
-                      <label className="text-[11px] font-black text-black/60 uppercase  ml-1">
+                    <div key={conf.claveCampo} className="space-y-1.5">
+                      <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
                         {conf.nombreCampo}{" "}
                         {conf.requerido && (
-                          <span className="text-red-700/50">*</span>
+                          <span className="text-rose-500">*</span>
                         )}
                       </label>
 
                       {conf.tipoDato === "LISTA" ? (
-                        <select
-                          value={form.atributos[conf.claveCampo] || ""}
-                          onChange={(e) =>
-                            handleAtributoChange(
-                              conf.claveCampo,
-                              e.target.value,
-                            )
-                          }
-                          className="w-full bg-white/[0.03] border border-black/5 rounded-md px-3 py-2 text-[13px] font-bold text-black focus:outline-none focus:border-[var(--primary)]/50 appearance-none cursor-pointer"
-                        >
-                          <option value="" className="text-black">
-                            SELECCIONAR...
-                          </option>
-                          {(conf.opciones || []).map((opt) => (
-                            <option key={opt} className="text-black">
-                              {opt.toUpperCase()}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="relative">
+                          <select
+                            value={form.atributos[conf.claveCampo] || ""}
+                            onChange={(e) =>
+                              handleAtributoChange(
+                                conf.claveCampo,
+                                e.target.value,
+                              )
+                            }
+                            className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[12px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] appearance-none cursor-pointer uppercase transition-all"
+                          >
+                            <option value="">Seleccionar...</option>
+                            {(conf.opciones || []).map((opt) => (
+                              <option key={opt} value={opt}>
+                                {opt.toUpperCase()}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-[var(--text-muted)]">
+                            <svg
+                              width="10"
+                              height="10"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="m6 9 6 6 6-6" />
+                            </svg>
+                          </div>
+                        </div>
                       ) : conf.tipoDato === "BOOLEANO" ? (
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 p-1 bg-[var(--fill-secondary)] rounded-xl border border-[var(--border-subtle)] shadow-inner">
                           <button
                             type="button"
                             onClick={() =>
                               handleAtributoChange(conf.claveCampo, true)
                             }
-                            className={`flex-1 py-1.5 rounded-md text-[11px] font-black border  ${
-                              form.atributos[conf.claveCampo] === true
-                                ? "bg-emerald-700/10 text-emerald-400 border-emerald-700/20"
-                                : "bg-black/5 text-black/20 border-transparent hover:bg-black/10"
-                            }`}
+                            className={`flex-1 py-2 rounded-md text-[10px] font-black transition-all cursor-pointer ${form.atributos[conf.claveCampo] === true ? "bg-[var(--surface)] text-emerald-600 shadow-sm border border-emerald-500/20" : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"}`}
                           >
                             SÍ
                           </button>
@@ -850,11 +730,7 @@ const FormularioContacto = ({
                             onClick={() =>
                               handleAtributoChange(conf.claveCampo, false)
                             }
-                            className={`flex-1 py-1.5 rounded-md text-[11px] font-black border  ${
-                              form.atributos[conf.claveCampo] === false
-                                ? "bg-red-700/10 text-red-400 border-red-700/20"
-                                : "bg-black/5 text-black/20 border-transparent hover:bg-black/10"
-                            }`}
+                            className={`flex-1 py-2 rounded-md text-[10px] font-black transition-all cursor-pointer ${form.atributos[conf.claveCampo] === false ? "bg-[var(--surface)] text-rose-600 shadow-sm border border-rose-500/20" : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"}`}
                           >
                             NO
                           </button>
@@ -869,7 +745,7 @@ const FormularioContacto = ({
                               e.target.value,
                             )
                           }
-                          className="w-full bg-white/[0.03] border border-black/5 rounded-md px-3 py-2 text-[13px] font-bold text-black focus:outline-none focus:border-[var(--primary)]/50 "
+                          className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all"
                         />
                       )}
                     </div>
@@ -878,20 +754,20 @@ const FormularioContacto = ({
               </div>
             )}
 
-            {/* Botón de Acción Pro */}
-            <div className="pt-4 flex gap-3">
+            {/* Botones de Acción */}
+            <div className="pt-8 flex flex-col gap-3">
+              <button
+                type="submit"
+                className="w-full py-4 bg-[var(--primary)] text-white rounded-xl text-[12px] font-black uppercase tracking-[0.2em] hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-[var(--primary)]/20 cursor-pointer"
+              >
+                {contacto ? "ACTUALIZAR FICHA" : "REGISTRAR CONTACTO"}
+              </button>
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 py-3 bg-black/5 hover:bg-black/10 text-black/50 rounded-md text-[12px] font-black uppercase tracking-[0.2em]  border border-black/5"
+                className="w-full py-3 bg-[var(--fill-secondary)] text-[var(--text-muted)] rounded-xl text-[11px] font-black uppercase tracking-[0.2em] border border-transparent hover:border-[var(--border-subtle)] hover:text-[var(--text-primary)] transition-all cursor-pointer"
               >
-                CANCELAR
-              </button>
-              <button
-                type="submit"
-                className="flex-[2] py-3 bg-[var(--primary)] text-black rounded-md text-[12px] font-black uppercase tracking-[0.2em] hover:brightness-110 active:scale-[0.98]  shadow-[0_10px_30px_rgba(var(--p-rgb),0.2)]"
-              >
-                {contacto ? "ACTUALIZAR" : "CREAR"}
+                DESCARTAR CAMBIOS
               </button>
             </div>
           </form>

@@ -47,7 +47,11 @@ const TablaProductos = () => {
   const { tieneAccion } = usePermisosDeUsuario("ARTICULOS");
   const unidadActiva = useAuthStore((state) => state.unidadActiva);
   // Estados locales para filtros API y paginación
-  const [filtros, setFiltros] = useState({ pagina: 1, limite: 10 });
+  const [filtros, setFiltros] = useState({
+    pagina: 1,
+    limite: 10,
+    tipoArticulo: "PRODUCTO",
+  });
   // Estados persistentes para búsqueda
   const [busquedaInput, setBusquedaInput] = usePersistentState(
     "productos_busqueda_input",
@@ -138,7 +142,7 @@ const TablaProductos = () => {
               </div>
               <div className="flex items-center gap-1.5 mt-1">
                 {fila.descripcion && (
-                  <span className="text-[12px] text-[var(--primary)] truncate max-w-[150px] font-medium opacity-70">
+                  <span className="text-[12px] text-[var(--primary)] truncate font-medium opacity-70">
                     • {fila.descripcion}
                   </span>
                 )}

@@ -1,7 +1,5 @@
-import React from "react";
 import { useParams } from "react-router-dom";
-import { HistorialIcono, MovimientoIcono } from "../../../assets/Icons";
-import { Info, AlertCircle, Clock } from "lucide-react";
+import { HistorialIcono } from "../../../assets/Icons";
 import EncabezadoSeccion from "../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import ContenedorSeccion from "../../ContenidoPanel/ContenedorSeccion";
 import ListaMovimientos from "../../UI/ListaMovimientos/ListaMovimientos";
