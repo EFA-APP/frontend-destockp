@@ -118,202 +118,155 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
 
   return (
     <div
-      className={`h-screen fixed inset-0 z-50 flex justify-end   ${open ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+      className={`fixed inset-0 z-[1000] flex justify-end transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0 pointer-events-none"}`}
     >
-      {/* Backdrop */}
+      {/* Backdrop con Blur más profundo */}
       <div
-        className="absolute inset-0 bg-black/20 backdrop-blur-sm "
+        className="absolute inset-0 bg-black/30 backdrop-blur-md transition-all duration-300"
         onClick={onClose}
       />
 
-      {/* Drawer Content */}
+      {/* Drawer Content - Ahora Blanco Premium */}
       <div
-        className={`relative w-full max-w-[550px] bg-[#0c0c0c] border-l border-black/10 shadow-2xl   transform flex flex-col h-full ${open ? "translate-x-0" : "translate-x-full"}`}
+        className={`relative w-full max-w-[550px] bg-white shadow-[-30px_0_60px_rgba(0,0,0,0.2)] transform transition-transform duration-500 flex flex-col h-full ${open ? "translate-x-0" : "translate-x-full"}`}
       >
-        {/* Header Drawer */}
-        <div className="flex items-center justify-between p-6 border-b border-black/5 bg-[#111]">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center border border-[var(--primary)]/20 text-[var(--primary)]">
-              <ComprobanteIcono size={22} />
+        {/* Header Drawer - Limpio y con Acento */}
+        <div className="flex items-center justify-between p-8 border-b border-black/5 bg-white shrink-0">
+          <div className="flex items-center gap-5">
+            <div className="w-12 h-12 rounded-md bg-rose-50 text-rose-500 flex items-center justify-center border border-rose-100 shadow-sm">
+              <ComprobanteIcono size={28} />
             </div>
             <div>
-              <h2 className="text-sm font-black text-black uppercase tracking-widest leading-none mb-1">
+              <h2 className="text-xl font-black text-[var(--primary)] uppercase tracking-tighter leading-none mb-1.5">
                 {[3, 8, 13, 53].includes(Number(data.tipoDocumento))
                   ? "Nota de Crédito"
                   : [2, 7, 12, 52].includes(Number(data.tipoDocumento))
                     ? "Nota de Débito"
-                    : "Factura"}
+                    : "Comprobante de Venta"}
               </h2>
-              <p className="text-[12px] font-bold text-black/70 tracking-tighter uppercase">
+              <p className="text-[14px] font-black text-rose-500/60 tracking-[0.1em] uppercase">
                 {data.letraComprobante}{" "}
-                {String(data.puntoVenta).padStart(5, "0")}-
-                {String(data.numeroComprobante).padStart(8, "0")}
+                <span className="text-[var(--primary)]">
+                  {String(data.puntoVenta).padStart(5, "0")}-
+                  {String(data.numeroComprobante).padStart(8, "0")}
+                </span>
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-black/5 text-black/40 "
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-rose-50 text-[var(--primary)]/60 hover:text-rose-500 transition-all group"
           >
-            <X size={20} />
+            <X
+              size={24}
+              className="group-hover:rotate-90 transition-transform duration-300"
+            />
           </button>
         </div>
 
         {/* Scrollable Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
-          {/* Quick Actions Bar */}
-          <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/[0.02] border border-black/5 shadow-inner">
+        <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar bg-gray-50/30">
+          {/* Quick Actions Bar - Estilo Flotante */}
+          <div className="flex items-center gap-4 p-5 rounded-md bg-white border border-black/5 shadow-sm">
             <button
               onClick={handleVerPDF}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-black/5 hover:bg-black/10 text-black text-[12px] font-black uppercase tracking-widest  border border-black/5"
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-md bg-gray-100 hover:bg-gray-200 text-[var(--primary)] text-[11px] font-black uppercase tracking-widest transition-all"
             >
-              <Eye size={14} /> Visualizar
+              <Eye size={16} /> Ver PDF
             </button>
             <button
               onClick={handleDescargarPDF}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[var(--primary)] hover:brightness-110 text-black text-[12px] font-black uppercase tracking-widest  shadow-lg shadow-[var(--primary)]/20"
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-md bg-black text-white hover:bg-rose-600 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-black/10 transition-all"
             >
-              <Download size={14} /> Descargar
+              <Download size={16} /> Descargar
             </button>
             <button
               onClick={handleImprimirPDF}
-              className="p-2.5 rounded-xl bg-black/5 hover:bg-black/10 text-black/60  border border-black/5"
+              className="w-12 h-12 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200 text-[var(--primary)]/60 transition-all"
             >
-              <Printer size={16} />
+              <Printer size={20} />
             </button>
           </div>
 
-          {/* Status & General Info */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Status & General Info - Cards Refinadas */}
+          <div className="grid grid-cols-2 gap-5">
             <div
-              className={`p-4 rounded-2xl border ${
+              className={`p-6 rounded-md border shadow-sm transition-all ${
                 data.estado === "ANULADO"
-                  ? "bg-red-700/5 border-red-700/10"
+                  ? "bg-rose-50 border-rose-100"
                   : data.estado === "AJUSTADO_PARCIAL"
-                    ? "bg-amber-700/5 border-amber-700/10"
-                    : "bg-emerald-700/5 border-emerald-700/10"
+                    ? "bg-amber-50 border-amber-100"
+                    : "bg-emerald-50 border-emerald-100"
               }`}
             >
               <div
-                className={`flex items-center gap-2 mb-2 ${
+                className={`flex items-center gap-2 mb-3 ${
                   data.estado === "ANULADO"
-                    ? "text-red-700"
+                    ? "text-rose-600"
+                    : data.estado === "AJUSTADO_PARCIAL"
+                      ? "text-amber-600"
+                      : "text-emerald-600"
+                }`}
+              >
+                <CheckCircle2 size={16} />
+                <span className="text-[10px] font-black uppercase tracking-widest">
+                  Estado Actual
+                </span>
+              </div>
+              <p
+                className={`text-lg font-black uppercase tracking-tight ${
+                  data.estado === "ANULADO"
+                    ? "text-rose-700"
                     : data.estado === "AJUSTADO_PARCIAL"
                       ? "text-amber-700"
                       : "text-emerald-700"
                 }`}
               >
-                <CheckCircle2 size={14} />
-                <span className="text-[11px] font-black uppercase tracking-widest">
-                  Estado
-                </span>
-              </div>
-              <p
-                className={`text-xs font-black uppercase tracking-tight ${
-                  data.estado === "ANULADO"
-                    ? "text-red-400"
-                    : data.estado === "AJUSTADO_PARCIAL"
-                      ? "text-amber-400"
-                      : "text-emerald-400"
-                }`}
-              >
-                {data.estado || "VALIDO"}
+                {data.estado || "VÁLIDO"}
               </p>
             </div>
-            <div className="p-4 rounded-2xl bg-white/[0.02] border border-black/5">
-              <div className="flex items-center gap-2 mb-2 text-black/70">
-                <Calendar size={14} />
-                <span className="text-[11px] font-black uppercase tracking-widest">
-                  Emisión
+            <div className="p-6 rounded-md bg-white border border-black/5 shadow-sm">
+              <div className="flex items-center gap-2 mb-3 text-[var(--primary)]/60">
+                <Calendar size={16} />
+                <span className="text-[10px] font-black uppercase tracking-widest">
+                  Fecha de Emisión
                 </span>
               </div>
-              <p className="text-xs font-black text-black/80 uppercase tracking-tight">
+              <p className="text-lg font-black text-[var(--primary)] uppercase tracking-tight">
                 {formatearFecha(data.fechaEmision)}
               </p>
             </div>
           </div>
 
-          {/* AJUSTES APLICADOS A ESTE COMPROBANTE (Quien me ajusta a mí) */}
-          {data.ajustes &&
-            Array.isArray(data.ajustes) &&
-            data.ajustes.length > 0 && (
-              <section className="space-y-4">
-                <div className="flex items-center gap-2 text-rose-400/80">
-                  <ArrowRightLeft size={14} />
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em]">
-                    Ajustes Aplicados (NC/ND)
-                  </h3>
-                  <div className="flex-1 h-px bg-black/5 ml-2" />
-                </div>
-                <div className="space-y-2">
-                  {data.ajustes.map((ajuste, idx) => {
-                    const esNC = [3, 8, 13, 53].includes(Number(ajuste.tipo));
-                    return (
-                      <div
-                        key={idx}
-                        className={`p-4 rounded-2xl border flex items-center justify-between group  ${esNC ? "bg-rose-700/5 border-rose-700/10 hover:bg-rose-700/10" : "bg-blue-700/5 border-blue-700/10 hover:bg-blue-700/10"}`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center border ${esNC ? "bg-rose-700/10 border-rose-700/20 text-rose-400" : "bg-blue-700/10 border-blue-700/20 text-blue-400"}`}
-                          >
-                            <Receipt size={14} />
-                          </div>
-                          <div>
-                            <p
-                              className={`text-[11px] font-black uppercase tracking-widest leading-none mb-1 ${esNC ? "text-rose-400/60" : "text-blue-400/60"}`}
-                            >
-                              {esNC ? "Nota de Crédito" : "Nota de Débito"}
-                            </p>
-                            <p className="text-xs font-black text-black uppercase tracking-tight">
-                              {String(ajuste.ptoVta).padStart(4, "0")}-
-                              {String(ajuste.nro).padStart(8, "0")}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p
-                            className={`text-xs font-black italic ${esNC ? "text-rose-400" : "text-blue-400"}`}
-                          >
-                            {esNC ? "-" : "+"}${formatearMonto(ajuste.total)}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-            )}
-
-          {/* COMPROBANTES VINCULADOS (A quién ajusto yo) */}
+          {/* AJUSTES APLICADOS (A quién ajusto yo) */}
           {data.cbtesAsoc &&
             Array.isArray(data.cbtesAsoc) &&
             data.cbtesAsoc.length > 0 && (
               <section className="space-y-4">
-                <div className="flex items-center gap-2 text-amber-400/80">
-                  <ArrowRightLeft size={14} />
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em]">
-                    Comprobantes Vinculados
+                <div className="flex items-center gap-3 px-2">
+                  <ArrowRightLeft size={18} className="text-amber-500" />
+                  <h3 className="text-[12px] font-black text-[var(--primary)]/60 uppercase tracking-[0.2em]">
+                    Referencia a Comprobante
                   </h3>
-                  <div className="flex-1 h-px bg-black/5 ml-2" />
+                  <div className="flex-1 h-px bg-black/5" />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {data.cbtesAsoc.map((cbte, idx) => (
                     <div
                       key={idx}
-                      className="p-4 rounded-2xl bg-amber-700/5 border border-amber-700/10 flex items-center justify-between"
+                      className="p-5 rounded-md bg-amber-50 border border-amber-100 flex items-center justify-between"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-amber-700/10 flex items-center justify-center border border-amber-700/20 text-amber-400">
-                          <FileText size={14} />
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-md bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/20">
+                          <FileText size={20} />
                         </div>
                         <div>
-                          <p className="text-[11px] font-black text-amber-400/60 uppercase tracking-widest leading-none mb-1">
-                            Documento Original
+                          <p className="text-[10px] font-black text-amber-600/60 uppercase tracking-widest leading-none mb-1.5">
+                            Documento Asociado
                           </p>
-                          <p className="text-xs font-black text-black uppercase tracking-tight">
-                            Cbt. Tipo: {cbte.tipo} |{" "}
-                            {String(cbte.ptoVta).padStart(4, "0")}-
+                          <p className="text-[14px] font-black text-[var(--primary)] uppercase tracking-tight">
+                            Tipo {cbte.tipo} |{" "}
+                            {String(cbte.ptoVta).padStart(5, "0")}-
                             {String(cbte.nro).padStart(8, "0")}
                           </p>
                         </div>
@@ -324,34 +277,37 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
               </section>
             )}
 
-          {/* Client Info */}
+          {/* Client Info - Estilo Perfil */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 text-[var(--primary-light)]">
-              <User size={14} />
-              <h3 className="text-[11px] font-black uppercase tracking-[0.2em]">
+            <div className="flex items-center gap-3 px-2">
+              <User size={18} className="text-rose-500" />
+              <h3 className="text-[12px] font-black text-[var(--primary)]/60 uppercase tracking-[0.2em]">
                 Información del Cliente
               </h3>
-              <div className="flex-1 h-px bg-black/5 ml-2" />
+              <div className="flex-1 h-px bg-black/5" />
             </div>
-            <div className="p-5 rounded-2xl bg-gradient-to-br from-white/[0.03] to-transparent border border-black/5">
-              <h4 className="text-sm font-black text-black mb-2 uppercase tracking-tight">
-                {data.receptor?.razonSocial || "CONSUMIDOR FINAL"}
-              </h4>
-              <div className="grid grid-cols-2 gap-y-4 gap-x-8">
+            <div className="p-6 rounded-md bg-white border border-black/5 shadow-sm space-y-6 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-rose-500/20" />
+              <div className="flex items-center gap-5 pb-5 border-b border-black/5">
+                <div className="w-14 h-14 rounded-md bg-rose-500 text-white flex items-center justify-center text-2xl font-black shadow-lg shadow-rose-500/20 uppercase">
+                  {(data.receptor?.razonSocial || "C")[0]}
+                </div>
                 <div>
-                  <label className="block text-[10px] font-black text-black/20 uppercase tracking-widest mb-1 font-mono">
-                    Documento
-                  </label>
-                  <p className="text-[13px] font-bold text-black/70">
+                  <h4 className="text-lg font-black text-[var(--primary)] uppercase tracking-tight leading-none mb-1">
+                    {data.receptor?.razonSocial || "CONSUMIDOR FINAL"}
+                  </h4>
+                  <p className="text-[12px] font-bold text-rose-500 uppercase tracking-widest">
                     {data.receptor?.DocTipo === 80 ? "CUIT" : "DNI"}:{" "}
                     {data.receptor?.DocNro || "0"}
                   </p>
                 </div>
+              </div>
+              <div className="grid grid-cols-2 gap-8">
                 <div>
-                  <label className="block text-[10px] font-black text-black/20 uppercase tracking-widest mb-1 font-mono">
+                  <label className="block text-[10px] font-black text-[var(--primary)]/60 uppercase tracking-widest mb-1.5">
                     Condición IVA
                   </label>
-                  <p className="text-[13px] font-bold text-black/70 uppercase">
+                  <p className="text-[13px] font-black text-[var(--primary)] uppercase tracking-tight">
                     {mapaIvaDescripcion[
                       data.receptor?.CondicionIVAReceptorId
                     ] ||
@@ -359,12 +315,12 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
                       "CONSUMIDOR FINAL"}
                   </p>
                 </div>
-                <div className="col-span-2">
-                  <label className="block text-[10px] font-black text-black/20 uppercase tracking-widest mb-1 font-mono">
-                    Domicilio
+                <div>
+                  <label className="block text-[10px] font-black text-[var(--primary)]/60 uppercase tracking-widest mb-1.5">
+                    Domicilio Fiscal
                   </label>
-                  <p className="text-[13px] font-bold text-black/70">
-                    {data.receptor?.domicilio || "N/A"}
+                  <p className="text-[13px] font-black text-[var(--primary)] uppercase tracking-tight truncate">
+                    {data.receptor?.domicilio || "NO REGISTRADO"}
                   </p>
                 </div>
               </div>
@@ -374,102 +330,101 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
           {/* OBSERVACIONES */}
           {data.observaciones && (
             <section className="space-y-4">
-              <div className="flex items-center gap-2 text-[var(--primary-light)]">
-                <Info size={14} />
-                <h3 className="text-[11px] font-black uppercase tracking-[0.2em]">
-                  Observaciones / Notas
+              <div className="flex items-center gap-3 px-2">
+                <Info size={18} className="text-rose-500" />
+                <h3 className="text-[12px] font-black text-[var(--primary)]/60 uppercase tracking-[0.2em]">
+                  Notas Internas
                 </h3>
-                <div className="flex-1 h-px bg-black/5 ml-2" />
+                <div className="flex-1 h-px bg-black/5" />
               </div>
-              <div className="p-4 rounded-2xl bg-white/[0.02] border border-black/5">
-                <p className="text-[12px] font-medium text-black/60 leading-relaxed italic">
+              <div className="p-6 rounded-md bg-gray-50 border border-black/5">
+                <p className="text-[14px] font-medium text-[var(--primary)]/60 leading-relaxed italic italic-rose">
                   "{data.observaciones}"
                 </p>
               </div>
             </section>
           )}
 
-          {/* Fiscal Details (only if CAE exists) */}
+          {/* Fiscal Details - AFIP QR */}
           {data.cae && (
             <section className="space-y-4">
-              <div className="flex items-center gap-2 text-[var(--primary-light)]">
-                <QrCode size={14} />
-                <h3 className="text-[11px] font-black uppercase tracking-[0.2em]">
-                  Datos de Autorización AFIP
+              <div className="flex items-center gap-3 px-2">
+                <QrCode size={18} className="text-rose-500" />
+                <h3 className="text-[12px] font-black text-[var(--primary)]/60 uppercase tracking-[0.2em]">
+                  Autorización Fiscal (AFIP)
                 </h3>
-                <div className="flex-1 h-px bg-black/5 ml-2" />
+                <div className="flex-1 h-px bg-black/5" />
               </div>
-              <div className="p-5 rounded-2xl bg-[var(--surface-hover)] border border-black/5 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-5">
-                  <QrCode size={100} />
-                </div>
-                <div className="grid grid-cols-2 gap-6 relative z-10">
-                  <div className="space-y-4">
+              <div className="p-6 rounded-md bg-emerald-50 border border-emerald-100 relative overflow-hidden">
+                <div className="flex justify-between items-center relative z-10">
+                  <div className="space-y-5">
                     <div>
-                      <label className="block text-[10px] font-black text-black/20 uppercase tracking-widest mb-1">
-                        CAE Numero
+                      <label className="block text-[10px] font-black text-emerald-600/50 uppercase tracking-widest mb-1">
+                        CAE Vigente
                       </label>
-                      <p className="text-sm font-black text-[var(--primary)] font-mono tracking-widest leading-none">
+                      <p className="text-xl font-black text-emerald-700 font-mono tracking-widest leading-none">
                         {data.cae}
                       </p>
                     </div>
                     <div>
-                      <label className="block text-[10px] font-black text-black/20 uppercase tracking-widest mb-1">
-                        Vencimiento CAE
+                      <label className="block text-[10px] font-black text-emerald-600/50 uppercase tracking-widest mb-1">
+                        Vencimiento de CAE
                       </label>
-                      <p className="text-[13px] font-bold text-black/70 uppercase tracking-wider">
+                      <p className="text-[14px] font-black text-emerald-700 uppercase tracking-[0.1em]">
                         {formatearFechaAfip(data.vtoCae)}
                       </p>
                     </div>
                   </div>
-                  <div className="flex justify-end items-center">
-                    {data.qrCodeImage && (
-                      <div className="p-2 bg-[var(--surface)] rounded-lg shadow-2xl">
-                        <img
-                          src={data.qrCodeImage}
-                          alt="QR"
-                          className="w-20 h-20"
-                        />
-                      </div>
-                    )}
-                  </div>
+                  {data.qrCodeImage && (
+                    <div className="p-3 bg-white rounded-md shadow-xl shadow-emerald-700/10 border border-emerald-100">
+                      <img
+                        src={data.qrCodeImage}
+                        alt="QR"
+                        className="w-24 h-24 mix-blend-multiply"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </section>
           )}
 
-          {/* Details Table */}
+          {/* Details Table - Estilo Ticket Premium */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 text-[var(--primary-light)]">
-              <Tag size={14} />
-              <h3 className="text-[11px] font-black uppercase tracking-[0.2em]">
-                Detalle de Productos
+            <div className="flex items-center gap-3 px-2">
+              <Tag size={18} className="text-rose-500" />
+              <h3 className="text-[12px] font-black text-[var(--primary)]/60 uppercase tracking-[0.2em]">
+                Detalle del Comprobante
               </h3>
-              <div className="flex-1 h-px bg-black/5 ml-2" />
+              <div className="flex-1 h-px bg-black/5" />
             </div>
-            <div className="overflow-hidden rounded-2xl border border-black/5">
-              <table className="w-full text-left text-[12px]">
-                <thead className="bg-black/5 text-black/40 uppercase font-black tracking-widest">
+            <div className="bg-white rounded-md border border-black/5 overflow-hidden shadow-sm">
+              <table className="w-full text-left text-[13px]">
+                <thead className="bg-gray-50 text-[10px] text-[var(--primary)]/60 font-black uppercase tracking-widest border-b border-black/5">
                   <tr>
-                    <th className="px-4 py-3">Descripción</th>
-                    <th className="px-4 py-3 text-center">Cant.</th>
-                    <th className="px-4 py-3 text-right">Unit.</th>
-                    <th className="px-4 py-3 text-right">Subtotal</th>
+                    <th className="px-6 py-4">Descripción</th>
+                    <th className="px-6 py-4 text-center">Cant.</th>
+                    <th className="px-6 py-4 text-right">Subtotal</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5 bg-white/[0.01]">
+                <tbody className="divide-y divide-black/[0.03]">
                   {data.detalles?.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-white/[0.02] ">
-                      <td className="px-4 py-4 font-bold text-black/80">
-                        {item.nombre}
+                    <tr
+                      key={idx}
+                      className="group hover:bg-rose-50/30 transition-colors"
+                    >
+                      <td className="px-6 py-5">
+                        <p className="font-black text-[var(--primary)] uppercase leading-none mb-1">
+                          {item.nombre}
+                        </p>
+                        <p className="text-[10px] font-bold text-[var(--primary)]/60 uppercase tracking-widest">
+                          P. Unitario: ${formatearMonto(item.precioUnitario)}
+                        </p>
                       </td>
-                      <td className="px-4 py-4 text-center text-black/60">
+                      <td className="px-6 py-5 text-center font-black text-[var(--primary)]/40">
                         {item.cantidad}
                       </td>
-                      <td className="px-4 py-4 text-right text-black/60">
-                        ${formatearMonto(item.precioUnitario)}
-                      </td>
-                      <td className="px-4 py-4 text-right font-black text-black">
+                      <td className="px-6 py-5 text-right font-black text-[var(--primary)] tabular-nums">
                         ${formatearMonto(item.subtotal)}
                       </td>
                     </tr>
@@ -479,140 +434,126 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
             </div>
           </section>
 
-          {/* Breakdown of Payments */}
+          {/* Breakdown of Payments - Cards estilo Cobro */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 text-[var(--primary-light)]">
-              <CreditCard size={14} />
-              <h3 className="text-[11px] font-black uppercase tracking-[0.2em]">
-                Desglose de Cobros
+            <div className="flex items-center gap-3 px-2">
+              <DollarSign size={18} className="text-emerald-500" />
+              <h3 className="text-[12px] font-black text-[var(--primary)]/60 uppercase tracking-[0.2em]">
+                Historial de Cobranza
               </h3>
-              <div className="flex-1 h-px bg-black/5 ml-2" />
+              <div className="flex-1 h-px bg-black/5" />
             </div>
 
             <div className="space-y-3">
               {data.pagos && data.pagos.length > 0 ? (
-                data.pagos.map((pago, idx) => {
-                  const getIcon = () => {
-                    if (pago.metodo?.includes("EFECTIVO"))
-                      return (
-                        <DollarSign size={14} className="text-emerald-400" />
-                      );
-                    if (pago.metodo?.includes("TRANSFERENCIA"))
-                      return (
-                        <ArrowRightLeft size={14} className="text-blue-400" />
-                      );
-                    if (pago.metodo?.includes("TARJETA"))
-                      return (
-                        <CreditCard size={14} className="text-amber-400" />
-                      );
-                    return <Receipt size={14} className="text-black/40" />;
-                  };
-
-                  return (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-black/5 hover:bg-white/[0.04] "
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-black/5 flex items-center justify-center border border-black/5">
-                          {getIcon()}
-                        </div>
-                        <div>
-                          <p className="text-[12px] font-black text-black uppercase tracking-wider">
-                            {pago.metodo?.replace(/_/g, " ")}
-                          </p>
-                          <p className="text-[11px] text-black/30 font-bold uppercase tracking-tighter">
-                            Ref: {pago.referencia || "PAGO DIRECTO"}
-                          </p>
-                        </div>
+                data.pagos.map((pago, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between p-5 rounded-md bg-white border border-black/5 shadow-sm hover:border-emerald-200 transition-all group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                        {pago.metodo?.includes("EFECTIVO") ? (
+                          <DollarSign size={24} />
+                        ) : pago.metodo?.includes("TRANSFER") ? (
+                          <ArrowRightLeft size={24} />
+                        ) : (
+                          <CreditCard size={24} />
+                        )}
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm font-black text-black italic tracking-tighter">
-                          ${formatearMonto(pago.monto)}
+                      <div>
+                        <p className="text-[14px] font-black text-[var(--primary)] uppercase tracking-tight">
+                          {pago.metodo?.replace(/_/g, " ")}
                         </p>
-                        <p className="text-[10px] text-black/20 font-bold">
-                          {pago.detalles || ""}
+                        <p className="text-[10px] text-[var(--primary)]/60 font-bold uppercase tracking-widest">
+                          REF: {pago.referencia || "SIN REFERENCIA"}
                         </p>
                       </div>
                     </div>
-                  );
-                })
+                    <div className="text-right">
+                      <p className="text-lg font-black text-emerald-600 tabular-nums leading-none mb-1">
+                        ${formatearMonto(pago.monto)}
+                      </p>
+                      <p className="text-[10px] font-black text-[var(--primary)]/10 uppercase">
+                        {formatearFecha(pago.fecha) || "COBRADO"}
+                      </p>
+                    </div>
+                  </div>
+                ))
               ) : (
-                <div className="p-8 rounded-3xl border border-dashed border-black/10 flex flex-col items-center justify-center opacity-40">
-                  <Info size={24} className="mb-2" />
-                  <p className="text-[12px] font-black uppercase tracking-widest">
+                <div className="p-10 rounded-md border-2 border-dashed border-black/5 flex flex-col items-center justify-center opacity-30">
+                  <Info size={32} className="mb-3 text-[var(--primary)]" />
+                  <p className="text-[12px] font-black uppercase tracking-widest text-center">
                     {data.condicionVenta === "cuenta_corriente"
-                      ? "Pendiente de Cobro"
-                      : "Sin registros de pago"}
+                      ? "Operación en Cuenta Corriente\n(Pendiente de cobro)"
+                      : "Sin registros de pago detallados"}
                   </p>
                 </div>
               )}
             </div>
 
-            {/* Resume / Balance Logic */}
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between px-2">
-                <span className="text-[11px] font-black text-black/20 uppercase tracking-[0.2em]">
-                  Condición de Venta
+            {/* Resume / Balance Logic - Diseño de impacto */}
+            {data.condicionVenta === "cuenta_corriente" && (
+              <div className="p-6 rounded-md bg-blue-50 border border-blue-100 flex items-center justify-between shadow-xl shadow-blue-500/10">
+                <div>
+                  <p className="text-[10px] font-black text-blue-600/50 uppercase tracking-[0.2em] mb-2">
+                    Saldo Pendiente de Cobro
+                  </p>
+                  <p className="text-2xl font-black text-blue-700 tabular-nums tracking-tighter">
+                    $
+                    {formatearMonto(
+                      data.total -
+                        (data.pagos?.reduce(
+                          (acc, p) => acc + (p.monto || 0),
+                          0,
+                        ) || 0),
+                    )}
+                  </p>
+                </div>
+                <div className="w-14 h-14 rounded-md bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/30">
+                  <Clock size={28} />
+                </div>
+              </div>
+            )}
+          </section>
+
+          {/* Totals Section - Diseño de Ticket Final */}
+          <section className="bg-[var(--primary)] text-white rounded-md p-8 shadow-2xl space-y-5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-3xl" />
+
+            <div className="space-y-4 relative z-10">
+              <div className="flex justify-between items-center text-white/40">
+                <span className="text-[11px] font-black uppercase tracking-[0.2em]">
+                  Importe Neto Gravado
                 </span>
-                <span
-                  className={`px-2 py-0.5 rounded text-[12px] font-black uppercase tracking-widest ${data.condicionVenta === "cuenta_corriente" ? "bg-blue-700/10 text-blue-400 border border-blue-700/20" : "bg-emerald-700/10 text-emerald-400 border border-emerald-700/20"}`}
-                >
-                  {data.condicionVenta || "CONTADO"}
+                <span className="text-[14px] font-bold font-mono">
+                  ${formatearMonto(data.subtotal)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-white/40">
+                <span className="text-[11px] font-black uppercase tracking-[0.2em]">
+                  Impuesto IVA (21%)
+                </span>
+                <span className="text-[14px] font-bold font-mono">
+                  ${formatearMonto(data.iva)}
                 </span>
               </div>
 
-              {data.condicionVenta === "cuenta_corriente" && (
-                <div className="p-4 rounded-2xl bg-blue-700/5 border border-blue-700/10 flex items-center justify-between">
-                  <div>
-                    <p className="text-[11px] font-black text-blue-400/60 uppercase tracking-widest mb-1">
-                      Saldo Pendiente
-                    </p>
-                    <p className="text-lg font-black text-blue-400 italic tracking-tighter">
-                      $
-                      {formatearMonto(
-                        data.total -
-                          (data.pagos?.reduce(
-                            (acc, p) => acc + (p.monto || 0),
-                            0,
-                          ) || 0),
-                      )}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 rounded-full border border-blue-700/20 flex items-center justify-center">
-                    <div className="w-8 h-8 rounded-full border-2 border-blue-700/40 border-t-blue-700 " />
-                  </div>
-                </div>
-              )}
-            </div>
-          </section>
+              <div className="h-px bg-white/10 my-2" />
 
-          {/* Totals Section */}
-          <section className="bg-[var(--primary)]/5 border border-[var(--primary)]/20 rounded-3xl p-6 shadow-2xl space-y-3 mt-4">
-            <div className="flex justify-between items-center text-black/40">
-              <span className="text-[11px] font-black uppercase tracking-widest">
-                Subtotal Bruto
-              </span>
-              <span className="text-xs font-bold font-mono">
-                ${formatearMonto(data.subtotal)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center text-black/40">
-              <span className="text-[11px] font-black uppercase tracking-widest">
-                Impuestos (IVA)
-              </span>
-              <span className="text-xs font-bold font-mono">
-                ${formatearMonto(data.iva)}
-              </span>
-            </div>
-            <div className="h-px bg-black/10 my-1" />
-            <div className="flex justify-between items-center">
-              <span className="text-[12px] font-black text-black uppercase tracking-widest">
-                Total del Comprobante
-              </span>
-              <span className="text-2xl font-black text-black italic tracking-tighter">
-                ${formatearMonto(data.total)}
-              </span>
+              <div className="flex justify-between items-center">
+                <div className="flex flex-col">
+                  <span className="text-[12px] font-black text-rose-500 uppercase tracking-[0.3em] mb-1">
+                    Total Final
+                  </span>
+                  <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">
+                    Saldo de Operación
+                  </span>
+                </div>
+                <span className="text-4xl font-black text-white tracking-tighter tabular-nums leading-none">
+                  ${formatearMonto(data.total)}
+                </span>
+              </div>
             </div>
           </section>
         </div>

@@ -7,6 +7,7 @@ import {
 import { useConfiguracionContactos } from "../../../../Backend/Contactos/hooks/useConfiguracionContactos";
 import { useEntidades } from "../../../../Backend/Contactos/hooks/useEntidades";
 import { useContactos } from "../../../../Backend/Contactos/hooks/useContactos";
+import { usePermisosDeUsuario } from "../../../../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
 import { Search } from "lucide-react";
 
 const FormularioContacto = ({
@@ -18,6 +19,7 @@ const FormularioContacto = ({
   const { entidades, cargandoEntidades } = useEntidades();
   const { configs, cargandoConfigs } = useConfiguracionContactos();
   const { crearContacto, actualizarContacto } = useContactos();
+  const { tieneAccion } = usePermisosDeUsuario();
 
   const [form, setForm] = useState({
     tipoEntidad: entidadProp?.clave || contacto?.tipoEntidad || "",
@@ -305,7 +307,8 @@ const FormularioContacto = ({
             </div>
 
             {/* 3. RESPONSABLE DE FACTURACIÓN */}
-            <div className="space-y-4 pt-6 border-t border-[var(--border-subtle)]">
+            {tieneAccion("ENTE_FACTURACION_CONTACTO") && (
+              <div className="space-y-4 pt-6 border-t border-[var(--border-subtle)]">
               <div className="flex items-center justify-between gap-3 mb-1">
                 <span className="text-[12px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] whitespace-nowrap">
                   Facturación
@@ -462,9 +465,11 @@ const FormularioContacto = ({
                 </div>
               )}
             </div>
+            )}
 
             {/* 4. Vínculos / Relaciones */}
-            <div className="space-y-4 pt-6 border-t border-[var(--border-subtle)]">
+            {tieneAccion("VINCULOS_CONTACTO") && (
+              <div className="space-y-4 pt-6 border-t border-[var(--border-subtle)]">
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-[12px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] whitespace-nowrap">
                   Vínculos
@@ -659,6 +664,7 @@ const FormularioContacto = ({
                 </button>
               </div>
             </div>
+            )}
 
             {/* 5. CAMPOS DINÁMICOS */}
             {configsEntidad.length > 0 && (

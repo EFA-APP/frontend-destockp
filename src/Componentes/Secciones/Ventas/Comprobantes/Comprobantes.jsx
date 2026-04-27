@@ -13,14 +13,7 @@ import ModalConfirmacionCobro from "./ModalConfirmacionCobro";
 import FormularioContacto from "../../Contactos/GestionContactos/FormularioContacto";
 import {
   ComprobanteIcono,
-  ArcaIcono,
-  CheckIcono,
   DineroIcono,
-  CuentaIcono,
-  BorrarIcono,
-  TarjetaIcono,
-  VentasIcono,
-  AgregarIcono,
   NuevoContactoIcono,
   BuscadorIcono,
 } from "../../../../assets/Icons";
@@ -28,8 +21,6 @@ import {
 // Sub-componentes
 import BusquedaProducto from "./BusquedaProducto";
 import TablaTicket from "./TablaTicket";
-import PanelPago from "./PanelPago";
-import ResumenVentaMobile from "./ResumenVentaMobile";
 
 const ComprobantesSkeleton = () => (
   <div className="flex-1 flex flex-col md:flex-row overflow-hidden ">
@@ -215,16 +206,16 @@ const Comprobantes = () => {
           <button
             key={s}
             onClick={() => items.length > 0 && setPaso(s)}
-            className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+            className={`relative z-10 w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
               paso === s
-                ? "bg-gray-200 border-[var(--primary)] text-black font-semibold scale-110"
+                ? "bg-gray-200 border-[var(--primary)] text-black font-semibold scale-110 shadow-lg shadow-[var(--primary)]/10"
                 : paso > s
-                  ? "bg-emerald-500 border-emerald-500 text-[var(--border-muted)]"
+                  ? "bg-emerald-500 border-emerald-500 text-white"
                   : "bg-[var(--surface)] border-black/10 text-[var(--text-muted)]"
             }`}
           >
             {paso > s ? "✓" : s}
-            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-black uppercase tracking-widest whitespace-nowrap  text-[var(--border-muted)]">
+            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] font-black uppercase tracking-widest whitespace-nowrap text-[var(--border-muted)] hidden sm:block">
               {s === 1
                 ? "Productos"
                 : s === 2
@@ -241,46 +232,71 @@ const Comprobantes = () => {
       {cargandoInicial ? (
         <ComprobantesSkeleton />
       ) : (
-        <div className="flex-1 flex flex-col overflow-hidden max-w-5xl mx-auto w-full px-4">
+        <div className="flex-1 flex flex-col overflow-hidden max-w-5xl mx-auto w-full px-4 mt-4">
           {/* PASO 1: AGREGAR PRODUCTOS */}
           {paso === 1 && (
-            <div className="flex-1 flex flex-col overflow-hidden animate-in fade-in slide-in-from-right-4 duration-500">
-              <div className="flex flex-col gap-4 mb-4">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-lg font-black text-black">
-                    Captura de Items
-                  </h2>
+            <div className="flex-1 flex flex-col overflow-y-auto animate-in fade-in slide-in-from-right-4 duration-500 pr-1 pb-20">
+              <div className="flex flex-col gap-0.5 mb-0.5">
+                <div className="flex justify-between items-center bg-[var(--surface-hover)] p-4 rounded-md border border-black/5 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-md bg-black text-white flex items-center justify-center">
+                      <BuscadorIcono size={20} />
+                    </div>
+                    <div>
+                      <h2 className="text-[14px] font-black text-black uppercase tracking-widest leading-none mb-1">
+                        Captura de productos
+                      </h2>
+                      <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
+                        Buscador y Carga Manual
+                      </p>
+                    </div>
+                  </div>
                   <button
                     onClick={() => setMostrandoManual(!mostrandoManual)}
-                    className={`px-4 py-2 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${mostrandoManual ? "bg-red-500 text-white" : "bg-black text-white"}`}
+                    className={`px-5 py-2.5 rounded-md text-[10px] font-black uppercase tracking-[0.15em] transition-all shadow-sm active:scale-95 ${mostrandoManual ? "bg-rose-500 text-white shadow-rose-500/20" : "bg-black text-white hover:bg-black/90"}`}
                   >
-                    {mostrandoManual ? "✕ Cancelar Manual" : "+ Agregar Manual"}
+                    {mostrandoManual ? "✕ Cancelar" : "+ Item Manual"}
                   </button>
                 </div>
 
                 {mostrandoManual ? (
-                  <div className="flex gap-2 animate-in zoom-in-95 duration-300">
-                    <input
-                      autoFocus
-                      type="text"
-                      value={nombreManual}
-                      onChange={(e) => setNombreManual(e.target.value)}
-                      placeholder="Nombre del producto..."
-                      className="flex-[2] h-14 bg-[var(--surface)] border border-black/10 rounded-md px-4 font-bold text-black focus:border-[var(--primary)] outline-none"
-                    />
-                    <input
-                      type="number"
-                      value={precioManual}
-                      onChange={(e) => setPrecioManual(e.target.value)}
-                      placeholder="Precio..."
-                      className="flex-1 h-14 bg-[var(--surface)] border border-black/10 rounded-md px-4 font-bold text-black focus:border-[var(--primary)] outline-none"
-                      onKeyDown={(e) =>
-                        e.key === "Enter" && agregarItemManual()
-                      }
-                    />
+                  <div className="flex flex-col sm:flex-row gap-3 p-4 bg-rose-50/50 border border-rose-100 rounded-b-mb animate-in zoom-in-95 duration-300">
+                    <div className="flex-[2] space-y-1.5">
+                      <label className="text-[9px] font-black uppercase tracking-widest text-rose-500 ml-1">
+                        Descripción del Item
+                      </label>
+                      <input
+                        autoFocus
+                        type="text"
+                        value={nombreManual}
+                        onChange={(e) => setNombreManual(e.target.value)}
+                        placeholder="Ej: Servicio Especial, Envío..."
+                        className="w-full h-12 bg-white border border-rose-200 rounded-md px-4 font-bold text-black focus:border-rose-500 outline-none shadow-sm placeholder:opacity-30 uppercase text-xs"
+                      />
+                    </div>
+                    <div className="flex-1 space-y-1.5">
+                      <label className="text-[9px] font-black uppercase tracking-widest text-rose-500 ml-1">
+                        Precio Unitario
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-rose-300">
+                          $
+                        </span>
+                        <input
+                          type="number"
+                          value={precioManual}
+                          onChange={(e) => setPrecioManual(e.target.value)}
+                          placeholder="0.00"
+                          className="w-full h-12 bg-white border border-rose-200 rounded-md pl-8 pr-4 font-black text-black focus:border-rose-500 outline-none shadow-sm"
+                          onKeyDown={(e) =>
+                            e.key === "Enter" && agregarItemManual()
+                          }
+                        />
+                      </div>
+                    </div>
                     <button
                       onClick={agregarItemManual}
-                      className="px-6 h-14 bg-[var(--primary)] text-black rounded-md font-black uppercase tracking-widest"
+                      className="self-end h-12 px-10 bg-rose-500 text-white rounded-md font-black uppercase tracking-widest hover:bg-rose-600 transition-all shadow-lg shadow-rose-500/20 active:scale-95"
                     >
                       Añadir
                     </button>
@@ -312,7 +328,7 @@ const Comprobantes = () => {
                 )}
               </div>
 
-              <div className="flex-1 overflow-hidden bg-[var(--surface)] border border-black/5 rounded-md shadow-sm">
+              <div className="flex-1 bg-white border border-black/5 rounded-md shadow-sm flex flex-col">
                 <TablaTicket
                   items={items}
                   actualizarItem={actualizarItem}
@@ -322,13 +338,26 @@ const Comprobantes = () => {
                 />
               </div>
 
-              <div className="py-6 px-10 flex justify-end items-center mt-auto border-t border-black/5">
+              <div className="hidden md:flex py-8 px-10 justify-between items-center mt-6 bg-black text-white rounded-md shadow-xl shadow-black/10 border border-white/10">
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
-                    Subtotal estimado
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-1">
+                    Total Estimado
                   </span>
-                  <span className="text-2xl font-black text-black">
-                    ${(totales?.total || 0).toLocaleString()}
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-black tracking-tighter">
+                      ${(totales?.total || 0).toLocaleString()}
+                    </span>
+                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">
+                      ARS
+                    </span>
+                  </div>
+                </div>
+                <div className="hidden md:flex flex-col items-end">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">
+                    Items Totales
+                  </span>
+                  <span className="text-xl font-black">
+                    {items.reduce((acc, i) => acc + (i.cantidad || 0), 0)}
                   </span>
                 </div>
               </div>
@@ -337,8 +366,8 @@ const Comprobantes = () => {
 
           {/* PASO 2: CONFIGURACIÓN FISCAL / UNIDAD */}
           {paso === 2 && (
-            <div className="flex-1 flex flex-col justify-center items-center animate-in fade-in slide-in-from-right-4 duration-500 max-w-2xl mx-auto w-full">
-              <div className="w-full bg-[var(--surface)] border border-black/5 rounded-md p-8 shadow-2xl">
+            <div className="mt-4 flex-1 flex flex-col items-center animate-in fade-in slide-in-from-right-4 duration-500 max-w-2xl mx-auto w-full px-2 md:px-0 overflow-y-auto pb-20 md:pb-0">
+              <div className="w-full bg-[var(--surface)] border border-black/5 rounded-md p-5 md:p-8 shadow-2xl">
                 <h3 className="text-xl font-black mb-6 flex items-center gap-3">
                   <ComprobanteIcono
                     size={24}
@@ -416,34 +445,19 @@ const Comprobantes = () => {
                     </div>
                   )}
                 </div>
-
-                <div className="mt-12 flex gap-4">
-                  <button
-                    onClick={anteriorPaso}
-                    className="flex-1 h-14 rounded-md border border-black/10 font-black uppercase tracking-widest text-[var(--text-muted)]"
-                  >
-                    Volver
-                  </button>
-                  <button
-                    onClick={siguientePaso}
-                    className="flex-[2] h-14 rounded-md bg-black text-white font-black uppercase tracking-widest shadow-xl"
-                  >
-                    Continuar (F3)
-                  </button>
-                </div>
               </div>
             </div>
           )}
 
           {/* PASO 3: CLIENTE */}
           {paso === 3 && (
-            <div className="flex-1 flex flex-col justify-center items-center animate-in fade-in slide-in-from-right-4 duration-500 max-w-2xl mx-auto w-full">
-              <div className="w-full bg-[var(--surface)] border border-black/5 rounded-md p-8 shadow-2xl">
-                <div className="flex justify-between items-center mb-6">
+            <div className="flex-1 flex flex-col mt-4 items-center animate-in fade-in slide-in-from-right-4 duration-500 max-w-2xl mx-auto w-full px-2 md:px-0 overflow-y-auto pb-20 md:pb-0">
+              <div className="w-full bg-[var(--surface)] border border-black/5 rounded-md p-5 md:p-8 shadow-2xl">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                   <h3 className="text-xl font-black">Seleccionar Cliente</h3>
                   <button
                     onClick={() => setMostrarFormularioContacto(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-500 rounded-md font-black text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all"
+                    className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-500 rounded-md font-black text-[10px] border border-red-500 uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all cursor-pointer"
                   >
                     <NuevoContactoIcono size={16} />+ Nuevo
                   </button>
@@ -451,7 +465,7 @@ const Comprobantes = () => {
 
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)] group-focus-within:text-[var(--primary)]">
-                    <BuscadorIcono size={20} />
+                    <BuscadorIcono size={20} color={"var(--primary)"} />
                   </div>
                   <input
                     autoFocus
@@ -463,7 +477,7 @@ const Comprobantes = () => {
                     }}
                     onKeyDown={handleClienteKeyDown}
                     placeholder="Buscar por Nombre, DNI o CUIT..."
-                    className="w-full h-16 bg-black/5 border border-black/10 rounded-md pl-12 pr-4 font-bold text-black focus:outline-none focus:border-[var(--primary)]"
+                    className="w-full h-12 bg-black/5 border border-black/10 rounded-md pl-12 pr-4 font-bold text-black focus:outline-none focus:border-[var(--primary)]"
                   />
 
                   {mostrarDropdownCliente && busquedaCliente && (
@@ -511,50 +525,17 @@ const Comprobantes = () => {
                     </button>
                   </div>
                 )}
-
-                {/* SELECTOR DE CONDICIÓN (SEGÚN IMAGEN 1) */}
-                <div className="mt-8 pt-8 border-t border-black/5">
-                  <div className="flex items-center gap-3 mb-4">
-                    <ComprobanteIcono size={20} className="opacity-40" />
-                    <span className="text-[11px] font-black uppercase tracking-widest text-black">
-                      Condición de Venta
-                    </span>
-                  </div>
-                  <select
-                    value={condicionVenta}
-                    onChange={(e) => setCondicionVenta(e.target.value)}
-                    className="w-full h-14 bg-white border border-black/10 rounded-md px-4 font-black uppercase text-xs tracking-widest focus:border-[var(--primary)] outline-none"
-                  >
-                    <option value="contado">PAGO AL CONTADO</option>
-                    <option value="cuenta_corriente">CUENTA CORRIENTE</option>
-                  </select>
-                </div>
-
-                <div className="mt-12 flex gap-4">
-                  <button
-                    onClick={anteriorPaso}
-                    className="flex-1 h-14 rounded-md border border-black/10 font-black uppercase tracking-widest text-[var(--text-muted)]"
-                  >
-                    Volver
-                  </button>
-                  <button
-                    onClick={siguientePaso}
-                    className="flex-[2] h-14 rounded-md bg-black text-white font-black uppercase tracking-widest shadow-xl"
-                  >
-                    Confirmar Datos (F4)
-                  </button>
-                </div>
               </div>
             </div>
           )}
 
           {/* PASO 4: FORMA DE PAGO (VERSION FINAL SEGÚN IMAGEN) */}
           {paso === 4 && (
-            <div className="flex-1 flex flex-col md:flex-row gap-6 animate-in fade-in slide-in-from-right-4 duration-500 overflow-hidden">
-              <div className="flex-1 flex flex-col gap-6 overflow-y-auto pr-2 pb-20 md:pb-0">
+            <div className="flex-1 flex flex-col md:flex-row gap-6 animate-in fade-in slide-in-from-right-4 duration-500 overflow-y-auto pb-20">
+              <div className="flex-1 flex flex-col gap-6">
                 {/* 1. SELECCION DE CONDICION (IMAGEN 1) */}
-                <div className="bg-white border border-black/10 rounded-md p-4 flex flex-col gap-3">
-                  <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest opacity-60">
+                <div className="bg-white shadow-md border border-black/10 rounded-md p-4 flex flex-col gap-3">
+                  <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest opacity-80">
                     <ComprobanteIcono size={16} />
                     <span>Condición de Venta</span>
                   </div>
@@ -569,8 +550,8 @@ const Comprobantes = () => {
                 </div>
 
                 {/* 2. PAGOS REGISTRADOS (IMAGEN 2) */}
-                <div className="bg-white border-2 border-dashed border-black/5 rounded-md p-6 text-center min-h-[100px] flex flex-col justify-center text-[var(--text-theme)]">
-                  <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest opacity-60 mb-4 justify-center">
+                <div className="bg-white shadow-md border-2 border-dashed border-black/5 rounded-md p-6 text-center min-h-[100px] flex flex-col justify-center text-[var(--text-theme)]">
+                  <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest opacity-80 mb-4 justify-center">
                     <DineroIcono size={16} />
                     <span>4. Forma de Pago</span>
                   </div>
@@ -650,6 +631,39 @@ const Comprobantes = () => {
                       className="w-full h-12 bg-[var(--fill)] border border-black/10 rounded-md px-4 font-bold text-black text-xs outline-none focus:border-red-500"
                     >
                       <option value="">Seleccionar...</option>
+                      {nuevoPago.tipo === "TRANSFERENCIA" ? (
+                        <>
+                          <option value="Mercado Pago">Mercado Pago</option>
+                          <option value="Modo">Modo (Bancos)</option>
+                          <option value="Naranja X">Naranja X</option>
+                          <option value="Santander">Santander</option>
+                          <option value="Galicia">Galicia</option>
+                          <option value="BBVA">BBVA</option>
+                          <option value="Macro">Macro</option>
+                          <option value="Banco Nación">Banco Nación</option>
+                          <option value="Banco Provincia">
+                            Banco Provincia
+                          </option>
+                          <option value="Personal Pay">Personal Pay</option>
+                          <option value="Uala">Uala</option>
+                          <option value="Brubank">Brubank</option>
+                          <option value="Otro">Otro (CBU / Alias)</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="Visa">Visa</option>
+                          <option value="Mastercard">Mastercard</option>
+                          <option value="Naranja">Naranja</option>
+                          <option value="Maestro">Maestro</option>
+                          <option value="Cabal">Cabal</option>
+                          <option value="American Express">
+                            American Express
+                          </option>
+                          <option value="Cordobesa">Cordobesa</option>
+                          <option value="Otro">Otro</option>
+                        </>
+                      )}
+                      {/* Mantener entidades dinámicas si existen */}
                       {entidades.map((ent) => (
                         <option key={ent.Id} value={ent.Id}>
                           {ent.Nombre}
@@ -670,7 +684,7 @@ const Comprobantes = () => {
                         onChange={(e) =>
                           setNuevoPago({ ...nuevoPago, monto: e.target.value })
                         }
-                        className="w-full h-12 bg-white border border-black/10 rounded-md px-4 font-black text-red-600 text-lg outline-none"
+                        className="w-full h-12 bg-[var(--border-subtle)] border border-black/10 rounded-md px-4 font-black text-red-600 text-lg outline-none"
                         placeholder="0"
                       />
                     </div>
@@ -687,7 +701,7 @@ const Comprobantes = () => {
                             referencia: e.target.value,
                           })
                         }
-                        className="w-full h-12 bg-white border border-black/10 rounded-md px-4 font-bold text-black outline-none placeholder:opacity-20"
+                        className="w-full h-12 bg-[var(--border-subtle)] border border-black/10 rounded-md px-4 font-bold text-black outline-none placeholder:opacity-20"
                         placeholder="Protocolo/Nota"
                       />
                     </div>
@@ -695,8 +709,13 @@ const Comprobantes = () => {
 
                   <button
                     onClick={agregarPago}
-                    className="w-full h-14 bg-white border border-red-100 text-red-500 rounded-md font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all shadow-sm flex items-center justify-center gap-2"
+                    className={`w-full h-14 rounded-md font-black uppercase tracking-widest transition-all shadow-sm flex items-center justify-center gap-2 border-2 ${
+                      condicionVenta === "contado" && listaPagos.length === 0
+                        ? "bg-red-500 text-white border-red-600 animate-pulse scale-[1.02] shadow-xl shadow-red-500/40"
+                        : "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
+                    }`}
                   >
+                    <DineroIcono size={20} />
                     + Agregar Pago
                   </button>
 
@@ -804,15 +823,6 @@ const Comprobantes = () => {
           }}
         />
       )}
-
-      {/* BARRA MOBILE: ACCESO RÁPIDO A TOTALES */}
-      <ResumenVentaMobile
-        items={items}
-        totales={totales}
-        tabActiva={tabActiva}
-        setTabActiva={setTabActiva}
-        handleFacturar={handleFinalizar}
-      />
     </div>
   );
 };

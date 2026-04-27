@@ -453,7 +453,7 @@ const DrawerActualizarStock = ({
                 placeholder="Escribe motivos de la operación..."
                 disabled={isPending}
                 rows={2}
-                className="w-full bg-[var(--border-subtle)] border border-black/10 rounded-xl p-3 text-sm text-black focus:outline-none focus:border-[var(--primary)]/50  resize-none"
+                className="w-full border border-black/10 rounded-xl p-3 text-sm text-black focus:outline-none focus:border-[var(--primary)]/50  resize-none"
               />
             </div>
           </form>

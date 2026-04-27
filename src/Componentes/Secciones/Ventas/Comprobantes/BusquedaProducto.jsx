@@ -26,14 +26,17 @@ const BusquedaProducto = ({
   getPrecio,
 }) => {
   return (
-    <div className="shrink-0 px-4 py-2 bg-[var(--surface-active)] shadow-sm z-10 flex flex-col gap-3 relative">
-      {/* FILA 1: SELECTORES */}
-      <div className="flex flex-wrap md:flex-nowrap gap-2 items-center">
+    <div className="shrink-0 py-2 bg-transparent relative">
+      <div className="flex flex-wrap md:flex-nowrap gap-3 items-center">
         <div className="flex flex-[2] gap-2 w-full md:w-auto relative items-center">
           {/* INPUT CÓDIGO NORMAL */}
-          <div className="relative flex-1 group flex bg-[var(--surface)] border border-[var(--primary)]/20 rounded-[12px] focus-within:border-[var(--primary)] focus-within:shadow-[0_4px_16px_rgba(var(--primary-rgb),0.1)] transition-all h-[50px]">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[var(--text-muted)] group-focus-within:text-[var(--primary)] ">
-              <BuscadorIcono size={20} color={"var(--primary)"} />
+          <div className="relative flex-1 group border-1 border-[var(--primary)]/50! flex bg-white border border-black/5 rounded-md focus-within:border-black/20 focus-within:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all h-[56px] items-center">
+            <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-black/20 group-focus-within:text-black">
+              <BuscadorIcono
+                size={22}
+                strokeWidth={2.5}
+                color={"var(--primary)"}
+              />
             </div>
             <input
               ref={inputCodigoRef}
@@ -49,23 +52,33 @@ const BusquedaProducto = ({
                 setTimeout(() => setMostrarDropdownProducto(false), 200)
               }
               onKeyDown={handleCodigoKeyDown}
-              placeholder="Escribe el nombre o código del producto..."
-              className="w-full bg-transparent pl-[45px] pr-4 text-[16px] font-bold text-[var(--text-primary)] focus:outline-none placeholder:text-[var(--text-muted)] placeholder:font-medium"
+              placeholder="Buscar por Nombre, Código de Barras o ID..."
+              className="w-full bg-transparent pl-14 pr-4 text-[15px] font-bold text-black focus:outline-none placeholder:text-black/20 placeholder:font-bold uppercase tracking-tight"
             />
 
-            {/* Desplegable de Productos */}
             {mostrarDropdownProducto && codigoBusqueda && (
-              <div className="absolute top-full mt-1 left-0 right-0 max-h-64 overflow-y-auto custom-scrollbar bg-[var(--surface-active)] border border-black/10 rounded-md shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-[100] p-1 flex flex-col">
+              <div className="absolute top-full mt-2 left-0 right-0 max-h-[450px] overflow-y-auto custom-scrollbar bg-[var(--surface-active)] border border-black/10 rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.2)] z-[100] p-2 flex flex-col gap-1 animate-in fade-in zoom-in-95 duration-200 backdrop-blur-md">
                 {cargandoProductos && (
-                  <div className="flex flex-col">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                      <SkeletonProductoBusqueda key={i} />
+                  <div className="flex flex-col gap-2 p-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="h-[70px] bg-black/5 rounded-xl animate-pulse flex flex-col justify-center px-4 gap-2"
+                      >
+                        <div className="h-4 w-3/4 bg-black/10 rounded" />
+                        <div className="h-3 w-1/2 bg-black/5 rounded" />
+                      </div>
                     ))}
                   </div>
                 )}
                 {!cargandoProductos && productos.length === 0 && (
-                  <div className="px-3 py-2 text-xs text-red-400 font-bold text-center">
-                    No se encontraron productos para "{codigoBusqueda}"
+                  <div className="px-4 py-10 text-center flex flex-col items-center gap-3">
+                    <div className="w-14 h-14 rounded-full bg-gray-50 flex items-center justify-center text-gray-300">
+                      <BuscadorIcono size={28} color={"var(--primary)"} />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30">
+                      No se encontraron coincidencias
+                    </span>
                   </div>
                 )}
                 {!cargandoProductos &&
@@ -74,31 +87,39 @@ const BusquedaProducto = ({
                     const isHighlighted = index === highlightedIndex;
                     const stockClass =
                       p.stock > 0
-                        ? "text-emerald-700 bg-emerald-700/10"
-                        : "text-red-700 bg-red-700/10";
+                        ? "text-emerald-600 bg-emerald-50"
+                        : "text-rose-600 bg-rose-50";
                     return (
                       <div
                         id={`prod-search-item-${index}`}
                         key={p.codigoSecuencial || index}
                         onMouseEnter={() => setHighlightedIndex(index)}
                         onMouseDown={(e) => {
-                          e.preventDefault(); // Evita el blur del input
+                          e.preventDefault();
                           agregarItem(p, 1);
                           setMostrarDropdownProducto(false);
                         }}
-                        className={`px-3 py-3 border-b border-[var(--border-subtle)] last:border-0 cursor-pointer rounded  group ${isHighlighted ? "bg-[var(--surface-hover)] border-l-2 border-l-[var(--primary)]" : "hover:bg-[var(--surface-hover)]"}`}
+                        className={`px-4 py-3.5 cursor-pointer rounded-md transition-all border border-transparent ${isHighlighted ? "bg-[var(--primary)]/10! text-black shadow-lg shadow-black/10 scale-[1.01]" : "hover:bg-black/[0.03]"}`}
                       >
-                        <div className="flex justify-between items-start">
-                          <div className="flex flex-col">
-                            <span className="font-black text-sm text-black ">
+                        <div className="flex justify-between items-center">
+                          <div className="flex flex-col gap-1">
+                            <span
+                              className={`font-black text-[14px] uppercase tracking-tight text-[var(--primary)]`}
+                            >
                               {p.nombre}
                             </span>
-                            <span className="text-[12px] text-[var(--text-muted)]/70 mt-0.5 whitespace-normal break-words line-clamp-2">
-                              {p.descripcion || "Sin Descripción"}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`text-[10px] font-bold text-[var(--primary)]/70! uppercase tracking-widest`}
+                              >
+                                {p.descripcion || "ITEM GENERAL"}
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex flex-col items-end gap-1">
-                            <span className="text-[13px] font-black text-[var(--primary-light)]">
+                          <div className="flex flex-col items-end gap-2">
+                            <span
+                              className={`text-[17px] font-black ${isHighlighted ? "text-[var(--primary)]" : "text-black"}`}
+                            >
                               $
                               {getPrecio(
                                 p,
@@ -108,52 +129,15 @@ const BusquedaProducto = ({
                               })}
                             </span>
                             <span
-                              className={`text-[12px] font-black px-1.5 py-0.5 rounded ${stockClass}`}
+                              className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${stockClass}`}
                             >
-                              Stock: {p.stock || 0}
+                              {p.stock > 0 ? `Stock: ${p.stock}` : "Sin Stock"}
                             </span>
                           </div>
                         </div>
                       </div>
                     );
                   })}
-
-                {/* OPCIÓN: ITEM MANUAL */}
-                {codigoBusqueda.length > 0 && (
-                  <div
-                    id={`prod-search-item-${productos.length}`}
-                    onMouseEnter={() => setHighlightedIndex(productos.length)}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      const prodManual = {
-                        id: `manual-${Date.now()}`,
-                        codigoSecuencial: `M-${Date.now().toString().slice(-4)}`,
-                        nombre: codigoBusqueda.toUpperCase(),
-                        descripcion: "ITEM MANUAL / SERVICIO",
-                        precioVenta: 0,
-                        stock: 0,
-                        manual: true,
-                      };
-                      agregarItem(prodManual, 1);
-                      setMostrarDropdownProducto(false);
-                    }}
-                    className={`px-3 py-3 border-t border-[var(--border-subtle)] cursor-pointer rounded  group ${highlightedIndex === productos.length ? "bg-emerald-700/10 border-l-2 border-l-emerald-700" : "hover:bg-emerald-700/5"}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded bg-emerald-700/20 flex items-center justify-center text-emerald-700">
-                        <AgregarIcono size={14} />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="font-black text-xs text-emerald-400 uppercase tracking-widest">
-                          Usar como item manual
-                        </span>
-                        <span className="text-[12px] text-black/40 font-bold truncate max-w-[200px]">
-                          "{codigoBusqueda}"
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </div>

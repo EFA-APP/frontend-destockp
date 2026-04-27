@@ -514,8 +514,18 @@ export const useComprobantes = () => {
       });
       return;
     }
+
+    if (condicionVenta === "contado" && listaPagos.length === 0) {
+      agregarAlerta({
+        title: "Pago requerido",
+        message: "Debe registrar al menos un pago para ventas al contado",
+        type: "warning",
+      });
+      return;
+    }
+
     setMostrarPreview(true);
-  }, [cart.items.length, agregarAlerta]);
+  }, [cart.items.length, condicionVenta, listaPagos.length, agregarAlerta]);
 
   const confirmarVentaFinal = useCallback(async () => {
     if (mutationGenerar.isPending) return;
@@ -561,7 +571,7 @@ export const useComprobantes = () => {
         const pUnit = r2(item.precioUnitario || item.precioVenta);
         const cant = Number(item.cantidad);
         return {
-          codigoProducto: Number(item.id_producto || item.id) || undefined,
+          codigoProducto: Number(item.codigoSecuencial || item.id_producto || item.id) || undefined,
           nombre: item.nombre || item.descripcion,
           cantidad: cant,
           precioUnitario: pUnit,
