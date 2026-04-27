@@ -58,21 +58,15 @@ const ModalConfirmacionCobro = ({
         )}
 
         {/* Header del Drawer */}
-        <div className="p-8 border-b border-black/5 bg-white flex justify-between items-center shrink-0">
+        <div className="p-5 bg-[var(--primary)]/10 border-b border-[var(--primary)]/10  flex justify-between items-center shrink-0">
           <div>
             <h2 className="text-xl font-black text-[var(--primary)] uppercase tracking-tighter leading-none">
               Confirmar Venta
             </h2>
-            <div className="flex items-center gap-2.5 mt-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
-              <p className="text-[12px] text-rose-500/80 font-black uppercase tracking-[0.2em]">
-                Resumen Final de Operación
-              </p>
-            </div>
           </div>
           <button
             onClick={() => setMostrarPreview(false)}
-            className="w-12 h-12 flex items-center justify-center hover:bg-rose-50 rounded-full text-[var(--primary)]/20 hover:text-[var(--primary)] transition-all group"
+            className="w-8 h-8 flex items-center justify-center bg-[var(--primary)]/20 rounded-md text-[var(--primary)]/80 border border-[var(--primary)]/80 hover:text-[var(--primary)] transition-all group"
             title="Cerrar vista previa"
           >
             <CerrarIcono
@@ -83,7 +77,7 @@ const ModalConfirmacionCobro = ({
         </div>
 
         {/* Cuerpo del Resumen */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-10">
+        <div className="flex-1 overflow-y-auto custom-scrollbar   p-2 md:p-8  space-y-10">
           {/* 1. SECCIÓN: DETALLE DE ITEMS (Estilo Ticket) */}
           <section className="space-y-5">
             <div className="flex items-center gap-3 text-[var(--primary)]/80 px-2">
@@ -108,10 +102,7 @@ const ModalConfirmacionCobro = ({
                       </span>
                     </span>
                     <span className="text-[11px] text-[var(--primary)]/50 font-black uppercase tracking-[0.1em]">
-                      P. Unitario: $
-                      {item.precioUnitario.toLocaleString("es-AR", {
-                        minimumFractionDigits: 2,
-                      })}
+                      {item.descripcion}
                     </span>
                   </div>
                   <div className="text-right">
@@ -148,9 +139,6 @@ const ModalConfirmacionCobro = ({
               </span>
             </div>
             <div className="bg-rose-50/30 border border-rose-100 rounded-2xl p-6 flex flex-col gap-2 shadow-sm">
-              <span className="text-[10px] text-rose-500/60 font-black uppercase tracking-[0.2em]">
-                Receptor del Comprobante
-              </span>
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-rose-500 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-rose-500/20">
                   {(clienteSeleccionado?.razonSocial ||
@@ -161,7 +149,7 @@ const ModalConfirmacionCobro = ({
                   <span className="text-[18px] font-black text-[var(--primary)] uppercase block leading-none mb-1">
                     {clienteSeleccionado
                       ? clienteSeleccionado.razonSocial ||
-                        `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}`
+                      `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}`
                       : "Consumidor Final"}
                   </span>
                   <span className="text-[11px] font-bold text-rose-500/40 uppercase tracking-widest">
@@ -271,11 +259,10 @@ const ModalConfirmacionCobro = ({
             <button
               onClick={confirmarVentaFinal}
               disabled={cargandoCobro}
-              className={`w-full h-12 rounded-2xl font-black text-[12px] flex items-center justify-center gap-4 uppercase tracking-[0.15em] transition-all active:scale-[0.98] ${
-                cargandoCobro
-                  ? "bg-gray-100 text-[var(--primary)]/20 cursor-not-allowed"
-                  : "bg-black text-white hover:bg-rose-600 shadow-2xl shadow-black/20 hover:shadow-rose-600/30"
-              }`}
+              className={`w-full h-12 rounded-2xl font-black text-[12px] flex items-center justify-center gap-4 uppercase tracking-[0.15em] transition-all active:scale-[0.98] ${cargandoCobro
+                ? "bg-gray-100 text-[var(--primary)]/20 cursor-not-allowed"
+                : "bg-black text-white hover:bg-rose-600 shadow-2xl shadow-black/20 hover:shadow-rose-600/30"
+                }`}
             >
               {cargandoCobro ? (
                 <div className="flex items-center gap-3">

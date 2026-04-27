@@ -6,7 +6,7 @@ const ContenidoPanel = () => {
       <BarraNavegacion />
 
       {/* CONTENDOR DE VISTAS RELATIVAS */}
-      <div className="flex-1 min-h-[calc(100vh-56px)] overflow-hidden">
+      <div className="flex-1 min-h-[calc(100vh-56px)]">
         <Outlet />
       </div>
     </div>

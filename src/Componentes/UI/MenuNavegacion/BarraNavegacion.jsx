@@ -1,25 +1,16 @@
-import { useState } from "react";
 import {
-  NotificacionesIcono,
   RefrescarIcono,
   CerrarSesionIcono,
-  ConsolaIcono,
 } from "../../../assets/Icons";
 import { useArcaStore } from "../../../store/useArcaStore";
 import { useEffect } from "react";
 
 import { Link } from "react-router-dom";
-// import MenuNotificacion from "../MenuNotificacion/MenuNotificacion";
 import BotonConfiguracion from "../BotonConfiguracion/BotonConfiguracion";
 import { useAuthStore } from "../../../Backend/Autenticacion/store/authenticacion.store";
-import { useSeleccionarUnidad } from "../../../Backend/Autenticacion/queries/Usuario/useSeleccionarUnidad.mutation";
-import { ChevronDown, Building2, Factory, School, Store } from "lucide-react";
-
+import { cerrarSesion } from "../../../Backend/Autenticacion/store/cerrarSesion";
 const BarraNavegacion = () => {
-  const [menuAbiertoNotificacion, setMenuAbiertoNotificacion] = useState(false);
-  const [menuUnidadesAbierto, setMenuUnidadesAbierto] = useState(false);
-  const { usuario, unidadActiva } = useAuthStore();
-  const { mutate: seleccionarUnidad } = useSeleccionarUnidad();
+  const { usuario } = useAuthStore();
   const { conectado, verificarSesion, cargando } = useArcaStore();
 
   // Verificación automática de sesión ARCA (AFIP)
@@ -29,14 +20,22 @@ const BarraNavegacion = () => {
     }
   }, [usuario, verificarSesion]);
 
-  // const toggleNotificacion = () => {
-  //   setMenuAbiertoNotificacion(!menuAbiertoNotificacion);
-  // };
-
   return (
     <header className="sticky top-0 z-[50]">
       <nav className="px-5 bg-[var(--fill)] border-b border-[var(--border-subtle)] h-14 flex items-center justify-between">
-        <div className="flex-1 flex items-center">{/* Logo Mobile */}</div>
+        <Link to="/" className=" flex relative group/logo flex items-center gap-3 md:hidden">
+          {usuario?.configuracionVisual?.logoUrl ? (
+            <img
+              alt="logo"
+              className="w-10 h-10 rounded-full border border-[var(--border-subtle)] shadow-md object-contain bg-[var(--surface)] p-1 group-hover/logo:scale-105 transition-transform"
+              src={usuario?.configuracionVisual?.logoUrl}
+            />
+          ) : (
+            <div className="flex items-center justify-center w-12 h-12 rounded-full border border-[var(--primary)]/20 shadow-lg bg-gradient-to-br from-[var(--primary)] to-[var(--primary-emphasis)] text-white group-hover/logo:scale-105 transition-transform">
+              <Icons.ConsolaIcono size={22} color="white" />
+            </div>
+          )}
+        </Link>
 
         <div className="flex-1"></div>
 
@@ -44,7 +43,7 @@ const BarraNavegacion = () => {
           {/* ARCA STATUS */}
           {(usuario?.conexionArca || usuario?.configuracionArca?.activo) && (
             <div
-              className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[var(--surface-hover)] border border-[var(--border-subtle)] group"
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md bg-[var(--surface-hover)] border border-[var(--border-subtle)] group"
               title={
                 conectado
                   ? "Sesión ARCA Activa"
@@ -83,12 +82,12 @@ const BarraNavegacion = () => {
             <div className="flex-col items-end flex">
               <span className="text-[13px] font-bold text-[var(--text-primary)] leading-none">
                 {`${usuario.nombre.toUpperCase()} ${usuario.apellido.toUpperCase()} `}{" "}
-                <span className="text-[13px] text-[var(--primary-light)] font-bold uppercase tracking-widest">
+                <span className="hidden sm:inline text-[13px] text-[var(--primary-light)] font-bold uppercase tracking-widest">
                   {!usuario.conexionArca
                     ? ""
                     : "(" +
-                      usuario.datosFiscales?.condicionIva?.toUpperCase() +
-                      ")"}
+                    usuario.datosFiscales?.condicionIva?.toUpperCase() +
+                    ")"}
                 </span>
               </span>
               <div className="flex items-center gap-2 mt-1">
@@ -104,6 +103,13 @@ const BarraNavegacion = () => {
           {/* CONFIGURACION */}
           <div className="flex items-center gap-4 ml-2">
             <BotonConfiguracion />
+          </div>
+
+          {/* CERRAR SESION */}
+          <div onClick={async () => {
+            await cerrarSesion();
+          }} className="flex items-center justify-center w-8 h-8 rounded-md bg-red-500/20 border border-red-500/50 group md:hidden ">
+            <CerrarSesionIcono size={18} color="rgb(239 68 68)" />
           </div>
         </div>
       </nav>

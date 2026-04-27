@@ -1,11 +1,3 @@
-import React from "react";
-
-const estadoStyle = {
-  pagada: "bg-green-700/20 text-green-400 border-green-400/30",
-  pendiente: "bg-yellow-700/20 text-yellow-400 border-yellow-400/30",
-  vencida: "bg-red-700/20 text-red-400 border-red-400/30",
-};
-
 export const columnasComprobantes = [
   {
     key: "numeroComprobante",
@@ -46,11 +38,11 @@ export const columnasComprobantes = [
 
             {/* BADGES DE ESTADO (ANULACIÓN/AJUSTE) */}
             {fila.estado === "ANULADO" ? (
-              <div className="text-[11px] font-black uppercase tracking-wider px-2 py-0.5 border rounded-md whitespace-nowrap bg-red-700/10 text-red-700 border-red-700/30">
+              <div className="text-[11px]  uppercase tracking-wider px-2 py-0.5 border rounded-md whitespace-nowrap bg-red-700/10 text-red-700 border-red-700/30">
                 ANULADO
               </div>
             ) : fila.estado === "AJUSTADO_PARCIAL" ? (
-              <div className="text-[11px] font-black uppercase tracking-wider px-2 py-0.5 border rounded-md whitespace-nowrap bg-amber-700/10 text-amber-700 border-amber-700/30">
+              <div className="text-[11px] uppercase tracking-wider px-2 py-0.5 border rounded-md whitespace-nowrap bg-amber-700/10 text-amber-700 border-amber-700/30">
                 PARCIAL
               </div>
             ) : (
@@ -60,9 +52,8 @@ export const columnasComprobantes = [
                     ? "Comprobante Fiscal (AFIP)"
                     : "Comprobante Interno"
                 }
-                className={`w-1.5 h-1.5 rounded-full ${
-                  fila.fiscal ? "bg-emerald-700" : "bg-blue-400"
-                }`}
+                className={`w-1.5 h-1.5 rounded-full ${fila.fiscal ? "bg-emerald-700" : "bg-blue-400"
+                  }`}
               ></div>
             )}
           </div>
@@ -81,7 +72,7 @@ export const columnasComprobantes = [
         <span className="text-[15px] font-bold text-black/80">
           {new Date(valor).toLocaleDateString("es-AR")}
         </span>
-        <span className="text-[12px] text-[var(--primary-light)] font-medium uppercase mt-1">
+        <span className="text-[12px] text-[var(--primary)]/70 font-medium uppercase mt-1">
           {new Date(valor).toLocaleTimeString("es-AR", {
             hour: "2-digit",
             minute: "2-digit",
@@ -108,7 +99,7 @@ export const columnasComprobantes = [
         },
         5: {
           label: "CF",
-          style: "bg-zinc-700/10 text-zinc-400 border-zinc-700/20",
+          style: "bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]",
         },
         6: {
           label: "Exento",
@@ -118,13 +109,13 @@ export const columnasComprobantes = [
 
       const iva = configIva[idIva] || {
         label: "S/D",
-        style: "bg-zinc-800 text-zinc-700 border-zinc-700",
+        style: "bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]",
       };
 
       return (
         <div className="flex flex-col py-1 group/receptor">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-black text-black uppercase tracking-tight italic group-hover/receptor:text-[var(--primary)] ">
+            <span className=" hidden md:flex text-sm font-black text-black uppercase tracking-tight italic group-hover/receptor:text-[var(--primary)] ">
               {valor?.razonSocial || "CONSUMIDOR FINAL"}
             </span>
             <span
@@ -133,15 +124,18 @@ export const columnasComprobantes = [
               {iva.label}
             </span>
           </div>
-          <div className="flex items-center gap-1.5 opacity-40">
-            <span className="text-[12px] font-bold">
-              {valor?.DocTipo === 80 ? "CUIT" : "DNI"}
-            </span>
-            <div className="w-1 h-1 rounded-full bg-white/30" />
-            <span className="text-[12px] font-medium tracking-wider">
-              {valor?.DocNro || "0"}
-            </span>
-          </div>
+          {/* Si existe valorDocTipo y valorDocNro se muestra el  */}
+          {valor?.valorDocTipo && valor?.valorDocNro && (
+            <div className="flex items-center gap-1.5 opacity-40">
+              <span className="text-[12px] font-bold">
+                {valor?.valorDocTipo === 80 ? "CUIT" : "DNI"}
+              </span>
+              <div className="w-1 h-1 rounded-full bg-white/30" />
+              <span className="text-[12px] font-medium tracking-wider">
+                {valor?.DocNro || "0"}
+              </span>
+            </div>
+          )}
         </div>
       );
     },
@@ -150,7 +144,7 @@ export const columnasComprobantes = [
     key: "total",
     etiqueta: "Total Bruto",
     renderizar: (valor) => (
-      <div className="flex flex-col items-end px-4">
+      <div className="flex flex-col items-start  md:items-end px-4">
         <span className="font-black text-blue-400 text-sm tracking-tighter">
           ${Number(valor).toLocaleString("es-AR", { minimumFractionDigits: 2 })}
         </span>
@@ -177,8 +171,8 @@ export const columnasComprobantes = [
 
       if (!esCtaCte && saldo <= 0)
         return (
-          <div className="flex flex-col items-end px-4 opacity-20">
-            <span className="text-[12px] font-black uppercase tracking-widest text-black/50">
+          <div className="flex flex-col items-end px-4">
+            <span className="text-[12px] font-black uppercase tracking-widest text-[var(-primary)]">
               Contado
             </span>
           </div>

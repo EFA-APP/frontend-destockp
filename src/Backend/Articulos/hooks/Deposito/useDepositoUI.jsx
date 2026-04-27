@@ -55,50 +55,15 @@ export const useDepositoUI = (filtros = {}) => {
     );
   }, [query.data, busqueda]);
 
-  // Procesamiento de datos para la matriz de stock (Recorriendo Productos)
+  // Procesamiento de datos para la matriz de stock (Uso directo de stockPorDeposito)
   const matrizStock = useMemo(() => {
-    // Manejar tanto { data: [] } como [] directamente por seguridad
     const rawData = queryStock.data;
-    const data = Array.isArray(rawData)
+    return Array.isArray(rawData)
       ? rawData
       : Array.isArray(rawData?.data)
         ? rawData.data
         : [];
-
-    const productosMap = {};
-
-    data.forEach((producto) => {
-      const prodCodigo = producto.codigoSecuencial;
-      if (!prodCodigo) return;
-
-      if (!productosMap[prodCodigo]) {
-        productosMap[prodCodigo] = {
-          ...producto,
-          codigoProducto:
-            filtros?.tipoArticulo === "MATERIA_PRIMA" ? undefined : prodCodigo,
-          codigoMateriaPrima:
-            filtros?.tipoArticulo === "MATERIA_PRIMA" ? prodCodigo : undefined,
-        };
-      }
-
-      // El backend puede devolver stockPorDeposito o stockProductos dependiendo de la entidad
-      const stocks = producto.stockPorDeposito || producto.stockProductos || [];
-
-      stocks.forEach((sp) => {
-        // Fallback para el código de depósito (ID secuencial)
-        const depCodigo = sp.codigoDeposito || sp.deposito?.codigoSecuencial;
-
-        if (depCodigo !== undefined && depCodigo !== null) {
-          const key = `dep_${depCodigo}`;
-          const valorStock = Number(sp.stock || 0);
-          productosMap[prodCodigo][key] =
-            (productosMap[prodCodigo][key] || 0) + valorStock;
-        }
-      });
-    });
-
-    return Object.values(productosMap);
-  }, [queryStock.data, filtros?.tipoArticulo]);
+  }, [queryStock.data]);
 
   return {
     depositos: depositosFiltrados,

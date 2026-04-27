@@ -1,5 +1,7 @@
 import { LogOut, UserCheck, ShieldCheck } from "lucide-react";
 import { usePermisosDeUsuario } from "../../../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
+import { UsuarioIcono } from "../../../assets/Icons";
+import { cerrarSesion } from "../../../Backend/Autenticacion/store/cerrarSesion";
 
 const Bienvenida = () => {
   const { usuario } = usePermisosDeUsuario();
@@ -22,25 +24,24 @@ const Bienvenida = () => {
           <span className="bg-gradient-to-r from-[var(--primary)] to-amber-700 bg-clip-text text-transparent">{`${usuario?.nombre.toUpperCase()} ${usuario?.apellido.toUpperCase()}`}</span>
           !
         </h1>
-        <p className="text-[14px] md:text-sm text-[var(--text-secondary)] font-medium mt-3 max-w-md leading-relaxed">
+        <p className="text-[13px] md:text-md text-[var(--text-secondary)] font-medium mt-3 max-w-md leading-relaxed">
           Bienvenido de vuelta al{" "}
           <span className="text-[var(--primary)] font-black">SISTEMA</span>.
           ¿Qué operación deseas realizar hoy en el sistema?
         </p>
 
         {/* Información de Sesión */}
-        <p className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider font-bold mt-8 flex items-center gap-1.5">
-          <UserCheck size={12} className="text-[var(--primary)]" /> Rol Activo:{" "}
+        <p className="text-[12px] text-[var(--text-secondary)] uppercase tracking-wider font-bold mt-8 flex items-center gap-1.5">
+          <UsuarioIcono size={16} color={"var(--secondary)"} /> Rol Activo:{" "}
           {usuario?.roles?.map((rol) => rol.nombre).join(", ") || "Operador"}
         </p>
 
         {/* Botón Salir */}
         <button
-          onClick={() => {
-            window.localStorage.clear();
-            window.location.reload();
+          onClick={async () => {
+            await cerrarSesion();
           }}
-          className="flex items-center gap-2 mt-4 px-5 py-2 rounded-xl text-[12px] font-bold text-[var(--text-muted)] hover:text-black uppercase tracking-wider  hover:bg-[var(--surface-hover)] border border-transparent hover:border-[var(--border-subtle)] cursor-pointer active:scale-95"
+          className="flex items-center bg-red-500/10 text-red-500 gap-2 mt-4 px-5 py-2 rounded-md text-[12px] font-bold  hover:text-red-500/80 uppercase tracking-wider  border border-red-500/60  cursor-pointer hover:scale-105"
         >
           <LogOut size={12} /> Cerrar Sesión
         </button>

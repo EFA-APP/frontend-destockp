@@ -15,10 +15,11 @@ const HistorialStockPage = () => {
     <ContenedorSeccion>
       <section className="relative overflow-hidden">
         <EncabezadoSeccion
-          ruta={`Inventario / Historial de ${tipo === "PRODUCTO" ? "Productos" : "Materia Prima"}`}
+          ruta={"MOVIMIENTOS"}
           icono={<HistorialIcono size={22} className="text-amber-700" />}
           volver={true}
           redireccionAnterior={-1}
+          subTitulo={`${tipo === "PRODUCTO" ? "PRODUCTOS" : "MATERIA PRIMA"}`}
         />
         <ListaMovimientos
           key={tipo}

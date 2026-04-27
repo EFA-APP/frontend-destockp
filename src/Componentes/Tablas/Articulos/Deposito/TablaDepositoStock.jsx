@@ -43,6 +43,7 @@ const TablaDepositoStock = ({ tipoArticulo = "PRODUCTO", titulo }) => {
     tipoArticulo,
   });
 
+
   const [drawerData, setDrawerData] = React.useState({
     isOpen: false,
     fila: null,
@@ -94,9 +95,9 @@ const TablaDepositoStock = ({ tipoArticulo = "PRODUCTO", titulo }) => {
           {/* Buscador integrado en DataTable */}
         </div>
 
-        <div className="p-0 md:p-4">
+        <div className="p-2">
           {/* Desktop View: DataTable */}
-          <div className="hidden md:block">
+          <div className="block">
             <DataTable
               id_tabla={`stock_deposito_${tipoArticulo.toLowerCase()}`}
               columnas={columnasStock}
@@ -121,201 +122,8 @@ const TablaDepositoStock = ({ tipoArticulo = "PRODUCTO", titulo }) => {
               onLimitChange={(l) =>
                 setFiltros((prev) => ({ ...prev, limite: l, pagina: 1 }))
               }
+              todasExpandidas={true}
             />
-          </div>
-
-          {/* Mobile View: Premium Designed Cards (REFINED CLARITY & SIZE) */}
-          <div className="md:hidden flex flex-col gap-5 p-4 pb-28">
-            {/* Buscador Mobile */}
-            <div className="flex flex-col gap-3 bg-[#181818]/60 backdrop-blur-md p-4 rounded-2xl border border-black/5 shadow-xl">
-              <div className="flex gap-2">
-                <select
-                  value={busquedaClave}
-                  onChange={(e) => setBusquedaClave(e.target.value)}
-                  className="bg-black/40 border border-black/10 rounded-xl px-3 py-2 text-xs font-bold text-black/80 focus:outline-none focus:border-[var(--primary)]/50 appearance-none cursor-pointer"
-                >
-                  <option value="nombre" className="bg-[#181818]">
-                    Nombre
-                  </option>
-                  <option value="codigo" className="bg-[#181818]">
-                    Código
-                  </option>
-                </select>
-                <div className="relative flex-1">
-                  <Search
-                    size={14}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-black/30"
-                  />
-                  <input
-                    type="text"
-                    value={busquedaInput}
-                    onChange={(e) => setBusquedaInput(e.target.value)}
-                    placeholder="Escribe para buscar..."
-                    className="w-full bg-black/30 border border-black/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-black focus:outline-none focus:border-[var(--primary)]/50  font-medium placeholder:text-black/20"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {cargandoStock ? (
-              <div className="flex flex-col gap-4">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <SkeletonFilaTabla key={i} />
-                ))}
-              </div>
-            ) : matrizStock.length > 0 ? (
-              matrizConAcciones.map((row, idx) => (
-                <div
-                  key={idx}
-                  className="bg-[#181818] rounded-2xl border border-black/10 overflow-hidden shadow-2xl flex flex-col    "
-                  style={{ animationDelay: `${idx * 50}ms` }}
-                >
-                  {/* Product Identity Header */}
-                  <div className="p-4 bg-gradient-to-br from-white/[0.06] to-transparent border-b border-black/5">
-                    <div className="flex items-start justify-between gap-4 mb-2">
-                      <div className="flex flex-col gap-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-mono font-black text-[var(--primary)] px-1.5 py-0.5 bg-[var(--primary)]/10 rounded border border-[var(--primary)]/30 shadow-sm uppercase tracking-tighter">
-                            {(row.codigoProducto || row.codigoMateriaPrima)
-                              ?.toString()
-                              .padStart(4, "0") || "N/A"}
-                          </span>
-                          <span className="text-[11px] font-black text-black/60 uppercase tracking-widest bg-black/10 px-1.5 py-0.5 rounded border border-black/5">
-                            {row.unidadMedida}
-                          </span>
-                        </div>
-                        <h3 className="text-[18px] font-black text-black leading-[1.2] tracking-tight break-words">
-                          {row.nombre}
-                        </h3>
-                        <span className="text-[11px] font-black text-black/60 uppercase tracking-widest py-0.5 flex justify-start items-center gap-2">
-                          <ChevronRight
-                            size={14}
-                            className={` text-[var(--primary-light)] group-hover:translate-x-1`}
-                          />
-                          <p className="text-black/60">{row.descripcion}</p>
-                        </span>
-                      </div>
-                      <div className="shrink-0">
-                        <div className="w-10 h-10 rounded-xl bg-black/5 flex items-center justify-center border border-black/10 shadow-inner text-[var(--primary)]/60">
-                          <Package size={20} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Warehouse Breakdown */}
-                  <div className="p-3 bg-black/30 flex flex-col gap-1.5">
-                    <div className="px-1 mb-1">
-                      <span className="text-[11px] font-black text-black/40 uppercase tracking-[0.2em] flex items-center gap-2">
-                        <div className="w-4 h-[1px] bg-black/20" />
-                        Existencias
-                      </span>
-                    </div>
-
-                    {columnasStock
-                      .filter(
-                        (col) =>
-                          col.key !== "codigoSecuencial" &&
-                          col.key !== "nombre" &&
-                          col.key !== "nombreArticulo" &&
-                          col.key !== "unidadMedida" &&
-                          col.key !== "acciones_stock" &&
-                          col.key !== "total",
-                      )
-                      .map((col, cIdx) => {
-                        const stock = row[col.key] || 0;
-                        const tieneStock = stock > 0;
-                        return (
-                          <div
-                            key={cIdx}
-                            onClick={() => {
-                              const depId = col.key.startsWith("dep_")
-                                ? col.key.split("_")[1]
-                                : null;
-                              if (depId) row.onActualizarStock(row, depId);
-                            }}
-                            className={`group flex items-center justify-between p-3.5 rounded-xl cursor-pointer   active:scale-[0.98] ${
-                              tieneStock
-                                ? "bg-black/5 border border-black/10 shadow-sm"
-                                : "bg-white/[0.02] border border-transparent opacity-80"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3 min-w-0 flex-1">
-                              <div
-                                className={`w-1.5 h-1.5 rounded-full shrink-0 ${tieneStock ? "bg-emerald-700 shadow-[0_0_10px_rgba(16,185,129,0.8)]" : "bg-black/10"}`}
-                              />
-                              <span
-                                className={`text-[14px] font-black uppercase tracking-wider truncate  ${tieneStock ? "text-black" : "text-black/80"}`}
-                              >
-                                {col.etiqueta || col.header}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <div className="flex flex-col items-end">
-                                <span
-                                  className={`text-[18px] font-black tabular-nums  leading-none ${tieneStock ? "text-emerald-400" : "text-black/10"}`}
-                                >
-                                  {stock}
-                                </span>
-                              </div>
-                              <ChevronRight
-                                size={14}
-                                className={` ${tieneStock ? "text-emerald-700 group-hover:translate-x-1" : "text-black/5"}`}
-                              />
-                            </div>
-                          </div>
-                        );
-                      })}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="py-24 flex flex-col items-center justify-center opacity-20 text-center px-10">
-                <Package
-                  size={64}
-                  strokeWidth={1}
-                  className="mb-4 text-[var(--primary)]"
-                />
-                <span className="text-sm font-black uppercase tracking-[0.3em] text-black">
-                  No se registraron productos
-                </span>
-                <p className="text-[12px] mt-2 normal-case font-medium text-black/60">
-                  Ajusta los filtros para ver resultados
-                </p>
-              </div>
-            )}
-
-            {/* Paginación Mobile */}
-            {meta && (
-              <div className="flex flex-col items-center gap-3 mt-4 pt-4 border-t border-black/5">
-                <p className="text-[12px] font-bold text-black/40 uppercase tracking-widest">
-                  Total: {meta.total} registros
-                </p>
-                <div className="flex items-center gap-1.5 bg-[#181818] border border-black/10 rounded-lg p-1">
-                  <button
-                    disabled={!meta.prev}
-                    onClick={() =>
-                      setFiltros((prev) => ({ ...prev, pagina: meta.prev }))
-                    }
-                    className="p-1 rounded text-black/60 hover:bg-black/5 disabled:opacity-30  font-bold text-[13px] px-3"
-                  >
-                    Anterior
-                  </button>
-                  <span className="text-[13px] font-black text-black px-2">
-                    {meta.currentPage} / {meta.lastPage || 1}
-                  </span>
-                  <button
-                    disabled={!meta.next}
-                    onClick={() =>
-                      setFiltros((prev) => ({ ...prev, pagina: meta.next }))
-                    }
-                    className="p-1 rounded text-black/60 hover:bg-black/5 disabled:opacity-30  font-bold text-[13px] px-3"
-                  >
-                    Siguiente
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>

@@ -296,15 +296,13 @@ const FormularioDinamico = ({
         ? field.readOnly(formData)
         : field.readOnly;
 
-    const commonClasses = `w-full px-5 py-3 md:px-4 md:py-2.5 rounded-xl! border   bg-[var(--surface-hover)]/20! backdrop-blur-md! shadow-sm ${
-      errors[field.name]
-        ? "border-red-700/40! focus:ring-red-700/10!"
-        : "border-[var(--border-medium)]/40! border-[var(--primary)]/30! focus:ring-[var(--primary)]/10!"
-    } focus:ring-4! focus:outline-none placeholder-[var(--text-muted)] ${
-      isReadOnly
+    const commonClasses = `w-full px-5 py-3 md:px-4 md:py-2.5 rounded-xl! border   bg-[var(--surface-hover)]/20! backdrop-blur-md! shadow-sm ${errors[field.name]
+      ? "border-red-700/40! focus:ring-red-700/10!"
+      : "border-[var(--border-medium)]/40! border-[var(--primary)]/30! focus:ring-[var(--primary)]/10!"
+      } focus:ring-4! focus:outline-none placeholder-[var(--text-muted)] ${isReadOnly
         ? "cursor-not-allowed opacity-60"
         : "hover:border-[var(--border-medium)]/80 hover:bg-[var(--surface-hover)]/40!"
-    } ${formData[field.name] || field.defaultValue ? "text-[var(--secondary)]! font-bold!" : "text-[var(--text-primary)]!"}`;
+      } ${formData[field.name] || field.defaultValue ? "text-[var(--secondary)]! font-bold!" : "text-[var(--text-primary)]!"}`;
 
     switch (field.type) {
       case "textarea":
@@ -595,8 +593,8 @@ const FormularioDinamico = ({
                     itemField.type === "number"
                       ? formatNumber(currentItem[itemField.name])
                       : currentItem[itemField.name] ||
-                        itemField.defaultValue ||
-                        ""
+                      itemField.defaultValue ||
+                      ""
                   }
                   onChange={(e) =>
                     handleItemChange(
@@ -730,7 +728,7 @@ const FormularioDinamico = ({
   return (
     <div className="w-full bg-[var(--surface)] rounded-md! shadow-md overflow-hidden">
       {/* Header */}
-      <div className="relative bg-[var(--primary)]/10 px-8 py-4 md:flex md:flex-col md:items-center md:justify-center border-b border-[var(--border-subtle)]">
+      <div className="hidden relative bg-[var(--primary)]/10 px-6 py-4 md:flex md:flex-col md:items-center md:justify-center  border-b border-[var(--border-subtle)]">
         <h2 className="text-xl md:text-3xl font-bold text-[var(--text-primary)] tracking-tight">
           {titulo}
         </h2>
@@ -755,9 +753,8 @@ const FormularioDinamico = ({
               )}
 
               <div
-                className={`grid grid-cols-1 ${
-                  sectionFields[0]?.cols || "md:grid-cols-2"
-                } gap-4`}
+                className={`grid grid-cols-1 ${sectionFields[0]?.cols || "md:grid-cols-2"
+                  } gap-4`}
               >
                 {sectionFields.map((field) => {
                   // Soporte para ocultar campos dinámicamente

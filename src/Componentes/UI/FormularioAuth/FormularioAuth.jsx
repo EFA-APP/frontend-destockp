@@ -18,8 +18,6 @@ const iconosPorCampo = {
 };
 
 const FormularioAuth = ({
-  titulo,
-  descripcion,
   campos,
   onSubmit,
   cargando = false,
@@ -40,7 +38,7 @@ const FormularioAuth = ({
   };
 
   return (
-    <div className="min-h-screen flex bg-[var(--primary)] text-black overflow-hidden font-[Inter]">
+    <div className="min-h-screen flex bg-[var(--primary)] text-black overflow-hidden ">
       {/* PANEL IZQUIERDO: VISUAL / BRANDING */}
       <div className="hidden md:flex flex-1 relative flex-col justify-between p-16 bg-[var(--surface-active)] border-r border-[var(--border-subtle)] to-[#FF007F]/10 overflow-hidden border-r border-[var(--border-subtle)]">
         {/* Glows decorativos */}
@@ -99,7 +97,7 @@ const FormularioAuth = ({
         </div>
       </div>
       {/* PANEL DERECHO: FORMULARIO */}
-      <div className="flex-1 flex items-center justify-center p-8 md:p-20 relative bg-[var(--surface-active)]">
+      <div className="flex-1 flex items-center justify-center p-1 md:p-20 relative bg-[var(--surface-active)]">
         {/* Glow decorativo de fondo dinámico */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FF007F]/20 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[var(--primary)]/30 rounded-full blur-[100px] pointer-events-none" />
@@ -112,17 +110,17 @@ const FormularioAuth = ({
           w-full max-w-md 
           bg-[var(--surface)]/90 backdrop-blur-xl
           border border-[var(--border-subtle)] 
-          rounded-[32px] 
+          rounded-md 
           shadow-[0_40px_80px_-20px_rgba(0,0,0,0.12),0_0_20px_rgba(255,0,127,0.02)] 
-          p-10 md:p-14
+          p-6 md:p-8
           relative z-10
           transition-all duration-500
           hover:border-[var(--primary)]/20
         "
         >
           {/* Header del Formulario (Iconic Style) */}
-          <div className="mb-12 flex flex-col items-center">
-            <div className="text-center mt-8">
+          <div className="mb-2 flex flex-col items-center">
+            <div className="text-center mt-2">
               <div className="inline-flex items-center gap-2 bg-[#FF007F]/10 px-3 py-1.5 rounded-full mb-3 border border-[#FF007F]/10">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#FF007F] animate-pulse" />
                 <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#FF007F]">
@@ -135,7 +133,7 @@ const FormularioAuth = ({
           <form onSubmit={handleSubmit} className="space-y-6">
             {campos.map((campo) => (
               <div key={campo.name} className="relative group">
-                <label className="block text-[11px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-2.5 group-focus-within:text-[#FF007F] transition-colors ml-1">
+                <label className="block text-[11px] font-black uppercase tracking-widest text-[var(--text-theme)]/75 mb-2.5 group-focus-within:text-[#FF007F] transition-colors ml-2">
                   {campo.label}
                 </label>
 
@@ -148,7 +146,7 @@ const FormularioAuth = ({
                     inputMode={campo.inputMode}
                     maxLength={campo.maxLength}
                     className="
-                    w-full h-14
+                    w-full h-12
                     rounded-md
                     bg-[var(--surface-active)]
                     border border-[var(--border-medium)]
@@ -218,10 +216,11 @@ const FormularioAuth = ({
               w-full h-14 mt-6
               flex items-center justify-center
               rounded-2xl
-              bg-gradient-to-r from-[#FF007F] to-[#FF007F]
-              text-white text-[13px] font-black tracking-[0.2em] uppercase
-              shadow-[0_12px_24px_-8px_rgba(255,0,127,0.5)]
-              hover:shadow-[0_20px_32px_-8px_rgba(255,0,127,0.6)]
+              bg-[var(--fucsia)]/20
+              border border-[var(--fucsia)]/50 
+              text-[var(--fucsia)] text-[13px] font-bold tracking-[0.2em] uppercase
+              shadow-[0_12px_24px_-8px_rgba(255,0,127,0.3)]
+              hover:shadow-[0_20px_32px_-8px_rgba(255,0,127,0.4)]
               hover:-translate-y-1
               active:translate-y-0
               active:scale-[0.98]
@@ -233,7 +232,7 @@ const FormularioAuth = ({
               {cargando ? (
                 <span className="flex items-center gap-3">
                   <svg
-                    className="animate-spin h-5 w-5 text-white"
+                    className="animate-spin h-5 w-5 text-[var(--fucsia)]"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"

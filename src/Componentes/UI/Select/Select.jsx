@@ -18,7 +18,7 @@ const Select = ({ label, valor, setValor, options, className = "" }) => {
             rounded-xl! 
             border 
             border-black/10 
-            bg-zinc-950/40! 
+            bg-[var(--primary)]/20! 
             text-[14px] 
             font-bold 
             text-black/80 

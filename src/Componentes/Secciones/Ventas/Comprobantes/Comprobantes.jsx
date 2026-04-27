@@ -20,7 +20,8 @@ import {
 
 // Sub-componentes
 import BusquedaProducto from "./BusquedaProducto";
-import TablaTicket from "./TablaTicket";
+import DataTable from "../../../UI/DataTable/DataTable";
+import { ColumnasTicket } from "./ColumnasTicket";
 
 const ComprobantesSkeleton = () => (
   <div className="flex-1 flex flex-col md:flex-row overflow-hidden ">
@@ -182,7 +183,7 @@ const Comprobantes = () => {
     window.addEventListener("keydown", handleGlobalKeys);
     return () => window.removeEventListener("keydown", handleGlobalKeys);
   }, [paso, siguientePaso, anteriorPaso, setPaso]);
-  const noopProductoEncontrado = useCallback(() => {}, []);
+  const noopProductoEncontrado = useCallback(() => { }, []);
   const cargandoInicial = cargandoConfigs && items.length === 0;
 
   return (
@@ -195,7 +196,7 @@ const Comprobantes = () => {
       />
 
       {/* 2. SECCIÓN: STEPPER (Progreso) */}
-      <div className="flex items-center justify-between px-4 mb-8 relative max-w-2xl mx-auto w-full">
+      <div className="flex items-center justify-between px-1 mb-2  relative max-w-2xl mx-auto w-full md:px-4  md:mb-8">
         <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-black/5 -translate-y-1/2 z-0" />
         <div
           className="absolute top-1/2 left-0 h-0.5 bg-[var(--primary)] -translate-y-1/2 z-0 transition-all duration-500"
@@ -206,13 +207,12 @@ const Comprobantes = () => {
           <button
             key={s}
             onClick={() => items.length > 0 && setPaso(s)}
-            className={`relative z-10 w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
-              paso === s
-                ? "bg-gray-200 border-[var(--primary)] text-black font-semibold scale-110 shadow-lg shadow-[var(--primary)]/10"
-                : paso > s
-                  ? "bg-emerald-500 border-emerald-500 text-white"
-                  : "bg-[var(--surface)] border-black/10 text-[var(--text-muted)]"
-            }`}
+            className={`relative z-10 w-9 h-9 md:w-10 md:h-10 rounded-md flex items-center justify-center border-2 transition-all duration-300 ${paso === s
+              ? "bg-gray-200 border-[var(--primary)] text-black font-semibold scale-110 shadow-lg shadow-[var(--primary)]/10"
+              : paso > s
+                ? "bg-emerald-500 border-emerald-500 text-white"
+                : "bg-[var(--surface)] border-black/10 text-[var(--text-muted)]"
+              }`}
           >
             {paso > s ? "✓" : s}
             <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] font-black uppercase tracking-widest whitespace-nowrap text-[var(--border-muted)] hidden sm:block">
@@ -232,7 +232,7 @@ const Comprobantes = () => {
       {cargandoInicial ? (
         <ComprobantesSkeleton />
       ) : (
-        <div className="flex-1 flex flex-col overflow-hidden max-w-5xl mx-auto w-full px-4 mt-4">
+        <div className="flex-1 flex flex-col overflow-hidden max-w-5xl mx-auto w-full md:px-4 mt-4">
           {/* PASO 1: AGREGAR PRODUCTOS */}
           {paso === 1 && (
             <div className="flex-1 flex flex-col overflow-y-auto animate-in fade-in slide-in-from-right-4 duration-500 pr-1 pb-20">
@@ -244,7 +244,7 @@ const Comprobantes = () => {
                     </div>
                     <div>
                       <h2 className="text-[14px] font-black text-black uppercase tracking-widest leading-none mb-1">
-                        Captura de productos
+                        Productos
                       </h2>
                       <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
                         Buscador y Carga Manual
@@ -328,13 +328,19 @@ const Comprobantes = () => {
                 )}
               </div>
 
-              <div className="flex-1 bg-white border border-black/5 rounded-md shadow-sm flex flex-col">
-                <TablaTicket
-                  items={items}
-                  actualizarItem={actualizarItem}
-                  eliminarItem={eliminarItem}
-                  calcularSubtotal={calcularTotalItem}
-                  inputCodigoRef={inputCodigoRef}
+              <div className="flex-1 bg-white border border-black/5 rounded-md shadow-sm flex flex-col overflow-hidden">
+                <DataTable
+                  datos={items.map((it, idx) => ({ ...it, _pos: idx }))}
+                  columnas={ColumnasTicket({
+                    actualizarItem,
+                    eliminarItem,
+                    calcularSubtotal: calcularTotalItem,
+                    inputCodigoRef,
+                  })}
+                  mostrarAcciones={false}
+                  emptyMessage="Utilice el buscador para cargar productos al comprobante."
+                  todasExpandidas={true}
+                  llaveTituloMobile="nombre"
                 />
               </div>
 
@@ -709,11 +715,10 @@ const Comprobantes = () => {
 
                   <button
                     onClick={agregarPago}
-                    className={`w-full h-14 rounded-md font-black uppercase tracking-widest transition-all shadow-sm flex items-center justify-center gap-2 border-2 ${
-                      condicionVenta === "contado" && listaPagos.length === 0
-                        ? "bg-red-500 text-white border-red-600 animate-pulse scale-[1.02] shadow-xl shadow-red-500/40"
-                        : "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
-                    }`}
+                    className={`w-full h-14 rounded-md font-black uppercase tracking-widest transition-all shadow-sm flex items-center justify-center gap-2 border-2 ${condicionVenta === "contado" && listaPagos.length === 0
+                      ? "bg-red-500 text-white border-red-600 animate-pulse scale-[1.02] shadow-xl shadow-red-500/40"
+                      : "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
+                      }`}
                   >
                     <DineroIcono size={20} />
                     + Agregar Pago
@@ -734,11 +739,11 @@ const Comprobantes = () => {
 
               {/* RESUMEN LATERAL (FIJO EN DESKTOP) */}
               <div className="w-full md:w-[350px] shrink-0">
-                <div className="text-[var(--primary)] bg-[var(--surface-hover)] rounded-md p-8 shadow-2xl sticky top-0">
-                  <div className="text-[11px] text-[var(--text-muted)] font-black uppercase  mb-2">
+                <div className="text-[var(--primary)] bg-[var(--surface-hover)] rounded-md p-4 shadow-2xl sticky top-0">
+                  <div className="text-[11px] text-[var(--primary)] font-black uppercase  mb-2">
                     Total a Cobrar
                   </div>
-                  <div className="text-3xl font-black mb-8 tracking-tighter">
+                  <div className="text-xl font-black mb-4 tracking-tighter">
                     ${(totales?.total || 0).toLocaleString()}
                   </div>
 

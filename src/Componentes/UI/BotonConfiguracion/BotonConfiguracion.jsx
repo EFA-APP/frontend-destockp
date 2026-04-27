@@ -31,10 +31,10 @@ const BotonConfiguracion = () => {
             >
                 <div className={`
                     relative flex items-center justify-center 
-                    w-7 h-7
-                    bg-[var(--surface-hover)]
-                    border border-[var(--border-subtle)] 
-                    rounded-lg shadow-sm
+                    w-8 h-8
+                    bg-[var(--primary)]/10
+                    border border-[var(--primary)]/40 
+                    rounded-md shadow-sm
                     hover:border-[var(--primary)]/40 
                     hover:bg-[var(--primary-subtle)]/30
                       
@@ -51,16 +51,16 @@ const BotonConfiguracion = () => {
 
             {/* MENU DESPLEGABLE */}
             {menuAbierto && (
-                <MenuConfiguracion 
-                    onClose={() => setMenuAbierto(false)} 
+                <MenuConfiguracion
+                    onClose={() => setMenuAbierto(false)}
                     onOpenVisual={() => setModalVisualAbierto(true)}
                 />
             )}
 
             {/* MODAL CONFIGURACION VISUAL */}
-            <ModalConfiguracionVisual 
-                isOpen={modalVisualAbierto} 
-                onClose={() => setModalVisualAbierto(false)} 
+            <ModalConfiguracionVisual
+                isOpen={modalVisualAbierto}
+                onClose={() => setModalVisualAbierto(false)}
             />
         </div>
     );

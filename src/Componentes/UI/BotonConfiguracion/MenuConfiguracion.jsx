@@ -9,7 +9,7 @@ import { useAuthStore } from "../../../Backend/Autenticacion/store/authenticacio
 const MenuConfiguracion = ({ onClose, onOpenVisual }) => {
     const usuario = useAuthStore((state) => state.usuario);
     return (
-        <div className="absolute right-0 top-full mt-3 z-50 w-72 rounded-2xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-[0_12px_40px_rgba(0,0,0,0.08)] overflow-hidden">
+        <div className="absolute right-0 top-full mt-3 z-100 w-72 rounded-2xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-[0_12px_40px_rgba(0,0,0,0.08)] overflow-hidden">
             {/* Header */}
             <div className="px-5 py-5 border-b border-[var(--border-subtle)] bg-gradient-to-br from-[var(--surface-hover)] to-[var(--fill)]">
                 <div className="flex items-center gap-3">

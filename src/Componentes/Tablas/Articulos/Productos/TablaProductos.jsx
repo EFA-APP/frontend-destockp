@@ -10,6 +10,7 @@ import {
   HistorialIcono,
   ProduccionIcono,
   InventarioIcono,
+  AdvertenciaIcono,
 } from "../../../../assets/Icons";
 import {
   FileSpreadsheet,
@@ -195,6 +196,7 @@ const TablaProductos = () => {
           },
         };
       }
+
       return col;
     });
 
@@ -204,6 +206,16 @@ const TablaProductos = () => {
       filtrable: true,
       renderizar: (_, fila) => {
         const valor = fila.atributos?.[c.claveCampo] ?? fila[c.claveCampo];
+        const esPrecio = c.claveCampo?.toLowerCase().includes("precioventa");
+
+        if (esPrecio && (valor !== null && valor !== undefined)) {
+          return (
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-700/10 border border-emerald-700/20 text-emerald-700 font-black text-[14px] shadow-sm">
+              $ {formatVal(valor)}
+            </div>
+          );
+        }
+
         return (
           <div className="text-[14px] text-[var(--text-secondary)] font-bold tracking-tight">
             {valor === true
@@ -253,12 +265,12 @@ const TablaProductos = () => {
     const startIndex = Math.max(
       0,
       Math.floor(mobileScrollTop / MOBILE_ITEM_ESTIMATED_HEIGHT) -
-        MOBILE_OVERSCAN,
+      MOBILE_OVERSCAN,
     );
     const endIndex = Math.min(
       total,
       Math.ceil((mobileScrollTop + viewport) / MOBILE_ITEM_ESTIMATED_HEIGHT) +
-        MOBILE_OVERSCAN,
+      MOBILE_OVERSCAN,
     );
     const topSpacer = startIndex * MOBILE_ITEM_ESTIMATED_HEIGHT;
     const bottomSpacer = Math.max(
@@ -322,39 +334,21 @@ const TablaProductos = () => {
     setModalMasivoOpen(true);
   }, []);
 
-  const handleCrearProducto = useCallback(() => {
-    navigate("/panel/inventario/productos/nuevo");
-  }, [navigate]);
-
   if (
     configCargada &&
     (!Array.isArray(camposDinamicos) || camposDinamicos.length === 0)
   ) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] w-full px-4">
-        <div className="max-w-lg w-full bg-[#1a1a1a] border border-black/5 rounded-[2.5rem] p-10 text-center shadow-2xl relative overflow-hidden group">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] w-full ">
+        <div className="max-w-lg w-full bg-[var(--fill)] border border-black/5 rounded-[2.5rem] p-10 text-center shadow-2xl relative overflow-hidden group">
           {/* Decoración de fondo */}
           <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-[var(--primary)]/5 rounded-full blur-3xl group-hover:bg-[var(--primary)]/10  "></div>
 
           <div className="relative z-10">
             {/* Contenedor del Icono */}
-            <div className="w-20 h-20 bg-[var(--primary)]/10 rounded-[2rem] flex items-center justify-center mx-auto mb-6 border border-[var(--primary)]/20 rotate-3 group-hover:rotate-6  ">
-              <div className="text-[var(--primary)]">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="40"
-                  height="40"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-                  <path d="M12 9v4" />
-                  <path d="M12 17h.01" />
-                </svg>
+            <div className="w-20 h-20 bg-yellow-500/10 rounded-[2rem] flex items-center justify-center mx-auto mb-6 border border-yellow-500/50 rotate-3 group-hover:rotate-6  ">
+              <div className="text-yellow-600">
+                <AdvertenciaIcono size={35} />
               </div>
             </div>
 
@@ -367,7 +361,7 @@ const TablaProductos = () => {
               !
             </h2>
 
-            <p className="text-black/40 text-sm leading-relaxed mb-10 max-w-[280px] mx-auto font-medium">
+            <p className="text-[var(--text-theme)]/80 text-sm leading-relaxed mb-10 max-w-[280px] mx-auto font-medium">
               Es necesario que hables con el administrador del sistema para
               configurar los campos del producto.
             </p>
@@ -376,7 +370,7 @@ const TablaProductos = () => {
             <div className="flex justify-center items-center">
               <button
                 onClick={() => navigate("/panel")}
-                className="px-10 py-4 bg-black/5 text-black/70 font-bold uppercase tracking-[0.15em] text-xs rounded-2xl hover:bg-black/10  border border-black/5 hover:border-black/10 w-full sm:w-auto"
+                className="px-10 py-4 bg-[var(--primary)]/10 text-[var(--primary)]/90 font-bold uppercase tracking-[0.15em] text-xs rounded-2xl hover:bg-[var(--primary)]/20  border border-[var(--primary)]/80 hover:border-[var(--primary)]/10 w-full sm:w-max cursor-pointer"
               >
                 Ir al Inicio
               </button>
@@ -391,7 +385,7 @@ const TablaProductos = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 ">
       <ModalConfirmacion
         open={confirmarEliminar.open}
         onClose={() =>
@@ -405,8 +399,7 @@ const TablaProductos = () => {
         colorConfirmar="bg-red-600!"
       />
 
-      {/* VISTA ESCRITORIO */}
-      <div className="hidden md:block">
+      <div className="block">
         <DataTable
           id_tabla="productos"
           llaveTituloMobile="nombre"
@@ -523,8 +516,8 @@ const TablaProductos = () => {
                         {provFiltro.razonSocial.toUpperCase() ||
                           provFiltro.nombre.toUpperCase() ||
                           provFiltro.apellido.toUpperCase() +
-                            " " +
-                            provFiltro.nombre.toUpperCase()}
+                          " " +
+                          provFiltro.nombre.toUpperCase()}
                       </span>
                       <button
                         onClick={() => setProvFiltro(null)}
@@ -545,105 +538,6 @@ const TablaProductos = () => {
         />
       </div>
 
-      {/* VISTA MOBILE PREMIUM */}
-      <div
-        ref={mobileScrollRef}
-        onScroll={(e) => setMobileScrollTop(e.currentTarget.scrollTop)}
-        className="md:hidden flex flex-col gap-5 pb-28 overflow-y-auto"
-      >
-        {/* BUSCADOR MOBILE */}
-        <div className="flex flex-col gap-3 bg-[#181818]/60 backdrop-blur-md p-4 rounded-2xl border border-black/5 shadow-xl">
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-black/30"
-              />
-              <input
-                type="text"
-                value={busquedaInput}
-                onChange={(e) => setBusquedaInput(e.target.value)}
-                placeholder="Buscar productos..."
-                className="w-full bg-black/30 border border-black/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-black focus:outline-none focus:border-[var(--primary)]/50  font-medium placeholder:text-black/20"
-              />
-            </div>
-          </div>
-          <TieneAccion accion="CREAR_PRODUCTO">
-            <button
-              type="button"
-              onClick={handleCrearProducto}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--primary)] text-black rounded-xl font-black text-[13px] uppercase tracking-wider shadow-lg shadow-amber-700/20 active:scale-95 "
-            >
-              <Plus size={15} />
-              Nuevo Producto
-            </button>
-          </TieneAccion>
-        </div>
-
-        {cargando ? (
-          <div className="flex flex-col gap-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <SkeletonFilaTabla key={i} />
-            ))}
-          </div>
-        ) : productosConStock.length > 0 ? (
-          <div className="flex flex-col gap-4">
-            {mobileVirtualData.topSpacer > 0 && (
-              <div style={{ height: `${mobileVirtualData.topSpacer}px` }} />
-            )}
-            {mobileVirtualData.visible.map((prod, localIdx) => (
-              <MobileProductoCard
-                key={prod.codigoSecuencial}
-                prod={prod}
-                idx={mobileVirtualData.startIndex + localIdx}
-                camposDinamicos={camposDinamicos}
-                dataDepositosRaw={dataDepositosRaw}
-                onEditar={handleEditarClick}
-                onAbrirDrawer={handleAbrirDrawer}
-              />
-            ))}
-            {mobileVirtualData.bottomSpacer > 0 && (
-              <div style={{ height: `${mobileVirtualData.bottomSpacer}px` }} />
-            )}
-          </div>
-        ) : (
-          <div className="py-24 flex flex-col items-center justify-center opacity-20 text-center px-10">
-            <Package size={64} className="mb-4 text-[var(--primary)]" />
-            <span className="text-sm font-black uppercase tracking-[0.3em] text-black">
-              No hay productos
-            </span>
-          </div>
-        )}
-
-        {/* Paginación Mobile */}
-        {meta && (
-          <div className="flex flex-col items-center gap-3 mt-4 pt-4 border-t border-black/5">
-            <div className="flex items-center gap-1.5 bg-[#181818] border border-black/10 rounded-lg p-1">
-              <button
-                disabled={!meta.prev}
-                onClick={() =>
-                  setFiltros((prev) => ({ ...prev, pagina: meta.prev }))
-                }
-                className="p-1 rounded text-black/60 hover:bg-black/5 disabled:opacity-30  font-bold text-[13px] px-3"
-              >
-                Anterior
-              </button>
-              <span className="text-[13px] font-black text-black px-2">
-                {meta.currentPage} / {meta.lastPage || 1}
-              </span>
-              <button
-                disabled={!meta.next}
-                onClick={() =>
-                  setFiltros((prev) => ({ ...prev, pagina: meta.next }))
-                }
-                className="p-1 rounded text-black/60 hover:bg-black/5 disabled:opacity-30  font-bold text-[13px] px-3"
-              >
-                Siguiente
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
 
       <ModalCargaMasivaProductos
         open={modalMasivoOpen}
@@ -748,24 +642,24 @@ const MobileProductoCard = memo(
           </span>
         </div>
 
-        {dataDepositosRaw.map((dep) => {
-          const stockDep = prod[`dep_${dep.codigoSecuencial}`] || 0;
+        {(prod.stockPorDeposito || []).map((sp) => {
+          const stockDep = sp.stock || 0;
           const tieneStock = stockDep > 0;
+          const dep = sp.deposito || {};
 
           return (
             <div
-              key={dep.codigoSecuencial}
+              key={dep.codigoSecuencial || Math.random()}
               onClick={() =>
                 onAbrirDrawer({
                   ...prod,
-                  depositoInicial: dep.codigoSecuencial.toString(),
+                  depositoInicial: dep.codigoSecuencial?.toString(),
                 })
               }
-              className={`group flex items-center justify-between p-3 rounded-xl cursor-pointer   active:scale-[0.98] ${
-                tieneStock
-                  ? "bg-black/5 border border-black/10"
-                  : "bg-white/[0.02] border border-transparent opacity-50"
-              }`}
+              className={`group flex items-center justify-between p-3 rounded-xl cursor-pointer   active:scale-[0.98] ${tieneStock
+                ? "bg-black/5 border border-black/10"
+                : "bg-white/[0.02] border border-transparent opacity-50"
+                }`}
             >
               <div className="flex items-center gap-3 min-w-0 flex-1">
                 <div
@@ -774,7 +668,7 @@ const MobileProductoCard = memo(
                 <span
                   className={`text-[13px] font-bold uppercase tracking-wider truncate  ${tieneStock ? "text-black" : "text-black/40"}`}
                 >
-                  {dep.nombre}
+                  {dep.nombre || "DEPÓSITO"}
                 </span>
               </div>
               <div className="flex items-center gap-2">

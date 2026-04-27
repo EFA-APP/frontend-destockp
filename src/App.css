@@ -60,6 +60,7 @@ body {
   --p-l: 54%;
 
   --primary: hsl(var(--p-h), var(--p-s), var(--p-l));
+  --fucsia: #FF007F;
   --primary-hover: hsl(var(--p-h), var(--p-s), calc(var(--p-l) - 5%));
   --primary-active: hsl(var(--p-h), var(--p-s), calc(var(--p-l) - 10%));
   --primary-light: hsl(var(--p-h), var(--p-s), 70%);

@@ -9,14 +9,14 @@ import {
   UbicacionIcono,
   DescargarIcono,
 } from "../../../../assets/Icons";
-import { Building2, Trash2, Loader2 } from "lucide-react";
+import { Building2, Trash2, Loader2, Settings2 } from "lucide-react";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { useDepositoUI } from "../../../../Backend/Articulos/hooks/Deposito/useDepositoUI.jsx";
 import { useDepositosConStock } from "../../../../Backend/Articulos/queries/Deposito/useDepositosConStock.query";
-import TarjetaDeposito from "./TarjetaDeposito.jsx";
+import DataTable from "../../../UI/DataTable/DataTable";
+import { columnasDepositos } from "../../../Tablas/Articulos/Deposito/ColumnasDepositos";
 import TablaDepositoStock from "../../../Tablas/Articulos/Deposito/TablaDepositoStock";
 import StockDepositoPDF from "../../../Reportes/StockDepositoPDF.jsx";
-import SkeletonTarjeta from "../../../UI/Skeletons/SkeletonTarjeta.jsx";
 import { usePermisosDeUsuario } from "../../../../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
 
 /**
@@ -198,33 +198,37 @@ const Deposito = () => {
       />
 
       <div className="space-y-8 pb-10">
-        {/* Warehouse Grid Section */}
+        {/* Warehouse Table Section */}
         <section>
           <div className="flex items-center justify-between mb-6 px-2">
-            <div className="h-[1px] flex-1 mx-4 bg-gradient-to-r from-white/10 to-transparent" />
-            <button
-              onClick={handleNuevaSucursal}
-              className="flex items-center gap-2 px-6 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary-subtle)] border border-[var(--primary)]/20! rounded-md! font-bold! text-[13px]! uppercase! tracking-wider! cursor-pointer! text-[var(--primary)]!"
-            >
-              <AgregarIcono size={10} className="group-hover:rotate-90  " />
-              Nuevo Depósito
-            </button>
+            <div className="h-[1px] flex-1 mr-4 bg-gradient-to-r from-white/10 to-transparent" />
           </div>
 
-          <div className="flex flex-wrap items-center w-full gap-4">
-            {cargando
-              ? Array.from({ length: 2 }).map((_, n) => (
-                  <SkeletonTarjeta key={n} />
-                ))
-              : depositos.map((suc) => (
-                  <TarjetaDeposito
-                    key={suc.codigoSecuencial}
-                    suc={suc}
-                    onEdit={handleEditarSucursal}
-                    onDelete={handleEliminarSucursal}
-                  />
-                ))}
-          </div>
+          <DataTable
+            id_tabla="depositos_gestion"
+            columnas={columnasDepositos}
+            datos={depositos}
+            loading={cargando}
+            llaveTituloMobile="nombre"
+            mostrarAcciones={true}
+            acciones={[
+              {
+                icono: <Settings2 size={16} />,
+                label: "Configurar",
+                onClick: handleEditarSucursal,
+              },
+              {
+                icono: <Trash2 size={16} className="text-red-500" />,
+                label: "Eliminar",
+                onClick: handleEliminarSucursal,
+              },
+            ]}
+            botonAgregar={{
+              texto: "Nuevo Depósito",
+              onClick: handleNuevaSucursal,
+            }}
+            emptyMessage="No se encontraron depósitos registrados"
+          />
         </section>
 
         {/* Stock Matrix Section - Productos */}

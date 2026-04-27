@@ -8,7 +8,8 @@ export const iniciarSesionApi = async ({ email, contrasena }) => {
       contrasena: contrasena,
     },
     {
-      showLoader: true, // Configuración donde activas el loader
+      
+      showLoader: false, // Configuración donde activas el loader
     }
   );
 

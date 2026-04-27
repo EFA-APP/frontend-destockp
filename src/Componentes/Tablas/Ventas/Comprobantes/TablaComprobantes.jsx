@@ -63,7 +63,7 @@ const TablaComprobantes = () => {
     ];
 
     return (
-      <div className="flex p-1 bg-zinc-950/60 backdrop-blur-xl border border-black/5 rounded-2xl shadow-inner gap-1">
+      <div className="flex">
         {options.map((opt) => {
           const active = condicionVenta === opt.id;
           return (
@@ -71,16 +71,15 @@ const TablaComprobantes = () => {
               key={opt.id}
               onClick={() => setCondicionVenta(opt.id)}
               className={`
-                relative px-4 py-1.5 rounded-xl text-[12px] font-black uppercase tracking-widest   cursor-pointer
-                ${
-                  active
-                    ? "text-black shadow-xl shadow-[var(--primary)]/10"
-                    : "text-black/30 hover:text-black/60 hover:bg-black/5"
+                relative px-4 py-1.5 rounded-md text-[12px] font-black uppercase tracking-widest   cursor-pointer
+                ${active
+                  ? "text-[var(--primary)] shadow-xl shadow-[var(--primary)]/10"
+                  : "text-[var(--primary)]/60 hover:text-[var(--primary)]/60 hover:bg-[var(--primary)]/5"
                 }
               `}
             >
               {active && (
-                <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-active)] rounded-xl -z-10   " />
+                <div className="absolute inset-0 bg-[var(--primary)]/10 rounded-md border-2 border-[var(--primary)]/20" />
               )}
               {opt.label}
             </button>
@@ -161,12 +160,6 @@ const TablaComprobantes = () => {
 
   // 4. Opciones de Clase (Mezcla estáticas + ARCA)
   const opcionesClase = useMemo(() => {
-    if (tiposARCA.length > 0) {
-      return [
-        { valor: "TODAS", texto: "TODOS LOS COMPROBANTES" },
-        ...tiposARCA,
-      ];
-    }
     return [
       { valor: "TODAS", texto: "Todos los Comprobantes" },
       { valor: "99", texto: "Ticket No Fiscal" },
@@ -175,8 +168,8 @@ const TablaComprobantes = () => {
 
   if (!unidadNegocio) {
     return (
-      <div className="space-y-8   ">
-        <div className="rounded-2xl overflow-hidden shadow-2xl">
+      <div className="space-y-8">
+        <div className="rounded-md">
           <DataTable
             id_tabla="comprobantes_placeholder"
             columnas={[]}
@@ -227,7 +220,7 @@ const TablaComprobantes = () => {
 
       {/* Tarjetas con Colores de Empresa */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="relative group overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#111] border border-black/5 p-6 rounded-md shadow-2xl  hover:-translate-y-1">
+        <div className="relative group overflow-hidden bg-[var(--fill)] border border-black/5 p-6 rounded-md shadow-2xl  hover:-translate-y-1">
           <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)]/10 blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-[var(--primary)]/20  " />
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 bg-[var(--primary)]/10 rounded-2xl flex items-center justify-center border border-[var(--primary)]/20 text-[var(--primary)]">
@@ -250,7 +243,7 @@ const TablaComprobantes = () => {
           </div>
         </div>
 
-        <div className="relative group overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#111] border border-black/5 p-6 rounded-md shadow-2xl  hover:-translate-y-1">
+        <div className="relative group overflow-hidden bg-[var(--fill)] border border-black/5 p-6 rounded-md shadow-2xl  hover:-translate-y-1">
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-700/10 blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-indigo-700/20  " />
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 bg-indigo-700/10 rounded-2xl flex items-center justify-center border border-indigo-700/20 text-indigo-400">
@@ -267,7 +260,7 @@ const TablaComprobantes = () => {
           </div>
         </div>
 
-        <div className="relative group overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-[#111] border border-black/5 p-6 rounded-md shadow-2xl  hover:-translate-y-1">
+        <div className="relative group overflow-hidden bg-[var(--fill)] border border-black/5 p-6 rounded-md shadow-2xl  hover:-translate-y-1">
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-700/10 blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-emerald-700/20  " />
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 bg-emerald-700/10 rounded-2xl flex items-center justify-center border border-emerald-700/20 text-emerald-400">
@@ -289,97 +282,85 @@ const TablaComprobantes = () => {
       </div>
 
       {/* Tabla Maestra con Diseño Identitario */}
-      <div className="rounded-2xl overflow-hidden shadow-2xl">
-        <DataTable
-          id_tabla="comprobantes_final_v1"
-          llaveTituloMobile="numeroComprobante"
-          columnas={columnasComprobantes}
-          datos={facturas}
-          loading={isLoading}
-          isFetching={isFetching}
-          mostrarBuscador
-          busqueda={busqueda}
-          setBusqueda={setBusqueda}
-          mostrarAcciones={true}
-          acciones={accionesComprobantes({
-            handleVerDetalle,
-            handleVerAdjuntos,
-          })}
-          mostrarFiltros={false}
-          elementosSuperior={
-            <div className="flex flex-wrap items-center gap-4 bg-zinc-950/40 backdrop-blur-md border border-black/5 p-2 rounded-2xl shadow-2xl    ">
-              {/* SELECTOR DE UNIDAD DE NEGOCIO */}
-              <div className="min-w-[180px]">
-                <Select
-                  valor={unidadNegocio}
-                  setValor={setUnidadNegocio}
-                  options={[
-                    { valor: null, texto: "SIN UNIDAD SELECCIONADA" },
-                    ...opcionesUnidad,
-                  ]}
-                  placeholder="Elegir Unidad..."
+      <DataTable
+        id_tabla="comprobantes_final_v1"
+        llaveTituloMobile="numeroComprobante"
+        columnas={columnasComprobantes}
+        datos={facturas}
+        loading={isLoading}
+        isFetching={isFetching}
+        mostrarBuscador
+        busqueda={busqueda}
+        setBusqueda={setBusqueda}
+        mostrarAcciones={true}
+        acciones={accionesComprobantes({
+          handleVerDetalle,
+          handleVerAdjuntos,
+        })}
+        mostrarFiltros={false}
+        todasExpandidas={true}
+        elementosSuperior={
+          <div className="flex flex-wrap items-center gap-3 bg-[var(--fill)] p-1 rounded-md shadow-2xl p-3 ">
+            {/* SELECTOR DE UNIDAD DE NEGOCIO */}
+            <div className="w-auto">
+              <Select
+                valor={unidadNegocio}
+                setValor={setUnidadNegocio}
+                options={[
+                  { valor: null, texto: "SIN UNIDAD SELECCIONADA" },
+                  ...opcionesUnidad,
+                ]}
+                placeholder="Elegir Unidad..."
+              />
+            </div>
+
+            <div className="w-px h-8 bg-[var(--primary)]/20 mx-1 "></div>
+
+            {/* TABS DE CONDICIÓN DE VENTA */}
+            <CondicionVentaTabs />
+
+            <div className="w-px h-8 bg-[var(--primary)]/20 mx-1 "></div>
+
+            {/* SELECTORES FISCALES */}
+            {tieneConexionArca && (
+              <>
+                <div className="min-w-[170px]">
+                  <Select
+                    valor={isFiscal}
+                    setValor={setIsFiscal}
+                    options={[
+                      { valor: "TODAS", texto: "TODOS LOS REGISTROS" },
+                      { valor: "FISCAL", texto: "VÍA AFIP" },
+                      { valor: "INTERNA", texto: "INTERNAS" },
+                    ]}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* RANGO DE FECHAS */}
+            <div className="flex flex-wrap md:flex-nowrap items-center gap-1 bg-[var(--primary)]/10 p-1 rounded-md shadow-inner">
+              <div className="flex items-center">
+                <FechaInput
+                  value={fechaDesde}
+                  onChange={setFechaDesde}
+                  size="sm"
+                  className="bg-transparent! border-none! min-w-[115px]"
                 />
               </div>
-
-              <div className="w-px h-8 bg-black/10 mx-1 hidden lg:block"></div>
-
-              {/* TABS DE CONDICIÓN DE VENTA */}
-              <CondicionVentaTabs />
-
-              <div className="w-px h-8 bg-black/10 mx-1 hidden lg:block"></div>
-
-              {/* SELECTORES FISCALES */}
-              {tieneConexionArca && (
-                <>
-                  <div className="min-w-[170px]">
-                    <Select
-                      valor={isFiscal}
-                      setValor={setIsFiscal}
-                      options={[
-                        { valor: "TODAS", texto: "TODOS LOS REGISTROS" },
-                        { valor: "FISCAL", texto: "VÍA AFIP" },
-                        { valor: "INTERNA", texto: "INTERNAS" },
-                      ]}
-                    />
-                  </div>
-
-                  {isFiscal !== "INTERNA" && (
-                    <div className="min-w-[200px]">
-                      <Select
-                        valor={tipoFactura}
-                        setValor={setTypeFactura}
-                        options={opcionesClase}
-                        cargando={cargandoTipos}
-                      />
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* RANGO DE FECHAS */}
-              <div className="flex items-center gap-1 border border-black/5 p-1 rounded-xl shadow-inner">
-                <div className="flex items-center">
-                  <FechaInput
-                    value={fechaDesde}
-                    onChange={setFechaDesde}
-                    size="sm"
-                    className="bg-transparent! border-none! min-w-[115px]"
-                  />
-                </div>
-                <div className="w-px h-6 bg-black/10 mx-1"></div>
-                <div className="flex items-center">
-                  <FechaInput
-                    value={fechaHasta}
-                    onChange={setFechaHasta}
-                    size="sm"
-                    className="bg-transparent! border-none! min-w-[115px]"
-                  />
-                </div>
+              <div className="w-px h-6 bg-black/10 mx-1"></div>
+              <div className="flex items-center">
+                <FechaInput
+                  value={fechaHasta}
+                  onChange={setFechaHasta}
+                  size="sm"
+                  className="bg-transparent! border-none! min-w-[115px]"
+                />
               </div>
             </div>
-          }
-        />
-      </div>
+          </div>
+        }
+      />
     </div>
   );
 };

@@ -118,7 +118,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
 
   return (
     <div
-      className={`fixed inset-0 z-[1000] flex justify-end transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+      className={`h-full fixed inset-0 z-[1000] flex justify-end transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0 pointer-events-none"}`}
     >
       {/* Backdrop con Blur más profundo */}
       <div
@@ -191,22 +191,20 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
           {/* Status & General Info - Cards Refinadas */}
           <div className="grid grid-cols-2 gap-5">
             <div
-              className={`p-6 rounded-md border shadow-sm transition-all ${
-                data.estado === "ANULADO"
+              className={`p-6 rounded-md border shadow-sm transition-all ${data.estado === "ANULADO"
                   ? "bg-rose-50 border-rose-100"
                   : data.estado === "AJUSTADO_PARCIAL"
                     ? "bg-amber-50 border-amber-100"
                     : "bg-emerald-50 border-emerald-100"
-              }`}
+                }`}
             >
               <div
-                className={`flex items-center gap-2 mb-3 ${
-                  data.estado === "ANULADO"
+                className={`flex items-center gap-2 mb-3 ${data.estado === "ANULADO"
                     ? "text-rose-600"
                     : data.estado === "AJUSTADO_PARCIAL"
                       ? "text-amber-600"
                       : "text-emerald-600"
-                }`}
+                  }`}
               >
                 <CheckCircle2 size={16} />
                 <span className="text-[10px] font-black uppercase tracking-widest">
@@ -214,13 +212,12 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
                 </span>
               </div>
               <p
-                className={`text-lg font-black uppercase tracking-tight ${
-                  data.estado === "ANULADO"
+                className={`text-lg font-black uppercase tracking-tight ${data.estado === "ANULADO"
                     ? "text-rose-700"
                     : data.estado === "AJUSTADO_PARCIAL"
                       ? "text-amber-700"
                       : "text-emerald-700"
-                }`}
+                  }`}
               >
                 {data.estado || "VÁLIDO"}
               </p>
@@ -503,10 +500,10 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
                     $
                     {formatearMonto(
                       data.total -
-                        (data.pagos?.reduce(
-                          (acc, p) => acc + (p.monto || 0),
-                          0,
-                        ) || 0),
+                      (data.pagos?.reduce(
+                        (acc, p) => acc + (p.monto || 0),
+                        0,
+                      ) || 0),
                     )}
                   </p>
                 </div>

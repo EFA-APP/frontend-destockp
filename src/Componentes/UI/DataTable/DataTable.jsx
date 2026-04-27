@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { AgregarIcono, BuscadorIcono } from "../../../assets/Icons";
+import { AgregarIcono, BuscadorIcono, FiltroIcono } from "../../../assets/Icons";
 import {
   ChevronDown,
   ChevronUp,
@@ -10,6 +10,7 @@ import {
   Download,
   X,
   Package,
+  Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../Backend/Autenticacion/store/authenticacion.store";
@@ -201,231 +202,97 @@ const DataCard = ({
   estaExpandida,
   onToggleExpansion,
   llaveTituloMobile = null,
+  todasExpandidas = false,
 }) => {
-  const [actionSheetOpen, setActionSheetOpen] = useState(false);
-
   // Encontrar la columna que servirá de título
   const columnaTitulo = llaveTituloMobile
     ? columnas.find((c) => c.key === llaveTituloMobile) ||
-      columnas.find((c) => c.visible !== false)
+    columnas.find((c) => c.visible !== false)
     : columnas.find((c) => c.visible !== false);
 
-  const { acciones, onVer, onEditar, onEliminar, onDescargar, permisos } =
-    accionesProps || {};
+  const cardRef = React.useRef(null);
 
-  const availableStandardActions = [
-    {
-      key: "ver",
-      show: permisos?.ver !== false && onVer,
-      icon: <Eye size={20} className="text-blue-400" />,
-      onClick: onVer,
-    },
-    {
-      key: "editar",
-      show: permisos?.editar !== false && onEditar,
-      icon: <Edit size={20} className="text-amber-700" />,
-      onClick: onEditar,
-    },
-    {
-      key: "descargar",
-      show: permisos?.descargar !== false && onDescargar,
-      icon: <Download size={20} className="text-emerald-700" />,
-      onClick: onDescargar,
-    },
-    {
-      key: "eliminar",
-      show: permisos?.eliminar !== false && onEliminar,
-      icon: <Trash2 size={20} className="text-red-700" />,
-      onClick: onEliminar,
-    },
-  ].filter((a) => a.show);
+  React.useEffect(() => {
+    if (estaExpandida && cardRef.current) {
+      // Pequeño delay para asegurar que el contenido ya se renderizó
+      setTimeout(() => {
+        cardRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 200);
+    }
+  }, [estaExpandida]);
 
   return (
-    <>
-      <div
-        onClick={() => setActionSheetOpen(true)}
-        className={`
+    <div
+      ref={cardRef}
+      onClick={onToggleExpansion}
+      className={`
                 relative overflow-hidden
-                p-5 rounded-2xl 
-                border-t border-l border-[var(--border-subtle)]
+                p-5 rounded-md
+                border-l-2 border-[var(--primary)]
                 bg-[var(--surface)]
                 shadow-2xl
-                flex flex-col gap-5 
+                flex flex-col gap-2
                 cursor-pointer hover:bg-[var(--primary-subtle)]/10 active:scale-[0.98]
+                transition-all duration-300
                 ${estaExpandida ? "ring-2 ring-[var(--primary)]/40 border-[var(--primary)]/20" : "border-[var(--border-subtle)]/30"}
             `}
-      >
-        <div className="absolute -top-10 -right-10 w-32 h-32 bg-[var(--primary)]/5 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="flex items-center justify-between gap-4 relative z-10 w-full">
-          <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]" />
-              <span className="text-[11px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em]">
-                {columnaTitulo?.etiqueta}
-              </span>
-            </div>
-            <div className="text-[18px] font-black text-[var(--text-primary)] leading-tight break-words">
-              {columnaTitulo?.renderizar
-                ? columnaTitulo.renderizar(fila[columnaTitulo.key], fila)
-                : formatVal(fila[columnaTitulo?.key])}
-            </div>
-          </div>
-          <div className="text-[var(--primary)] text-right">
-            <MoreHorizontal size={20} />
+    >
+      <div className="flex items-center justify-between gap-4 relative z-10 w-full">
+        <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+          <div className="text-[18px] font-black text-[var(--text-primary)] leading-tight break-words">
+            {columnaTitulo?.renderizar
+              ? columnaTitulo.renderizar(fila[columnaTitulo.key], fila)
+              : formatVal(fila[columnaTitulo?.key])}
           </div>
         </div>
+        {!todasExpandidas && (
+          <div className={`text-[var(--primary)] transition-transform duration-300 ${estaExpandida ? 'rotate-180' : ''}`}>
+            <ChevronDown size={20} />
+          </div>
+        )}
       </div>
 
-      {actionSheetOpen && accionesProps && (
-        <div className="fixed inset-0 z-[10000] flex flex-col justify-end pointer-events-auto">
-          <div
-            className="absolute inset-0 bg-black/20 backdrop-blur-md   "
-            onClick={() => setActionSheetOpen(false)}
-          ></div>
-          <div className="relative bg-[var(--surface)] w-full rounded-t-[40px] border-t border-[var(--border-subtle)] shadow-[0_-20px_50px_rgba(0,0,0,0.1)] flex flex-col pb-safe pb-8">
-            <div
-              className="w-full flex justify-center pt-5 pb-4"
-              onClick={() => setActionSheetOpen(false)}
-            >
-              <div className="w-14 h-1.5 bg-black/10 rounded-full relative overflow-hidden" />
-            </div>
-
-            <div className="px-7">
-              <div className="flex justify-between items-center mb-2">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[12px] uppercase tracking-wider text-[var(--primary)] font-bold">
-                    Detalles de Registro
-                  </span>
-                  <h3 className="text-black font-black text-xl tracking-tight leading-tight">
-                    {columnas[0]?.renderizar
-                      ? columnas[0].renderizar(fila[columnas[0].key], fila)
-                      : formatVal(fila[columnas[0]?.key])}
-                  </h3>
-                </div>
-                <button
-                  onClick={() => setActionSheetOpen(false)}
-                  className="w-10 h-10 rounded-full bg-black/5 text-black/40 hover:bg-black/10 hover:text-black flex items-center justify-center border border-black/10"
+      {(estaExpandida || todasExpandidas) && (
+        <div className="flex flex-col gap-6">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-4 py-4 border-y border-gray-300">
+            {columnas.map((col) => {
+              if (col.key === columnaTitulo?.key || col.visible === false)
+                return null;
+              return (
+                <div
+                  key={col.key}
+                  className="flex flex-col gap-1 overflow-hidden"
                 >
-                  <X size={18} />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 gap-x-6 gap-y-4 py-4 border-y border-black/5 mb-4 max-h-[40vh] overflow-y-auto no-scrollbar">
-                {columnas.map((col) => {
-                  if (col.key === columnaTitulo?.key || col.visible === false)
-                    return null;
-                  return (
-                    <div
-                      key={col.key}
-                      className="flex flex-col gap-1 overflow-hidden"
-                    >
-                      <span className="text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
-                        {col.etiqueta}
-                      </span>
-                      <div className="text-[16px] font-medium text-black break-words">
-                        {col.renderizar
-                          ? col.renderizar(fila[col.key], fila)
-                          : formatVal(fila[col.key])}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {renderDetalle && (
-                <div className="p-4 rounded-xl bg-black/5 border border-black/10 mb-6 text-sm overflow-y-auto max-h-[30vh] border-dashed">
-                  {renderDetalle(fila)}
+                  <span className="text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                    {col.etiqueta}
+                  </span>
+                  <div className="text-[16px] font-medium text-[var(--text-primary)] break-words">
+                    {col.renderizar
+                      ? col.renderizar(fila[col.key], fila)
+                      : formatVal(fila[col.key])}
+                  </div>
                 </div>
-              )}
-
-              <div className="mb-4 pt-2 border-t border-black/5">
-                <span className="text-[13px] uppercase tracking-wider text-[var(--text-muted)] font-black">
-                  Acciones Disponibles
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 gap-3 max-h-[60vh] overflow-y-auto no-scrollbar py-2">
-                {acciones ? (
-                  acciones.map((accion, i) => {
-                    const cargando =
-                      typeof accion.isLoading === "function"
-                        ? accion.isLoading(fila)
-                        : false;
-                    return (
-                      <button
-                        key={i}
-                        onClick={() => {
-                          if (!cargando) {
-                            setActionSheetOpen(false);
-                            accion.onClick(fila);
-                          }
-                        }}
-                        disabled={cargando}
-                        className="group relative w-full h-16 bg-black/5 border border-black/10 rounded-2xl flex items-center px-6 gap-5 text-black hover:bg-black/10 active:scale-[0.97] disabled:opacity-50"
-                      >
-                        <div className="w-11 h-11 rounded-xl bg-black/5 flex items-center justify-center flex-shrink-0 ">
-                          {cargando ? (
-                            <Loader2
-                              size={20}
-                              className="animate-spin text-[var(--primary)]"
-                            />
-                          ) : accion.icono &&
-                            React.isValidElement(accion.icono) ? (
-                            React.cloneElement(accion.icono, {
-                              size: 20,
-                              className: "text-[var(--primary)]",
-                            })
-                          ) : (
-                            accion.icono
-                          )}
-                        </div>
-                        <span className="font-bold text-sm tracking-wide">
-                          {accion.etiqueta || accion.label || "Acción"}
-                        </span>
-                      </button>
-                    );
-                  })
-                ) : (
-                  <>
-                    {availableStandardActions.map((accion) => (
-                      <button
-                        key={accion.key}
-                        onClick={() => {
-                          setActionSheetOpen(false);
-                          accion.onClick(fila);
-                        }}
-                        className={`w-full h-16 bg-black/5 border border-black/10 rounded-2xl flex items-center px-6 gap-5 text-black hover:bg-black/10 active:scale-[0.97] group`}
-                      >
-                        <div
-                          className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0  bg-black/5`}
-                        >
-                          {React.cloneElement(accion.icon, { size: 20 })}
-                        </div>
-                        <span className="font-bold text-sm tracking-wide">
-                          {accion.key === "ver" && "Visualizar Registro"}
-                          {accion.key === "editar" && "Editar Información"}
-                          {accion.key === "descargar" && "Descargar Documentos"}
-                          {accion.key === "eliminar" &&
-                            "Eliminar permanentemente"}
-                        </span>
-                      </button>
-                    ))}
-                  </>
-                )}
-              </div>
-
-              <button
-                onClick={() => setActionSheetOpen(false)}
-                className="w-full h-14 mt-6 bg-black/5 border border-black/10 rounded-2xl flex items-center justify-center text-black/50 font-black uppercase text-[13px] tracking-[0.2em] hover:bg-black/10 hover:text-black active:scale-[0.97] mb-4"
-              >
-                Cerrar Panel
-              </button>
-            </div>
+              );
+            })}
           </div>
+
+          {renderDetalle && (
+            <div className="p-4 rounded-xl bg-[var(--primary-subtle)]/10 border border-[var(--primary)]/10 text-sm border-dashed">
+              {renderDetalle(fila)}
+            </div>
+          )}
+
+          {accionesProps && (
+            <div className="flex justify-end gap-2">
+              <ActionMenu {...accionesProps} fila={fila} />
+            </div>
+          )}
         </div>
       )}
-    </>
+    </div>
   );
 };
 
@@ -468,6 +335,7 @@ const DataTable = ({
   onRefresh = null,
   id_tabla = null,
   llaveTituloMobile = null,
+  todasExpandidas = false,
 }) => {
   const navigate = useNavigate();
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(
@@ -650,109 +518,141 @@ const DataTable = ({
     setColumnasVisibles(nuevas);
   };
 
+  const [buscadorFijo, setBuscadorFijo] = useState(false);
+  const buscadorRef = React.useRef(null);
+  const placeholderRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      if (!placeholderRef.current) return;
+      
+      const rect = placeholderRef.current.getBoundingClientRect();
+      // El navbar mide 56px (h-14). Si el placeholder llega a 56px de arriba, fijamos.
+      if (rect.top <= 56) {
+        setBuscadorFijo(true);
+      } else {
+        setBuscadorFijo(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Verificación inicial
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <div className={`flex flex-col gap-4 ${className} relative`}>
-      <style>{`
-        /* Animaciones desactivadas por optimización */
-      `}</style>
-
       {(botonAgregar ||
         mostrarBuscador ||
         elementosSuperior ||
         mostrarFiltros) && (
-        <div className="flex flex-col gap-6 mb-2">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-            <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
-              {botonAgregar && (
-                <TieneAccion accion={botonAgregar?.tieneAccion}>
+          <div className="flex flex-col gap-6 mb-2">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+              <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+                {botonAgregar && (
+                  <TieneAccion accion={botonAgregar?.tieneAccion}>
+                    <button
+                      onClick={manejarAgregarClick}
+                      className="flex items-center gap-2 px-6 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary-subtle)] border border-[var(--primary)]/20! rounded-md! font-bold! text-[13px]! uppercase! tracking-wider! cursor-pointer! text-[var(--primary)]!"
+                    >
+                      <AgregarIcono size={14} /> {botonAgregar.texto}
+                    </button>
+                  </TieneAccion>
+                )}
+                {mostrarFiltros && (
                   <button
-                    onClick={manejarAgregarClick}
-                    className="flex items-center gap-2 px-6 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary-subtle)] border border-[var(--primary)]/20! rounded-md! font-bold! text-[13px]! uppercase! tracking-wider! cursor-pointer! text-[var(--primary)]!"
+                    onClick={() => setFiltrosAbiertos(!filtrosAbiertos)}
+                    className={`flex items-center! gap-2! px-4! py-2! rounded-lg! border! text-[13px]! font-bold! uppercase! ${filtrosAbiertos ? "bg-[var(--primary-subtle)]! text-[var(--primary)]!" : "bg-[var(--surface)]!"}`}
                   >
-                    <AgregarIcono size={14} /> {botonAgregar.texto}
+                    <FiltroIcono size={14} /> {textoFiltros}
                   </button>
-                </TieneAccion>
-              )}
-              {mostrarFiltros && (
-                <button
-                  onClick={() => setFiltrosAbiertos(!filtrosAbiertos)}
-                  className={`flex items-center! gap-2! px-4! py-2! rounded-lg! border! text-[13px]! font-bold! uppercase! ${filtrosAbiertos ? "bg-[var(--primary-subtle)]! text-[var(--primary)]!" : "bg-[var(--surface)]!"}`}
-                >
-                  <FiltroIcono size={14} /> {textoFiltros}
-                </button>
-              )}
-            </div>
+                )}
+              </div>
 
-            <div className="flex flex-col sm:flex-row flex-wrap items-center gap-3 w-full lg:w-auto">
-              {elementosSuperior && (
-                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                  {elementosSuperior}
-                </div>
-              )}
-              {mostrarBuscador && setBusqueda && (
-                <div className="flex bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl w-full lg:w-[480px] shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all duration-500 focus-within:ring-4 focus-within:ring-[var(--primary)]/5 border-[var(--primary)]/40 group overflow-hidden">
-                  {opcionesBusqueda && setBusquedaClave && (
-                    <div className="relative border-r border-[var(--border-subtle)] flex items-center bg-[var(--fill-secondary)]/30 group-focus-within:bg-[var(--primary)]/5 transition-colors">
-                      <select
-                        value={busquedaClave}
-                        onChange={(e) => setBusquedaClave(e.target.value)}
-                        className="bg-transparent text-[var(--text-primary)] font-bold text-[11px] uppercase tracking-widest pl-4 pr-9 py-3 outline-none appearance-none cursor-pointer z-10"
-                      >
-                        {opcionesBusqueda.map((op) => (
-                          <option
-                            key={op.value}
-                            value={op.value}
-                            className="text-black bg-white"
-                          >
-                            {op.label}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown
-                        size={12}
-                        className="absolute right-3 text-[var(--text-muted)] pointer-events-none z-0 group-focus-within:text-[var(--primary)] transition-colors"
-                      />
-                    </div>
-                  )}
-                  <div className="relative flex-1 flex items-center">
-                    <div className="absolute left-4.5 text-[var(--text-theme)] group-focus-within:text-[var(--primary)]">
-                      <BuscadorIcono size={18} color={"var(--primary)"} />
-                    </div>
-                    <input
-                      type="text"
-                      value={busqueda}
-                      onChange={(e) => setBusqueda(e.target.value)}
-                      className="w-full h-12 pl-13 pr-12 bg-transparent outline-none text-[15px] font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)]/50 placeholder:font-normal"
-                      placeholder={placeholderBuscador}
-                    />
-                    {busqueda && (
-                      <button
-                        onClick={() => setBusqueda("")}
-                        className="absolute right-3.5 p-1.5 rounded-xl text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer active:scale-90"
-                      >
-                        <X size={16} />
-                      </button>
-                    )}
+              <div className="flex flex-col sm:flex-row flex-wrap items-center gap-3 w-full lg:w-auto">
+                {elementosSuperior && (
+                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    {elementosSuperior}
                   </div>
+                )}
+                {mostrarBuscador && setBusqueda && (
+                  <div className="w-full lg:w-[480px] relative" ref={placeholderRef}>
+                    {/* Placeholder para mantener el espacio en mobile cuando se vuelve fixed */}
+                    <div className={`${buscadorFijo ? 'block md:hidden' : 'hidden'} h-[52px]`} />
+                    
+                    <div className={`
+                      ${buscadorFijo 
+                        ? "fixed top-14 left-0 w-full z-40 bg-[var(--fill)]/95 backdrop-blur-md p-3 px-4 border-b border-black/10 shadow-lg" 
+                        : "relative w-full"
+                      } 
+                      md:static md:p-0 md:bg-transparent md:border-none md:shadow-none md:z-auto transition-all duration-300
+                    `}>
+                      <div className="flex bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl w-full shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all duration-500 focus-within:ring-4 focus-within:ring-[var(--primary)]/5 border-[var(--primary)]/40 group overflow-hidden">
+                        {opcionesBusqueda && setBusquedaClave && (
+                          <div className="relative border-r border-[var(--border-subtle)] flex items-center bg-[var(--fill-secondary)]/30 group-focus-within:bg-[var(--primary)]/5 transition-colors">
+                            <select
+                              value={busquedaClave}
+                              onChange={(e) => setBusquedaClave(e.target.value)}
+                              className="bg-transparent text-[var(--text-primary)] font-bold text-[11px] uppercase tracking-widest pl-4 pr-9 py-3 outline-none appearance-none cursor-pointer z-10"
+                            >
+                              {opcionesBusqueda.map((op) => (
+                                <option
+                                  key={op.value}
+                                  value={op.value}
+                                  className="text-black bg-white"
+                                >
+                                  {op.label}
+                                </option>
+                              ))}
+                            </select>
+                            <ChevronDown
+                              size={12}
+                              className="absolute right-3 text-[var(--text-muted)] pointer-events-none z-0 group-focus-within:text-[var(--primary)] transition-colors"
+                            />
+                          </div>
+                        )}
+                        <div className="relative flex-1 flex items-center">
+                          <div className="absolute left-4.5 text-[var(--text-theme)] group-focus-within:text-[var(--primary)]">
+                            <BuscadorIcono size={18} color={"var(--primary)"} />
+                          </div>
+                          <input
+                            type="text"
+                            value={busqueda}
+                            onChange={(e) => setBusqueda(e.target.value)}
+                            className="w-full h-11 md:h-12 pl-13 pr-12 bg-transparent outline-none text-[15px] font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)]/50 placeholder:font-normal"
+                            placeholder={placeholderBuscador}
+                          />
+                          {busqueda && (
+                            <button
+                              onClick={() => setBusqueda("")}
+                              className="absolute right-3.5 p-1.5 rounded-xl text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer active:scale-90"
+                            >
+                              <X size={16} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            {mostrarFiltros && filtrosAbiertos && (
+              <div className="relative bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl">
+                <div className="flex items-center gap-3 px-5 py-3.5 border-b border-[var(--border-subtle)] bg-[var(--primary)]/5">
+                  <FiltroIcono size={14} />{" "}
+                  <h4 className="text-[13px] font-bold uppercase tracking-wider">
+                    Filtros Avanzados
+                  </h4>
                 </div>
-              )}
-            </div>
+                <div className="p-5 flex flex-wrap gap-4 items-end">
+                  {filtrosElementos}
+                </div>
+              </div>
+            )}
           </div>
-          {mostrarFiltros && filtrosAbiertos && (
-            <div className="relative bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl">
-              <div className="flex items-center gap-3 px-5 py-3.5 border-b border-[var(--border-subtle)] bg-[var(--primary)]/5">
-                <FiltroIcono size={14} />{" "}
-                <h4 className="text-[13px] font-bold uppercase tracking-wider">
-                  Filtros Avanzados
-                </h4>
-              </div>
-              <div className="p-5 flex flex-wrap gap-4 items-end">
-                {filtrosElementos}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+        )}
 
       {/* VISTA MOBILE */}
       <div className="md:hidden grid grid-cols-1 gap-4">
@@ -767,18 +667,19 @@ const DataTable = ({
               fila={fila}
               columnas={columnasVisibles}
               llaveTituloMobile={llaveTituloMobile}
+              todasExpandidas={todasExpandidas}
               estaExpandida={filaExpandidaId === (fila.id || index)}
-              onToggleExpansion={() => toggleFilaExpansion(fila.id || index)}
+              onToggleExpansion={() => !todasExpandidas && toggleFilaExpansion(fila.id || index)}
               accionesProps={
                 mostrarAcciones
                   ? {
-                      acciones,
-                      onVer,
-                      onEditar,
-                      onEliminar,
-                      onDescargar,
-                      permisos,
-                    }
+                    acciones,
+                    onVer,
+                    onEditar,
+                    onEliminar,
+                    onDescargar,
+                    permisos,
+                  }
                   : null
               }
             />
@@ -814,10 +715,9 @@ const DataTable = ({
                           size={12}
                           className={`
                              
-                            ${
-                              columnaMenuAbierta?.key === col.key
-                                ? "opacity-100 text-[var(--primary)] rotate-180"
-                                : "opacity-30 group-hover/th:opacity-100 text-[var(--text-muted)] group-hover/th:text-[var(--primary)]"
+                            ${columnaMenuAbierta?.key === col.key
+                              ? "opacity-100 text-[var(--primary)] rotate-180"
+                              : "opacity-30 group-hover/th:opacity-100 text-[var(--text-muted)] group-hover/th:text-[var(--primary)]"
                             }
                           `}
                         />
@@ -887,7 +787,7 @@ const DataTable = ({
                               columnasVisibles.filter(
                                 (c) => c.visible !== false,
                               ).length -
-                                1
+                              1
                             }
                             className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
                           >
@@ -938,7 +838,7 @@ const DataTable = ({
                               columnasVisibles.filter(
                                 (c) => c.visible !== false,
                               ).length -
-                                1
+                              1
                             }
                             className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
                           >
@@ -978,13 +878,13 @@ const DataTable = ({
                   accionesProps={
                     mostrarAcciones
                       ? {
-                          acciones,
-                          onVer,
-                          onEditar,
-                          onEliminar,
-                          onDescargar,
-                          permisos,
-                        }
+                        acciones,
+                        onVer,
+                        onEditar,
+                        onEliminar,
+                        onDescargar,
+                        permisos,
+                      }
                       : null
                   }
                 />

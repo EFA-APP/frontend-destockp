@@ -14,10 +14,10 @@ const Cargador = () => {
         <div className="loader-glow" />
         <div className="loader-orbit-ring border-t-[var(--primary)]!" />
         <div className="loader-orbit-ring rotate-45 border-b-[var(--primary)]! opacity-40" />
-        
+
         {/* Icono Central Animado */}
         <div className="relative z-10 animate-bounce transition-all duration-700">
-          <div className="p-6 rounded-[32px] bg-[var(--surface)] shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-[var(--border-subtle)]">
+          <div className="p-6 rounded-[32px] ">
             <CargandoIcono size={50} color={"var(--primary)"} className="animate-spin" />
           </div>
         </div>
