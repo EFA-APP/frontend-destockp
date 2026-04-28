@@ -30,7 +30,7 @@ const BusquedaProducto = ({
       <div className="flex flex-wrap md:flex-nowrap gap-3 items-center">
         <div className="flex flex-[2] gap-2 w-full md:w-auto relative items-center">
           {/* INPUT CÓDIGO NORMAL */}
-          <div className="relative flex-1 group border-1 border-[var(--primary)]/50! flex bg-white border border-black/5 rounded-md focus-within:border-black/20 focus-within:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all h-[56px] items-center">
+          <div className="relative flex-1 group border-1 border-[var(--primary)]/50! flex bg-white border border-black/5 rounded-md focus-within:border-black/20 focus-within:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all h-[50px] items-center">
             <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-black/20 group-focus-within:text-black">
               <BuscadorIcono
                 size={22}
@@ -102,9 +102,9 @@ const BusquedaProducto = ({
                         className={`px-4 py-3.5 cursor-pointer rounded-md transition-all border border-transparent ${isHighlighted ? "bg-[var(--primary)]/10! text-black shadow-lg shadow-black/10 scale-[1.01]" : "hover:bg-black/[0.03]"}`}
                       >
                         <div className="flex justify-between items-center">
-                          <div className="flex flex-col gap-1">
+                          <div className="flex flex-col">
                             <span
-                              className={`font-black text-[14px] uppercase tracking-tight text-[var(--primary)]`}
+                              className={`font-black text-[12px] uppercase text-[var(--primary)]`}
                             >
                               {p.nombre}
                             </span>
@@ -116,9 +116,9 @@ const BusquedaProducto = ({
                               </span>
                             </div>
                           </div>
-                          <div className="flex flex-col items-end gap-2">
+                          <div className="flex flex-col items-end">
                             <span
-                              className={`text-[17px] font-black ${isHighlighted ? "text-[var(--primary)]" : "text-black"}`}
+                              className={`text-[12px] font-semibold ${isHighlighted ? "text-[var(--primary)]/80!" : "text-blue-600"}`}
                             >
                               $
                               {getPrecio(

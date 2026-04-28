@@ -193,7 +193,7 @@ const Deposito = () => {
     <ContenedorSeccion className="px-3 py-2">
       {/* Header / Navigation Card */}
       <EncabezadoSeccion
-        ruta={"Inventario > Depósitos   "}
+        ruta={"Depósitos   "}
         icono={<Building2 size={18} />}
       />
 

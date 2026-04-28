@@ -1,1 +1,0 @@
-import{e as r}from"./index-_lp1YYfS.js";import{L as u}from"./producto.api-CZ_YM-kQ.js";const a=(o={})=>r({queryKey:["configuracion_producto"],queryFn:()=>u("PRODUCTO"),staleTime:1e3*60*60,...o});export{a as u};

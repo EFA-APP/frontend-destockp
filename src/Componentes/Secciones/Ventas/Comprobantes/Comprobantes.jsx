@@ -183,7 +183,7 @@ const Comprobantes = () => {
     window.addEventListener("keydown", handleGlobalKeys);
     return () => window.removeEventListener("keydown", handleGlobalKeys);
   }, [paso, siguientePaso, anteriorPaso, setPaso]);
-  const noopProductoEncontrado = useCallback(() => { }, []);
+  const noopProductoEncontrado = useCallback(() => {}, []);
   const cargandoInicial = cargandoConfigs && items.length === 0;
 
   return (
@@ -207,12 +207,13 @@ const Comprobantes = () => {
           <button
             key={s}
             onClick={() => items.length > 0 && setPaso(s)}
-            className={`relative z-10 w-9 h-9 md:w-10 md:h-10 rounded-md flex items-center justify-center border-2 transition-all duration-300 ${paso === s
-              ? "bg-gray-200 border-[var(--primary)] text-black font-semibold scale-110 shadow-lg shadow-[var(--primary)]/10"
-              : paso > s
-                ? "bg-emerald-500 border-emerald-500 text-white"
-                : "bg-[var(--surface)] border-black/10 text-[var(--text-muted)]"
-              }`}
+            className={`relative z-10 w-9 h-9 md:w-10 md:h-10 rounded-md flex items-center justify-center border-2 transition-all duration-300 ${
+              paso === s
+                ? "bg-gray-200 border-[var(--primary)] text-black font-semibold scale-110 shadow-lg shadow-[var(--primary)]/10"
+                : paso > s
+                  ? "bg-emerald-500 border-emerald-500 text-white"
+                  : "bg-[var(--surface)] border-black/10 text-[var(--text-muted)]"
+            }`}
           >
             {paso > s ? "✓" : s}
             <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] font-black uppercase tracking-widest whitespace-nowrap text-[var(--border-muted)] hidden sm:block">
@@ -237,18 +238,12 @@ const Comprobantes = () => {
           {paso === 1 && (
             <div className="flex-1 flex flex-col overflow-y-auto animate-in fade-in slide-in-from-right-4 duration-500 pr-1 pb-20">
               <div className="flex flex-col gap-0.5 mb-0.5">
-                <div className="flex justify-between items-center bg-[var(--surface-hover)] p-4 rounded-md border border-black/5 shadow-sm">
+                <div className="flex justify-between items-center bg-[var(--surface-hover)] p-3 rounded-md border border-black/5 shadow-sm">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-md bg-black text-white flex items-center justify-center">
-                      <BuscadorIcono size={20} />
-                    </div>
                     <div>
                       <h2 className="text-[14px] font-black text-black uppercase tracking-widest leading-none mb-1">
                         Productos
                       </h2>
-                      <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
-                        Buscador y Carga Manual
-                      </p>
                     </div>
                   </div>
                   <button
@@ -260,7 +255,7 @@ const Comprobantes = () => {
                 </div>
 
                 {mostrandoManual ? (
-                  <div className="flex flex-col sm:flex-row gap-3 p-4 bg-rose-50/50 border border-rose-100 rounded-b-mb animate-in zoom-in-95 duration-300">
+                  <div className="flex flex-col sm:flex-row gap-3 p-4 bg-rose-50/50 border border-rose-100 rounded-b-md animate-in zoom-in-95 duration-300">
                     <div className="flex-[2] space-y-1.5">
                       <label className="text-[9px] font-black uppercase tracking-widest text-rose-500 ml-1">
                         Descripción del Item
@@ -715,13 +710,13 @@ const Comprobantes = () => {
 
                   <button
                     onClick={agregarPago}
-                    className={`w-full h-14 rounded-md font-black uppercase tracking-widest transition-all shadow-sm flex items-center justify-center gap-2 border-2 ${condicionVenta === "contado" && listaPagos.length === 0
-                      ? "bg-red-500 text-white border-red-600 animate-pulse scale-[1.02] shadow-xl shadow-red-500/40"
-                      : "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
-                      }`}
+                    className={`w-full h-14 rounded-md font-black uppercase tracking-widest transition-all shadow-sm flex items-center justify-center gap-2 border-2 ${
+                      condicionVenta === "contado" && listaPagos.length === 0
+                        ? "bg-red-500 text-white border-red-600 animate-pulse scale-[1.02] shadow-xl shadow-red-500/40"
+                        : "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
+                    }`}
                   >
-                    <DineroIcono size={20} />
-                    + Agregar Pago
+                    <DineroIcono size={20} />+ Agregar Pago
                   </button>
 
                   {vuelto > 0 && (
