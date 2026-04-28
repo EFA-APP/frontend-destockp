@@ -60,7 +60,7 @@ export const useComprobantes = () => {
   );
 
   // === 2. ESTADOS DE CLIENTE Y ENTIDADES (Mantenidos aquí para evitar ReferenceError en módulos) ===
-  const [entidades, setEntidades] = useState([]);
+  const entidades = useMemo(() => usuario?.unidadesNegocio || [], [usuario]);
   const [entidadSeleccionada, setEntidadSeleccionada] = useState("");
   const [busquedaCliente, setBusquedaCliente] = useState("");
   const [mostrarDropdownCliente, setMostrarDropdownCliente] = useState(false);
