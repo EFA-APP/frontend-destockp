@@ -22,6 +22,7 @@ import {
 import BusquedaProducto from "./BusquedaProducto";
 import DataTable from "../../../UI/DataTable/DataTable";
 import { ColumnasTicket } from "./ColumnasTicket";
+import { Link, X } from "lucide-react";
 
 const ComprobantesSkeleton = () => (
   <div className="flex-1 flex flex-col md:flex-row overflow-hidden ">
@@ -193,6 +194,36 @@ const Comprobantes = () => {
         icono={<ComprobanteIcono />}
         volver={true}
       />
+
+      {/* BANNER DE COMPROBANTE ASOCIADO */}
+      {comprobanteAsociado && (
+        <div className="max-w-2xl mx-auto w-full px-4 md:px-4 mt-4 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-lg bg-amber-500 text-white flex items-center justify-center shadow-md shadow-amber-500/20">
+                <Link size={20} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase text-amber-600 tracking-widest leading-none mb-1">
+                  Emitiendo Pago / Ajuste para
+                </span>
+                <span className="text-[16px] font-black text-amber-900 tracking-tight leading-none">
+                  Comprobante {comprobanteAsociado}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setComprobanteAsociado("");
+              }}
+              className="w-8 h-8 flex items-center justify-center bg-amber-100 hover:bg-rose-50 text-amber-700 hover:text-rose-500 rounded-full transition-all group"
+              title="Desvincular comprobante"
+            >
+              <X size={16} className="group-hover:rotate-90 transition-transform duration-300" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 2. SECCIÓN: STEPPER (Progreso) */}
       <div className="flex mt-8 items-center justify-between px-1 mb-2  relative max-w-2xl mx-auto w-full md:px-4  md:mb-8">

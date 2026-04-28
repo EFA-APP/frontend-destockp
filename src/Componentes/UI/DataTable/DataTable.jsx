@@ -53,6 +53,9 @@ const ActionMenu = ({
     return (
       <div className="flex items-center justify-end gap-1">
         {acciones.map((accion, i) => {
+          const debeMostrar = typeof accion.mostrar === 'function' ? accion.mostrar(fila) : (accion.mostrar ?? true);
+          if (!debeMostrar) return null;
+
           const cargando =
             typeof accion.isLoading === "function"
               ? accion.isLoading(fila)

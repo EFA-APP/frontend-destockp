@@ -152,6 +152,7 @@ export const useComprobantes = () => {
   const [tabActiva, setTabActiva] = useState("productos");
   const [receptorVinculado, setReceptorVinculado] = useState(null);
   const [observaciones, setObservaciones] = useState("");
+  const [esEmisionPago, setEsEmisionPago] = useState(false);
 
   // === 4. ESTADOS DE CAMPOS DINÁMICOS ===
   const [camposDinamicos, setCamposDinamicos] = useState([]);
@@ -251,6 +252,25 @@ export const useComprobantes = () => {
     }
   }, [location.state]);
 
+  // === EFECTO: Carga desde Tabla de Comprobantes (Emitir Pago) ===
+  useEffect(() => {
+    if (
+      location.state?.comprobanteAsociado &&
+      facturas.length > 0 &&
+      !comprobanteAsociado
+    ) {
+      console.log("[POS] Cargando comprobante asociado desde estado...", location.state.comprobanteAsociado);
+      setComprobanteAsociado(location.state.comprobanteAsociado);
+      
+      if (location.state.emitirPago) {
+        setEsEmisionPago(true);
+      }
+
+      // Limpiar el estado de history para evitar recargas infinitas
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state?.comprobanteAsociado, facturas.length, comprobanteAsociado]);
+
   // === EFECTO: Vinculación Inteligente (Autocompletar al asociar) ===
   useEffect(() => {
     if (!comprobanteAsociado) return;
@@ -267,45 +287,65 @@ export const useComprobantes = () => {
     if (!facturaOrigen) return;
 
     const autoRellenar = async () => {
-      // 2. Mapear Items del carrito
-      if (Array.isArray(facturaOrigen.detalles)) {
-        const nuevosItems = facturaOrigen.detalles.map((d) => ({
-          id: d.codigoProducto || `m-${Date.now()}-${Math.random()}`,
-          codigoSecuencial: d.codigoProducto,
-          nombre: d.nombre,
-          cantidad: d.cantidad,
-          precioUnitario: d.precioUnitario,
-          descuento: d.descuento || 0,
-          tasaIva: d.tasaIva || 0,
-          manual: !d.codigoProducto,
-        }));
+      // === AJUSTE DE SALDO PENDIENTE (CONCILIACIÓN) ===
+      const totalVoucher = Number(facturaOrigen.total || 0);
+      // Usamos el campo estructural de la DB si existe, si no, calculamos el pagado inicial
+      const saldoReal =
+        facturaOrigen.saldoPendiente !== undefined
+          ? Number(facturaOrigen.saldoPendiente)
+          : totalVoucher -
+            (facturaOrigen.pagos?.reduce(
+              (acc, p) => acc + (p.monto || 0),
+              0,
+            ) || 0);
 
-        // === AJUSTE DE SALDO PENDIENTE (CONCILIACIÓN) ===
-        const totalVoucher = Number(facturaOrigen.total || 0);
-        // Usamos el campo estructural de la DB si existe, si no, calculamos el pagado inicial
-        const saldoReal =
-          facturaOrigen.saldoPendiente !== undefined
-            ? Number(facturaOrigen.saldoPendiente)
-            : totalVoucher -
-              (facturaOrigen.pagos?.reduce(
-                (acc, p) => acc + (p.monto || 0),
-                0,
-              ) || 0);
-
-        const yaPagado = totalVoucher - saldoReal;
-        if (yaPagado > 0.01) {
-          nuevosItems.push({
-            id: `adj-pago-${Date.now()}`,
-            nombre: "- PAGOS REGISTRADOS ANTERIORMENTE",
+      if (esEmisionPago || location.state?.emitirPago) {
+        // MODO EMISIÓN DE PAGO: Un solo item manual
+        setItems([
+          {
+            id: `m-pago-${Date.now()}`,
+            codigoSecuencial: `PAGO-${Date.now().toString().slice(-4)}`,
+            nombre: `PAGO DE COMPROBANTE ${comprobanteAsociado}`,
+            descripcion: "ABONO/PAGO",
             cantidad: 1,
-            precioUnitario: -yaPagado,
+            precioUnitario: saldoReal,
+            precioVenta: saldoReal,
+            precioBase: saldoReal,
             descuento: 0,
             tasaIva: 0,
             manual: true,
-          });
-        }
+            esManual: true
+          }
+        ]);
+      } else {
+        // 2. Mapear Items del carrito (Mantenido para Notas de Crédito/Débito)
+        if (Array.isArray(facturaOrigen.detalles)) {
+          const nuevosItems = facturaOrigen.detalles.map((d) => ({
+            id: d.codigoProducto || `m-${Date.now()}-${Math.random()}`,
+            codigoSecuencial: d.codigoProducto,
+            nombre: d.nombre,
+            cantidad: d.cantidad,
+            precioUnitario: d.precioUnitario,
+            descuento: d.descuento || 0,
+            tasaIva: d.tasaIva || 0,
+            manual: !d.codigoProducto,
+          }));
 
-        setItems(nuevosItems);
+          const yaPagado = totalVoucher - saldoReal;
+          if (yaPagado > 0.01) {
+            nuevosItems.push({
+              id: `adj-pago-${Date.now()}`,
+              nombre: "- PAGOS REGISTRADOS ANTERIORMENTE",
+              cantidad: 1,
+              precioUnitario: -yaPagado,
+              descuento: 0,
+              tasaIva: 0,
+              manual: true,
+            });
+          }
+
+          setItems(nuevosItems);
+        }
       }
 
       // 3. Mapear Cliente

@@ -6,13 +6,15 @@ import { useMemo, useState, useEffect } from "react";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { accionesComprobantes } from "./AccionesComprobantes";
-import { LayoutGrid } from "lucide-react";
+import { LayoutGrid, DollarSign } from "lucide-react";
 import ComprobantePDF from "./ComprobantePDF";
 import { pdf } from "@react-pdf/renderer";
+import { useNavigate } from "react-router-dom";
 
 import DetalleComprobanteDrawer from "./DetalleComprobanteDrawer";
 
 const TablaComprobantes = () => {
+  const navigate = useNavigate();
   const { usuario, unidadActiva } = useAuthStore();
   const {
     facturas,
@@ -107,15 +109,14 @@ const TablaComprobantes = () => {
     return !!usuario?.conexionArca;
   }, [usuario]);
 
-  const renderizarDetalles = (fila) => {
-    if (!fila.detalles || fila.detalles.length === 0) {
-      return (
-        <div className="text-center py-4 text-[var(--text-muted)] font-medium text-[13px]">
-          No hay productos asociados a este comprobante.
-        </div>
-      );
-    }
+  const handleEmitirPago = (fila) => {
+    const nro = `${String(fila.puntoVenta).padStart(5, "0")}-${String(fila.numeroComprobante).padStart(8, "0")}`;
+    navigate("/panel/ventas/comprobantes", {
+      state: { comprobanteAsociado: nro, emitirPago: true }
+    });
+  };
 
+  const renderizarDetalles = (fila) => {
     const formatearMonto = (monto) => {
       return Number(monto || 0).toLocaleString("es-AR", {
         minimumFractionDigits: 2,
@@ -123,40 +124,50 @@ const TablaComprobantes = () => {
       });
     };
 
+    const saldoPendiente = fila.saldoPendiente !== undefined
+      ? fila.saldoPendiente
+      : (fila.total - (fila.pagos?.reduce((a, p) => a + (p.monto || 0), 0) || 0));
+
     return (
-      <div className="bg-[var(--surface)] rounded-md border border-[var(--border-subtle)] overflow-hidden shadow-sm">
-        <table className="w-full text-left text-[13px]">
-          <thead className="bg-[var(--primary)]/5 text-[10px] text-[var(--primary)]/60 font-black uppercase tracking-widest border-b border-[var(--border-subtle)]">
-            <tr>
-              <th className="px-6 py-4">Descripción</th>
-              <th className="px-6 py-4 text-center">Cant.</th>
-              <th className="px-6 py-4 text-right">Subtotal</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--border-subtle)]">
-            {fila.detalles.map((item, idx) => (
-              <tr
-                key={idx}
-                className="group hover:bg-[var(--primary)]/5 transition-colors"
-              >
-                <td className="px-6 py-5">
-                  <p className="font-black text-[var(--primary)] uppercase leading-none mb-1">
-                    {item.nombre}
-                  </p>
-                  <p className="text-[10px] font-bold text-[var(--primary)]/60 uppercase tracking-widest">
-                    P. Unitario: ${formatearMonto(item.precioUnitario)}
-                  </p>
-                </td>
-                <td className="px-6 py-5 text-center font-black text-[var(--text-muted)]">
-                  {item.cantidad}
-                </td>
-                <td className="px-6 py-5 text-right font-black text-[var(--primary)] tabular-nums">
-                  ${formatearMonto(item.subtotal)}
-                </td>
+      <div className="bg-[var(--surface)] rounded-md border border-[var(--border-subtle)] overflow-hidden shadow-sm m-2">
+        {(!fila.detalles || fila.detalles.length === 0) ? (
+          <div className="text-center py-4 text-[var(--text-muted)] font-medium text-[13px]">
+            No hay productos asociados a este comprobante.
+          </div>
+        ) : (
+          <table className="w-full text-left text-[13px]">
+            <thead className="bg-[var(--primary)]/5 text-[10px] text-[var(--primary)]/60 font-black uppercase tracking-widest border-b border-[var(--border-subtle)]">
+              <tr>
+                <th className="px-6 py-4">Descripción</th>
+                <th className="px-6 py-4 text-center">Cant.</th>
+                <th className="px-6 py-4 text-right">Subtotal</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-[var(--border-subtle)]">
+              {fila.detalles.map((item, idx) => (
+                <tr
+                  key={idx}
+                  className="group hover:bg-[var(--primary)]/5 transition-colors"
+                >
+                  <td className="px-6 py-5">
+                    <p className="font-black text-[var(--primary)] uppercase leading-none mb-1">
+                      {item.nombre}
+                    </p>
+                    <p className="text-[10px] font-bold text-[var(--primary)]/60 uppercase tracking-widest">
+                      P. Unitario: ${formatearMonto(item.precioUnitario)}
+                    </p>
+                  </td>
+                  <td className="px-6 py-5 text-center font-black text-[var(--text-muted)]">
+                    {item.cantidad}
+                  </td>
+                  <td className="px-6 py-5 text-right font-black text-[var(--primary)] tabular-nums">
+                    ${formatearMonto(item.subtotal)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     );
   };
@@ -227,6 +238,7 @@ const TablaComprobantes = () => {
         setBusqueda={setBusqueda}
         mostrarAcciones={true}
         acciones={accionesComprobantes({
+          handleEmitirPago,
           handleVerDetalle,
           handleVerAdjuntos,
         })}

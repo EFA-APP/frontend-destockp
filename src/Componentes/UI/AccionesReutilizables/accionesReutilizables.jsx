@@ -13,6 +13,7 @@ import {
   BloquearUsuarioIcono,
   DuplicarIcono,
   AdjuntoIcono,
+  DineroIcono,
 } from "../../../assets/Icons";
 
 export const accionesReutilizables = {
@@ -88,10 +89,10 @@ export const accionesReutilizables = {
 
   generarComprobante: {
     key: "generarComprobante",
-    label: "Generar Comprobantes",
+    label: "Generar pago",
     icono: (
-      <div className="bg-pink-700/10 p-1 rounded-md text-pink-400! cursor-pointer! hover:bg-violet-700/20  ">
-        <PagosIcono size={18} />
+      <div className="bg-amber-700/10 p-1 rounded-md text-amber-400! cursor-pointer! hover:bg-violet-700/20  ">
+        <DineroIcono size={18} />
       </div>
     ),
   },

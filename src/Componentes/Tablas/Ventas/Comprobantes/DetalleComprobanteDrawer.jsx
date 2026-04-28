@@ -15,6 +15,7 @@ import {
   Info,
   DollarSign,
   ArrowRightLeft,
+  Clock,
 } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import ComprobantePDF from "./ComprobantePDF";
@@ -236,9 +237,9 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
           </div>
 
           {/* AJUSTES APLICADOS (A quién ajusto yo) */}
-          {data.cbtesAsoc &&
-            Array.isArray(data.cbtesAsoc) &&
-            data.cbtesAsoc.length > 0 && (
+          {/* AJUSTES APLICADOS (A quién ajusto yo) */}
+          {(Array.isArray(data.cbtesAsoc) && data.cbtesAsoc.length > 0) || 
+           (Array.isArray(data.comprobantesAsociados) && data.comprobantesAsociados.length > 0) ? (
               <section className="space-y-4">
                 <div className="flex items-center gap-3 px-2">
                   <ArrowRightLeft size={18} className="text-amber-500" />
@@ -248,7 +249,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
                   <div className="flex-1 h-px bg-black/5" />
                 </div>
                 <div className="space-y-3">
-                  {data.cbtesAsoc.map((cbte, idx) => (
+                  {(data.cbtesAsoc?.length > 0 ? data.cbtesAsoc : data.comprobantesAsociados).map((cbte, idx) => (
                     <div
                       key={idx}
                       className="p-5 rounded-md bg-amber-50 border border-amber-100 flex items-center justify-between"
@@ -262,9 +263,9 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
                             Documento Asociado
                           </p>
                           <p className="text-[14px] font-black text-[var(--primary)] uppercase tracking-tight">
-                            Tipo {cbte.tipo} |{" "}
-                            {String(cbte.ptoVta).padStart(5, "0")}-
-                            {String(cbte.nro).padStart(8, "0")}
+                            Tipo {cbte.tipo || cbte.Tipo || 1} |{" "}
+                            {String(cbte.ptoVta || cbte.PtoVta || cbte.puntoVenta || 0).padStart(5, "0")}-
+                            {String(cbte.nro || cbte.Nro || cbte.numero || 0).padStart(8, "0")}
                           </p>
                         </div>
                       </div>
@@ -272,7 +273,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
                   ))}
                 </div>
               </section>
-            )}
+            ) : null}
 
           {/* Client Info - Estilo Perfil */}
           <section className="space-y-4">
