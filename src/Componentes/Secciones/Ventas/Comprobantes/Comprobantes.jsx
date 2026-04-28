@@ -321,7 +321,7 @@ const Comprobantes = () => {
                 )}
               </div>
 
-              <div className="flex-1   flex flex-col overflow-hidden">
+              <div className="flex-1   flex flex-col">
                 <DataTable
                   datos={items.map((it, idx) => ({ ...it, _pos: idx }))}
                   columnas={ColumnasTicket({
@@ -335,30 +335,6 @@ const Comprobantes = () => {
                   todasExpandidas={true}
                   llaveTituloMobile="nombre"
                 />
-              </div>
-
-              <div className="hidden md:flex py-8 px-10 justify-between items-center mt-6 bg-black text-white rounded-md shadow-xl shadow-black/10 border border-white/10">
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-1">
-                    Total Estimado
-                  </span>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-black tracking-tighter">
-                      ${(totales?.total || 0).toLocaleString()}
-                    </span>
-                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">
-                      ARS
-                    </span>
-                  </div>
-                </div>
-                <div className="hidden md:flex flex-col items-end">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">
-                    Items Totales
-                  </span>
-                  <span className="text-xl font-black">
-                    {items.reduce((acc, i) => acc + (i.cantidad || 0), 0)}
-                  </span>
-                </div>
               </div>
             </div>
           )}
@@ -530,7 +506,7 @@ const Comprobantes = () => {
 
           {/* PASO 4: FORMA DE PAGO (VERSION FINAL SEGÚN IMAGEN) */}
           {paso === 4 && (
-            <div className="flex-1 flex flex-col md:flex-row gap-6 animate-in fade-in slide-in-from-right-4 duration-500 overflow-y-auto pb-20">
+            <div className="flex-1 flex flex-col md:flex-row gap-6 animate-in fade-in slide-in-from-right-4 duration-500 overflow-y-auto pb-20 ">
               <div className="flex-1 flex flex-col gap-6">
                 {/* 1. SELECCION DE CONDICION (IMAGEN 1) */}
                 <div className="bg-white shadow-md border border-black/10 rounded-md p-4 flex flex-col gap-3">
@@ -541,7 +517,7 @@ const Comprobantes = () => {
                   <select
                     value={condicionVenta}
                     onChange={(e) => setCondicionVenta(e.target.value)}
-                    className="w-full h-12 bg-[var(--fill)] border border-black/10 rounded-md px-4 font-black uppercase text-xs outline-none focus:border-red-500"
+                    className="w-full h-12 bg-white border border-black/10 rounded-md px-4 font-black uppercase text-xs outline-none focus:border-red-500"
                   >
                     <option value="contado">PAGO AL CONTADO</option>
                     <option value="cuenta_corriente">CUENTA CORRIENTE</option>
@@ -549,18 +525,18 @@ const Comprobantes = () => {
                 </div>
 
                 {/* 2. PAGOS REGISTRADOS (IMAGEN 2) */}
-                <div className="bg-white shadow-md border-2 border-dashed border-black/5 rounded-md p-6 text-center min-h-[100px] flex flex-col justify-center text-[var(--text-theme)]">
-                  <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest opacity-80 mb-4 justify-center">
-                    <DineroIcono size={16} />
-                    <span>4. Forma de Pago</span>
-                  </div>
-
+                <div className="
+                text-center h-auto flex flex-col  justify-center text-[var(--text-theme)]">
                   {listaPagos.length === 0 ? (
-                    <span className="text-[11px] font-black uppercase tracking-widest opacity-40 italic">
+                    <span className="text-[11px] font-black uppercase tracking-widest opacity-40 italic ">
                       Sin Pagos Registrados
                     </span>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="space-y-2 bg-white p-2 rounded-md border border-black/10">
+                      <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest opacity-80 pl-3 py-2">
+                        <DineroIcono size={16} />
+                        <span>4. Forma de Pago</span>
+                      </div>
                       {listaPagos.map((p, i) => (
                         <div
                           key={i}

@@ -95,8 +95,7 @@ const ModalConfirmacionCobro = ({
                   style={{ animationDelay: `${idx * 60}ms` }}
                 >
                   <div className="flex flex-col gap-1">
-                    <span className="text-[16px] font-black text-[var(--secondary)] uppercase tracking-tight leading-tight">
-                      {item.cantidad} x{" "}
+                    <span className="text-[14px] font-medium text-[var(--secondary)] uppercase tracking-tight leading-tight">
                       <span className="text-[var(--primary)]">
                         {item.nombre}
                       </span>
@@ -112,6 +111,8 @@ const ModalConfirmacionCobro = ({
                         "es-AR",
                         { minimumFractionDigits: 2 },
                       )}
+                      <span className="text-red-500 font-black p-2 rounded-full ml-2">{item?.cantidad}</span>
+
                     </span>
                   </div>
                 </div>
@@ -185,7 +186,7 @@ const ModalConfirmacionCobro = ({
                         <p className="bg-[var(--border-subtle)] p-2 rounded-md text-[var(--primary)]">
                           <DineroIcono size={20} />
                         </p>
-                        {p.metodo}
+                        {p.tipo}
                       </span>
                       {p.detalles && (
                         <span className="text-[10px] text-[var(--primary)]/40 font-bold uppercase tracking-[0.05em]">

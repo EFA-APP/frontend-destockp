@@ -5,10 +5,8 @@ import { columnasComprobantes } from "./ColumnaComprobantes";
 import { useMemo, useState, useEffect } from "react";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
-import { ObtenerTiposComprobanteApi } from "../../../../Backend/Arca/api/arca.api";
 import { accionesComprobantes } from "./AccionesComprobantes";
-import { VentasIcono, DineroIcono } from "../../../../assets/Icons";
-import { TrendingUp, LayoutGrid } from "lucide-react";
+import { LayoutGrid } from "lucide-react";
 import ComprobantePDF from "./ComprobantePDF";
 import { pdf } from "@react-pdf/renderer";
 
@@ -18,16 +16,10 @@ const TablaComprobantes = () => {
   const { usuario, unidadActiva } = useAuthStore();
   const {
     facturas,
-    meta,
     isLoading,
     isFetching,
-    isError,
-    pagina,
-    setPagina,
     busqueda,
     setBusqueda,
-    tipoFactura,
-    setTypeFactura,
     fechaDesde,
     setFechaDesde,
     fechaHasta,
@@ -38,10 +30,6 @@ const TablaComprobantes = () => {
     setCondicionVenta,
     unidadNegocio,
     setUnidadNegocio,
-    manejarDetalle,
-    manejarEditar,
-    manejarEliminar,
-    refetch,
   } = useFacturas();
 
   const opcionesUnidad = useMemo(() => {
@@ -114,57 +102,64 @@ const TablaComprobantes = () => {
     }
   };
 
-  // Datos dinámicos de ARCA
-  const [tiposARCA, setTiposARCA] = useState([]);
-  const [cargandoTipos, setCargandoTipos] = useState(false);
-
-  // 1. Carga de Tipos de Comprobante Dinámicos
-  useEffect(() => {
-    const fetchDatosArca = async () => {
-      if (usuario?.conexionArca) {
-        setCargandoTipos(true);
-        try {
-          const resTipos = await ObtenerTiposComprobanteApi();
-
-          // Procesar Tipos
-          const dataRaw = Array.isArray(resTipos)
-            ? resTipos
-            : resTipos?.data || [];
-          const vouchersReal = Array.isArray(dataRaw)
-            ? dataRaw
-            : dataRaw?.data || [];
-          if (Array.isArray(vouchersReal)) {
-            setTiposARCA(
-              vouchersReal.map((t) => ({ valor: String(t.Id), texto: t.Desc })),
-            );
-          }
-        } catch (e) {
-          console.error("Error cargando tipos de ARCA:", e);
-        } finally {
-          setCargandoTipos(false);
-        }
-      }
-    };
-    fetchDatosArca();
-  }, [usuario?.id]);
-
   // 2. Lógica de visibilidad del filtro fiscal (Detección Real)
   const tieneConexionArca = useMemo(() => {
     return !!usuario?.conexionArca;
   }, [usuario]);
 
-  // 3. Totales
-  const totalFacturadoFacturas = useMemo(() => {
-    return facturas?.reduce((acc, f) => acc + (f.total || 0), 0) || 0;
-  }, [facturas]);
+  const renderizarDetalles = (fila) => {
+    if (!fila.detalles || fila.detalles.length === 0) {
+      return (
+        <div className="text-center py-4 text-[var(--text-muted)] font-medium text-[13px]">
+          No hay productos asociados a este comprobante.
+        </div>
+      );
+    }
 
-  // 4. Opciones de Clase (Mezcla estáticas + ARCA)
-  const opcionesClase = useMemo(() => {
-    return [
-      { valor: "TODAS", texto: "Todos los Comprobantes" },
-      { valor: "99", texto: "Ticket No Fiscal" },
-    ];
-  }, [tiposARCA]);
+    const formatearMonto = (monto) => {
+      return Number(monto || 0).toLocaleString("es-AR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    };
+
+    return (
+      <div className="bg-[var(--surface)] rounded-md border border-[var(--border-subtle)] overflow-hidden shadow-sm">
+        <table className="w-full text-left text-[13px]">
+          <thead className="bg-[var(--primary)]/5 text-[10px] text-[var(--primary)]/60 font-black uppercase tracking-widest border-b border-[var(--border-subtle)]">
+            <tr>
+              <th className="px-6 py-4">Descripción</th>
+              <th className="px-6 py-4 text-center">Cant.</th>
+              <th className="px-6 py-4 text-right">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[var(--border-subtle)]">
+            {fila.detalles.map((item, idx) => (
+              <tr
+                key={idx}
+                className="group hover:bg-[var(--primary)]/5 transition-colors"
+              >
+                <td className="px-6 py-5">
+                  <p className="font-black text-[var(--primary)] uppercase leading-none mb-1">
+                    {item.nombre}
+                  </p>
+                  <p className="text-[10px] font-bold text-[var(--primary)]/60 uppercase tracking-widest">
+                    P. Unitario: ${formatearMonto(item.precioUnitario)}
+                  </p>
+                </td>
+                <td className="px-6 py-5 text-center font-black text-[var(--text-muted)]">
+                  {item.cantidad}
+                </td>
+                <td className="px-6 py-5 text-right font-black text-[var(--primary)] tabular-nums">
+                  ${formatearMonto(item.subtotal)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
   if (!unidadNegocio) {
     return (
@@ -176,6 +171,7 @@ const TablaComprobantes = () => {
             datos={[]}
             loading={false}
             mostrarBuscador={false}
+            todasExpandidas={true}
             elementosSuperior={
               <div className="flex flex-wrap items-center gap-4 bg-zinc-950/40 backdrop-blur-md border border-black/5 p-2 rounded-2xl shadow-2xl">
                 <div className="min-w-[220px]">
@@ -236,6 +232,7 @@ const TablaComprobantes = () => {
         })}
         mostrarFiltros={false}
         todasExpandidas={true}
+        renderDetalle={renderizarDetalles}
         elementosSuperior={
           <div className="flex flex-wrap items-center gap-3 bg-[var(--fill)] p-1 rounded-md shadow-2xl p-3 ">
             {/* SELECTOR DE UNIDAD DE NEGOCIO */}

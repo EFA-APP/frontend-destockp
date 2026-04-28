@@ -224,11 +224,10 @@ const SelectorComprobantesModal = ({ open, onClose, onSelect }) => {
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
                         <div
-                          className={`w-1.5 h-1.5 rounded-full shadow-sm ${
-                            f.fiscal
+                          className={`w-1.5 h-1.5 rounded-full shadow-sm ${f.fiscal
                               ? "bg-emerald-700 shadow-emerald-700/50"
                               : "bg-blue-700 shadow-blue-700/50"
-                          }`}
+                            }`}
                         ></div>
                         <span className="px-1.5 py-0.5 rounded bg-black/5 border border-black/10 text-[11px] font-black text-black/60">
                           {f.letraComprobante || "X"}

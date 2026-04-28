@@ -491,46 +491,6 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
               </div>
             )}
           </section>
-
-          {/* Totals Section - Diseño de Ticket Final */}
-          <section className="bg-[var(--primary)] text-white rounded-md p-8 shadow-2xl space-y-5 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-3xl" />
-
-            <div className="space-y-4 relative z-10">
-              <div className="flex justify-between items-center text-white/40">
-                <span className="text-[11px] font-black uppercase tracking-[0.2em]">
-                  Importe Neto Gravado
-                </span>
-                <span className="text-[14px] font-bold font-mono">
-                  ${formatearMonto(data.subtotal)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-white/40">
-                <span className="text-[11px] font-black uppercase tracking-[0.2em]">
-                  Impuesto IVA (21%)
-                </span>
-                <span className="text-[14px] font-bold font-mono">
-                  ${formatearMonto(data.iva)}
-                </span>
-              </div>
-
-              <div className="h-px bg-white/10 my-2" />
-
-              <div className="flex justify-between items-center">
-                <div className="flex flex-col">
-                  <span className="text-[12px] font-black text-rose-500 uppercase tracking-[0.3em] mb-1">
-                    Total Final
-                  </span>
-                  <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">
-                    Saldo de Operación
-                  </span>
-                </div>
-                <span className="text-4xl font-black text-white tracking-tighter tabular-nums leading-none">
-                  ${formatearMonto(data.total)}
-                </span>
-              </div>
-            </div>
-          </section>
         </div>
       </div>
     </div>
