@@ -277,7 +277,7 @@ const Deposito = () => {
           </div>
           <TablaDepositoStock
             tipoArticulo="PRODUCTO"
-            titulo="Matriz de Inventario (Productos)"
+            titulo="Productos"
           />
         </section>
 
@@ -334,7 +334,7 @@ const Deposito = () => {
             </div>
             <TablaDepositoStock
               tipoArticulo="MATERIA_PRIMA"
-              titulo="Matriz de Inventario (Materia Prima)"
+              titulo="Materia Prima"
             />
           </section>
         )}

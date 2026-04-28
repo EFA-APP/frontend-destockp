@@ -183,9 +183,8 @@ const Comprobantes = () => {
     window.addEventListener("keydown", handleGlobalKeys);
     return () => window.removeEventListener("keydown", handleGlobalKeys);
   }, [paso, siguientePaso, anteriorPaso, setPaso]);
-  const noopProductoEncontrado = useCallback(() => {}, []);
+  const noopProductoEncontrado = useCallback(() => { }, []);
   const cargandoInicial = cargandoConfigs && items.length === 0;
-
   return (
     <div className="flex flex-col h-screen md:h-screen w-full overflow-hidden pt-4 md:py-6 px-2">
       {/* 1. SECCIÓN: CABECERA */}
@@ -196,7 +195,7 @@ const Comprobantes = () => {
       />
 
       {/* 2. SECCIÓN: STEPPER (Progreso) */}
-      <div className="flex items-center justify-between px-1 mb-2  relative max-w-2xl mx-auto w-full md:px-4  md:mb-8">
+      <div className="flex mt-8 items-center justify-between px-1 mb-2  relative max-w-2xl mx-auto w-full md:px-4  md:mb-8">
         <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-black/5 -translate-y-1/2 z-0" />
         <div
           className="absolute top-1/2 left-0 h-0.5 bg-[var(--primary)] -translate-y-1/2 z-0 transition-all duration-500"
@@ -207,13 +206,12 @@ const Comprobantes = () => {
           <button
             key={s}
             onClick={() => items.length > 0 && setPaso(s)}
-            className={`relative z-10 w-9 h-9 md:w-10 md:h-10 rounded-md flex items-center justify-center border-2 transition-all duration-300 ${
-              paso === s
-                ? "bg-gray-200 border-[var(--primary)] text-black font-semibold scale-110 shadow-lg shadow-[var(--primary)]/10"
-                : paso > s
-                  ? "bg-emerald-500 border-emerald-500 text-white"
-                  : "bg-[var(--surface)] border-black/10 text-[var(--text-muted)]"
-            }`}
+            className={`relative z-10 w-9 h-9 md:w-10 md:h-10 rounded-md flex items-center justify-center border-2 transition-all duration-300 ${paso === s
+              ? "bg-gray-200 border-[var(--primary)] text-black font-semibold scale-110 shadow-lg shadow-[var(--primary)]/10"
+              : paso > s
+                ? "bg-emerald-500 border-emerald-500 text-white"
+                : "bg-[var(--surface)] border-black/10 text-[var(--text-muted)]"
+              }`}
           >
             {paso > s ? "✓" : s}
             <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] font-black uppercase tracking-widest whitespace-nowrap text-[var(--border-muted)] hidden sm:block">
@@ -323,7 +321,7 @@ const Comprobantes = () => {
                 )}
               </div>
 
-              <div className="flex-1 bg-white border border-black/5 rounded-md shadow-sm flex flex-col overflow-hidden">
+              <div className="flex-1   flex flex-col overflow-hidden">
                 <DataTable
                   datos={items.map((it, idx) => ({ ...it, _pos: idx }))}
                   columnas={ColumnasTicket({
@@ -333,7 +331,7 @@ const Comprobantes = () => {
                     inputCodigoRef,
                   })}
                   mostrarAcciones={false}
-                  emptyMessage="Utilice el buscador para cargar productos al comprobante."
+                  emptyMessage=""
                   todasExpandidas={true}
                   llaveTituloMobile="nombre"
                 />
@@ -710,11 +708,10 @@ const Comprobantes = () => {
 
                   <button
                     onClick={agregarPago}
-                    className={`w-full h-14 rounded-md font-black uppercase tracking-widest transition-all shadow-sm flex items-center justify-center gap-2 border-2 ${
-                      condicionVenta === "contado" && listaPagos.length === 0
-                        ? "bg-red-500 text-white border-red-600 animate-pulse scale-[1.02] shadow-xl shadow-red-500/40"
-                        : "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
-                    }`}
+                    className={`w-full h-14 rounded-md font-black uppercase tracking-widest transition-all shadow-sm flex items-center justify-center gap-2 border-2 ${condicionVenta === "contado" && listaPagos.length === 0
+                      ? "bg-red-500 text-white border-red-600 animate-pulse scale-[1.02] shadow-xl shadow-red-500/40"
+                      : "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
+                      }`}
                   >
                     <DineroIcono size={20} />+ Agregar Pago
                   </button>

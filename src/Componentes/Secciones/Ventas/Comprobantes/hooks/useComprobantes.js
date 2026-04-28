@@ -12,32 +12,24 @@ import { useLocation } from "react-router-dom";
 import { useProductoUI } from "../../../../../Backend/Articulos/hooks/Producto/useProductoUI";
 import { useGenerarComprobante } from "../../../../../Backend/Ventas/queries/Comprobante/useGenerarComprobante.mutation";
 import {
-  getPrecio,
-  calcularIVA,
   calcularNetoItem,
   calcularTotalItem,
 } from "../utils/fiscal.utils";
-import { ObtenerTiposComprobanteApi } from "../../../../../Backend/Arca/api/arca.api";
 
 // Sub-hooks refactorizados
 import { useVentaCart } from "./useVentaCart";
 import { useVentaFiscal } from "./useVentaFiscal";
 import { useVentaPagos } from "./useVentaPagos";
 
-/**
- * Deriva la letra del comprobante AFIP a partir del tipoDocumento numérico.
- * Tipos 1-5  → A (Responsable Inscripto)
- * Tipos 6-10 → B (Consumidor Final)
- * Tipos 11-15 → C (Monotributo)
- * Resto      → X (Interno / sin validez fiscal)
- */
-const obtenerLetraDeComprobante = (tipoDocumento) => {
-  const tipo = Number(tipoDocumento);
-  if (tipo >= 1 && tipo <= 5)   return "A";
-  if (tipo >= 6 && tipo <= 10)  return "B";
-  if (tipo >= 11 && tipo <= 15) return "C";
-  return "X";
-};
+import { 
+  obtenerLetraPorTipo, 
+  esNotaCredito, 
+  esNotaDebito, 
+  esRecibo,
+  CONDICION_IVA,
+} from "../reglas/reglasFiscales";
+import { obtenerAjusteCorrespondiente } from "../reglas/reglasComprobantes";
+import { validarOperacionFiscal } from "../reglas/reglasValidacion";
 
 const MESES_MAP = {
   ENERO: "01",
@@ -67,14 +59,25 @@ export const useComprobantes = () => {
     unidadActiva?.codigoSecuencial || 0,
   );
 
-  // === 2. MODULOS REFACTORIZADOS ===
-  const fiscal = useVentaFiscal(usuario, arcaConectado, infoIva);
+  // === 2. ESTADOS DE CLIENTE Y ENTIDADES (Mantenidos aquí para evitar ReferenceError en módulos) ===
+  const [entidades, setEntidades] = useState([]);
+  const [entidadSeleccionada, setEntidadSeleccionada] = useState("");
+  const [busquedaCliente, setBusquedaCliente] = useState("");
+  const [mostrarDropdownCliente, setMostrarDropdownCliente] = useState(false);
+  const [mostrarFormularioContacto, setMostrarFormularioContacto] =
+    useState(false);
+  const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
+  const [highlightedIndexCliente, setHighlightedIndexCliente] = useState(-1);
+
+  // === 3. MODULOS REFACTORIZADOS ===
+  const fiscal = useVentaFiscal(usuario, arcaConectado, infoIva, clienteSeleccionado);
   const cart = useVentaCart(agregarAlerta, "precioVenta", fiscal.aplicaIva);
   const [condicionVenta, setCondicionVenta] = useState("contado");
   const pagos = useVentaPagos(
     cart.totales.total,
     condicionVenta,
     setCondicionVenta,
+    agregarAlerta
   );
 
   // Destructuración para lógica interna
@@ -89,14 +92,6 @@ export const useComprobantes = () => {
     setNuevoPago,
   } = pagos;
   const { tipoDocumento, setTipoDocumento, enBlanco, setEnBlanco } = fiscal;
-  const [entidades, setEntidades] = useState([]);
-  const [entidadSeleccionada, setEntidadSeleccionada] = useState("");
-  const [busquedaCliente, setBusquedaCliente] = useState("");
-  const [mostrarDropdownCliente, setMostrarDropdownCliente] = useState(false);
-  const [mostrarFormularioContacto, setMostrarFormularioContacto] =
-    useState(false);
-  const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
-  const [highlightedIndexCliente, setHighlightedIndexCliente] = useState(-1);
 
   const { contactos: clientesRaw } = useContactos({
     tipoEntidad: entidadSeleccionada,
@@ -337,28 +332,19 @@ export const useComprobantes = () => {
         );
       }
 
-      // 4. Ajuste Inteligente de Tipo de Documento
-      const letraOriginal = facturaOrigen.letraComprobante || "B";
-      const letra = letraOriginal.slice(-1).toUpperCase(); // Tomamos siempre la última letra (A, B o C) para ser retrocompatibles
-      const mapaNC = { A: 3, B: 8, C: 13 };
-      const mapaND = { A: 2, B: 7, C: 12 };
-      const mapaRec = { A: 4, B: 9, C: 15 };
-
       // Sincronizar Modo Fiscal y Tipo de Comprobante según la Factura Origen
       setEnBlanco(facturaOrigen.fiscal ? "si" : "no");
 
       // Verificamos intención actual (NC vs ND vs RECIBO)
-      const esNDActual = [2, 7, 12].includes(Number(tipoDocumento));
-      const esRecActual = [4, 9, 15].includes(Number(tipoDocumento));
+      const esNDActual = esNotaDebito(tipoDocumento);
+      const esRecActual = esRecibo(tipoDocumento);
 
-      // Si el usuario está en ND, mantenemos ND. Si es Recibo, mantenemos Recibo. Si no, forzamos NC.
-      if (esNDActual) {
-        if (mapaND[letra]) setTipoDocumento(mapaND[letra]);
-      } else if (esRecActual) {
-        if (mapaRec[letra]) setTipoDocumento(mapaRec[letra]);
-      } else {
-        if (mapaNC[letra]) setTipoDocumento(mapaNC[letra]);
-      }
+      let tipoAjuste = 'NC';
+      if (esNDActual) tipoAjuste = 'ND';
+      if (esRecActual) tipoAjuste = 'RECIBO';
+
+      const nuevoTipo = obtenerAjusteCorrespondiente(facturaOrigen.tipoDocumento, tipoAjuste);
+      if (nuevoTipo) setTipoDocumento(nuevoTipo);
 
       // 5. Sincronizar Modo Fiscal
       setEnBlanco(facturaOrigen.fiscal ? "si" : "no");
@@ -557,11 +543,10 @@ export const useComprobantes = () => {
       codigoCliente: clienteSeleccionado?.codigoSecuencial || null,
       tipoDocumento: Number(fiscal.tipoDocumento),
       letraComprobante: fiscal.enBlanco === "si"
-        ? obtenerLetraDeComprobante(fiscal.tipoDocumento)
+        ? obtenerLetraPorTipo(fiscal.tipoDocumento)
         : "X",
-      metodoPago: pagos.metodoPago,
       pagos: pagos.listaPagos.map((p) => ({
-        metodo: p.metodo,
+        metodo: p.tipo || p.metodo || "EFECTIVO",
         monto: r2(p.monto),
         referencia: p.referencia,
         detalles: p.detalles || "",
@@ -598,6 +583,17 @@ export const useComprobantes = () => {
       periodo: periodo || null,
     };
 
+    // --- VALIDACIÓN FISCAL DINÁMICA ---
+    const errorFiscal = validarOperacionFiscal(body);
+    if (errorFiscal) {
+      agregarAlerta({
+        title: "Error Fiscal",
+        message: errorFiscal,
+        type: "warning",
+      });
+      return;
+    }
+
     console.log("Enviando DTO Final:", body);
 
     mutationGenerar.mutate(
@@ -620,6 +616,7 @@ export const useComprobantes = () => {
           setComprobanteAsociado("");
           setObservaciones("");
           setMostrarPreview(false);
+          setPaso(1);
           limpiarCaptura();
         },
         onError: (err) => {

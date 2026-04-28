@@ -176,9 +176,9 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
             </button>
             <button
               onClick={handleDescargarPDF}
-              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-md bg-black text-white hover:bg-rose-600 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-black/10 transition-all"
+              className="w-12 h-11 flex items-center justify-center rounded-md bg-black text-white hover:bg-rose-600 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-black/10 transition-all"
             >
-              <Download size={16} /> Descargar
+              <Download size={16} />
             </button>
             <button
               onClick={handleImprimirPDF}
@@ -192,18 +192,18 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
           <div className="grid grid-cols-2 gap-5">
             <div
               className={`p-6 rounded-md border shadow-sm transition-all ${data.estado === "ANULADO"
-                  ? "bg-rose-50 border-rose-100"
-                  : data.estado === "AJUSTADO_PARCIAL"
-                    ? "bg-amber-50 border-amber-100"
-                    : "bg-emerald-50 border-emerald-100"
+                ? "bg-rose-50 border-rose-100"
+                : data.estado === "AJUSTADO_PARCIAL"
+                  ? "bg-amber-50 border-amber-100"
+                  : "bg-emerald-50 border-emerald-100"
                 }`}
             >
               <div
                 className={`flex items-center gap-2 mb-3 ${data.estado === "ANULADO"
-                    ? "text-rose-600"
-                    : data.estado === "AJUSTADO_PARCIAL"
-                      ? "text-amber-600"
-                      : "text-emerald-600"
+                  ? "text-rose-600"
+                  : data.estado === "AJUSTADO_PARCIAL"
+                    ? "text-amber-600"
+                    : "text-emerald-600"
                   }`}
               >
                 <CheckCircle2 size={16} />
@@ -213,10 +213,10 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
               </div>
               <p
                 className={`text-lg font-black uppercase tracking-tight ${data.estado === "ANULADO"
-                    ? "text-rose-700"
-                    : data.estado === "AJUSTADO_PARCIAL"
-                      ? "text-amber-700"
-                      : "text-emerald-700"
+                  ? "text-rose-700"
+                  : data.estado === "AJUSTADO_PARCIAL"
+                    ? "text-amber-700"
+                    : "text-emerald-700"
                   }`}
               >
                 {data.estado || "VÁLIDO"}
@@ -283,9 +283,9 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
               </h3>
               <div className="flex-1 h-px bg-black/5" />
             </div>
-            <div className="p-6 rounded-md bg-white border border-black/5 shadow-sm space-y-6 relative overflow-hidden">
+            <div className="p-4 rounded-md bg-white border border-black/5 shadow-sm space-y-6 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1 h-full bg-rose-500/20" />
-              <div className="flex items-center gap-5 pb-5 border-b border-black/5">
+              <div className="flex items-center gap-5">
                 <div className="w-14 h-14 rounded-md bg-rose-500 text-white flex items-center justify-center text-2xl font-black shadow-lg shadow-rose-500/20 uppercase">
                   {(data.receptor?.razonSocial || "C")[0]}
                 </div>
@@ -296,28 +296,6 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
                   <p className="text-[12px] font-bold text-rose-500 uppercase tracking-widest">
                     {data.receptor?.DocTipo === 80 ? "CUIT" : "DNI"}:{" "}
                     {data.receptor?.DocNro || "0"}
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-8">
-                <div>
-                  <label className="block text-[10px] font-black text-[var(--primary)]/60 uppercase tracking-widest mb-1.5">
-                    Condición IVA
-                  </label>
-                  <p className="text-[13px] font-black text-[var(--primary)] uppercase tracking-tight">
-                    {mapaIvaDescripcion[
-                      data.receptor?.CondicionIVAReceptorId
-                    ] ||
-                      data.receptor?.condicionIva ||
-                      "CONSUMIDOR FINAL"}
-                  </p>
-                </div>
-                <div>
-                  <label className="block text-[10px] font-black text-[var(--primary)]/60 uppercase tracking-widest mb-1.5">
-                    Domicilio Fiscal
-                  </label>
-                  <p className="text-[13px] font-black text-[var(--primary)] uppercase tracking-tight truncate">
-                    {data.receptor?.domicilio || "NO REGISTRADO"}
                   </p>
                 </div>
               </div>

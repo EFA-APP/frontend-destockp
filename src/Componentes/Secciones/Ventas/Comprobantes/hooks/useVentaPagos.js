@@ -1,10 +1,11 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 
-export const useVentaPagos = (totalVenta, condicionVenta, setCondicionVenta) => {
+export const useVentaPagos = (totalVenta, condicionVenta, setCondicionVenta, agregarAlerta) => {
   const [metodoPago, setMetodoPago] = useState("efectivo");
   const [listaPagos, setListaPagos] = useState([]);
   const [nuevoPago, setNuevoPago] = useState({
-    metodo: "efectivo",
+    tipo: null,
+    entidadId: "",
     monto: 0,
     pagaCon: 0,
     detalles: "",
@@ -33,16 +34,29 @@ export const useVentaPagos = (totalVenta, condicionVenta, setCondicionVenta) => 
   }, [totalVenta, listaPagos, condicionVenta, setCondicionVenta]);
 
   const agregarPago = useCallback(() => {
+    if (!nuevoPago.tipo) {
+      if (agregarAlerta) {
+        agregarAlerta({
+          title: "Tipo de Pago Requerido",
+          message: "Debe seleccionar la forma de pago (Efectivo, Débito, etc.)",
+          type: "warning",
+        });
+      }
+      return;
+    }
+    
     if (nuevoPago.monto <= 0) return;
+    
     setListaPagos((prev) => [...prev, { ...nuevoPago, id: Date.now() }]);
     setNuevoPago({
-      metodo: "efectivo",
+      tipo: null,
+      entidadId: "",
       monto: 0,
       pagaCon: 0,
       detalles: "",
       referencia: "",
     });
-  }, [nuevoPago]);
+  }, [nuevoPago, agregarAlerta]);
 
   const eliminarPago = useCallback((index) => {
     setListaPagos((prev) => prev.filter((_, i) => i !== index));

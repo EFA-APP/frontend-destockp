@@ -71,7 +71,7 @@ const TablaComprobantes = () => {
               key={opt.id}
               onClick={() => setCondicionVenta(opt.id)}
               className={`
-                relative px-4 py-1.5 rounded-md text-[12px] font-black uppercase tracking-widest   cursor-pointer
+                relative px-4  py-1.5 rounded-md text-[12px] font-black uppercase tracking-widest   cursor-pointer
                 ${active
                   ? "text-[var(--primary)] shadow-xl shadow-[var(--primary)]/10"
                   : "text-[var(--primary)]/60 hover:text-[var(--primary)]/60 hover:bg-[var(--primary)]/5"
@@ -210,76 +210,13 @@ const TablaComprobantes = () => {
   }
 
   return (
-    <div className="space-y-8   ">
+    <div className="space-y-8  mt-4 ">
       <DetalleComprobanteDrawer
         open={modalAbierto}
         onClose={() => setModalAbierto(false)}
         data={seleccionado}
         usuario={usuario}
       />
-
-      {/* Tarjetas con Colores de Empresa */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="relative group overflow-hidden bg-[var(--fill)] border border-black/5 p-6 rounded-md shadow-2xl  hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)]/10 blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-[var(--primary)]/20  " />
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-[var(--primary)]/10 rounded-2xl flex items-center justify-center border border-[var(--primary)]/20 text-[var(--primary)]">
-              <DineroIcono size={24} />
-            </div>
-            <div>
-              <h3 className="text-[12px] font-black text-black/40 uppercase tracking-[0.2em]">
-                Facturación Listada
-              </h3>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-black text-black italic tracking-tighter">
-                  $
-                  {totalFacturadoFacturas.toLocaleString("es-AR", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-                <TrendingUp size={14} className="text-emerald-700" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative group overflow-hidden bg-[var(--fill)] border border-black/5 p-6 rounded-md shadow-2xl  hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-700/10 blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-indigo-700/20  " />
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-indigo-700/10 rounded-2xl flex items-center justify-center border border-indigo-700/20 text-indigo-400">
-              <LayoutGrid size={24} />
-            </div>
-            <div>
-              <h3 className="text-[12px] font-black text-black/40 uppercase tracking-[0.2em]">
-                Total Registros
-              </h3>
-              <span className="text-2xl font-black text-black italic tracking-tighter">
-                {meta.totalItems || 0}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative group overflow-hidden bg-[var(--fill)] border border-black/5 p-6 rounded-md shadow-2xl  hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-700/10 blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-emerald-700/20  " />
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-emerald-700/10 rounded-2xl flex items-center justify-center border border-emerald-700/20 text-emerald-400">
-              <VentasIcono size={24} />
-            </div>
-            <div>
-              <h3 className="text-[12px] font-black text-black/40 uppercase tracking-[0.2em]">
-                Ticket Promedio
-              </h3>
-              <span className="text-2xl font-black text-black italic tracking-tighter">
-                $
-                {(
-                  totalFacturadoFacturas / (meta.totalItems || 1)
-                ).toLocaleString("es-AR", { minimumFractionDigits: 2 })}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Tabla Maestra con Diseño Identitario */}
       <DataTable

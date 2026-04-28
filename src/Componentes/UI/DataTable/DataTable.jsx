@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { AgregarIcono, BuscadorIcono, FiltroIcono } from "../../../assets/Icons";
+import { AgregarIcono, BuscadorIcono, CajaIcono, FiltroIcono } from "../../../assets/Icons";
 import {
   ChevronDown,
   ChevronUp,
@@ -525,7 +525,7 @@ const DataTable = ({
   React.useEffect(() => {
     const handleScroll = () => {
       if (!placeholderRef.current) return;
-      
+
       const rect = placeholderRef.current.getBoundingClientRect();
       // El navbar mide 56px (h-14). Si el placeholder llega a 56px de arriba, fijamos.
       if (rect.top <= 56) {
@@ -554,7 +554,7 @@ const DataTable = ({
                   <TieneAccion accion={botonAgregar?.tieneAccion}>
                     <button
                       onClick={manejarAgregarClick}
-                      className="flex items-center gap-2 px-6 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary-subtle)] border border-[var(--primary)]/20! rounded-md! font-bold! text-[13px]! uppercase! tracking-wider! cursor-pointer! text-[var(--primary)]!"
+                      className="hidden md:flex items-center gap-2 px-6 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary-subtle)] border border-[var(--primary)]/20! rounded-md! font-bold! text-[13px]! uppercase! tracking-wider! cursor-pointer! text-[var(--primary)]!"
                     >
                       <AgregarIcono size={14} /> {botonAgregar.texto}
                     </button>
@@ -580,10 +580,10 @@ const DataTable = ({
                   <div className="w-full lg:w-[480px] relative" ref={placeholderRef}>
                     {/* Placeholder para mantener el espacio en mobile cuando se vuelve fixed */}
                     <div className={`${buscadorFijo ? 'block md:hidden' : 'hidden'} h-[52px]`} />
-                    
+
                     <div className={`
-                      ${buscadorFijo 
-                        ? "fixed top-14 left-0 w-full z-40 bg-[var(--fill)]/95 backdrop-blur-md p-3 px-4 border-b border-black/10 shadow-lg" 
+                      ${buscadorFijo
+                        ? "fixed top-14 left-0 w-full z-40 bg-[var(--fill)]/95 backdrop-blur-md p-3 px-4 border-b border-black/10 shadow-lg"
                         : "relative w-full"
                       } 
                       md:static md:p-0 md:bg-transparent md:border-none md:shadow-none md:z-auto transition-all duration-300
@@ -686,7 +686,7 @@ const DataTable = ({
           ))
         ) : (
           <div className="py-10 text-center opacity-40 text-black!">
-            <Package size={30} className="mx-auto" color="black" />{" "}
+            <CajaIcono size={50} className="mx-auto" color="black" />{" "}
             {emptyMessage}
           </div>
         )}
@@ -949,6 +949,24 @@ const DataTable = ({
           </div>
         )}
       </div>
+
+      {/* VISTA MOBILE: Floating Action Button (FAB) en la esquina inferior derecha */}
+      {botonAgregar && (
+        <div className="md:hidden fixed bottom-24 right-5 z-[10000]">
+          <TieneAccion accion={botonAgregar?.tieneAccion}>
+            <div className="relative group">
+              <div className="absolute inset-0 bg-[var(--primary)] rounded-full blur-lg opacity-40"></div>
+              <button
+                onClick={manejarAgregarClick}
+                className="relative w-[56px] h-[56px] bg-[var(--primary)] text-[var(--surface)] rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform cursor-pointer"
+                title={botonAgregar.texto}
+              >
+                <AgregarIcono size={28} />
+              </button>
+            </div>
+          </TieneAccion>
+        </div>
+      )}
     </div>
   );
 };

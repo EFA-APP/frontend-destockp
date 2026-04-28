@@ -84,11 +84,9 @@ const TablaDepositoStock = ({ tipoArticulo = "PRODUCTO", titulo }) => {
             <div>
               <h2 className="text-[18px] font-black text-[var(--text-primary)] leading-tight uppercase tracking-tight">
                 {titulo ||
-                  `Matriz de Inventario (${tipoArticulo === "MATERIA_PRIMA" ? "Materia Prima" : "Productos"})`}
+                  `${tipoArticulo === "MATERIA_PRIMA" ? "Materia Prima" : "Productos"}`}
               </h2>
-              <p className="text-[14px] text-[var(--text-muted)] font-medium mt-0.5 uppercase tracking-widest">
-                Distribución geográfica por artículo
-              </p>
+
             </div>
           </div>
 

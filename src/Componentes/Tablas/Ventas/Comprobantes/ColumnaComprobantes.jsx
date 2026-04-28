@@ -83,7 +83,7 @@ export const columnasComprobantes = [
   },
   {
     key: "receptor",
-    etiqueta: "Cliente / Receptor",
+    etiqueta: "Receptor",
     filtrable: true,
     renderizar: (valor) => {
       const idIva = Number(valor?.CondicionIVAReceptorId);
