@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useQuery } from "@tanstack/react-query";
 import { useAlertas } from "../../../store/useAlertas";
@@ -8,6 +8,7 @@ import {
   EmitirCuotasMasivasApi,
   CargarInteresMasivaApi,
   ListarMovimientosApi,
+  ActualizarSaldoApi,
 } from "../api/contactos.api";
 import { usePersistentState } from "../../../hooks/usePersistentState";
 
@@ -17,10 +18,18 @@ export const useAlumnos = () => {
 
   // 🔍 1. Estado de Filtros (Simplificado)
   const [busqueda, setBusqueda] = usePersistentState("alumnos_busqueda", "");
-  const [mesSeleccionado, setMesSeleccionado] = useState(fechaActual.getMonth());
+  const [mesSeleccionado, setMesSeleccionado] = useState(
+    fechaActual.getMonth(),
+  );
+  const [pagina, setPagina] = useState(1);
 
   // Debounce para la búsqueda para no saturar el servidor
   const [busquedaDebounced] = useDebounce(busqueda, 500);
+
+  // Resetear a página 1 cuando cambia el mes o la búsqueda
+  useEffect(() => {
+    setPagina(1);
+  }, [mesSeleccionado, busquedaDebounced]);
 
   // 📊 2. Obtención de Datos Reales del API Filtrados por el Servidor
   const periodoFiltro = `${fechaActual.getFullYear()}-${String(mesSeleccionado + 1).padStart(2, "0")}`;
@@ -35,23 +44,30 @@ export const useAlumnos = () => {
   } = useContactos({
     tipoEntidad: "ALUM",
     busqueda: busquedaDebounced,
-    limite: 200, // Traemos todos para calcular cuotas localmente como antes
+    pagina,
+    limite: 15, // Límite solicitado por el usuario para una interfaz más limpia
   });
 
   const { configs } = useConfiguracionContactos();
 
-  // 🏦 3. Movimientos: Seguimos trayéndolos para el historial rápido, 
+  // 🏦 3. Movimientos: Seguimos trayéndolos para el historial rápido,
   // pero la cabecera ya viene pre-calculada en CuentaDeuda (opcional)
   const {
-    data: todosLosMovimientos = [],
+    data: responseMovimientos,
     isLoading: cargandoMovimientos,
     refetch: refetchMovs,
   } = useQuery({
     queryKey: ["movimientos_alumnos", busquedaDebounced],
-    queryFn: () => ListarMovimientosApi(), 
+    queryFn: () =>
+      ListarMovimientosApi(null, {
+        busqueda: busquedaDebounced,
+        limite: 2000,
+      }), // Límite amplio para ver meses anteriores (Deuda Anterior)
     showLoader: false,
-    enabled: !!alumnos.length, 
+    enabled: !!alumnos.length,
   });
+
+  const todosLosMovimientos = responseMovimientos?.data || [];
 
   // 🎚️ 3. Obtener Fórmulas de la Configuración Real
   const formulaCuota = useMemo(() => {
@@ -109,13 +125,22 @@ export const useAlumnos = () => {
   const calcularInteresMora = (
     fechaVencimiento,
     aplicaInteres,
-    alumnoAtributos,
+    atributos,
+    montoBase = 0,
   ) => {
     // 1. Calcular días de atraso usando solo fechas (sin horas)
     const hoy = new Date();
-    const hoyInicio = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+    const hoyInicio = new Date(
+      hoy.getFullYear(),
+      hoy.getMonth(),
+      hoy.getDate(),
+    );
     const fVenc = new Date(fechaVencimiento);
-    const vencInicio = new Date(fVenc.getFullYear(), fVenc.getMonth(), fVenc.getDate());
+    const vencInicio = new Date(
+      fVenc.getFullYear(),
+      fVenc.getMonth(),
+      fVenc.getDate(),
+    );
 
     const diffTime = hoyInicio.getTime() - vencInicio.getTime();
     const diffDays = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
@@ -126,20 +151,38 @@ export const useAlumnos = () => {
     }
 
     // 3. Evaluar tasa diaria
-    const tasaDiaria =
-      evaluarFormula(formulaInteres, alumnoAtributos || {}) || 0;
+    const tasaDiaria = evaluarFormula(formulaInteres, atributos || {}) || 0;
 
     return {
-      monto: diffDays * tasaDiaria,
+      monto: tasaDiaria * diffDays,
       dias: diffDays,
     };
   };
 
+  // Helper para formatear periodo (2024-03 -> Marzo 2024)
+  const formatearPeriodo = (periodo) => {
+    if (!periodo) return "N/A";
+    const [anio, mes] = periodo.split("-");
+    const meses = [
+      "Enero",
+      "Febrero",
+      "Marzo",
+      "Abril",
+      "Mayo",
+      "Junio",
+      "Julio",
+      "Agosto",
+      "Septiembre",
+      "Octubre",
+      "Noviembre",
+      "Diciembre",
+    ];
+    return `${meses[parseInt(mes) - 1]} ${anio}`;
+  };
 
-  // 📊 Generar cuotas para cada alumno (calculado dinámicamente)
+  // 📊 Generar cuotas para cada alumno (Basado en movimientos REALES de deuda)
   const alumnosConCuotas = useMemo(() => {
     return (alumnos || []).map((alumno) => {
-      // 1. Evaluar precio base usando el motor de fórmulas
       const precioCalculado = evaluarFormula(
         formulaCuota,
         alumno.atributos || {},
@@ -170,110 +213,180 @@ export const useAlumnos = () => {
       );
       const cuotas = {};
 
-      // Generar cuotas para los meses del año (0 = Enero, 11 = Diciembre)
-      for (let mes = 0; mes < 12; mes++) {
-        const periodoStr = `${fechaActual.getFullYear()}-${String(mes + 1).padStart(2, "0")}`;
+      // 1. Obtener todos los periodos únicos y separar créditos sin periodo inicial
+      const movsAlumno = (todosLosMovimientos || []).filter(
+        (m) => Number(m.codigoContacto) === Number(alumno.codigoSecuencial),
+      );
 
-        // Buscar movimientos de este alumno para este periodo
-        const movsAlumno = (todosLosMovimientos || []).filter(
-          (m) =>
-            m.codigoContacto === alumno.codigoSecuencial &&
-            m.periodo === periodoStr,
+      if (movsAlumno.length > 0) {
+        console.log(
+          `[useAlumnos] Procesando ${movsAlumno.length} movs para alumno ${alumno.codigoSecuencial} (${alumno.nombre})`,
         );
+      }
 
-        // Sumar débitos base (sin intereses grabados) y créditos (pagos)
-        const debitoBase = movsAlumno
-          .filter((m) => m.monto > 0 && !m.concepto?.startsWith("INTERES GENERADO"))
-          .reduce((s, m) => s + m.monto, 0);
-        
-        const interesGrabado = movsAlumno
-          .filter((m) => m.monto > 0 && m.concepto?.startsWith("INTERES GENERADO"))
+      const periodosUnicos = [
+        ...new Set(movsAlumno.map((m) => m.periodo).filter(Boolean)),
+      ].sort();
+
+      // Bolsa global de crédito (empezamos con los que no tienen periodo)
+      let bolsaCreditoGlobal = Math.abs(
+        movsAlumno
+          .filter((m) => m.monto < 0 && !m.periodo)
+          .reduce((s, m) => s + m.monto, 0),
+      );
+
+      if (bolsaCreditoGlobal > 0) {
+        console.log(
+          `[useAlumnos] Bolsa de crédito global inicial para ${alumno.nombre}: ${bolsaCreditoGlobal}`,
+        );
+      }
+
+      // 2. Procesar cada periodo (Cálculo de Deuda y Crédito Directo)
+      periodosUnicos.forEach((periodoStr) => {
+        const movsPeriodo = movsAlumno.filter((m) => m.periodo === periodoStr);
+
+        const debitoBase = movsPeriodo
+          .filter(
+            (m) => m.monto > 0 && !m.concepto?.startsWith("INTERES GENERADO"),
+          )
           .reduce((s, m) => s + m.monto, 0);
 
-        const credito = Math.abs(
-          movsAlumno
+        const interesGrabado = movsPeriodo
+          .filter(
+            (m) => m.monto > 0 && m.concepto?.startsWith("INTERES GENERADO"),
+          )
+          .reduce((s, m) => s + m.monto, 0);
+
+        const creditoDirecto = Math.abs(
+          movsPeriodo
             .filter((m) => m.monto < 0)
             .reduce((s, m) => s + m.monto, 0),
         );
 
-        // Movimiento de débito principal para obtener la fecha de vencimiento
-        const movPrincipal = movsAlumno.find((m) => m.monto > 0 && !m.concepto?.startsWith("INTERES GENERADO"));
-        const fVenc = movPrincipal?.fechaVencimiento
-          ? new Date(movPrincipal.fechaVencimiento)
-          : new Date(fechaActual.getFullYear(), mes, config.diaVencimiento);
+        const movPrincipal = movsPeriodo.find(
+          (m) => m.monto > 0 && !m.concepto?.startsWith("INTERES GENERADO"),
+        );
+        
+        // Intentar extraer tasa de mora "congelada" del concepto (ej: "CUOTA 03/2026 (MORA:$150)")
+        const matchMora = movPrincipal?.concepto?.match(/\(MORA:\$([\d.]+)\)/);
+        let tasaHistorica = null;
+        if (matchMora) {
+          tasaHistorica = parseFloat(matchMora[1]);
+        }
 
-        let estado = "sin cuota";
-        let interes = 0;
-        let diasAtraso = 0;
-
-        if (debitoBase > 0) {
-          // Primero calculamos intereses si está vencido
-          const resMora = calcularInteresMora(
-            fVenc,
-            config.aplicaInteres,
-            alumno.atributos,
-          );
-          diasAtraso = resMora.dias;
-
-          if (fechaActual > fVenc) {
-            // El interés mostrado es el máximo entre lo grabado y lo calculado dinámicamente
-            interes = Math.max(interesGrabado, resMora.monto);
+        let fVenc;
+        if (movPrincipal?.fechaVencimiento) {
+          fVenc = new Date(movPrincipal.fechaVencimiento);
+        } else {
+          const partes = (periodoStr || "").split("-");
+          if (partes.length === 2) {
+            fVenc = new Date(
+              parseInt(partes[0]),
+              parseInt(partes[1]) - 1,
+              config.diaVencimiento || 10,
+            );
           } else {
-            interes = interesGrabado;
-          }
-
-          const deudaTotal = (debitoBase || montoFinal) + interes;
-
-          if (credito >= deudaTotal) {
-            estado = "pagado";
-          } else if (fechaActual > fVenc) {
-            estado = "vencido";
-          } else {
-            estado = "pendiente";
+            fVenc = new Date();
           }
         }
 
-        cuotas[mes] = {
+        if (isNaN(fVenc.getTime())) fVenc = new Date();
+
+        const baseParaMora = debitoBase || montoFinal;
+        
+        // Calculamos mora (Usando tasa histórica si existe, sino la actual)
+        let resMora;
+        if (tasaHistorica !== null) {
+          // Calcular mora manual con la tasa guardada
+          const hoy = new Date();
+          const hoyInicio = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+          const vencInicio = new Date(fVenc.getFullYear(), fVenc.getMonth(), fVenc.getDate());
+          const diffTime = hoyInicio.getTime() - vencInicio.getTime();
+          const diffDays = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
+          
+          resMora = {
+            monto: tasaHistorica * diffDays,
+            dias: diffDays
+          };
+        } else {
+          resMora = calcularInteresMora(
+            fVenc,
+            config.aplicaInteres,
+            alumno.atributos,
+            baseParaMora,
+          );
+        }
+
+        const interes = Math.max(interesGrabado, resMora.monto);
+        const deudaTotal = baseParaMora + interes;
+
+        // Si el crédito directo supera la deuda de este periodo, el excedente va a la bolsa global
+        const saldoTrasCreditoDirecto = deudaTotal - creditoDirecto;
+        if (saldoTrasCreditoDirecto < 0) {
+          bolsaCreditoGlobal += Math.abs(saldoTrasCreditoDirecto);
+        }
+
+        const montoPendiente = Math.max(0, saldoTrasCreditoDirecto);
+
+        // Determinación inteligente de estado
+        let estado = "pendiente";
+        if (montoPendiente <= 1) {
+          estado = "pagado";
+        } else if (creditoDirecto > 0) {
+          estado = "parcial";
+        } else if (fechaActual > fVenc) {
+          estado = "vencido";
+        }
+
+        cuotas[periodoStr] = {
+          periodo: periodoStr,
+          periodoFormateado: formatearPeriodo(periodoStr),
           estado,
-          monto: (debitoBase || montoFinal) + interes - credito,
+          monto: montoPendiente,
+          montoOriginal: baseParaMora,
           interes,
-          diasAtraso,
-          montoConInteres: (debitoBase || montoFinal) + interes - credito,
+          diasAtraso: resMora.dias,
           fechaVencimiento: fVenc.toISOString().split("T")[0],
-          // Datos informativos del pago (usamos el crédito si existe)
-          fechaPago: movsAlumno.find((m) => m.monto < 0)?.fecha || null,
-          metodoPago: movsAlumno.find((m) => m.monto < 0)?.metodoPago || null,
-          numeroRecibo: movsAlumno.find((m) => m.monto < 0)?.referencia || null,
+          deudaTotalOriginal: deudaTotal,
         };
-      }
+      });
 
-      // Calcular estado general y cuotas adeudadas
-      const cuotasArray = Object.values(cuotas);
-      const cuotasVencidas = cuotasArray.filter(
-        (c) => c.estado === "vencido",
-      ).length;
-      const cuotasPendientes = cuotasArray.filter(
-        (c) =>
-          c.estado === "pendiente" &&
-          !estaVencida(new Date(c.fechaVencimiento)),
-      ).length;
+      // 3. DISTRIBUCIÓN DE LA BOLSA GLOBAL DE CRÉDITO
+      // Ordenamos las cuotas de más antigua a más nueva para saldar deudas viejas primero
+      const periodosOrdenados = Object.keys(cuotas).sort();
+      periodosOrdenados.forEach((p) => {
+        if (bolsaCreditoGlobal > 0 && cuotas[p].monto > 0) {
+          const aCubrir = Math.min(bolsaCreditoGlobal, cuotas[p].monto);
+          cuotas[p].monto -= aCubrir;
+          bolsaCreditoGlobal -= aCubrir;
 
-      let estadoCuota = "al_dia";
-      if (cuotasVencidas > 0) {
-        estadoCuota = "vencido";
-      } else if (cuotasPendientes > 0) {
-        estadoCuota = "pendiente";
-      }
+          if (cuotas[p].monto <= 1) {
+            cuotas[p].estado = "pagado";
+          }
+        }
+      });
+
+      // 4. Calcular deuda histórica
+      const hoyPeriodoStr = `${fechaActual.getFullYear()}-${String(fechaActual.getMonth() + 1).padStart(2, "0")}`;
+      const deudaHistorica = Object.values(cuotas)
+        .filter((c) => c.periodo < hoyPeriodoStr && c.estado !== "pagado")
+        .reduce((sum, c) => sum + c.monto, 0);
+
+      const cuotasVencidas = Object.values(cuotas).filter(
+        (c) => c.estado === "vencido" && c.monto > 0,
+      ).length;
 
       return {
         ...alumno,
-        id: alumno.codigoSecuencial, // Para compatibilidad con la tabla
+        id: alumno.codigoSecuencial,
         cuotas,
-        estadoCuota,
-        cuotasAdeudadas: cuotasVencidas,
+        deudaHistorica,
+        cuotasVencidas,
+        montoCuotaActual: montoFinal,
+        estadoCuota: cuotasVencidas > 0 ? "vencido" : "al_dia",
       };
     });
-  }, [alumnos, todosLosMovimientos, formulaCuota, formulaInteres]);
+  }, [alumnos, todosLosMovimientos, formulaCuota, formulaInteres, fechaActual]);
 
   // 🔍 Filtro mejorado
   const alumnosFiltrados = useMemo(() => {
@@ -281,22 +394,20 @@ export const useAlumnos = () => {
     const texto = busqueda.toLowerCase();
     return alumnosConCuotas.filter((a) => {
       return (
-        (a.nombre?.toLowerCase() || "").includes(texto) ||
-        (a.apellido?.toLowerCase() || "").includes(texto) ||
-        a.documento?.includes(texto) ||
-        (a.atributos?.curso?.toLowerCase() || "").includes(texto)
+        String(a.nombre || "").toLowerCase().includes(texto) ||
+        String(a.apellido || "").toLowerCase().includes(texto) ||
+        String(a.documento || "").includes(texto) ||
+        String(a.atributos?.curso || "").toLowerCase().includes(texto)
       );
     });
   }, [alumnosConCuotas, busqueda]);
 
   // 💳 Registrar un pago (Ahora es REAL: crea un movimiento de Crédito)
-  const registrarPago = async (alumnoId, mes, datosPago) => {
-    const periodoStr = `${fechaActual.getFullYear()}-${String(mes + 1).padStart(2, "0")}`;
-
+  const registrarPago = async (alumnoId, periodoStr, datosPago) => {
     try {
       await ActualizarSaldoApi(alumnoId, {
         monto: -datosPago.monto, // Negativo para crédito (Pago)
-        concepto: `PAGO CUOTA PERIODO ${periodoStr}`,
+        concepto: `PAGO CUOTA PERIODO ${formatearPeriodo(periodoStr)}`,
         periodo: periodoStr,
         referencia: datosPago.numeroRecibo,
         metodoPago: datosPago.metodoPago,
@@ -316,20 +427,24 @@ export const useAlumnos = () => {
     }
   };
 
-  // 📉 4. Emisión Masiva de Cuotas (Hacer la deuda REAL en la DB mediante endpoint masivo)
-  const emitirCuotasMensuales = async (mesIndex) => {
-    console.log(`[Escuela] Iniciando emisión masiva de cuotas...`);
+  // 📉 4. Emisión Masiva de Cuotas
+  const emitirCuotasMensuales = async (periodoStr) => {
+    console.log(
+      `[Escuela] Iniciando emisión masiva de cuotas para periodo: ${periodoStr}`,
+    );
 
     try {
       await EmitirCuotasMasivasApi({
         tipoEntidad: "ALUM",
         diaVencimiento: 10,
         formulaMonto: formulaCuota,
+        formulaInteres: formulaInteres,
+        periodo: periodoStr, // Enviamos el periodo seleccionado
       });
 
       agregarAlerta({
         title: "Éxito",
-        message: `Se han emitido las cuotas para todos los alumnos correctamente.`,
+        message: `Se han emitido las cuotas para el periodo ${formatearPeriodo(periodoStr)} correctamente.`,
         type: "success",
       });
 
@@ -346,19 +461,21 @@ export const useAlumnos = () => {
   };
 
   // 📈 5. Carga Masiva de Intereses
-
-  const cargarInteresesMensuales = async (mesIndex) => {
-    console.log(`[Escuela] Iniciando carga masiva de intereses...`);
+  const cargarInteresesMensuales = async (periodoStr) => {
+    console.log(
+      `[Escuela] Iniciando carga masiva de intereses para periodo: ${periodoStr}`,
+    );
 
     try {
       await CargarInteresMasivaApi({
         tipoEntidad: "ALUM",
         formulaInteres: formulaInteres,
+        periodo: periodoStr, // Enviamos el periodo seleccionado
       });
 
       agregarAlerta({
         title: "Éxito",
-        message: `Se han grabado los intereses acumulados para todos los alumnos correctamente.`,
+        message: `Se han grabado los intereses acumulados para el periodo ${formatearPeriodo(periodoStr)} correctamente.`,
         type: "success",
       });
 
@@ -369,6 +486,35 @@ export const useAlumnos = () => {
       agregarAlerta({
         title: "Error",
         message: "No se pudo completar la carga masiva de intereses.",
+        type: "error",
+      });
+    }
+  };
+
+  // 📊 6. Emisión Individual de Cuota
+  const emitirCuotaIndividual = async (alumnoId, periodoStr, monto, concepto, fechaVencimiento) => {
+    try {
+      await ActualizarSaldoApi(alumnoId, {
+        monto: Number(monto),
+        concepto: concepto || `CUOTA INDIVIDUAL PERIODO ${formatearPeriodo(periodoStr)}`,
+        periodo: periodoStr,
+        referencia: "EMISION_INDIVIDUAL",
+        fechaVencimiento,
+      });
+
+      agregarAlerta({
+        title: "Cuota Emitida",
+        message: "Se ha generado la cuota individual correctamente.",
+        type: "success",
+      });
+
+      refetch();
+      refetchMovs();
+    } catch (e) {
+      console.error("Error al emitir cuota individual:", e);
+      agregarAlerta({
+        title: "Error",
+        message: "No se pudo emitir la cuota individual.",
         type: "error",
       });
     }
@@ -433,7 +579,13 @@ export const useAlumnos = () => {
     registrarPago,
     emitirCuotasMensuales,
     cargarInteresesMensuales,
+    emitirCuotaIndividual,
+    refetchAlumnos: refetch,
+    refetchMovimientos: refetchMovs,
     movimientos: todosLosMovimientos,
+    paginas,
+    paginaActual,
+    total,
+    setPagina,
   };
-
 };

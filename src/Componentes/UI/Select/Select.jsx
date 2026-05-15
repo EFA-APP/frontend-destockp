@@ -15,7 +15,7 @@ const Select = ({ label, valor, setValor, options, className = "" }) => {
             h-9 
             pl-3 
             pr-10 
-            rounded-xl! 
+            rounded-md! 
             border 
             border-black/10 
             bg-[var(--primary)]/20! 

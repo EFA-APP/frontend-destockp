@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BorrarIcono,
   AgregarIcono,
@@ -7,6 +7,8 @@ import {
   SubirIcono,
 } from "../../../assets/Icons";
 import { useAlertas } from "../../../store/useAlertas";
+import SearchableSelect from "../Select/SearchableSelect";
+
 const FormularioDinamico = ({
   titulo = "Formulario",
   subtitulo = "Complete los datos",
@@ -55,6 +57,13 @@ const FormularioDinamico = ({
   });
 
   const [errors, setErrors] = useState({});
+
+  // Sincronizar datos iniciales cuando cambian (útil para datos cargados asíncronamente)
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
 
   // Estado para items actuales en tablas
   const [currentItems, setCurrentItems] = useState({});
@@ -296,13 +305,15 @@ const FormularioDinamico = ({
         ? field.readOnly(formData)
         : field.readOnly;
 
-    const commonClasses = `w-full px-5 py-3 md:px-4 md:py-2.5 rounded-xl! border   bg-[var(--surface-hover)]/20! backdrop-blur-md! shadow-sm ${errors[field.name]
-      ? "border-red-700/40! focus:ring-red-700/10!"
-      : "border-[var(--border-medium)]/40! border-[var(--primary)]/30! focus:ring-[var(--primary)]/10!"
-      } focus:ring-4! focus:outline-none placeholder-[var(--text-muted)] ${isReadOnly
+    const commonClasses = `w-full px-5 py-3 md:px-4 md:py-2.5 rounded-md! border   bg-[var(--surface-hover)]/20! backdrop-blur-md! shadow-sm ${
+      errors[field.name]
+        ? "border-red-700/40! focus:ring-red-700/10!"
+        : "border-[var(--border-medium)]/40! border-[var(--primary)]/30! focus:ring-[var(--primary)]/10!"
+    } focus:ring-4! focus:outline-none placeholder-[var(--text-muted)] ${
+      isReadOnly
         ? "cursor-not-allowed opacity-60"
         : "hover:border-[var(--border-medium)]/80 hover:bg-[var(--surface-hover)]/40!"
-      } ${formData[field.name] || field.defaultValue ? "text-[var(--secondary)]! font-bold!" : "text-[var(--text-primary)]!"}`;
+    } ${formData[field.name] || field.defaultValue ? "text-[var(--secondary)]! font-bold!" : "text-[var(--text-primary)]!"}`;
 
     switch (field.type) {
       case "textarea":
@@ -337,6 +348,25 @@ const FormularioDinamico = ({
               </option>
             ))}
           </select>
+        );
+
+      case "search-select":
+        return (
+          <SearchableSelect
+            options={field.options}
+            value={formData[field.name]}
+            onChange={(e) => {
+              // Adaptar el evento simulado
+              handleChange({
+                target: {
+                  name: field.name,
+                  value: e.target.value,
+                },
+              });
+            }}
+            placeholder={field.placeholder || "Buscar..."}
+            disabled={isReadOnly}
+          />
         );
 
       case "number":
@@ -558,6 +588,27 @@ const FormularioDinamico = ({
                     </option>
                   ))}
                 </select>
+              ) : itemField.type === "search-select" ? (
+                <SearchableSelect
+                  options={itemField.options}
+                  value={currentItem[itemField.name]}
+                  onChange={(e) => {
+                    handleItemChange(
+                      field.name,
+                      itemField.name,
+                      e.target.value,
+                    );
+                    if (itemField.onChange) {
+                      const selectedOption = itemField.options?.find(
+                        (opt) => opt.value === e.target.value,
+                      );
+                      itemField.onChange(selectedOption, (fName, fVal) =>
+                        handleItemChange(field.name, fName, fVal),
+                      );
+                    }
+                  }}
+                  placeholder={itemField.placeholder || "Buscar..."}
+                />
               ) : itemField.type === "boolean" ||
                 itemField.type === "switch" ? (
                 <div className="flex items-center h-10">
@@ -565,13 +616,18 @@ const FormularioDinamico = ({
                     <input
                       type="checkbox"
                       checked={!!currentItem[itemField.name]}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         handleItemChange(
                           field.name,
                           itemField.name,
                           e.target.checked,
-                        )
-                      }
+                        );
+                        if (itemField.onChange) {
+                          itemField.onChange(e.target.checked, (fName, fVal) =>
+                            handleItemChange(field.name, fName, fVal),
+                          );
+                        }
+                      }}
                       className="sr-only peer"
                     />
                     <div
@@ -593,18 +649,21 @@ const FormularioDinamico = ({
                     itemField.type === "number"
                       ? formatNumber(currentItem[itemField.name])
                       : currentItem[itemField.name] ||
-                      itemField.defaultValue ||
-                      ""
+                        itemField.defaultValue ||
+                        ""
                   }
-                  onChange={(e) =>
-                    handleItemChange(
-                      field.name,
-                      itemField.name,
+                  onChange={(e) => {
+                    const val =
                       itemField.type === "number"
                         ? parseNumber(e.target.value)
-                        : e.target.value,
-                    )
-                  }
+                        : e.target.value;
+                    handleItemChange(field.name, itemField.name, val);
+                    if (itemField.onChange) {
+                      itemField.onChange(val, (fName, fVal) =>
+                        handleItemChange(field.name, fName, fVal),
+                      );
+                    }
+                  }}
                   className={`w-full px-3 py-2 bg-[var(--surface-hover)]/30! backdrop-blur-sm! border! border-[var(--border-medium)]/50! rounded-md! text-[var(--text-primary)]! border-[var(--primary)]! focus:ring-4! focus:ring-[var(--primary)]/10!  `}
                   placeholder={itemField.placeholder}
                 />
@@ -694,7 +753,7 @@ const FormularioDinamico = ({
                         <button
                           type="button"
                           onClick={() => removeItem(field.name, item.id)}
-                          className="p-2 rounded-lg text-red-700 hover:bg-red-700/10  cursor-pointer"
+                          className="p-2 rounded-md text-red-700 hover:bg-red-700/10  cursor-pointer"
                         >
                           <BorrarIcono size={16} />
                         </button>
@@ -753,8 +812,9 @@ const FormularioDinamico = ({
               )}
 
               <div
-                className={`grid grid-cols-1 ${sectionFields[0]?.cols || "md:grid-cols-2"
-                  } gap-4`}
+                className={`grid grid-cols-1 ${
+                  sectionFields[0]?.cols || "md:grid-cols-2"
+                } gap-4`}
               >
                 {sectionFields.map((field) => {
                   // Soporte para ocultar campos dinámicamente

@@ -9,11 +9,11 @@ import { useEliminarMateriaPrima } from "../../queries/MateriaPrima/useEliminarM
  * Hook de UI para centralizar la lógica de Materia Prima.
  * Proporciona acceso a los datos filtrados y todas las operaciones CRUD.
  */
-export const useMateriaPrimaUI = (filtrosIniciales = {}) => {
+export const useMateriaPrimaUI = (filtrosIniciales = {}, options = {}) => {
     const [busqueda, setBusqueda] = usePersistentState("materia_prima_busqueda", "");
 
     // Query para obtener los datos desde la API
-    const query = useObtenerMateriasPrimas(filtrosIniciales);
+    const query = useObtenerMateriasPrimas(filtrosIniciales, options);
 
     // Mutaciones para operaciones de escritura
     const mutationCrear = useCrearMateriaPrima();

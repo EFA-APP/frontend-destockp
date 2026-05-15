@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useProductoUI } from "../../../Backend/Articulos/hooks/Producto/useProductoUI";
-import { ProduccionIcono, InventarioIcono } from "../../../assets/Icons";
+import { ProduccionIcono } from "../../../assets/Icons";
 import ContenedorSeccion from "../../ContenidoPanel/ContenedorSeccion";
 import EncabezadoSeccion from "../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import ModalProduccion from "../../Modales/Articulos/ModalProduccion";
@@ -56,7 +56,7 @@ const ProduccionPage = () => {
       {/* Elegant Header Card */}
       <div className="card no-inset no-ring bg-[var(--surface)] shadow-md rounded-md! mb-6 overflow-hidden">
         <EncabezadoSeccion
-          ruta={`Producción > ${producto?.nombre || "Cargando..."}`}
+          ruta={`Producción`}
           icono={<ProduccionIcono size={18} />}
           volver={true}
           redireccionAnterior={-1}
@@ -114,13 +114,6 @@ const ProduccionPage = () => {
 
         {/* Main Action Container */}
         <div className="bg-[var(--surface)] border border-black/5 rounded-md shadow-2xl overflow-hidden">
-          <div className="bg-purple-600/10 px-6 py-3 border-b border-black/5 flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-purple-700 " />
-            <span className="text-[12px] font-black text-purple-400 uppercase tracking-[0.2em]">
-              Configuración de Insumos & Escandallo
-            </span>
-          </div>
-
           <div className="p-2 md:p-4">
             <ModalProduccion
               open={true}
@@ -130,10 +123,6 @@ const ProduccionPage = () => {
             />
           </div>
         </div>
-
-        <p className="text-center text-[11px] text-black/85 font-bold uppercase tracking-[0.3em] mt-8">
-          Sistema de Gestión de Manufactura DeStockP
-        </p>
       </div>
     </ContenedorSeccion>
   );

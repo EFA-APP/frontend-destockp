@@ -1,6 +1,7 @@
 import {
   RefrescarIcono,
   CerrarSesionIcono,
+  ConsolaIcono,
 } from "../../../assets/Icons";
 import { useArcaStore } from "../../../store/useArcaStore";
 import { useEffect } from "react";
@@ -22,8 +23,11 @@ const BarraNavegacion = () => {
 
   return (
     <header className="sticky top-0 z-[50]">
-      <nav className="px-5 bg-[var(--fill)] border-b border-[var(--border-subtle)] h-14 flex items-center justify-between">
-        <Link to="/" className=" flex relative group/logo flex items-center gap-3 md:hidden">
+      <nav className="px-5 bg-white border-b border-[var(--border-subtle)] h-14 flex items-center justify-between">
+        <Link
+          to="/"
+          className=" flex relative group/logo flex items-center gap-3 md:hidden"
+        >
           {usuario?.configuracionVisual?.logoUrl ? (
             <img
               alt="logo"
@@ -32,7 +36,7 @@ const BarraNavegacion = () => {
             />
           ) : (
             <div className="flex items-center justify-center w-12 h-12 rounded-full border border-[var(--primary)]/20 shadow-lg bg-gradient-to-br from-[var(--primary)] to-[var(--primary-emphasis)] text-white group-hover/logo:scale-105 transition-transform">
-              <Icons.ConsolaIcono size={22} color="white" />
+              <ConsolaIcono size={22} color="white" />
             </div>
           )}
         </Link>
@@ -86,8 +90,8 @@ const BarraNavegacion = () => {
                   {!usuario.conexionArca
                     ? ""
                     : "(" +
-                    usuario.datosFiscales?.condicionIva?.toUpperCase() +
-                    ")"}
+                      usuario.datosFiscales?.condicionIva?.toUpperCase() +
+                      ")"}
                 </span>
               </span>
               <div className="flex items-center gap-2 mt-1">
@@ -106,9 +110,12 @@ const BarraNavegacion = () => {
           </div>
 
           {/* CERRAR SESION */}
-          <div onClick={async () => {
-            await cerrarSesion();
-          }} className="flex items-center justify-center w-8 h-8 rounded-md bg-red-500/20 border border-red-500/50 group md:hidden ">
+          <div
+            onClick={async () => {
+              await cerrarSesion();
+            }}
+            className="flex items-center justify-center w-8 h-8 rounded-md bg-red-500/20 border border-red-500/50 group md:hidden "
+          >
             <CerrarSesionIcono size={18} color="rgb(239 68 68)" />
           </div>
         </div>

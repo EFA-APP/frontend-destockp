@@ -1,3 +1,4 @@
+import { Building2 } from "lucide-react";
 import {
   OjosIcono,
   DescargarIcono,
@@ -14,6 +15,19 @@ import {
   DuplicarIcono,
   AdjuntoIcono,
   DineroIcono,
+  NotaCreditoIcono,
+  NotaDebitoIcono,
+  ComprobanteIcono,
+  AumentarCuotaIcono,
+  GestionUsuariosIcono,
+  CajaIcono,
+  ConfiguracionIcono,
+  ProveedoresIcono,
+  RolIcono,
+  VincularRolUsuarioIcono,
+  AccionesSistemaIcono,
+  ImagenIcono,
+  TablaConfiguracionIcono,
 } from "../../../assets/Icons";
 
 export const accionesReutilizables = {
@@ -57,16 +71,6 @@ export const accionesReutilizables = {
     ),
   },
 
-  bloquear: {
-    key: "bloquear",
-    label: "Bloquear",
-    icono: (
-      <div className="bg-[var(--surface-hover)] p-1 rounded-md text-black! cursor-pointer! hover:bg-[var(--surface)]! ">
-        <BloquearUsuarioIcono size={18} />
-      </div>
-    ),
-  },
-
   descargar: {
     key: "descargar",
     label: "Descargar",
@@ -93,6 +97,16 @@ export const accionesReutilizables = {
     icono: (
       <div className="bg-amber-700/10 p-1 rounded-md text-amber-400! cursor-pointer! hover:bg-violet-700/20  ">
         <DineroIcono size={18} />
+      </div>
+    ),
+  },
+
+  generarComprobanteDeVenta: {
+    key: "generarComprobanteDeVenta",
+    label: "Generar Comprobante",
+    icono: (
+      <div className="bg-violet-700/10 p-1 rounded-md text-violet-400! cursor-pointer! hover:bg-violet-700/20  ">
+        <ComprobanteIcono size={18} />
       </div>
     ),
   },
@@ -153,6 +167,112 @@ export const accionesReutilizables = {
     icono: (
       <div className="p-1 rounded-md bg-violet-700/10 text-violet-700 hover:bg-violet-700/20 ">
         <AdjuntoIcono size={18} />
+      </div>
+    ),
+  },
+
+  notaCredito: {
+    key: "notaCredito",
+    label: "Nota de Crédito",
+    icono: (
+      <div className="p-1 rounded-md bg-rose-700/10 text-rose-700 hover:bg-rose-700/20 ">
+        <NotaCreditoIcono size={18} />
+      </div>
+    ),
+  },
+
+  notaDebito: {
+    key: "notaDebito",
+    label: "Nota de Débito",
+    icono: (
+      <div className="p-1 rounded-md bg-orange-700/10 text-orange-700 hover:bg-orange-700/20 ">
+        <NotaDebitoIcono size={18} />
+      </div>
+    ),
+  },
+
+  aumentarCuota: {
+    key: "aumentarCuota",
+    label: "Emitir Cuota Individual",
+    icono: (
+      <div className="p-1 rounded-md bg-green-700/10 text-green-700! hover:bg-green-700/20  cursor-pointer">
+        <AumentarCuotaIcono size={18} />
+      </div>
+    ),
+  },
+
+  usuarios: {
+    key: "usuarios",
+    label: "Usuarios",
+    icono: (
+      <div className="p-1 rounded-md bg-violet-700/10 text-violet-700 hover:bg-violet-700/20 ">
+        <ProveedoresIcono size={18} />
+      </div>
+    ),
+  },
+
+  unidadesNegocio: {
+    key: "unidadesNegocio",
+    label: "Unidades de Negocio",
+    icono: (
+      <div className="p-1 rounded-md bg-amber-700/10 text-amber-700 hover:bg-amber-700/20 ">
+        <Building2 size={18} />
+      </div>
+    ),
+  },
+
+  roles: {
+    key: "roles",
+    label: "Roles y Permisos",
+    icono: (
+      <div className="p-1 rounded-md bg-indigo-700/10 text-indigo-700 hover:bg-indigo-700/20 ">
+        <RolIcono size={18} />
+      </div>
+    ),
+  },
+  bloquear: {
+    key: "bloquear",
+    label: "Bloquear Empresa",
+    icono: (
+      <div className="p-1 rounded-md bg-red-700/10 text-red-700 hover:bg-red-700/20 ">
+        <BloquearUsuarioIcono size={18} />
+      </div>
+    ),
+  },
+
+  vincularRolUsuario: {
+    key: "vincularRolUsuario",
+    label: "Vincular Rol",
+    icono: (
+      <div className="p-1 rounded-md bg-indigo-700/10 text-indigo-700 hover:bg-indigo-700/20 ">
+        <VincularRolUsuarioIcono size={18} />
+      </div>
+    ),
+  },
+  gestionarAcciones: {
+    key: "gestionarAcciones",
+    label: "Gestionar Acciones",
+    icono: (
+      <div className="p-1 rounded-md bg-indigo-700/10 text-indigo-700 hover:bg-indigo-700/20 ">
+        <AccionesSistemaIcono size={18} />
+      </div>
+    ),
+  },
+  agregarImagen: {
+    key: "agregarImagen",
+    label: "Agregar Imagen",
+    icono: (
+      <div className="p-1 rounded-md bg-indigo-700/10 text-indigo-700 hover:bg-indigo-700/20 ">
+        <ImagenIcono size={18} />
+      </div>
+    ),
+  },
+  configurarCampos: {
+    key: "configurarCampos",
+    label: "Configurar Campos",
+    icono: (
+      <div className="p-1 rounded-md bg-indigo-700/10 text-indigo-700 hover:bg-indigo-700/20 ">
+        <TablaConfiguracionIcono size={18} />
       </div>
     ),
   },

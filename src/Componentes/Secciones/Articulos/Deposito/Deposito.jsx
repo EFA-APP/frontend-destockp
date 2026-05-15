@@ -3,12 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import ContenedorSeccion from "../../../ContenidoPanel/ContenedorSeccion";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
-import {
-  AgregarIcono,
-  VentasIcono,
-  UbicacionIcono,
-  DescargarIcono,
-} from "../../../../assets/Icons";
+import { DescargarIcono } from "../../../../assets/Icons";
 import { Building2, Trash2, Loader2, Settings2 } from "lucide-react";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { useDepositoUI } from "../../../../Backend/Articulos/hooks/Deposito/useDepositoUI.jsx";
@@ -18,6 +13,7 @@ import { columnasDepositos } from "../../../Tablas/Articulos/Deposito/ColumnasDe
 import TablaDepositoStock from "../../../Tablas/Articulos/Deposito/TablaDepositoStock";
 import StockDepositoPDF from "../../../Reportes/StockDepositoPDF.jsx";
 import { usePermisosDeUsuario } from "../../../../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
+import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion.jsx";
 
 /**
  * Componente Deposito: Gestión de sucursales y stock global.
@@ -58,10 +54,6 @@ const Deposito = () => {
     { enabled: activarDescargaMp },
   );
   const navigate = useNavigate();
-
-  const handleNuevaSucursal = useCallback(() => {
-    navigate("/panel/inventario/depositos/nuevo");
-  }, [navigate]);
 
   const handleEliminarSucursal = useCallback((suc) => {
     setDepositoAEliminar(suc);
@@ -200,7 +192,7 @@ const Deposito = () => {
       <div className="space-y-8 pb-10">
         {/* Warehouse Table Section */}
         <section>
-          <div className="flex items-center justify-between mb-6 px-2">
+          <div className="flex items-center justify-between px-2">
             <div className="h-[1px] flex-1 mr-4 bg-gradient-to-r from-white/10 to-transparent" />
           </div>
 
@@ -224,8 +216,9 @@ const Deposito = () => {
               },
             ]}
             botonAgregar={{
-              texto: "Nuevo Depósito",
-              onClick: handleNuevaSucursal,
+              texto: "Crear",
+              ruta: "/panel/inventario/depositos/nuevo",
+              tieneAccion: "CREAR_DEPOSITO",
             }}
             emptyMessage="No se encontraron depósitos registrados"
           />
@@ -275,14 +268,11 @@ const Deposito = () => {
               </PDFDownloadLink>
             )}
           </div>
-          <TablaDepositoStock
-            tipoArticulo="PRODUCTO"
-            titulo="Productos"
-          />
+          <TablaDepositoStock tipoArticulo="PRODUCTO" titulo="Productos" />
         </section>
 
         {/* Stock Matrix Section - Materia Prima */}
-        {tieneAccion("DEPOSITO_MATERIA_PRIMA") && (
+        <TieneAccion accion="DEPOSITO_MATERIA_PRIMA">
           <section>
             <div className="flex items-center justify-between mb-4 px-2">
               <div className="h-[1px] flex-1 mx-4 bg-gradient-to-r from-white/10 to-transparent" />
@@ -337,7 +327,7 @@ const Deposito = () => {
               titulo="Materia Prima"
             />
           </section>
-        )}
+        </TieneAccion>
       </div>
 
       {/* Modal de Confirmación para Eliminar */}

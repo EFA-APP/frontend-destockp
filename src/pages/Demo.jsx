@@ -365,7 +365,7 @@ const SistemaContable = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="max-w-7xl mx-auto p-6">
-        <div className="bg-[var(--surface)] rounded-xl shadow-lg overflow-hidden mb-6">
+        <div className="bg-[var(--surface)] rounded-md shadow-lg overflow-hidden mb-6">
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-black">
             <h1 className="text-3xl font-bold flex items-center gap-3">
               <Calculator className="w-8 h-8" />
@@ -400,7 +400,7 @@ const SistemaContable = () => {
           </div>
         </div>
 
-        <div className="bg-[var(--surface)] rounded-xl shadow-lg p-6">
+        <div className="bg-[var(--surface)] rounded-md shadow-lg p-6">
           {activeTab === "plan" && <PlanCuentas cuentas={cuentas} />}
           {activeTab === "asientos" && (
             <Asientos
@@ -422,7 +422,7 @@ const SistemaContable = () => {
         <div className="mt-6 text-center">
           <button
             onClick={resetearDatos}
-            className="bg-red-700 hover:bg-red-600 text-black px-6 py-3 rounded-lg font-semibold  shadow-md hover:shadow-lg"
+            className="bg-red-700 hover:bg-red-600 text-black px-6 py-3 rounded-md font-semibold  shadow-md hover:shadow-lg"
           >
             <Trash2 className="w-5 h-5 inline mr-2" />
             Resetear Todos los Datos
@@ -448,7 +448,7 @@ const PlanCuentas = ({ cuentas }) => {
     return (
       <div key={cuenta.codigo}>
         <div
-          className={`flex items-center py-3 px-4 hover:bg-slate-50 rounded-lg  cursor-pointer ${
+          className={`flex items-center py-3 px-4 hover:bg-slate-50 rounded-md  cursor-pointer ${
             cuenta.tipo === "titulo"
               ? "bg-blue-50 font-bold text-blue-900"
               : cuenta.tipo === "subtitulo"
@@ -573,7 +573,7 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
         Registro de Asientos
       </h2>
 
-      <div className="bg-slate-50 p-6 rounded-lg mb-6">
+      <div className="bg-slate-50 p-6 rounded-md mb-6">
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -583,7 +583,7 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
               type="date"
               value={fecha}
               onChange={(e) => setFecha(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700"
+              className="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-700"
             />
           </div>
           <div>
@@ -595,7 +595,7 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
               value={detalle}
               onChange={(e) => setDetalle(e.target.value)}
               placeholder="Descripción del asiento..."
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700"
+              className="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-700"
             />
           </div>
         </div>
@@ -604,14 +604,14 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
           {movimientos.map((mov, index) => (
             <div
               key={index}
-              className="flex gap-3 items-center bg-[var(--surface)] p-3 rounded-lg"
+              className="flex gap-3 items-center bg-[var(--surface)] p-3 rounded-md"
             >
               <select
                 value={mov.cuenta}
                 onChange={(e) =>
                   actualizarMovimiento(index, "cuenta", e.target.value)
                 }
-                className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700"
+                className="flex-1 px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-700"
               >
                 <option value="">Seleccione cuenta...</option>
                 {cuentas.map((cuenta) => (
@@ -628,7 +628,7 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
                   actualizarMovimiento(index, "debe", e.target.value)
                 }
                 placeholder="Debe"
-                className="w-32 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700"
+                className="w-32 px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-700"
               />
               <input
                 type="number"
@@ -638,7 +638,7 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
                   actualizarMovimiento(index, "haber", e.target.value)
                 }
                 placeholder="Haber"
-                className="w-32 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700"
+                className="w-32 px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-700"
               />
               {movimientos.length > 2 && (
                 <button
@@ -655,7 +655,7 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
         <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-300">
           <button
             onClick={agregarMovimiento}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-semibold "
+            className="flex items-center gap-2 px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-md font-semibold "
           >
             <Plus className="w-4 h-4" />
             Agregar Movimiento
@@ -675,7 +675,7 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
               </div>
             </div>
             <div
-              className={`px-4 py-2 rounded-lg font-semibold ${
+              className={`px-4 py-2 rounded-md font-semibold ${
                 balanceado
                   ? "bg-green-100 text-green-700"
                   : "bg-red-100 text-red-700"
@@ -689,7 +689,7 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
         <button
           onClick={guardarAsiento}
           disabled={!balanceado}
-          className="w-full mt-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-black px-6 py-3 rounded-lg font-semibold  flex items-center justify-center gap-2"
+          className="w-full mt-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-black px-6 py-3 rounded-md font-semibold  flex items-center justify-center gap-2"
         >
           <Save className="w-5 h-5" />
           Guardar Asiento
@@ -712,7 +712,7 @@ const Asientos = ({ cuentas, agregarAsiento, asientos, eliminarAsiento }) => {
               .map((asiento) => (
                 <div
                   key={asiento.numero}
-                  className="bg-slate-50 p-4 rounded-lg"
+                  className="bg-slate-50 p-4 rounded-md"
                 >
                   <div className="flex justify-between items-start mb-3">
                     <div>
@@ -889,7 +889,7 @@ const LibroMayor = ({ mayores }) => {
             <select
               value={cuentaSeleccionada}
               onChange={(e) => setCuentaSeleccionada(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700"
+              className="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-700"
             >
               <option value="">Ver todas las cuentas con movimientos</option>
               {mayoresConMovimientos.map((mayor) => (
@@ -906,7 +906,7 @@ const LibroMayor = ({ mayores }) => {
           ).map((mayor) => (
             <div
               key={mayor.cuenta.codigo}
-              className="mb-8 bg-slate-50 p-6 rounded-lg"
+              className="mb-8 bg-slate-50 p-6 rounded-md"
             >
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-bold text-slate-800">
@@ -914,7 +914,7 @@ const LibroMayor = ({ mayores }) => {
                   {mayor.cuenta.nombre}
                 </h3>
                 <span
-                  className={`px-4 py-2 rounded-lg font-semibold ${
+                  className={`px-4 py-2 rounded-md font-semibold ${
                     mayor.cuenta.naturaleza === "deudora"
                       ? "bg-green-100 text-green-700"
                       : "bg-orange-100 text-orange-700"
@@ -1021,7 +1021,7 @@ const Balance = ({ balance, mayores }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Balance General */}
-        <div className="bg-slate-50 p-6 rounded-lg">
+        <div className="bg-slate-50 p-6 rounded-md">
           <h3 className="text-xl font-bold mb-4 text-blue-600">
             Balance General
           </h3>
@@ -1114,7 +1114,7 @@ const Balance = ({ balance, mayores }) => {
 
           {/* Verificación */}
           <div
-            className={`mt-4 p-4 rounded-lg ${
+            className={`mt-4 p-4 rounded-md ${
               balanceado ? "bg-green-100" : "bg-red-100"
             }`}
           >
@@ -1132,7 +1132,7 @@ const Balance = ({ balance, mayores }) => {
         </div>
 
         {/* Estado de Resultados */}
-        <div className="bg-slate-50 p-6 rounded-lg">
+        <div className="bg-slate-50 p-6 rounded-md">
           <h3 className="text-xl font-bold mb-4 text-green-600">
             Estado de Resultados
           </h3>
@@ -1168,7 +1168,7 @@ const Balance = ({ balance, mayores }) => {
 
             <div className="pt-4 border-t-4 border-slate-800">
               <div
-                className={`p-4 rounded-lg ${
+                className={`p-4 rounded-md ${
                   balance.resultadoEjercicio >= 0 ? "bg-green-50" : "bg-red-50"
                 }`}
               >
@@ -1194,7 +1194,7 @@ const Balance = ({ balance, mayores }) => {
       </div>
 
       {/* Detalle de Saldos por Cuenta */}
-      <div className="bg-slate-50 p-6 rounded-lg">
+      <div className="bg-slate-50 p-6 rounded-md">
         <h3 className="text-xl font-bold mb-4 text-slate-800">
           Detalle de Saldos por Cuenta
         </h3>

@@ -95,11 +95,11 @@ const ModalMovimiento = ({
 
   const content = (
     <div
-      className={`space-y-4 py-2 ${isStandalone ? "bg-[var(--surface)] border border-black/5 rounded-[22px] p-6" : ""}`}
+      className={`space-y-4 py-2 ${isStandalone ? "bg-[var(--surface)] border border-black/5 rounded-md p-6" : ""}`}
     >
       {isStandalone && (
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-amber-700/10 flex items-center justify-center border border-amber-700/20 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
+          <div className="w-10 h-10 rounded-md bg-amber-700/10 flex items-center justify-center border border-amber-700/20 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
             <MovimientoIcono size={20} color="var(--primary)" />
           </div>
           <div>
@@ -253,7 +253,7 @@ const ModalMovimiento = ({
             <button
               onClick={handleSubmit}
               disabled={isPending || !formData.cantidad}
-              className="flex items-center gap-2 px-8 py-3 bg-amber-700 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-black rounded-xl font-black text-[13px] uppercase tracking-widest  shadow-lg shadow-amber-700/20 active:scale-95"
+              className="flex items-center gap-2 px-8 py-3 bg-amber-700 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-black rounded-md font-black text-[13px] uppercase tracking-widest  shadow-lg shadow-amber-700/20 active:scale-95"
             >
               <GuardarIcono size={16} />
               {isPending ? "Registrando..." : "Registrar Movimiento"}

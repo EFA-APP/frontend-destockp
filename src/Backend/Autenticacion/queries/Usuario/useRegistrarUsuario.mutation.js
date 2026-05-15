@@ -9,17 +9,17 @@ export const useRegistrarUsuario = () => {
     return useMutation({
         mutationFn: registrarseApi,
         onSuccess: () => {
-            queryClient.invalidateQueries(["usuarios"]);
+            queryClient.invalidateQueries({ queryKey: ["usuarios-empresa"] });
             agregarAlerta({
                 type: "success",
-                message: "Usuario registrado correctamente",
+                message: "El usuario ha sido registrado y asignado exitosamente a la empresa.",
             });
         },
         onError: (error) => {
             agregarAlerta({
                 type: "error",
-                message: error?.response?.data?.message || "Ocurrió un error al registrar el usuario",
+                message: error?.response?.data?.message || "Ocurrió un error al intentar crear el usuario.",
             });
-        }
+        },
     });
 };

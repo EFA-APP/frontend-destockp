@@ -11,18 +11,21 @@ import { getPrecio, calcularTotalItem } from "./utils/fiscal.utils";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import ModalConfirmacionCobro from "./ModalConfirmacionCobro";
 import FormularioContacto from "../../Contactos/GestionContactos/FormularioContacto";
+import { formatPrice, formatNumber } from "../../../../utils/formatters";
 import {
   ComprobanteIcono,
   DineroIcono,
   NuevoContactoIcono,
   BuscadorIcono,
 } from "../../../../assets/Icons";
+import { usePermisosDeUsuario } from "../../../../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
+import { Link, X } from "lucide-react";
 
 // Sub-componentes
 import BusquedaProducto from "./BusquedaProducto";
 import DataTable from "../../../UI/DataTable/DataTable";
 import { ColumnasTicket } from "./ColumnasTicket";
-import { Link, X } from "lucide-react";
+import ModalErrorContabilidad from "../../../Modales/Sistema/ModalErrorContabilidad";
 
 const ComprobantesSkeleton = () => (
   <div className="flex-1 flex flex-col md:flex-row overflow-hidden ">
@@ -52,10 +55,7 @@ const Comprobantes = () => {
     productos,
     cargandoProductos,
     tiposComprobante,
-    cargandoVouchers,
-    clientes,
-    facturas,
-    usuario,
+
     // Captura de productos
     codigoBusqueda,
     setCodigoBusqueda,
@@ -79,8 +79,6 @@ const Comprobantes = () => {
     setEnBlanco,
     aplicaIva,
     // Métodos y clientes
-    metodoPago,
-    setMetodoPago,
     clienteSeleccionado,
     setClienteSeleccionado,
     busquedaCliente,
@@ -90,33 +88,24 @@ const Comprobantes = () => {
     condicionVenta,
     setCondicionVenta,
     entidades,
-    entidadSeleccionada,
-    setEntidadSeleccionada,
     handleClienteKeyDown,
     clientesFiltrados,
     highlightedIndexCliente,
     observaciones,
     setObservaciones,
     // Notas de crédito / Comprobantes asociados
-    busquedaFactura,
-    setBusquedaFactura,
     comprobanteAsociado,
     setComprobanteAsociado,
-    mostrarDropdownFactura,
-    setMostrarDropdownFactura,
     // Pagos multiples
     listaPagos,
     nuevoPago,
     setNuevoPago,
     agregarPago,
-    agregarPagoConVuelto,
     eliminarPago,
     vuelto,
     // UI Local
     mostrarPreview,
     setMostrarPreview,
-    tabActiva,
-    setTabActiva,
     unidadLocal,
     setUnidadLocal,
     // Referencias de teclado
@@ -134,6 +123,9 @@ const Comprobantes = () => {
     setPaso,
     siguientePaso,
     anteriorPaso,
+    // Modos de Ajuste
+    esNotaCreditoNav,
+    esNotaDebitoNav,
     // Manual
     nombreManual,
     setNombreManual,
@@ -146,7 +138,11 @@ const Comprobantes = () => {
     mostrarFormularioContacto,
     setMostrarFormularioContacto,
     puedeHacerFiscal,
+    modalContabilidad,
+    setModalContabilidad,
   } = useComprobantes();
+
+  const { tieneAccion } = usePermisosDeUsuario();
 
   // === EFECTO: Atajos de Teclado Globales ===
   useEffect(() => {
@@ -184,10 +180,10 @@ const Comprobantes = () => {
     window.addEventListener("keydown", handleGlobalKeys);
     return () => window.removeEventListener("keydown", handleGlobalKeys);
   }, [paso, siguientePaso, anteriorPaso, setPaso]);
-  const noopProductoEncontrado = useCallback(() => { }, []);
+  const noopProductoEncontrado = useCallback(() => {}, []);
   const cargandoInicial = cargandoConfigs && items.length === 0;
   return (
-    <div className="flex flex-col h-screen md:h-screen w-full overflow-hidden pt-4 md:py-6 px-2">
+    <div className="flex flex-col min-h-screen w-full pt-4 md:py-6 px-2">
       {/* 1. SECCIÓN: CABECERA */}
       <EncabezadoSeccion
         ruta={"Comprobantes"}
@@ -195,17 +191,30 @@ const Comprobantes = () => {
         volver={true}
       />
 
+      <ModalErrorContabilidad
+        isOpen={modalContabilidad.show}
+        onClose={() =>
+          setModalContabilidad({ ...modalContabilidad, show: false })
+        }
+        mensaje={modalContabilidad.message}
+        modulo="VENTAS"
+      />
+
       {/* BANNER DE COMPROBANTE ASOCIADO */}
       {comprobanteAsociado && (
         <div className="max-w-2xl mx-auto w-full px-4 md:px-4 mt-4 animate-in fade-in slide-in-from-top-4 duration-500">
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
+          <div className="bg-amber-50 border border-amber-200 rounded-md p-4 flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-lg bg-amber-500 text-white flex items-center justify-center shadow-md shadow-amber-500/20">
+              <div className="w-10 h-10 rounded-md bg-amber-500 text-white flex items-center justify-center shadow-md shadow-amber-500/20">
                 <Link size={20} />
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] font-black uppercase text-amber-600 tracking-widest leading-none mb-1">
-                  Emitiendo Pago / Ajuste para
+                  {esNotaCreditoNav
+                    ? "Emitiendo Nota de Crédito para"
+                    : esNotaDebitoNav
+                      ? "Emitiendo Nota de Débito para"
+                      : "Emitiendo Pago para"}
                 </span>
                 <span className="text-[16px] font-black text-amber-900 tracking-tight leading-none">
                   Comprobante {comprobanteAsociado}
@@ -219,7 +228,10 @@ const Comprobantes = () => {
               className="w-8 h-8 flex items-center justify-center bg-amber-100 hover:bg-rose-50 text-amber-700 hover:text-rose-500 rounded-full transition-all group"
               title="Desvincular comprobante"
             >
-              <X size={16} className="group-hover:rotate-90 transition-transform duration-300" />
+              <X
+                size={16}
+                className="group-hover:rotate-90 transition-transform duration-300"
+              />
             </button>
           </div>
         </div>
@@ -237,12 +249,13 @@ const Comprobantes = () => {
           <button
             key={s}
             onClick={() => items.length > 0 && setPaso(s)}
-            className={`relative z-10 w-9 h-9 md:w-10 md:h-10 rounded-md flex items-center justify-center border-2 transition-all duration-300 ${paso === s
-              ? "bg-gray-200 border-[var(--primary)] text-black font-semibold scale-110 shadow-lg shadow-[var(--primary)]/10"
-              : paso > s
-                ? "bg-emerald-500 border-emerald-500 text-white"
-                : "bg-[var(--surface)] border-black/10 text-[var(--text-muted)]"
-              }`}
+            className={`relative z-10 w-9 h-9 md:w-10 md:h-10 rounded-md flex items-center justify-center border-2 transition-all duration-300 ${
+              paso === s
+                ? "bg-gray-200 border-[var(--primary)] text-black font-semibold scale-110 shadow-lg shadow-[var(--primary)]/10"
+                : paso > s
+                  ? "bg-emerald-500 border-emerald-500 text-black"
+                  : "bg-[var(--surface)] border-black/10 text-[var(--text-muted)]"
+            }`}
           >
             {paso > s ? "✓" : s}
             <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] font-black uppercase tracking-widest whitespace-nowrap text-[var(--border-muted)] hidden sm:block">
@@ -262,10 +275,10 @@ const Comprobantes = () => {
       {cargandoInicial ? (
         <ComprobantesSkeleton />
       ) : (
-        <div className="flex-1 flex flex-col overflow-hidden max-w-5xl mx-auto w-full md:px-4 mt-4">
+        <div className="flex-1 flex flex-col overflow-hidden mx-auto w-full md:px-4 mt-4">
           {/* PASO 1: AGREGAR PRODUCTOS */}
           {paso === 1 && (
-            <div className="flex-1 flex flex-col overflow-y-auto animate-in fade-in slide-in-from-right-4 duration-500 pr-1 pb-20">
+            <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-500 pr-1 pb-20">
               <div className="flex flex-col gap-0.5 mb-0.5">
                 <div className="flex justify-between items-center bg-[var(--surface-hover)] p-3 rounded-md border border-black/5 shadow-sm">
                   <div className="flex items-center gap-3">
@@ -275,12 +288,21 @@ const Comprobantes = () => {
                       </h2>
                     </div>
                   </div>
-                  <button
-                    onClick={() => setMostrandoManual(!mostrandoManual)}
-                    className={`px-5 py-2.5 rounded-md text-[10px] font-black uppercase tracking-[0.15em] transition-all shadow-sm active:scale-95 ${mostrandoManual ? "bg-rose-500 text-white shadow-rose-500/20" : "bg-black text-white hover:bg-black/90"}`}
-                  >
-                    {mostrandoManual ? "✕ Cancelar" : "+ Item Manual"}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setItems([])}
+                      disabled={items.length === 0}
+                      className={`px-4 py-2.5 rounded-md text-[10px] font-black uppercase tracking-[0.15em] transition-all border ${items.length > 0 ? "bg-white text-rose-500 border-rose-500 hover:bg-rose-50" : "bg-black/5 text-black/20 border-black/5 cursor-not-allowed"}`}
+                    >
+                      Vaciar
+                    </button>
+                    <button
+                      onClick={() => setMostrandoManual(!mostrandoManual)}
+                      className={`px-5 py-2.5 rounded-md text-[10px] font-black uppercase tracking-[0.15em] transition-all shadow-sm active:scale-95 ${mostrandoManual ? "bg-rose-500 text-white shadow-rose-500/20" : "bg-black text-white hover:bg-black/90"}`}
+                    >
+                      {mostrandoManual ? "✕ Cancelar" : "+ Item Manual"}
+                    </button>
+                  </div>
                 </div>
 
                 {mostrandoManual ? (
@@ -348,6 +370,8 @@ const Comprobantes = () => {
                     cantidadInput={cantidadInput}
                     setCantidadInput={setCantidadInput}
                     getPrecio={getPrecio}
+                    totales={totales}
+                    siguientePaso={siguientePaso}
                   />
                 )}
               </div>
@@ -435,7 +459,7 @@ const Comprobantes = () => {
                     </div>
                   </div>
 
-                  {enBlanco === "si" && (
+                  {tiposComprobante.length > 0 && (
                     <div className="animate-in zoom-in-95 duration-300">
                       <select
                         value={tipoDocumento}
@@ -450,6 +474,17 @@ const Comprobantes = () => {
                       </select>
                     </div>
                   )}
+
+                  {/* BOTÓN SIGUIENTE (PASO 2) */}
+                  <div className="pt-4">
+                    <button
+                      onClick={siguientePaso}
+                      className="w-full h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+                    >
+                      Continuar al Cliente
+                      <span className="text-xl">→</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -461,12 +496,20 @@ const Comprobantes = () => {
               <div className="w-full bg-[var(--surface)] border border-black/5 rounded-md p-5 md:p-8 shadow-2xl">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                   <h3 className="text-xl font-black">Seleccionar Cliente</h3>
-                  <button
-                    onClick={() => setMostrarFormularioContacto(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-500 rounded-md font-black text-[10px] border border-red-500 uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all cursor-pointer"
-                  >
-                    <NuevoContactoIcono size={16} />+ Nuevo
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setMostrarFormularioContacto(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-500 rounded-md font-black text-[10px] border border-red-500 uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+                    >
+                      <NuevoContactoIcono size={16} />+ Nuevo
+                    </button>
+                    <button
+                      onClick={siguientePaso}
+                      className="flex items-center gap-2 px-6 py-2 rounded-md font-black text-[10px] uppercase tracking-widest transition-all bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20 active:scale-95"
+                    >
+                      Continuar al Pago →
+                    </button>
+                  </div>
                 </div>
 
                 <div className="relative group">
@@ -556,8 +599,10 @@ const Comprobantes = () => {
                 </div>
 
                 {/* 2. PAGOS REGISTRADOS (IMAGEN 2) */}
-                <div className="
-                text-center h-auto flex flex-col  justify-center text-[var(--text-theme)]">
+                <div
+                  className="
+                text-center h-auto flex flex-col  justify-center text-[var(--text-theme)]"
+                >
                   {listaPagos.length === 0 ? (
                     <span className="text-[11px] font-black uppercase tracking-widest opacity-40 italic ">
                       Sin Pagos Registrados
@@ -584,7 +629,7 @@ const Comprobantes = () => {
                           </div>
                           <div className="flex items-center gap-4">
                             <span className="font-black text-black">
-                              ${parseFloat(p.monto).toLocaleString()}
+                              {formatPrice(p.monto)}
                             </span>
                             <button
                               onClick={() => eliminarPago(i)}
@@ -601,82 +646,172 @@ const Comprobantes = () => {
 
                 {/* 3. FORMULARIO CARGA (IMAGEN 2) */}
                 <div className="bg-white border border-black/5 rounded-md p-6 space-y-6 shadow-sm">
-                  {/* Botones de Tipo */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {["EFECTIVO", "DEBITO", "CREDITO", "TRANSFERENCIA"].map(
-                      (m) => {
-                        const active = nuevoPago.tipo === m;
-                        return (
-                          <button
-                            key={m}
-                            onClick={() =>
-                              setNuevoPago({ ...nuevoPago, tipo: m })
-                            }
-                            className={`h-14 rounded-md font-black uppercase text-[12px] tracking-tighter transition-all border ${active ? "bg-red-600 text-white border-red-600 shadow-md scale-105" : "bg-[var(--primary)]/20 text-[var(--primary)] border-[var(--primary)] hover:border-[var(--primary)]/10 cursor-pointer hover:bg-[var(--primary)]/10"}`}
-                          >
-                            {m}
-                          </button>
-                        );
-                      },
+                  {/* Botones de Tipo con Permisos */}
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                    {[
+                      { id: "EFECTIVO", label: "EFECTIVO" },
+                      { id: "DEBITO", label: "DÉBITO" },
+                      { id: "CREDITO", label: "CRÉDITO" },
+                      { id: "TRANSFERENCIA", label: "TRANSF." },
+                      { id: "CHEQUE", label: "CHEQUE" },
+                    ].map((m) => {
+                      const active = nuevoPago.tipo === m.id;
+                      if (!tieneAccion(`PAGO_${m.id}`)) return null;
+
+                      return (
+                        <button
+                          key={m.id}
+                          onClick={() =>
+                            setNuevoPago({ ...nuevoPago, tipo: m.id })
+                          }
+                          className={`h-14 w-full rounded-md font-black uppercase text-[11px] tracking-tighter transition-all border ${active ? "bg-red-600 text-white border-red-600 shadow-md scale-105" : "bg-[var(--primary)]/20 text-[var(--primary)] border-[var(--primary)] hover:border-[var(--primary)]/10 cursor-pointer hover:bg-[var(--primary)]/10"}`}
+                        >
+                          {m.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Selector de Marca / Entidad / Tipo Cheque */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {nuevoPago.tipo === "CHEQUE" ? (
+                      <div className="space-y-2">
+                        <label className="text-[12px] font-black uppercase tracking-widest text-[var(--border-muted)]">
+                          Naturaleza del Cheque
+                        </label>
+                        <select
+                          value={nuevoPago.tipoCheque}
+                          onChange={(e) =>
+                            setNuevoPago({
+                              ...nuevoPago,
+                              tipoCheque: e.target.value,
+                            })
+                          }
+                          className="w-full h-12 bg-[var(--fill)] border border-black/10 rounded-md px-4 font-bold text-black text-xs outline-none focus:border-red-500"
+                        >
+                          <option value="PROPIO">Cheque Propio</option>
+                          <option value="TERCERO">Cheque de Tercero</option>
+                        </select>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <label className="text-[12px] font-black uppercase tracking-widest text-[var(--border-muted)]">
+                          Marca / Tipo de Tarjeta / Banco
+                        </label>
+                        <select
+                          value={nuevoPago.entidadId}
+                          onChange={(e) =>
+                            setNuevoPago({
+                              ...nuevoPago,
+                              entidadId: e.target.value,
+                              detalles: e.target.value,
+                            })
+                          }
+                          className="w-full h-12 bg-[var(--fill)] border border-black/10 rounded-md px-4 font-bold text-black text-xs outline-none focus:border-red-500"
+                        >
+                          <option value="">Seleccionar...</option>
+                          {nuevoPago.tipo === "TRANSFERENCIA" ? (
+                            <>
+                              <option value="Mercado Pago">Mercado Pago</option>
+                              <option value="Modo">Modo (Bancos)</option>
+                              <option value="Naranja X">Naranja X</option>
+                              <option value="Santander">Santander</option>
+                              <option value="Galicia">Galicia</option>
+                              <option value="BBVA">BBVA</option>
+                              <option value="Macro">Macro</option>
+                              <option value="Banco Nación">Banco Nación</option>
+                              <option value="Banco Provincia">
+                                Banco Provincia
+                              </option>
+                              <option value="Personal Pay">Personal Pay</option>
+                              <option value="Uala">Uala</option>
+                              <option value="Brubank">Brubank</option>
+                              <option value="Otro">Otro (CBU / Alias)</option>
+                            </>
+                          ) : (
+                            <>
+                              <option value="Visa">Visa</option>
+                              <option value="Mastercard">Mastercard</option>
+                              <option value="Naranja">Naranja</option>
+                              <option value="Maestro">Maestro</option>
+                              <option value="Cabal">Cabal</option>
+                              <option value="American Express">
+                                American Express
+                              </option>
+                              <option value="Cordobesa">Cordobesa</option>
+                              <option value="Otro">Otro</option>
+                            </>
+                          )}
+                          {/* Mantener entidades dinámicas si existen */}
+                          {entidades.map((ent) => (
+                            <option key={ent.Id} value={ent.Id}>
+                              {ent.Nombre}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {/* Inputs Adicionales para Cheque */}
+                    {nuevoPago.tipo === "CHEQUE" && (
+                      <div className="space-y-2">
+                        <label className="text-[12px] font-black uppercase tracking-widest text-[var(--border-muted)]">
+                          Banco Emisor
+                        </label>
+                        <input
+                          type="text"
+                          value={nuevoPago.bancoCheque}
+                          onChange={(e) =>
+                            setNuevoPago({
+                              ...nuevoPago,
+                              bancoCheque: e.target.value,
+                            })
+                          }
+                          className="w-full h-12 bg-[var(--fill)] border border-black/10 rounded-md px-4 font-bold text-black text-xs outline-none focus:border-red-500"
+                          placeholder="Ej: Banco Nación, Santander..."
+                        />
+                      </div>
                     )}
                   </div>
 
-                  {/* Selector de Marca / Entidad */}
-                  <div className="space-y-2">
-                    <label className="text-[12px] font-black uppercase tracking-widest text-[var(--border-muted)]">
-                      Marca / Tipo de Tarjeta / Banco
-                    </label>
-                    <select
-                      value={nuevoPago.entidadId}
-                      onChange={(e) =>
-                        setNuevoPago({
-                          ...nuevoPago,
-                          entidadId: e.target.value,
-                        })
-                      }
-                      className="w-full h-12 bg-[var(--fill)] border border-black/10 rounded-md px-4 font-bold text-black text-xs outline-none focus:border-red-500"
-                    >
-                      <option value="">Seleccionar...</option>
-                      {nuevoPago.tipo === "TRANSFERENCIA" ? (
-                        <>
-                          <option value="Mercado Pago">Mercado Pago</option>
-                          <option value="Modo">Modo (Bancos)</option>
-                          <option value="Naranja X">Naranja X</option>
-                          <option value="Santander">Santander</option>
-                          <option value="Galicia">Galicia</option>
-                          <option value="BBVA">BBVA</option>
-                          <option value="Macro">Macro</option>
-                          <option value="Banco Nación">Banco Nación</option>
-                          <option value="Banco Provincia">
-                            Banco Provincia
-                          </option>
-                          <option value="Personal Pay">Personal Pay</option>
-                          <option value="Uala">Uala</option>
-                          <option value="Brubank">Brubank</option>
-                          <option value="Otro">Otro (CBU / Alias)</option>
-                        </>
-                      ) : (
-                        <>
-                          <option value="Visa">Visa</option>
-                          <option value="Mastercard">Mastercard</option>
-                          <option value="Naranja">Naranja</option>
-                          <option value="Maestro">Maestro</option>
-                          <option value="Cabal">Cabal</option>
-                          <option value="American Express">
-                            American Express
-                          </option>
-                          <option value="Cordobesa">Cordobesa</option>
-                          <option value="Otro">Otro</option>
-                        </>
-                      )}
-                      {/* Mantener entidades dinámicas si existen */}
-                      {entidades.map((ent) => (
-                        <option key={ent.Id} value={ent.Id}>
-                          {ent.Nombre}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {/* Segunda Fila para Cheques (Nro y Vto) */}
+                  {nuevoPago.tipo === "CHEQUE" && (
+                    <div className="grid grid-cols-2 gap-4 animate-in fade-in zoom-in-95 duration-300">
+                      <div className="space-y-2">
+                        <label className="text-[12px] font-black uppercase tracking-widest text-[var(--border-muted)]">
+                          Número de Cheque
+                        </label>
+                        <input
+                          type="text"
+                          value={nuevoPago.numeroCheque}
+                          onChange={(e) =>
+                            setNuevoPago({
+                              ...nuevoPago,
+                              numeroCheque: e.target.value,
+                            })
+                          }
+                          className="w-full h-12 bg-[var(--fill)] border border-black/10 rounded-md px-4 font-bold text-black text-xs outline-none focus:border-red-500"
+                          placeholder="00000000"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[12px] font-black uppercase tracking-widest text-[var(--border-muted)]">
+                          Vencimiento / Cobro
+                        </label>
+                        <input
+                          type="date"
+                          value={nuevoPago.vencimientoCheque}
+                          onChange={(e) =>
+                            setNuevoPago({
+                              ...nuevoPago,
+                              vencimientoCheque: e.target.value,
+                            })
+                          }
+                          className="w-full h-12 bg-[var(--fill)] border border-black/10 rounded-md px-4 font-bold text-black text-xs outline-none focus:border-red-500"
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   {/* Monto y Ref */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -696,7 +831,7 @@ const Comprobantes = () => {
                     </div>
                     <div className="space-y-2">
                       <label className="text-[12px] font-black uppercase tracking-widest  text-[var(--border-muted)]">
-                        Ref. (Opcional)
+                        Ref. Pago (Opcional)
                       </label>
                       <input
                         type="text"
@@ -715,13 +850,27 @@ const Comprobantes = () => {
 
                   <button
                     onClick={agregarPago}
-                    className={`w-full h-14 rounded-md font-black uppercase tracking-widest transition-all shadow-sm flex items-center justify-center gap-2 border-2 ${condicionVenta === "contado" && listaPagos.length === 0
-                      ? "bg-red-500 text-white border-red-600 animate-pulse scale-[1.02] shadow-xl shadow-red-500/40"
-                      : "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
-                      }`}
+                    className={`w-full h-14 rounded-md font-black uppercase tracking-widest transition-all shadow-sm flex items-center justify-center gap-2 border-2 ${
+                      condicionVenta === "contado" && listaPagos.length === 0
+                        ? "bg-red-500 text-white border-red-600 animate-pulse scale-[1.02] shadow-xl shadow-red-500/40"
+                        : "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
+                    }`}
                   >
                     <DineroIcono size={20} />+ Agregar Pago
                   </button>
+
+                  {/* Observaciones del Comprobante */}
+                  <div className="pt-4 border-t border-black/5 space-y-2">
+                    <label className="text-[12px] font-black uppercase tracking-widest text-[var(--border-muted)] flex items-center gap-2">
+                      Observaciones del Comprobante (Opcional)
+                    </label>
+                    <textarea
+                      value={observaciones}
+                      onChange={(e) => setObservaciones(e.target.value)}
+                      placeholder="Notas adicionales para el comprobante..."
+                      className="w-full h-24 bg-black/5 border border-black/10 rounded-md p-4 font-bold text-black outline-none focus:border-[var(--primary)] resize-none"
+                    />
+                  </div>
 
                   {vuelto > 0 && (
                     <div className="p-4 bg-emerald-500 text-white rounded-md flex justify-between items-center shadow-lg shadow-emerald-500/20">
@@ -729,7 +878,7 @@ const Comprobantes = () => {
                         Su Vuelto:
                       </span>
                       <span className="text-xl font-black">
-                        ${vuelto.toLocaleString()}
+                        {formatPrice(vuelto)}
                       </span>
                     </div>
                   )}
@@ -743,7 +892,7 @@ const Comprobantes = () => {
                     Total a Cobrar
                   </div>
                   <div className="text-xl font-black mb-4 tracking-tighter">
-                    ${(totales?.total || 0).toLocaleString()}
+                    {formatPrice(totales?.total || 0)}
                   </div>
 
                   <div className="space-y-4 mb-8">
@@ -752,7 +901,7 @@ const Comprobantes = () => {
                         Neto
                       </span>
                       <span className="font-bold">
-                        ${(totales?.neto || 0).toLocaleString()}
+                        {formatPrice(totales?.neto || 0)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center text-sm border-b border-white/5 pb-4">
@@ -760,7 +909,7 @@ const Comprobantes = () => {
                         IVA (21%)
                       </span>
                       <span className="font-bold">
-                        ${(totales?.iva || 0).toLocaleString()}
+                        {formatPrice(totales?.iva || 0)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center text-sm pt-2">
@@ -768,10 +917,12 @@ const Comprobantes = () => {
                         Total Pagos
                       </span>
                       <span className="font-black text-emerald-400">
-                        $
-                        {listaPagos
-                          .reduce((acc, p) => acc + parseFloat(p.monto || 0), 0)
-                          .toLocaleString()}
+                        {formatPrice(
+                          listaPagos.reduce(
+                            (acc, p) => acc + parseFloat(p.monto || 0),
+                            0,
+                          ),
+                        )}
                       </span>
                     </div>
                   </div>
@@ -781,7 +932,7 @@ const Comprobantes = () => {
                     disabled={cargandoCobro}
                     className="w-full h-20 bg-[var(--primary)]/20 border border-[var(--primary)] text-black rounded-md font-black text-xl uppercase tracking-[0.1em] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-[var(--primary)]/20 flex items-center justify-center gap-4"
                   >
-                    {cargandoCobro ? "Procesando..." : "Finalizar Venta"}
+                    {cargandoCobro ? "Procesando..." : "Verificar Venta"}
                     <ComprobanteIcono size={28} />
                   </button>
 

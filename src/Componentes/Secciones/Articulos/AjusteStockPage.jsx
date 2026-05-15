@@ -376,7 +376,7 @@ const AjusteStockPage = () => {
         </section>
 
         {/* Mobile Sticky Confirmation Bar */}
-        <div className="lg:hidden bottom-20 left-4 right-4 p-1 bg-[#0a0a0c]/80 backdrop-blur-xl border border-black/10 flex items-center justify-between gap-4 z-50 rounded-xl shadow-2xl">
+        <div className="lg:hidden bottom-20 left-4 right-4 p-1 bg-[#0a0a0c]/80 backdrop-blur-xl border border-black/10 flex items-center justify-between gap-4 z-50 rounded-md shadow-2xl">
           <button
             onClick={handleSubmit}
             disabled={processing || selectedCount === 0}

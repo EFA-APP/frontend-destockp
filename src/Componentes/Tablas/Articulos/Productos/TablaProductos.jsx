@@ -26,22 +26,14 @@ import { useContactos } from "../../../../Backend/Contactos/hooks/useContactos";
 import SkeletonFilaTabla from "../../../UI/Skeletons/SkeletonFilaTabla.jsx";
 import ModalCargaMasivaProductos from "../../../Modales/Articulos/ModalCargaMasivaProductos";
 import ModalImportarListaPrecios from "../../../Modales/Articulos/ModalImportarListaPrecios";
+import ModalCargarImagenProducto from "../../../Modales/Articulos/ModalCargarImagenProducto";
 import DrawerActualizarStock from "../../../Modales/Articulos/ModalActualizarStock";
 import { useDepositoUI } from "../../../../Backend/Articulos/hooks/Deposito/useDepositoUI.jsx";
 import { usePermisosDeUsuario } from "../../../../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
 import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
-const formatVal = (val) => {
-  if (val === null || val === undefined) return "";
-  const parsed =
-    typeof val === "string" && val.trim() !== "" && !isNaN(val)
-      ? Number(val)
-      : val;
-  if (typeof parsed === "number" && !isNaN(parsed)) {
-    return new Intl.NumberFormat("es-AR").format(parsed);
-  }
-  return val;
-};
+import { formatNumber, formatPrice } from "../../../../utils/formatters";
+// Eliminamos formatVal local para usar las utilidades globales
 
 const TablaProductos = () => {
   const navigate = useNavigate();
@@ -135,18 +127,32 @@ const TablaProductos = () => {
           ...col,
           renderizar: (valor, fila) => (
             <div className="py-2">
-              <div className="flex items-center gap-2">
-                <InventarioIcono size={14} className="text-amber-700/50 " />
-                <div className="font-extrabold text-[15px] text-[var(--text-primary)] leading-tight uppercase tracking-tight ">
-                  {valor}
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5 mt-1">
-                {fila.descripcion && (
-                  <span className="text-[12px] text-[var(--primary)] truncate font-medium opacity-70">
-                    • {fila.descripcion}
-                  </span>
+              <div className="flex items-center gap-3">
+                {fila.imagen ? (
+                  <div className="w-10 h-10 rounded-md overflow-hidden border border-black/5 shadow-sm shrink-0">
+                    <img
+                      src={fila.imagen}
+                      alt={valor}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 rounded-md bg-amber-700/5 border border-amber-700/10 flex items-center justify-center shrink-0">
+                    <InventarioIcono size={18} className="text-amber-700/30" />
+                  </div>
                 )}
+                <div>
+                  <div className="font-extrabold text-[15px] text-[var(--text-primary)] leading-tight uppercase tracking-tight ">
+                    {valor}
+                  </div>
+                  {fila.descripcion && (
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <span className="text-[12px] text-[var(--primary)] truncate font-medium opacity-70">
+                        • {fila.descripcion}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ),
@@ -185,10 +191,10 @@ const TablaProductos = () => {
               <div className="py-2">
                 <div
                   onClick={() => handleAbrirDrawer(fila)}
-                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border backdrop-blur-md cursor-pointer hover:scale-105 active:scale-95 ${config.bg} ${config.color} ${config.border} ${config.glow}  `}
+                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-md border backdrop-blur-md cursor-pointer hover:scale-105 active:scale-95 ${config.bg} ${config.color} ${config.border} ${config.glow}  `}
                 >
                   <span className="text-[14px] font-black tracking-tight">
-                    {formatVal(valor || 0)}
+                    {valor}
                   </span>
                 </div>
               </div>
@@ -208,10 +214,10 @@ const TablaProductos = () => {
         const valor = fila.atributos?.[c.claveCampo] ?? fila[c.claveCampo];
         const esPrecio = c.claveCampo?.toLowerCase().includes("precioventa");
 
-        if (esPrecio && (valor !== null && valor !== undefined)) {
+        if (esPrecio && valor !== null && valor !== undefined) {
           return (
             <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-700/10 border border-emerald-700/20 text-emerald-700 font-black text-[14px] shadow-sm">
-              $ {formatVal(valor)}
+              {formatPrice(valor)}
             </div>
           );
         }
@@ -222,7 +228,7 @@ const TablaProductos = () => {
               ? "SÍ"
               : valor === false
                 ? "NO"
-                : formatVal(valor) || "-"}
+                : formatNumber(valor) || "-"}
           </div>
         );
       },
@@ -238,6 +244,10 @@ const TablaProductos = () => {
 
   const [modalMasivoOpen, setModalMasivoOpen] = useState(false);
   const [modalImportarListaOpen, setModalImportarListaOpen] = useState(false);
+  const [modalImagen, setModalImagen] = useState({
+    open: false,
+    producto: null,
+  });
 
   useEffect(() => {
     const el = mobileScrollRef.current;
@@ -265,12 +275,12 @@ const TablaProductos = () => {
     const startIndex = Math.max(
       0,
       Math.floor(mobileScrollTop / MOBILE_ITEM_ESTIMATED_HEIGHT) -
-      MOBILE_OVERSCAN,
+        MOBILE_OVERSCAN,
     );
     const endIndex = Math.min(
       total,
       Math.ceil((mobileScrollTop + viewport) / MOBILE_ITEM_ESTIMATED_HEIGHT) +
-      MOBILE_OVERSCAN,
+        MOBILE_OVERSCAN,
     );
     const topSpacer = startIndex * MOBILE_ITEM_ESTIMATED_HEIGHT;
     const bottomSpacer = Math.max(
@@ -299,6 +309,13 @@ const TablaProductos = () => {
     },
     [navigate],
   );
+
+  const handleAgregarImagen = useCallback((producto) => {
+    setModalImagen({
+      open: true,
+      producto,
+    });
+  }, []);
 
   const handleDuplicarClick = useCallback(
     (item) => {
@@ -340,13 +357,13 @@ const TablaProductos = () => {
   ) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] w-full ">
-        <div className="max-w-lg w-full bg-[var(--fill)] border border-black/5 rounded-[2.5rem] p-10 text-center shadow-2xl relative overflow-hidden group">
+        <div className="max-w-lg w-full bg-[var(--fill)] border border-black/5 rounded-md p-10 text-center shadow-2xl relative overflow-hidden group">
           {/* Decoración de fondo */}
           <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-[var(--primary)]/5 rounded-full blur-3xl group-hover:bg-[var(--primary)]/10  "></div>
 
           <div className="relative z-10">
             {/* Contenedor del Icono */}
-            <div className="w-20 h-20 bg-yellow-500/10 rounded-[2rem] flex items-center justify-center mx-auto mb-6 border border-yellow-500/50 rotate-3 group-hover:rotate-6  ">
+            <div className="w-20 h-20 bg-yellow-500/10 rounded-md flex items-center justify-center mx-auto mb-6 border border-yellow-500/50 rotate-3 group-hover:rotate-6  ">
               <div className="text-yellow-600">
                 <AdvertenciaIcono size={35} />
               </div>
@@ -416,10 +433,11 @@ const TablaProductos = () => {
             handleEditarClick,
             handleEliminarClick,
             handleDuplicarClick,
+            handleAgregarImagen,
             tieneAccion,
           })}
           botonAgregar={{
-            texto: "Nuevo Producto",
+            texto: "Crear",
             ruta: "/panel/inventario/productos/nuevo",
             tieneAccion: "CREAR_PRODUCTO",
           }}
@@ -485,7 +503,7 @@ const TablaProductos = () => {
                         Filtrar Proveedor
                       </button>
                       {mostrarSelectProv && (
-                        <div className="absolute top-full left-0 mt-2 w-72 z-50 bg-[var(--fill)] border border-[var(--text-theme)] rounded-xl shadow-2xl p-4   ">
+                        <div className="absolute top-full left-0 mt-2 w-72 z-50 bg-[var(--fill)] border border-[var(--text-theme)] rounded-md shadow-2xl p-4   ">
                           <input
                             autoFocus
                             type="text"
@@ -516,8 +534,8 @@ const TablaProductos = () => {
                         {provFiltro.razonSocial.toUpperCase() ||
                           provFiltro.nombre.toUpperCase() ||
                           provFiltro.apellido.toUpperCase() +
-                          " " +
-                          provFiltro.nombre.toUpperCase()}
+                            " " +
+                            provFiltro.nombre.toUpperCase()}
                       </span>
                       <button
                         onClick={() => setProvFiltro(null)}
@@ -538,7 +556,6 @@ const TablaProductos = () => {
         />
       </div>
 
-
       <ModalCargaMasivaProductos
         open={modalMasivoOpen}
         onClose={() => setModalMasivoOpen(false)}
@@ -556,11 +573,20 @@ const TablaProductos = () => {
         }}
       />
 
-      <DrawerActualizarStock
-        isOpen={drawerData.isOpen}
-        onClose={cerrarDrawer}
-        fila={drawerData.fila}
-        depositosRaw={dataDepositosRaw}
+      <TieneAccion accion="EDITAR_STOCK_MANUAL">
+        <DrawerActualizarStock
+          isOpen={drawerData.isOpen}
+          onClose={cerrarDrawer}
+          fila={drawerData.fila}
+          depositosRaw={dataDepositosRaw}
+          tipoArticulo="PRODUCTO"
+        />
+      </TieneAccion>
+
+      <ModalCargarImagenProducto
+        isOpen={modalImagen.open}
+        onClose={() => setModalImagen({ open: false, producto: null })}
+        producto={modalImagen.producto}
       />
     </div>
   );
@@ -603,7 +629,7 @@ const MobileProductoCard = memo(
                 e.stopPropagation();
                 onEditar(prod);
               }}
-              className="w-10 h-10 rounded-xl bg-black/5 flex items-center justify-center border border-black/10 shadow-inner text-[var(--primary)]/60 active:scale-90 "
+              className="w-10 h-10 rounded-md bg-black/5 flex items-center justify-center border border-black/10 shadow-inner text-[var(--primary)]/60 active:scale-90 "
             >
               <Package size={20} />
             </button>
@@ -656,10 +682,11 @@ const MobileProductoCard = memo(
                   depositoInicial: dep.codigoSecuencial?.toString(),
                 })
               }
-              className={`group flex items-center justify-between p-3 rounded-xl cursor-pointer   active:scale-[0.98] ${tieneStock
-                ? "bg-black/5 border border-black/10"
-                : "bg-white/[0.02] border border-transparent opacity-50"
-                }`}
+              className={`group flex items-center justify-between p-3 rounded-md cursor-pointer   active:scale-[0.98] ${
+                tieneStock
+                  ? "bg-black/5 border border-black/10"
+                  : "bg-white/[0.02] border border-transparent opacity-50"
+              }`}
             >
               <div className="flex items-center gap-3 min-w-0 flex-1">
                 <div
@@ -716,9 +743,9 @@ const SelectorProveedoresInterno = memo(({ busqueda, onSeleccion }) => {
     <button
       key={p.codigoSecuencial}
       onClick={() => onSeleccion(p)}
-      className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-black/5  text-left group"
+      className="w-full flex items-center gap-3 p-2 rounded-md hover:bg-black/5  text-left group"
     >
-      <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center text-[12px] font-black text-[var(--primary)] group-hover:bg-[var(--primary)] group-hover:text-white">
+      <div className="w-8 h-8 rounded-md bg-[var(--primary)]/10 flex items-center justify-center text-[12px] font-black text-[var(--primary)] group-hover:bg-[var(--primary)] group-hover:text-white">
         {p.razonSocial?.[0]?.toUpperCase() || "P"}
       </div>
       <div className="flex flex-col min-w-0">

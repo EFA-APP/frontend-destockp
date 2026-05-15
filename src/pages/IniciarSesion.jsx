@@ -17,10 +17,13 @@ const IniciarSesion = () => {
     );
   };
 
+  const esUsuarioBloqueado = error?.response?.data?.message?.includes("Usuario bloqueado");
+
   return (
     <FormularioAuth
       titulo="Iniciar Sesión"
       descripcion="Accedé al sistema de gestión"
+      usuarioBloqueado={esUsuarioBloqueado}
       campos={[
         {
           name: "email",
@@ -37,7 +40,7 @@ const IniciarSesion = () => {
       ]}
       onSubmit={handleSubmit}
       cargando={isPending}
-      errores={error ? { contrasena: "Credenciales inválidas" } : {}}
+      errores={error && !esUsuarioBloqueado ? { contrasena: "Credenciales inválidas" } : {}}
       boton={{
         texto: "Iniciar Sesión",
         textoCargando: "Iniciando...",

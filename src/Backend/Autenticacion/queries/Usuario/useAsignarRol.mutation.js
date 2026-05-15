@@ -9,19 +9,18 @@ export const useAsignarRol = () => {
     return useMutation({
         mutationFn: asignarRolApi,
         onSuccess: () => {
-            queryClient.invalidateQueries(["usuarios"]);
+            // Refrescamos los usuarios para ver el rol actualizado
+            queryClient.invalidateQueries({ queryKey: ["usuarios-empresa"] });
             agregarAlerta({
                 type: "success",
-                message: "Rol asignado correctamente",
+                message: "El rol fue asignado al usuario correctamente.",
             });
-            // Disparamos la verificación del token para actualizar los datos del usuario logueado (incluyendo permisos)
-            queryClient.refetchQueries({ queryKey: ["verificarToken"] });
         },
         onError: (error) => {
             agregarAlerta({
                 type: "error",
-                message: error?.response?.data?.message || "Ocurrió un error al asignar el rol",
+                message: error?.response?.data?.message || "Ocurrió un error al intentar vincular el rol.",
             });
-        }
+        },
     });
 };

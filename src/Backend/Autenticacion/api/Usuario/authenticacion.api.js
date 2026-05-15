@@ -31,25 +31,64 @@ export const obtenerUsuariosApi = async () => {
   return respuesta.data;
 };
 
-export const asignarRolApi = async (data) => {
-  const respuesta = await axiosInitial.post("/auth/asignarRol", data, { showLoader: false });
+export const obtenerUsuariosPorEmpresaApi = async (codigoEmpresa) => {
+  const respuesta = await axiosInitial.get("/auth/usuarios", {
+    params: { codigoEmpresa },
+    showLoader: false,
+  });
   return respuesta.data;
 };
 
-export const registrarseApi = async (data) => {
-  const respuesta = await axiosInitial.post("/auth/registrarse", data, { showLoader: false });
+export const asignarRolApi = async ({ codigoEmpresa, codigoUsuario, codigoRol }) => {
+  const respuesta = await axiosInitial.post(
+    "/auth/asignarRol", 
+    { codigoUsuario, codigoRol }, // BODY explícito
+    { params: { codigoEmpresa }, showLoader: false } // PARAMS explícitos
+  );
   return respuesta.data;
 };
 
-export const actualizarEstadoUsuarioApi = async ({ codigoSecuencial, activo }) => {
-  const respuesta = await axiosInitial.patch(`/auth/usuarios/${codigoSecuencial}/estado`, { activo }, { showLoader: false });
+export const removerRolApi = async ({ codigoEmpresa, codigoUsuario, codigoRol }) => {
+  const respuesta = await axiosInitial.post(
+    "/auth/removerRol", 
+    { codigoUsuario, codigoRol }, // BODY explícito
+    { params: { codigoEmpresa }, showLoader: false } // PARAMS explícitos
+  );
+  return respuesta.data;
+};
+
+export const registrarseApi = async ({ codigoEmpresa, ...data }) => {
+  const respuesta = await axiosInitial.post("/auth/registrarse", data, { 
+    params: { codigoEmpresa },
+    showLoader: false 
+  });
+  return respuesta.data;
+};
+
+export const actualizarEstadoUsuarioApi = async ({ codigoSecuencial, activo, codigoEmpresa }) => {
+  const respuesta = await axiosInitial.patch(
+    `/auth/usuarios/${codigoSecuencial}/estado`, 
+    { activo }, 
+    { params: { codigoEmpresa }, showLoader: false }
+  );
   return respuesta.data;
 };
 
 export const eliminarUsuarioApi = async (codigoSecuencial) => {
   const respuesta = await axiosInitial.delete(`/auth/usuarios/${codigoSecuencial}`);
   return respuesta.data;
-};export const actualizarPerfilApi = async (data) => {
+};
+
+export const actualizarUsuarioApi = async ({ codigoSecuencial, codigoEmpresa, ...datos }) => {
+  const respuesta = await axiosInitial.patch(
+    `/auth/usuarios/${codigoSecuencial}`, 
+    datos, 
+    { params: { codigoEmpresa }, showLoader: false }
+  );
+  return respuesta.data;
+};
+
+export const actualizarPerfilApi = async (data) => {
   const respuesta = await axiosInitial.patch("/auth/perfil", data, { showLoader: true });
   return respuesta.data;
 };

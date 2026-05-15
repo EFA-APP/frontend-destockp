@@ -64,13 +64,15 @@ const CrearProductos = () => {
             : c.tipoDato === "BOOLEANO"
               ? "boolean"
               : "select",
-      options: c.opciones
-        ? c.opciones.map((o) => ({ value: o, label: o }))
-        : [],
+      options:
+        c.opciones && typeof c.opciones === "string"
+          ? c.opciones
+              .split(",")
+              .map((o) => ({ value: o.trim(), label: o.trim() }))
+          : [],
       required: c.requerido,
       formula: c.formula,
       section: "Atributos Adicionales",
-      sectionIcon: <ConfiguracionIcono />,
     }));
   }, [configData]);
 
@@ -124,8 +126,6 @@ const CrearProductos = () => {
         { value: true, label: "ACTIVO - Visible para ventas" },
         { value: false, label: "INACTIVO - Oculto" },
       ],
-      section: "Parámetros del Sistema",
-      sectionIcon: <ConfiguracionIcono />,
       defaultValue: true,
       fullWidth: true,
     },
@@ -133,11 +133,21 @@ const CrearProductos = () => {
 
   const camposAMostrar = useMemo(() => {
     let base = [...camposProductos];
-    if (!tieneArca) {
+
+    // Condición: Mostrar IVA solo si tiene ARCA y NO es Exento (EX)
+    const esExento = usuario?.datosFiscales?.condicionIva === "EX";
+
+    if (!tieneArca || esExento) {
       base = base.filter((c) => c.name !== "tasaIva");
     }
+
     return [...base, ...camposDinamicos];
-  }, [camposDinamicos, camposProductos, tieneArca]);
+  }, [
+    camposDinamicos,
+    camposProductos,
+    tieneArca,
+    usuario?.datosFiscales?.condicionIva,
+  ]);
 
   const handleSubmit = async (data) => {
     try {
@@ -196,13 +206,13 @@ const CrearProductos = () => {
     return (
       <ContenedorSeccion>
         <div className="flex flex-col items-center justify-center min-h-[60vh] w-full">
-          <div className="max-w-lg w-full bg-[#1a1a1a] border border-black/5 rounded-[2.5rem] p-10 text-center shadow-2xl relative overflow-hidden group">
+          <div className="max-w-lg w-full bg-[#1a1a1a] border border-black/5 rounded-md p-10 text-center shadow-2xl relative overflow-hidden group">
             {/* Decoración de fondo */}
             <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-[var(--primary)]/5 rounded-full blur-3xl group-hover:bg-[var(--primary)]/10  "></div>
 
             <div className="relative z-10">
               {/* Contenedor del Icono */}
-              <div className="w-20 h-20 bg-[var(--primary)]/10 rounded-[2rem] flex items-center justify-center mx-auto mb-6 border border-[var(--primary)]/20 rotate-3 group-hover:rotate-6  ">
+              <div className="w-20 h-20 bg-[var(--primary)]/10 rounded-md flex items-center justify-center mx-auto mb-6 border border-[var(--primary)]/20 rotate-3 group-hover:rotate-6  ">
                 <AdvertenciaIcono size={40} color="var(--primary)" />
               </div>
 

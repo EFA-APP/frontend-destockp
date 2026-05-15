@@ -11,20 +11,17 @@ import { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useProductoUI } from "../../../../../Backend/Articulos/hooks/Producto/useProductoUI";
 import { useGenerarComprobante } from "../../../../../Backend/Ventas/queries/Comprobante/useGenerarComprobante.mutation";
-import {
-  calcularNetoItem,
-  calcularTotalItem,
-} from "../utils/fiscal.utils";
+import { calcularNetoItem, calcularTotalItem, getPrecio } from "../utils/fiscal.utils";
 
 // Sub-hooks refactorizados
 import { useVentaCart } from "./useVentaCart";
 import { useVentaFiscal } from "./useVentaFiscal";
 import { useVentaPagos } from "./useVentaPagos";
 
-import { 
-  obtenerLetraPorTipo, 
-  esNotaCredito, 
-  esNotaDebito, 
+import {
+  obtenerLetraPorTipo,
+  esNotaCredito,
+  esNotaDebito,
   esRecibo,
   CONDICION_IVA,
 } from "../reglas/reglasFiscales";
@@ -70,27 +67,19 @@ export const useComprobantes = () => {
   const [highlightedIndexCliente, setHighlightedIndexCliente] = useState(-1);
 
   // === 3. MODULOS REFACTORIZADOS ===
-  const fiscal = useVentaFiscal(usuario, arcaConectado, infoIva, clienteSeleccionado);
+  const fiscal = useVentaFiscal(usuario, arcaConectado);
   const cart = useVentaCart(agregarAlerta, "precioVenta", fiscal.aplicaIva);
   const [condicionVenta, setCondicionVenta] = useState("contado");
   const pagos = useVentaPagos(
     cart.totales.total,
     condicionVenta,
     setCondicionVenta,
-    agregarAlerta
+    agregarAlerta,
   );
 
   // Destructuración para lógica interna
-  const { items, setItems, agregarItem, eliminarItem, actualizarItem } = cart;
-  const {
-    listaPagos,
-    setListaPagos,
-    agregarPago,
-    eliminarPago,
-    agregarPagoConVuelto,
-    nuevoPago,
-    setNuevoPago,
-  } = pagos;
+  const { items, setItems, agregarItem } = cart;
+  const { listaPagos, setListaPagos } = pagos;
   const { tipoDocumento, setTipoDocumento, enBlanco, setEnBlanco } = fiscal;
 
   const { contactos: clientesRaw } = useContactos({
@@ -162,7 +151,8 @@ export const useComprobantes = () => {
   const [periodo, setPeriodo] = useState(null);
 
   // === 5.5 GESTIÓN DE PASOS (STEPPER) ===
-  const [paso, setPaso] = useState(1); // 1: Productos, 2: Config/Cliente, 3: Pagos, 4: Preview
+  const [paso, setPaso] = useState(1);
+  const [modalContabilidad, setModalContabilidad] = useState({ show: false, message: "" }); // 1: Productos, 2: Config/Cliente, 3: Pagos, 4: Preview
 
   const siguientePaso = useCallback(() => {
     setPaso((prev) => {
@@ -231,14 +221,11 @@ export const useComprobantes = () => {
         setItems(nuevosItems);
       }
 
-      // 3. Setear Observación con el Periodo (para conciliación automática)
+      // 3. Setear Periodo (para conciliación automática con cuotas)
       if (location.state.periodo) {
-        // periodoStr viene como "Marzo 2026"
-        const [mes, anio] = location.state.periodo.split(" ");
-        const mesNum = MESES_MAP[mes.toUpperCase()] || "01";
-        const periodoStr = `${anio}-${mesNum}`;
-        setObservaciones(`ESC-PERIODO: ${periodoStr}`);
+        const periodoStr = location.state.periodo; // ej: "2026-04"
         setPeriodo(periodoStr);
+        // Nota: el periodo viaja como campo dedicado en el DTO, no en observaciones
       }
 
       // 3. Limpiar estado para evitar re-carga en F5 (Opcional, depende de UX)
@@ -252,37 +239,58 @@ export const useComprobantes = () => {
     }
   }, [location.state]);
 
-  // === EFECTO: Carga desde Tabla de Comprobantes (Emitir Pago) ===
+  // === EFECTO: Carga desde Tabla de Comprobantes (Emitir Pago / Ajuste) ===
   useEffect(() => {
-    if (
-      location.state?.comprobanteAsociado &&
-      facturas.length > 0 &&
-      !comprobanteAsociado
-    ) {
-      console.log("[POS] Cargando comprobante asociado desde estado...", location.state.comprobanteAsociado);
-      setComprobanteAsociado(location.state.comprobanteAsociado);
-      
+    if (location.state?.comprobanteAsociado) {
+      const data = location.state.comprobanteAsociado;
+
+      if (typeof data === "object") {
+        const nro = `${String(data.puntoVenta).padStart(5, "0")}-${String(data.numeroComprobante).padStart(8, "0")}`;
+        setComprobanteAsociado(nro);
+        setFacturaPrevia(data); // Nuevo estado para guardar el objeto completo sin buscarlo
+        if (data.codigoUnidadNegocio) setUnidadLocal(data.codigoUnidadNegocio);
+      } else {
+        setComprobanteAsociado(data);
+      }
+
       if (location.state.emitirPago) {
         setEsEmisionPago(true);
+      }
+
+      if (location.state.emitirNC) {
+        setEsNotaCreditoNav(true);
+      }
+
+      if (location.state.emitirND) {
+        setEsNotaDebitoNav(true);
       }
 
       // Limpiar el estado de history para evitar recargas infinitas
       window.history.replaceState({}, document.title);
     }
-  }, [location.state?.comprobanteAsociado, facturas.length, comprobanteAsociado]);
+  }, [location.state?.comprobanteAsociado]);
+
+  // Nuevos estados para modos de navegación
+  const [esNotaCreditoNav, setEsNotaCreditoNav] = useState(false);
+  const [esNotaDebitoNav, setEsNotaDebitoNav] = useState(false);
+
+  // Nuevo estado para evitar búsquedas si ya tenemos la data
+  const [facturaPrevia, setFacturaPrevia] = useState(null);
 
   // === EFECTO: Vinculación Inteligente (Autocompletar al asociar) ===
   useEffect(() => {
     if (!comprobanteAsociado) return;
 
-    // 1. Buscar la factura original en la lista cargada
-    const facturaOrigen = facturas.find((f) => {
-      const nro = `${String(f.puntoVenta).padStart(5, "0")}-${String(f.numeroComprobante).padStart(8, "0")}`;
-      return (
-        nro === comprobanteAsociado ||
-        f.numeroComprobante === Number(comprobanteAsociado)
-      );
-    });
+    // 1. Buscar la factura original (Prioridad a la data inyectada directamente)
+    const facturaOrigen =
+      facturaPrevia ||
+      facturas.find((f) => {
+        const nro = `${String(f.puntoVenta).padStart(5, "0")}-${String(f.numeroComprobante).padStart(8, "0")}`;
+        return (
+          nro === comprobanteAsociado ||
+          f.numeroComprobante === Number(comprobanteAsociado)
+        );
+      });
 
     if (!facturaOrigen) return;
 
@@ -294,28 +302,36 @@ export const useComprobantes = () => {
         facturaOrigen.saldoPendiente !== undefined
           ? Number(facturaOrigen.saldoPendiente)
           : totalVoucher -
-            (facturaOrigen.pagos?.reduce(
-              (acc, p) => acc + (p.monto || 0),
-              0,
-            ) || 0);
+            (facturaOrigen.pagos?.reduce((acc, p) => acc + (p.monto || 0), 0) ||
+              0);
 
       if (esEmisionPago || location.state?.emitirPago) {
         // MODO EMISIÓN DE PAGO: Un solo item manual
+        const labelItem = esNotaCreditoNav
+          ? "ANULACIÓN"
+          : esNotaDebitoNav
+            ? "AJUSTE DÉBITO"
+            : "PAGO";
+
+        // Si es NC, usamos el total total para poder anular el comprobante madre
+        // Si es Pago o ND, usamos el saldo pendiente
+        const montoItem = esNotaCreditoNav ? totalVoucher : saldoReal;
+
         setItems([
           {
             id: `m-pago-${Date.now()}`,
-            codigoSecuencial: `PAGO-${Date.now().toString().slice(-4)}`,
-            nombre: `PAGO DE COMPROBANTE ${comprobanteAsociado}`,
-            descripcion: "ABONO/PAGO",
+            codigoSecuencial: `${labelItem}-${Date.now().toString().slice(-4)}`,
+            nombre: `${labelItem} DE COMPROBANTE ${comprobanteAsociado}`,
+            descripcion: "ABONO/PAGO/AJUSTE",
             cantidad: 1,
-            precioUnitario: saldoReal,
-            precioVenta: saldoReal,
-            precioBase: saldoReal,
+            precioUnitario: montoItem,
+            precioVenta: montoItem,
+            precioBase: montoItem,
             descuento: 0,
             tasaIva: 0,
             manual: true,
-            esManual: true
-          }
+            esManual: true,
+          },
         ]);
       } else {
         // 2. Mapear Items del carrito (Mantenido para Notas de Crédito/Débito)
@@ -332,7 +348,26 @@ export const useComprobantes = () => {
           }));
 
           const yaPagado = totalVoucher - saldoReal;
-          if (yaPagado > 0.01) {
+
+          // Si es Nota de Crédito y tiene pagos previos, los cargamos automáticamente
+          // Esto evita tener que registrar el cobro manualmente para el reintegro.
+          if (
+            esNotaCreditoNav &&
+            Array.isArray(facturaOrigen.pagos) &&
+            facturaOrigen.pagos.length > 0
+          ) {
+            setListaPagos(
+              facturaOrigen.pagos.map((p, idx) => ({
+                id: `ref-nc-${Date.now()}-${idx}`,
+                tipo: p.metodo || p.tipo,
+                monto: p.monto,
+                detalles: p.detalles || "REINTEGRO AUTOMÁTICO",
+                referencia:
+                  p.referencia || `REF-ORIG-${facturaOrigen.numeroComprobante}`,
+              })),
+            );
+          } else if (yaPagado > 0.01 && !esNotaCreditoNav) {
+            // Para otros casos (como ND o Pagos), mantenemos el item de ajuste si corresponde
             nuevosItems.push({
               id: `adj-pago-${Date.now()}`,
               nombre: "- PAGOS REGISTRADOS ANTERIORMENTE",
@@ -341,6 +376,7 @@ export const useComprobantes = () => {
               descuento: 0,
               tasaIva: 0,
               manual: true,
+              esManual: true,
             });
           }
 
@@ -376,14 +412,17 @@ export const useComprobantes = () => {
       setEnBlanco(facturaOrigen.fiscal ? "si" : "no");
 
       // Verificamos intención actual (NC vs ND vs RECIBO)
-      const esNDActual = esNotaDebito(tipoDocumento);
-      const esRecActual = esRecibo(tipoDocumento);
+      const esNDActual = esNotaDebito(tipoDocumento) || esNotaDebitoNav;
+      const esRecActual = esRecibo(tipoDocumento) || esEmisionPago;
 
-      let tipoAjuste = 'NC';
-      if (esNDActual) tipoAjuste = 'ND';
-      if (esRecActual) tipoAjuste = 'RECIBO';
+      let tipoAjuste = "NC";
+      if (esNDActual) tipoAjuste = "ND";
+      if (esRecActual) tipoAjuste = "RECIBO";
 
-      const nuevoTipo = obtenerAjusteCorrespondiente(facturaOrigen.tipoDocumento, tipoAjuste);
+      const nuevoTipo = obtenerAjusteCorrespondiente(
+        facturaOrigen.tipoDocumento,
+        tipoAjuste,
+      );
       if (nuevoTipo) setTipoDocumento(nuevoTipo);
 
       // 5. Sincronizar Modo Fiscal
@@ -399,9 +438,16 @@ export const useComprobantes = () => {
         setPeriodo(facturaOrigen.periodo);
       }
 
+      // 8. Notificar éxito
+      const labelAlerta = esNotaCreditoNav
+        ? "Nota de Crédito"
+        : esNotaDebitoNav
+          ? "Nota de Débito"
+          : "Recibo/Pago";
+
       agregarAlerta({
-        title: "Comprobante Vinculado",
-        message: `Se han cargado los datos de la ${facturaOrigen.letraComprobante} ${comprobanteAsociado} automáticamente.`,
+        title: `${labelAlerta} Vinculada`,
+        message: `Se han cargado los datos para emitir un ajuste tipo ${labelAlerta} sobre la ${facturaOrigen.letraComprobante} ${comprobanteAsociado}.`,
         type: "success",
       });
     };
@@ -432,11 +478,15 @@ export const useComprobantes = () => {
     }
 
     const nuevoItem = {
-      codigoSecuencial: Date.now(), // ID temporal
+      id: `manual-${Date.now()}`,
+      codigoSecuencial: `M-${Date.now().toString().slice(-4)}`,
       nombre: nombreManual.toUpperCase(),
+      descripcion: "PRODUCTO MANUAL",
       cantidad: parseFloat(cantidadInput) || 1,
+      precioUnitario: parseFloat(precioManual),
       precioVenta: parseFloat(precioManual),
       precioBase: parseFloat(precioManual),
+      tasaIva: 21,
       esManual: true,
     };
 
@@ -485,7 +535,18 @@ export const useComprobantes = () => {
                 : null);
 
         if (p) {
-          agregarItem(p, 1);
+          const precio = getPrecio(p, columnaPrecioSeleccionada);
+          agregarItem(p, 1, (index) => {
+            if (precio <= 0) {
+              setTimeout(() => {
+                const el = document.getElementById(`price-input-${index}`);
+                if (el) {
+                  el.focus();
+                  el.select();
+                }
+              }, 100);
+            }
+          });
           setMostrarDropdownProducto(false);
         }
       } else if (e.key === "Escape") setMostrarDropdownProducto(false);
@@ -553,133 +614,243 @@ export const useComprobantes = () => {
     setMostrarPreview(true);
   }, [cart.items.length, condicionVenta, listaPagos.length, agregarAlerta]);
 
-  const confirmarVentaFinal = useCallback(async () => {
-    if (mutationGenerar.isPending) return;
+  const confirmarVentaFinal = useCallback(
+    async (opciones = {}) => {
+      if (mutationGenerar.isPending) return;
 
-    const r2 = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
+      const r2 = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
-    const itemsProcesados = cart.items.map((i) => {
-      const subtotalLinea = r2(calcularTotalItem(i));
-      const netoLinea = r2(calcularNetoItem(i, fiscal.aplicaIva));
-      const ivaLinea = r2(subtotalLinea - netoLinea);
-      const precioUnitarioNeto = r2(netoLinea / (i.cantidad || 1));
+      const itemsProcesados = cart.items.map((i) => {
+        const subtotalLinea = r2(calcularTotalItem(i));
+        const netoLinea = r2(calcularNetoItem(i, fiscal.aplicaIva));
+        const ivaLinea = r2(subtotalLinea - netoLinea);
+        const precioUnitarioNeto = r2(netoLinea / (i.cantidad || 1));
 
-      return {
-        rawId: i.codigoSecuencial || i.id,
-        nombre: i.nombre,
-        cantidad: i.cantidad,
-        precioUnitario: precioUnitarioNeto,
-        descuento: i.descuento || 0,
-        tasaIva: i.tasaIva || 0,
-        subtotal: subtotalLinea,
-        neto: netoLinea,
-        iva: ivaLinea,
-      };
-    });
-
-    const body = {
-      puntoVenta: Number(unidadActiva?.puntoVenta || 1),
-      codigoUsuario: Number(usuario?.codigoUsuario || usuario?.id || 1),
-      codigoCliente: clienteSeleccionado?.codigoSecuencial || null,
-      tipoDocumento: Number(fiscal.tipoDocumento),
-      letraComprobante: fiscal.enBlanco === "si"
-        ? obtenerLetraPorTipo(fiscal.tipoDocumento)
-        : "X",
-      pagos: pagos.listaPagos.map((p) => ({
-        metodo: p.tipo || p.metodo || "EFECTIVO",
-        monto: r2(p.monto),
-        referencia: p.referencia,
-        detalles: p.detalles || "",
-      })),
-      condicionVenta: condicionVenta,
-      items: cart.items.map((item) => {
-        const pUnit = r2(item.precioUnitario || item.precioVenta);
-        const cant = Number(item.cantidad);
         return {
-          codigoProducto: Number(item.codigoSecuencial || item.id_producto || item.id) || undefined,
-          nombre: item.nombre || item.descripcion,
-          cantidad: cant,
-          precioUnitario: pUnit,
-          subtotal: r2(pUnit * cant),
-          tasaIva: 21, // O el que corresponda
+          codigoProducto: Number(i.codigoSecuencial || i.id) || undefined,
+          tipoArticulo: i.tipoArticulo || "PRODUCTO",
+          nombre: i.nombre,
+          descripcion: i.descripcion,
+          cantidad: i.cantidad,
+          precioUnitario: precioUnitarioNeto,
+          descuento: i.descuento || 0,
+          tasaIva: i.tasaIva || 0,
+          subtotal: subtotalLinea,
+          metadata: i.atributos || i.metadata || {},
         };
-      }),
-      totales: {
-        total: r2(cart.totales.total),
-        iva: r2(cart.totales.iva),
-        subtotal: r2(cart.totales.subtotal),
-      },
-      fiscal: fiscal.enBlanco === "si",
-      comprobantesAsociados: comprobanteAsociado
-        ? [
-            {
-              tipo: 1, // Por ahora fijo, luego se puede mapear
-              ptoVta: Number(comprobanteAsociado.split("-")[0]),
-              nro: Number(comprobanteAsociado.split("-")[1]),
-            },
-          ]
-        : [],
-      observaciones: observaciones || "",
-      periodo: periodo || null,
-    };
-
-    // --- VALIDACIÓN FISCAL DINÁMICA ---
-    const errorFiscal = validarOperacionFiscal(body);
-    if (errorFiscal) {
-      agregarAlerta({
-        title: "Error Fiscal",
-        message: errorFiscal,
-        type: "warning",
       });
-      return;
-    }
+      console.log(
+        "Punto de venta unidad negocio",
+        unidadActiva?.configuracion?.puntoVenta,
+      );
+      // Buscar la unidad seleccionada en el selector (puede diferir de la activa globalmente)
+      const unidadSeleccionada =
+        entidades.find((u) => u.codigoSecuencial === Number(unidadLocal)) ||
+        unidadActiva;
 
-    console.log("Enviando DTO Final:", body);
+      // --- VALIDACIÓN DE COHERENCIA DE COMPROBANTE ---
+      if (esNotaCreditoNav && !esNotaCredito(fiscal.tipoDocumento)) {
+        agregarAlerta({
+          title: "Tipo Inválido",
+          message:
+            "Debe seleccionar un tipo de Nota de Crédito para realizar esta anulación/ajuste.",
+          type: "warning",
+        });
+        return;
+      }
 
-    mutationGenerar.mutate(
-      {
-        dto: body,
-        codigoEmpresa: Number(usuario?.codigoEmpresa || 1),
-        codigoUnidadNegocio: Number(unidadLocal),
-      },
-      {
-        onSuccess: () => {
-          agregarAlerta({
-            title: "Venta Exitosa",
-            message: "Comprobante generado correctamente",
-            type: "success",
-          });
-          cart.setItems([]);
-          pagos.setListaPagos([]);
-          setClienteSeleccionado(null);
-          setBusquedaCliente("");
-          setComprobanteAsociado("");
-          setObservaciones("");
-          setMostrarPreview(false);
-          setPaso(1);
-          limpiarCaptura();
+      if (esNotaDebitoNav && !esNotaDebito(fiscal.tipoDocumento)) {
+        agregarAlerta({
+          title: "Tipo Inválido",
+          message:
+            "Debe seleccionar un tipo de Nota de Débito para realizar este ajuste.",
+          type: "warning",
+        });
+        return;
+      }
+
+      if (esEmisionPago && !esRecibo(fiscal.tipoDocumento)) {
+        agregarAlerta({
+          title: "Tipo Inválido",
+          message:
+            "Debe seleccionar un tipo de Recibo o Pago para registrar este cobro.",
+          type: "warning",
+        });
+        return;
+      }
+
+      const body = {
+        puntoVenta: Number(
+          fiscal.enBlanco === "si"
+            ? unidadSeleccionada?.configuracion?.puntoVenta ||
+                unidadActiva?.configuracion?.puntoVenta ||
+                1
+            : 99, // Internos siempre en PtoVta 99 (sin conflicto con AFIP)
+        ),
+        codigoUsuario: Number(usuario?.codigoUsuario || usuario?.id || 1),
+        codigoCliente: clienteSeleccionado?.codigoSecuencial || null,
+        tipoDocumento: Number(fiscal.tipoDocumento),
+        letraComprobante:
+          fiscal.enBlanco === "si"
+            ? obtenerLetraPorTipo(fiscal.tipoDocumento)
+            : "X",
+        pagos:
+          opciones.manejoSaldoNC === "favor"
+            ? []
+            : pagos.listaPagos.map((p) => ({
+                metodo: p.tipo || p.metodo || "EFECTIVO",
+                monto: r2(p.monto),
+                referencia: p.referencia,
+                detalles: p.detalles || p.entidadId || "",
+              })),
+        condicionVenta: condicionVenta,
+        items: itemsProcesados,
+        totales: {
+          total: r2(cart.totales.total),
+          iva: r2(cart.totales.iva),
+          subtotal: r2(cart.totales.subtotal),
         },
-        onError: (err) => {
-          console.error("Error al generar venta:", err);
+        fiscal: fiscal.enBlanco === "si",
+        comprobantesAsociados: comprobanteAsociado
+          ? [
+              {
+                tipo: Number(
+                  facturaPrevia?.tipoDocumento ||
+                    facturas.find(
+                      (f) =>
+                        `${String(f.puntoVenta).padStart(5, "0")}-${String(f.numeroComprobante).padStart(8, "0")}` ===
+                          comprobanteAsociado ||
+                        f.numeroComprobante === Number(comprobanteAsociado),
+                    )?.tipoDocumento ||
+                    1,
+                ),
+                ptoVta: Number(comprobanteAsociado.split("-")[0]),
+                nro: Number(comprobanteAsociado.split("-")[1]),
+              },
+            ]
+          : [],
+        receptor: (() => {
+            const contacto = clienteSeleccionado || receptorVinculado;
+            const ente = contacto?.enteFacturacion;
+            const fuente = ente || contacto; // Si hay ente, los datos legales vienen del ente
+
+            return contacto
+              ? {
+                  razonSocial:
+                    fuente.razonSocial ||
+                    `${fuente.nombre || ""} ${fuente.apellido || ""}`.trim() ||
+                    "CONSUMIDOR FINAL",
+                  nombre: fuente.nombre || "",
+                  apellido: fuente.apellido || "",
+                  DocTipo: Number(
+                    fuente.tipoDocumento || fuente.DocTipo || fuente.tipoDocumentoId || 99,
+                  ),
+                  DocNro: Number(
+                    fuente.documento || fuente.DocNro || fuente.numeroDocumento || 0,
+                  ),
+                  CondicionIVAReceptorId: Number(
+                    fuente.CondicionIVAReceptorId ||
+                      fuente.condicionIvaId ||
+                      5,
+                  ),
+                  domicilio: fuente.domicilio || fuente.direccion || "",
+                  enteFacturacion: ente || null,
+                }
+              : {
+                  razonSocial: "CONSUMIDOR FINAL",
+                  DocTipo: 99,
+                  DocNro: 0,
+                  CondicionIVAReceptorId: 5,
+                };
+          })(),
+        observaciones:
+          `${observaciones || ""}${opciones.manejoSaldoNC ? ` [MODO NC: ${opciones.manejoSaldoNC === "favor" ? "SALDO A FAVOR" : "ANULACIÓN/REINTEGRO"}]` : ""}`.trim(),
+        periodo: periodo || null,
+        meta: {
+          manejoSaldoNC: opciones.manejoSaldoNC,
         },
-      },
-    );
-  }, [
-    cart,
-    fiscal,
-    pagos,
-    clienteSeleccionado,
-    condicionVenta,
-    comprobanteAsociado,
-    observaciones,
-    periodo,
-    unidadLocal,
-    mutationGenerar,
-    agregarAlerta,
-    limpiarCaptura,
-    usuario,
-    unidadActiva, // AÑADIDAS DEPENDENCIAS CRÍTICAS
-  ]);
+        tipoEntidad: (clienteSeleccionado || receptorVinculado)?.enteFacturacion?.tipoEntidad || (clienteSeleccionado || receptorVinculado)?.tipoEntidad || null,
+        codigoDeposito: unidadSeleccionada?.configuracion?.codigoDeposito ? Number(unidadSeleccionada.configuracion.codigoDeposito) : undefined,
+        usaContabilidad: !!usuario?.usaContabilidad,
+      };
+
+      // --- VALIDACIÓN FISCAL DINÁMICA ---
+      const errorFiscal = validarOperacionFiscal(body);
+      if (errorFiscal) {
+        agregarAlerta({
+          title: "Error Fiscal",
+          message: errorFiscal,
+          type: "warning",
+        });
+        return;
+      }
+
+      console.log("[POS] DTO Final a enviar:", JSON.stringify(body, null, 2));
+      console.log("[POS] Cliente Seleccionado:", clienteSeleccionado);
+      console.log(
+        "[POS] Ente Facturación:",
+        clienteSeleccionado?.enteFacturacion,
+      );
+
+      mutationGenerar.mutate(
+        {
+          dto: body,
+          codigoEmpresa: Number(usuario?.codigoEmpresa || 1),
+          codigoUnidadNegocio: Number(unidadLocal),
+        },
+        {
+          onSuccess: () => {
+            agregarAlerta({
+              title: "Venta Exitosa",
+              message: "Comprobante generado correctamente",
+              type: "success",
+            });
+            cart.setItems([]);
+            pagos.setListaPagos([]);
+            setClienteSeleccionado(null);
+            setBusquedaCliente("");
+            setComprobanteAsociado("");
+            setObservaciones("");
+            setMostrarPreview(false);
+            setPaso(1);
+            limpiarCaptura();
+          },
+          onError: (err) => {
+            console.error("Error al generar venta:", err);
+            const msg = err?.response?.data?.message || "";
+            if (
+              msg.includes("configurar los asientos automáticos") || 
+              msg.includes("servicio de contabilidad") ||
+              msg.includes("error contable") ||
+              msg.includes("Configuración incompleta")
+            ) {
+              setModalContabilidad({ show: true, message: msg });
+            }
+          },
+        },
+      );
+    },
+    [
+      cart,
+      fiscal,
+      pagos,
+      clienteSeleccionado,
+      condicionVenta,
+      comprobanteAsociado,
+      observaciones,
+      periodo,
+      unidadLocal,
+      entidades,
+      mutationGenerar,
+      agregarAlerta,
+      limpiarCaptura,
+      usuario,
+      unidadActiva,
+      esNotaCreditoNav,
+      esNotaDebitoNav,
+      esEmisionPago,
+    ],
+  );
 
   return {
     ...cart,
@@ -742,8 +913,14 @@ export const useComprobantes = () => {
     cargandoCobro: mutationGenerar.isPending,
     paso,
     setPaso,
+    modalContabilidad,
+    setModalContabilidad,
     siguientePaso,
     anteriorPaso,
+    // Modos de Ajuste
+    esEmisionPago,
+    esNotaCreditoNav,
+    esNotaDebitoNav,
     // Manual
     nombreManual,
     setNombreManual,

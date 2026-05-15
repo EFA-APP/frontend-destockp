@@ -1,27 +1,11 @@
-import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { obtenerUsuariosApi } from "../../api/Usuario/authenticacion.api";
-import { useAlertas } from "../../../../store/useAlertas";
+import { obtenerUsuariosPorEmpresaApi } from "../../api/Usuario/authenticacion.api";
 
-export const useObtenerUsuarios = () => {
-    const agregarAlerta = useAlertas((state) => state.agregarAlerta);
-    
-    const query = useQuery({
-        queryKey: ["usuarios"],
-        queryFn: obtenerUsuariosApi,
-        staleTime: 1000 * 60 * 5,
+export const useObtenerUsuarios = (codigoEmpresa) => {
+    return useQuery({
+        queryKey: ["usuarios", codigoEmpresa],
+        queryFn: () => obtenerUsuariosPorEmpresaApi(codigoEmpresa),
+        enabled: !!codigoEmpresa,
+        staleTime: 1000 * 60 * 10, // 10 mins
     });
-
-    const { error, isError } = query;
-
-    useEffect(() => {
-        if (isError && error) {
-            agregarAlerta({
-                type: "error",
-                message: error?.response?.data?.message || "Hubo un error al obtener los usuarios",
-            });
-        }
-    }, [isError, error, agregarAlerta]);
-
-    return query;
 };

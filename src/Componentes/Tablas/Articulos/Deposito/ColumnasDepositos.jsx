@@ -6,7 +6,9 @@ export const columnasDepositos = [
     etiqueta: "Depósito",
     renderizar: (valor, fila) => (
       <div className="flex items-center gap-3">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm ${fila.principal ? 'bg-emerald-700/10 border-emerald-700/20 text-emerald-600' : 'bg-amber-700/10 border-amber-700/20 text-amber-600'}`}>
+        <div
+          className={`w-10 h-10 rounded-md flex items-center justify-center border shadow-sm ${fila.principal ? "bg-emerald-700/10 border-emerald-700/20 text-emerald-600" : "bg-amber-700/10 border-amber-700/20 text-amber-600"}`}
+        >
           <Building2 size={20} />
         </div>
         <div className="flex flex-col">
@@ -14,14 +16,16 @@ export const columnasDepositos = [
             {valor}
           </span>
           <div className="flex items-center gap-1.5 mt-0.5">
-             <div className={`w-1.5 h-1.5 rounded-full ${fila.principal ? 'bg-emerald-600' : 'bg-amber-600'}`} />
-             <span className="text-[11px] font-bold text-black/40 uppercase tracking-widest">
-                {fila.principal ? "Nodo Central" : "Sucursal Activa"}
-             </span>
+            <div
+              className={`w-1.5 h-1.5 rounded-full ${fila.principal ? "bg-emerald-600" : "bg-amber-600"}`}
+            />
+            <span className="text-[11px] font-bold text-black/40 uppercase tracking-widest">
+              {fila.principal ? "Nodo Central" : "Sucursal Activa"}
+            </span>
           </div>
         </div>
       </div>
-    )
+    ),
   },
   {
     key: "responsable",
@@ -31,7 +35,7 @@ export const columnasDepositos = [
         <User size={14} className="text-[var(--primary)] opacity-40" />
         {valor || "Sin responsable"}
       </div>
-    )
+    ),
   },
   {
     key: "direccion",
@@ -46,16 +50,16 @@ export const columnasDepositos = [
           {valor || "Sin dirección"}
         </span>
       </div>
-    )
+    ),
   },
   {
-      key: "telefono",
-      etiqueta: "Contacto",
-      renderizar: (valor) => (
-        <div className="flex items-center gap-2 text-[var(--text-primary)] font-bold text-[14px]">
-          <Phone size={14} className="text-[var(--primary)] opacity-40" />
-          {valor || "Sin teléfono"}
-        </div>
-      )
-  }
+    key: "telefono",
+    etiqueta: "Contacto",
+    renderizar: (valor) => (
+      <div className="flex items-center gap-2 text-[var(--text-primary)] font-bold text-[14px]">
+        <Phone size={14} className="text-[var(--primary)] opacity-40" />
+        {valor || "Sin teléfono"}
+      </div>
+    ),
+  },
 ];

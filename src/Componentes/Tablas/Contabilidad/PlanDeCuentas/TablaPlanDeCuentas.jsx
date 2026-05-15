@@ -1,11 +1,15 @@
-import { usePlanDeCuentas } from "../../../../Backend/hooks/Contabilidad/PlanDeCuenta/usePlanDeCuenta";
+import { useState } from "react";
+import { usePlanDeCuentas } from "../../../../Backend/hooks/Contabilidad/PlanDeCuenta/usePlanDeCuentas";
 import Select from "../../../UI/Select/Select";
 import DataTable from "../../../UI/DataTable/DataTable";
 import { columnasPlanDeCuentas } from "./columnaPlanDeCuentas";
+import ModalImportarPlan from "../../../Modales/Contabilidad/ModalImportarPlan";
+import { FileDown, Plus } from "lucide-react";
 
 const TablaPlanDeCuentas = () => {
   const {
     cuentas,
+    isLoading,
     busqueda,
     setBusqueda,
     tipo,
@@ -14,39 +18,61 @@ const TablaPlanDeCuentas = () => {
     manejarEliminar,
   } = usePlanDeCuentas();
 
+  const [isModalImportarOpen, setIsModalImportarOpen] = useState(false);
+
   return (
-    <DataTable id_tabla="plandecuentas"
-      columnas={columnasPlanDeCuentas}
-      datos={cuentas}
-      /* 🔑 CLAVE PARA EL DESPLIEGUE */
-      getChildren={(fila) => [{ key: "children", data: fila.children || [] }]}
-      mostrarBuscador
-      busqueda={busqueda}
-      setBusqueda={setBusqueda}
-      mostrarAcciones
-      onEditar={manejarEditar}
-      onEliminar={manejarEliminar}
-      placeholderBuscador="Buscar por código o cuenta..."
-      botonAgregar={{
-        texto: "Nueva cuenta",
-        ruta: "/panel/contabilidad/cuentas/nueva",
-      }}
-      mostrarFiltros
-      filtrosElementos={
-        <Select
-          label="Tipo"
-          valor={tipo}
-          setValor={setTipo}
-          options={[
-            { valor: "TODOS", texto: "Todos" },
-            { valor: "ACTIVO", texto: "Activo" },
-            { valor: "PASIVO", texto: "Pasivo" },
-            { valor: "RESULTADO", texto: "Resultado" },
-            { valor: "PATRIMONIO", texto: "Patrimonio" },
-          ]}
-        />
-      }
-    />
+    <>
+      <DataTable
+        id_tabla="plandecuentas"
+        columnas={columnasPlanDeCuentas}
+        mostrarAcciones={false}
+        datos={cuentas}
+        loading={isLoading}
+        /* 🔑 CLAVE PARA EL DESPLIEGUE */
+        getChildren={(fila) => [{ key: "children", data: fila.children || [] }]}
+        mostrarBuscador
+        busqueda={busqueda}
+        setBusqueda={setBusqueda}
+        onEditar={manejarEditar}
+        onEliminar={manejarEliminar}
+        placeholderBuscador="Buscar por código o cuenta..."
+        mostrarFiltros={false}
+        botonAgregar={{
+          texto: "Crear",
+          ruta: "/panel/contabilidad/cuentas/nueva",
+        }}
+        elementosSuperior={
+          <button
+            onClick={() => setIsModalImportarOpen(true)}
+            className="flex items-center gap-2 px-4 h-10 bg-black/40 border border-black/10 rounded-md text-[13px] font-black uppercase tracking-wider text-black hover:bg-black/10 transition-all active:scale-95"
+          >
+            <FileDown size={16} strokeWidth={2.5} />
+            Importar Plan
+          </button>
+        }
+        filtrosElementos={
+          <div className="flex items-center gap-3">
+            <Select
+              label="Tipo"
+              valor={tipo}
+              setValor={setTipo}
+              options={[
+                { valor: "TODOS", texto: "Todos" },
+                { valor: "ACTIVO", texto: "Activo" },
+                { valor: "PASIVO", texto: "Pasivo" },
+                { valor: "RESULTADO", texto: "Resultado" },
+                { valor: "PATRIMONIO", texto: "Patrimonio" },
+              ]}
+            />
+          </div>
+        }
+      />
+
+      <ModalImportarPlan
+        isOpen={isModalImportarOpen}
+        onClose={() => setIsModalImportarOpen(false)}
+      />
+    </>
   );
 };
 

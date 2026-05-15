@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { AgregarIcono, BuscadorIcono, CajaIcono, FiltroIcono } from "../../../assets/Icons";
+import {
+  AgregarIcono,
+  BuscadorIcono,
+  CajaIcono,
+  FiltroIcono,
+} from "../../../assets/Icons";
 import {
   ChevronDown,
   ChevronUp,
@@ -38,6 +43,27 @@ const formatVal = (val) => {
   return val;
 };
 
+export const Highlight = ({ text, term }) => {
+  if (!term || !text) return text;
+  const parts = String(text).split(new RegExp(`(${term})`, "gi"));
+  return (
+    <span>
+      {parts.map((part, i) =>
+        part.toLowerCase() === term.toLowerCase() ? (
+          <mark
+            key={i}
+            className="bg-yellow-400/40 text-[var(--primary)] px-0.5 rounded font-black italic"
+          >
+            {part}
+          </mark>
+        ) : (
+          part
+        ),
+      )}
+    </span>
+  );
+};
+
 // 1. Menu de Acciones Adaptado
 const ActionMenu = ({
   fila,
@@ -53,7 +79,10 @@ const ActionMenu = ({
     return (
       <div className="flex items-center justify-end gap-1">
         {acciones.map((accion, i) => {
-          const debeMostrar = typeof accion.mostrar === 'function' ? accion.mostrar(fila) : (accion.mostrar ?? true);
+          const debeMostrar =
+            typeof accion.mostrar === "function"
+              ? accion.mostrar(fila)
+              : (accion.mostrar ?? true);
           if (!debeMostrar) return null;
 
           const cargando =
@@ -65,11 +94,17 @@ const ActionMenu = ({
               key={i}
               onClick={() => !cargando && accion.onClick(fila)}
               disabled={cargando}
-              title={accion.label || accion.etiqueta}
+              title={
+                typeof accion.label === "function"
+                  ? accion.label(fila)
+                  : accion.label || accion.etiqueta
+              }
               className={`p-1.5 rounded-md hover:bg-[var(--primary-subtle)] text-[var(--text-muted)] hover:text-[var(--primary)] cursor-pointer border border-transparent hover:border-[var(--primary)]/20 disabled:opacity-50`}
             >
               {cargando ? (
                 <Loader2 size={14} className="animate-spin text-amber-700" />
+              ) : typeof accion.icono === "function" ? (
+                accion.icono(fila)
               ) : accion.icono && React.isValidElement(accion.icono) ? (
                 React.cloneElement(accion.icono, { size: 14 })
               ) : (
@@ -84,6 +119,64 @@ const ActionMenu = ({
   return null;
 };
 
+// 1.1 Componente ContextMenu (Estilo Windows)
+const ContextMenu = ({ fila, x, y, acciones, onClose }) => {
+  if (!acciones) return null;
+
+  return (
+    <>
+      <div
+        className="fixed inset-0 z-[10000] bg-transparent"
+        onClick={onClose}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          onClose();
+        }}
+      />
+      <div
+        className="fixed z-[10001] bg-white border border-gray-300 rounded shadow-lg py-1 min-w-[200px] animate-in fade-in zoom-in duration-75 select-none"
+        style={{
+          left: `${x}px`,
+          top: `${y}px`,
+        }}
+      >
+        {acciones.map((accion, i) => {
+          const debeMostrar =
+            typeof accion.mostrar === "function"
+              ? accion.mostrar(fila)
+              : (accion.mostrar ?? true);
+          if (!debeMostrar) return null;
+
+          return (
+            <button
+              key={i}
+              onClick={(e) => {
+                e.stopPropagation();
+                accion.onClick(fila);
+                onClose();
+              }}
+              className="w-full flex items-center gap-3 px-3 py-1.5 hover:bg-blue-600 hover:text-white text-gray-700 text-sm transition-colors cursor-pointer group"
+            >
+              <div className="w-4 h-4 flex items-center justify-center text-gray-400 group-hover:text-white">
+                {typeof accion.icono === "function"
+                  ? accion.icono(fila)
+                  : accion.icono && React.isValidElement(accion.icono)
+                    ? React.cloneElement(accion.icono, { size: 14 })
+                    : accion.icono}
+              </div>
+              <span className="flex-1 text-left font-medium">
+                {typeof accion.label === "function"
+                  ? accion.label(fila)
+                  : accion.label || accion.etiqueta}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </>
+  );
+};
+
 // 2. Fila de Datos (Soporta Simple, Jerárquico y Expandible)
 const DataRow = ({
   fila,
@@ -94,8 +187,18 @@ const DataRow = ({
   accionesProps,
   estaExpandida = false,
   onToggleExpansion,
+  busqueda = "",
+  onContextMenu,
+  modoAcciones = "columna",
 }) => {
-  const [abiertoInterno, setAbiertoInterno] = useState(false);
+  const [abiertoInterno, setAbiertoInterno] = useState(fila._expandir || false);
+
+  // Sincronizar expansión si viene forzada desde la data (ej: al buscar)
+  React.useEffect(() => {
+    if (fila._expandir) {
+      setAbiertoInterno(true);
+    }
+  }, [fila._expandir]);
 
   // Modo Jerárquico
   const gruposHijos = getChildren ? getChildren(fila) : [];
@@ -114,12 +217,13 @@ const DataRow = ({
   return (
     <>
       <tr
-        className={`border-b border-[var(--border-subtle)] group ${estaExpandida ? "bg-[var(--primary-subtle)]/30" : "hover:bg-[var(--surface-hover)]"}`}
+        onContextMenu={(e) => onContextMenu && onContextMenu(e, fila)}
+        className={`border-b border-[var(--primary)]/20 group ${estaExpandida ? "bg-[var(--primary-subtle)]/30" : "hover:bg-[var(--surface-hover)]"}`}
       >
         {columnas.map((col, index) => (
           <td
             key={col.key}
-            className={`px-4 py-3 text-[15px] text-[var(--text-primary)] ${index === 0 ? "font-medium" : ""}`}
+            className={`px-1 py-1 text-[15px] text-[var(--text-primary)] ${index === 0 ? "font-medium" : ""}`}
             onClick={manejarClick}
           >
             <div
@@ -150,20 +254,21 @@ const DataRow = ({
 
               <div className="truncate">
                 {col.renderizar
-                  ? col.renderizar(fila[col.key], fila)
+                  ? col.renderizar(fila[col.key], fila, busqueda)
                   : formatVal(fila[col.key])}
               </div>
             </div>
           </td>
         ))}
 
-        {accionesProps && (
-          <td className="px-4 py-2">
-            <div className="flex justify-end">
-              <ActionMenu {...accionesProps} fila={fila} />
-            </div>
-          </td>
-        )}
+        {accionesProps &&
+          (modoAcciones === "columna" || modoAcciones === "ambos") && (
+            <td className="px-4 py-2">
+              <div className="flex justify-end">
+                <ActionMenu {...accionesProps} fila={fila} />
+              </div>
+            </td>
+          )}
       </tr>
 
       {/* Render recursivo (Jerárquico) */}
@@ -178,6 +283,8 @@ const DataRow = ({
               getChildren={getChildren}
               nivel={nivel + 1}
               accionesProps={accionesProps}
+              onContextMenu={onContextMenu}
+              modoAcciones={modoAcciones}
             />
           )),
         )}
@@ -187,7 +294,7 @@ const DataRow = ({
         <tr className="bg-[var(--fill-secondary)]/10">
           <td colSpan={columnas.length + (accionesProps ? 1 : 0)}>
             <div className="p-4 overflow-hidden border-x border-[var(--primary)]/10">
-              {renderDetalle(fila)}
+              {renderDetalle(fila, busqueda)}
             </div>
           </td>
         </tr>
@@ -206,95 +313,79 @@ const DataCard = ({
   onToggleExpansion,
   llaveTituloMobile = null,
   todasExpandidas = false,
+  busqueda = "",
 }) => {
   // Encontrar la columna que servirá de título
   const columnaTitulo = llaveTituloMobile
     ? columnas.find((c) => c.key === llaveTituloMobile) ||
-    columnas.find((c) => c.visible !== false)
+      columnas.find((c) => c.visible !== false)
     : columnas.find((c) => c.visible !== false);
 
   const cardRef = React.useRef(null);
 
-  React.useEffect(() => {
-    if (estaExpandida && cardRef.current) {
-      // Pequeño delay para asegurar que el contenido ya se renderizó
-      setTimeout(() => {
-        cardRef.current.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-      }, 200);
-    }
-  }, [estaExpandida]);
-
   return (
     <div
       ref={cardRef}
-      onClick={onToggleExpansion}
       className={`
                 relative overflow-hidden
                 p-5 rounded-md
                 border-l-2 border-[var(--primary)]
                 bg-[var(--surface)]
                 shadow-2xl
-                flex flex-col gap-2
-                cursor-pointer hover:bg-[var(--primary-subtle)]/10 active:scale-[0.98]
+                flex flex-col gap-4
                 transition-all duration-300
-                ${estaExpandida ? "ring-2 ring-[var(--primary)]/40 border-[var(--primary)]/20" : "border-[var(--border-subtle)]/30"}
+                border-[var(--border-subtle)]/30
             `}
     >
-      <div className="flex items-center justify-between gap-4 relative z-10 w-full">
+      <div className="flex items-center justify-between gap-4 relative z-10 w-full mb-1">
         <div className="flex flex-col gap-1.5 flex-1 min-w-0">
           <div className="text-[18px] font-black text-[var(--text-primary)] leading-tight break-words">
             {columnaTitulo?.renderizar
-              ? columnaTitulo.renderizar(fila[columnaTitulo.key], fila)
+              ? columnaTitulo.renderizar(
+                  fila[columnaTitulo.key],
+                  fila,
+                  busqueda,
+                )
               : formatVal(fila[columnaTitulo?.key])}
           </div>
         </div>
-        {!todasExpandidas && (
-          <div className={`text-[var(--primary)] transition-transform duration-300 ${estaExpandida ? 'rotate-180' : ''}`}>
-            <ChevronDown size={20} />
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 py-3 border-y border-[var(--primary)]/30">
+          {columnas.map((col) => {
+            if (col.key === columnaTitulo?.key || col.visible === false)
+              return null;
+            return (
+              <div
+                key={col.key}
+                className="grid grid-cols-[1fr_1.5fr] gap-4 items-center"
+              >
+                <span className="text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                  {col.etiqueta}
+                </span>
+                <div className="text-[15px] font-medium text-[var(--text-primary)] break-words text-right">
+                  {col.renderizar
+                    ? col.renderizar(fila[col.key], fila, busqueda)
+                    : formatVal(fila[col.key])}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {renderDetalle && (
+          <div className="p-4 rounded-md bg-[var(--primary-subtle)]/10 border border-[var(--primary)]/10 text-sm border-dashed">
+            {renderDetalle(fila, busqueda)}
+          </div>
+        )}
+
+        {accionesProps && (
+          <div className="flex justify-end gap-2">
+            <ActionMenu {...accionesProps} fila={fila} />
           </div>
         )}
       </div>
-
-      {(estaExpandida || todasExpandidas) && (
-        <div className="flex flex-col gap-6">
-          <div className="grid grid-cols-2 gap-x-6 gap-y-4 py-4 border-y border-gray-300">
-            {columnas.map((col) => {
-              if (col.key === columnaTitulo?.key || col.visible === false)
-                return null;
-              return (
-                <div
-                  key={col.key}
-                  className="flex flex-col gap-1 overflow-hidden"
-                >
-                  <span className="text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
-                    {col.etiqueta}
-                  </span>
-                  <div className="text-[16px] font-medium text-[var(--text-primary)] break-words">
-                    {col.renderizar
-                      ? col.renderizar(fila[col.key], fila)
-                      : formatVal(fila[col.key])}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {renderDetalle && (
-            <div className="p-4 rounded-xl bg-[var(--primary-subtle)]/10 border border-[var(--primary)]/10 text-sm border-dashed">
-              {renderDetalle(fila)}
-            </div>
-          )}
-
-          {accionesProps && (
-            <div className="flex justify-end gap-2">
-              <ActionMenu {...accionesProps} fila={fila} />
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 };
@@ -339,6 +430,8 @@ const DataTable = ({
   id_tabla = null,
   llaveTituloMobile = null,
   todasExpandidas = false,
+  renderPiePagina = null,
+  modoAcciones = "columna", // 'columna', 'contextual', 'ambos'
 }) => {
   const navigate = useNavigate();
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(
@@ -349,7 +442,18 @@ const DataTable = ({
   );
   const [menuColumnasAbierto, setMenuColumnasAbierto] = useState(false);
   const [columnaMenuAbierta, setColumnaMenuAbierta] = useState(null);
+  const [contextMenu, setContextMenu] = useState(null);
   const tableRef = React.useRef(null);
+
+  const handleContextMenu = (e, fila) => {
+    if (!mostrarAcciones || modoAcciones === "columna") return;
+    e.preventDefault();
+    setContextMenu({
+      fila,
+      x: e.clientX,
+      y: e.clientY,
+    });
+  };
 
   // --- SUBCOMPONENTES DE CARGA ---
   const SkeletonRow = () => (
@@ -366,7 +470,7 @@ const DataTable = ({
       {mostrarAcciones && (
         <td className="px-4 py-4.5">
           <div className="flex justify-end pr-2">
-            <div className="w-8 h-8 rounded-lg bg-black/5" />
+            <div className="w-8 h-8 rounded-md bg-black/5" />
           </div>
         </td>
       )}
@@ -550,112 +654,112 @@ const DataTable = ({
         mostrarBuscador ||
         elementosSuperior ||
         mostrarFiltros) && (
-          <div className="flex flex-col gap-6 mb-2">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-              <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
-                {botonAgregar && (
-                  <TieneAccion accion={botonAgregar?.tieneAccion}>
-                    <button
-                      onClick={manejarAgregarClick}
-                      className="hidden md:flex items-center gap-2 px-6 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary-subtle)] border border-[var(--primary)]/20! rounded-md! font-bold! text-[13px]! uppercase! tracking-wider! cursor-pointer! text-[var(--primary)]!"
-                    >
-                      <AgregarIcono size={14} /> {botonAgregar.texto}
-                    </button>
-                  </TieneAccion>
-                )}
-                {mostrarFiltros && (
+        <div className="flex flex-col gap-6 mb-2">
+          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+            {botonAgregar && (
+              <div className="flex-shrink-0">
+                <TieneAccion accion={botonAgregar?.tieneAccion}>
                   <button
-                    onClick={() => setFiltrosAbiertos(!filtrosAbiertos)}
-                    className={`flex items-center! gap-2! px-4! py-2! rounded-lg! border! text-[13px]! font-bold! uppercase! ${filtrosAbiertos ? "bg-[var(--primary-subtle)]! text-[var(--primary)]!" : "bg-[var(--surface)]!"}`}
+                    onClick={manejarAgregarClick}
+                    className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[var(--primary)] text-white rounded-md font-bold text-[13px] uppercase tracking-wider cursor-pointer hover:brightness-110 transition-all shadow-md shadow-[var(--primary)]/20 w-full md:w-auto"
                   >
-                    <FiltroIcono size={14} /> {textoFiltros}
+                    <AgregarIcono size={16} /> {botonAgregar.texto}
                   </button>
-                )}
+                </TieneAccion>
               </div>
+            )}
 
-              <div className="flex flex-col sm:flex-row flex-wrap items-center gap-3 w-full lg:w-auto">
-                {elementosSuperior && (
-                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                    {elementosSuperior}
-                  </div>
-                )}
-                {mostrarBuscador && setBusqueda && (
-                  <div className="w-full lg:w-[480px] relative" ref={placeholderRef}>
-                    {/* Placeholder para mantener el espacio en mobile cuando se vuelve fixed */}
-                    <div className={`${buscadorFijo ? 'block md:hidden' : 'hidden'} h-[52px]`} />
+            <div className="flex-1 flex flex-wrap items-center gap-3 w-full">
+              {elementosSuperior && (
+                <div className="flex flex-wrap items-center gap-3">
+                  {elementosSuperior}
+                </div>
+              )}
+              {mostrarBuscador && setBusqueda && (
+                <div
+                  className="flex-1 min-w-[280px] max-w-full lg:max-w-[480px] relative"
+                  ref={placeholderRef}
+                >
+                  {/* Placeholder para mantener el espacio en mobile cuando se vuelve fixed */}
+                  <div
+                    className={`${buscadorFijo ? "block md:hidden" : "hidden"} h-[52px]`}
+                  />
 
-                    <div className={`
-                      ${buscadorFijo
-                        ? "fixed top-14 left-0 w-full z-40 bg-[var(--fill)]/95 backdrop-blur-md p-3 px-4 border-b border-black/10 shadow-lg"
-                        : "relative w-full"
+                  <div
+                    className={`
+                      ${
+                        buscadorFijo
+                          ? "fixed top-14 left-0 w-full z-40 bg-[var(--fill)]/95 backdrop-blur-md p-3 px-4 border-b border-black/10 shadow-lg"
+                          : "relative w-full"
                       } 
                       md:static md:p-0 md:bg-transparent md:border-none md:shadow-none md:z-auto transition-all duration-300
-                    `}>
-                      <div className="flex bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl w-full shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all duration-500 focus-within:ring-4 focus-within:ring-[var(--primary)]/5 border-[var(--primary)]/40 group overflow-hidden">
-                        {opcionesBusqueda && setBusquedaClave && (
-                          <div className="relative border-r border-[var(--border-subtle)] flex items-center bg-[var(--fill-secondary)]/30 group-focus-within:bg-[var(--primary)]/5 transition-colors">
-                            <select
-                              value={busquedaClave}
-                              onChange={(e) => setBusquedaClave(e.target.value)}
-                              className="bg-transparent text-[var(--text-primary)] font-bold text-[11px] uppercase tracking-widest pl-4 pr-9 py-3 outline-none appearance-none cursor-pointer z-10"
-                            >
-                              {opcionesBusqueda.map((op) => (
-                                <option
-                                  key={op.value}
-                                  value={op.value}
-                                  className="text-black bg-white"
-                                >
-                                  {op.label}
-                                </option>
-                              ))}
-                            </select>
-                            <ChevronDown
-                              size={12}
-                              className="absolute right-3 text-[var(--text-muted)] pointer-events-none z-0 group-focus-within:text-[var(--primary)] transition-colors"
-                            />
-                          </div>
-                        )}
-                        <div className="relative flex-1 flex items-center">
-                          <div className="absolute left-4.5 text-[var(--text-theme)] group-focus-within:text-[var(--primary)]">
-                            <BuscadorIcono size={18} color={"var(--primary)"} />
-                          </div>
-                          <input
-                            type="text"
-                            value={busqueda}
-                            onChange={(e) => setBusqueda(e.target.value)}
-                            className="w-full h-11 md:h-12 pl-13 pr-12 bg-transparent outline-none text-[15px] font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)]/50 placeholder:font-normal"
-                            placeholder={placeholderBuscador}
+                    `}
+                  >
+                    <div className="flex bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md w-full shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all duration-500 focus-within:ring-4 focus-within:ring-[var(--primary)]/5 border-[var(--primary)]/40 group overflow-hidden">
+                      {opcionesBusqueda && setBusquedaClave && (
+                        <div className="relative border-r border-[var(--border-subtle)] flex items-center bg-[var(--fill-secondary)]/30 group-focus-within:bg-[var(--primary)]/5 transition-colors">
+                          <select
+                            value={busquedaClave}
+                            onChange={(e) => setBusquedaClave(e.target.value)}
+                            className="bg-transparent text-[var(--text-primary)] font-bold text-[11px] uppercase tracking-widest pl-4 pr-9 py-3 outline-none appearance-none cursor-pointer z-10"
+                          >
+                            {opcionesBusqueda.map((op) => (
+                              <option
+                                key={op.value}
+                                value={op.value}
+                                className="text-black bg-white"
+                              >
+                                {op.label}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown
+                            size={12}
+                            className="absolute right-3 text-[var(--text-muted)] pointer-events-none z-0 group-focus-within:text-[var(--primary)] transition-colors"
                           />
-                          {busqueda && (
-                            <button
-                              onClick={() => setBusqueda("")}
-                              className="absolute right-3.5 p-1.5 rounded-xl text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer active:scale-90"
-                            >
-                              <X size={16} />
-                            </button>
-                          )}
                         </div>
+                      )}
+                      <div className="relative flex-1 flex items-center">
+                        <div className="absolute left-4.5 text-[var(--text-theme)] group-focus-within:text-[var(--primary)]">
+                          <BuscadorIcono size={18} color={"var(--primary)"} />
+                        </div>
+                        <input
+                          type="text"
+                          value={busqueda}
+                          onChange={(e) => setBusqueda(e.target.value)}
+                          className="w-full h-11 md:h-12 pl-13 pr-12 bg-transparent outline-none text-[15px] font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)]/50 placeholder:font-normal"
+                          placeholder={placeholderBuscador}
+                        />
+                        {busqueda && (
+                          <button
+                            onClick={() => setBusqueda("")}
+                            className="absolute right-3.5 p-1.5 rounded-md text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer active:scale-90"
+                          >
+                            <X size={16} />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
-                )}
+                </div>
+              )}
+            </div>
+          </div>
+          {mostrarFiltros && filtrosAbiertos && (
+            <div className="relative bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md">
+              <div className="flex items-center gap-3 px-5 py-3.5 border-b border-[var(--border-subtle)] bg-[var(--primary)]/5">
+                <FiltroIcono size={14} />{" "}
+                <h4 className="text-[13px] font-bold uppercase tracking-wider">
+                  Filtros Avanzados
+                </h4>
+              </div>
+              <div className="p-5 flex flex-wrap gap-4 items-end">
+                {filtrosElementos}
               </div>
             </div>
-            {mostrarFiltros && filtrosAbiertos && (
-              <div className="relative bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl">
-                <div className="flex items-center gap-3 px-5 py-3.5 border-b border-[var(--border-subtle)] bg-[var(--primary)]/5">
-                  <FiltroIcono size={14} />{" "}
-                  <h4 className="text-[13px] font-bold uppercase tracking-wider">
-                    Filtros Avanzados
-                  </h4>
-                </div>
-                <div className="p-5 flex flex-wrap gap-4 items-end">
-                  {filtrosElementos}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+          )}
+        </div>
+      )}
 
       {/* VISTA MOBILE */}
       <div className="md:hidden grid grid-cols-1 gap-4">
@@ -672,17 +776,19 @@ const DataTable = ({
               llaveTituloMobile={llaveTituloMobile}
               todasExpandidas={todasExpandidas}
               estaExpandida={filaExpandidaId === (fila.id || index)}
-              onToggleExpansion={() => !todasExpandidas && toggleFilaExpansion(fila.id || index)}
+              onToggleExpansion={() =>
+                !todasExpandidas && toggleFilaExpansion(fila.id || index)
+              }
               accionesProps={
                 mostrarAcciones
                   ? {
-                    acciones,
-                    onVer,
-                    onEditar,
-                    onEliminar,
-                    onDescargar,
-                    permisos,
-                  }
+                      acciones,
+                      onVer,
+                      onEditar,
+                      onEliminar,
+                      onDescargar,
+                      permisos,
+                    }
                   : null
               }
             />
@@ -709,7 +815,7 @@ const DataTable = ({
                   <th
                     key={col.key}
                     onClick={(e) => handleHeaderClick(e, col)}
-                    className="px-4 py-3 text-[12px] font-bold text-[var(--text-theme)] uppercase tracking-widest cursor-pointer hover:bg-[var(--surface-hover)] group/th relative"
+                    className="px-4 py-2 text-[12px] font-bold text-[var(--text-theme)] uppercase tracking-widest cursor-pointer hover:bg-[var(--surface-hover)] group/th relative"
                   >
                     <div className="flex items-center gap-1.5 ">
                       {col.etiqueta}{" "}
@@ -718,149 +824,152 @@ const DataTable = ({
                           size={12}
                           className={`
                              
-                            ${columnaMenuAbierta?.key === col.key
-                              ? "opacity-100 text-[var(--primary)] rotate-180"
-                              : "opacity-30 group-hover/th:opacity-100 text-[var(--text-muted)] group-hover/th:text-[var(--primary)]"
+                            ${
+                              columnaMenuAbierta?.key === col.key
+                                ? "opacity-100 text-[var(--primary)] rotate-180"
+                                : "opacity-30 group-hover/th:opacity-100 text-[var(--text-muted)] group-hover/th:text-[var(--primary)]"
                             }
                           `}
                         />
                       )}
                     </div>
-                    {columnaMenuAbierta?.key === col.key && (
-                      <>
-                        <div
-                          className="fixed inset-0 z-[9998] bg-transparent cursor-default"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setColumnaMenuAbierta(null);
-                          }}
-                        />
-                        <div
-                          className="fixed z-[9999] bg-[var(--surface)] border border-[var(--border-medium)]/50 rounded-lg shadow-2xl py-1.5 w-44     text-left"
-                          style={{
-                            left: `${columnaMenuAbierta.x}px`,
-                            top: `${columnaMenuAbierta.y + 4}px`,
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className="px-3 py-1 bg-[var(--primary)]/20 rounded-t-md border-b border-[var(--primary)]">
-                            <p className="text-[11px] font-black text-[var(--primary)] uppercase tracking-wider truncate">
-                              {col.etiqueta}
-                            </p>
+                    {columnaMenuAbierta &&
+                      columnaMenuAbierta.key === col.key && (
+                        <>
+                          <div
+                            className="fixed inset-0 z-[9998] bg-transparent cursor-default"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setColumnaMenuAbierta(null);
+                            }}
+                          />
+                          <div
+                            className="fixed z-[9999] bg-[var(--surface)] border border-[var(--border-medium)]/50 rounded-md shadow-2xl py-1.5 w-44     text-left"
+                            style={{
+                              left: `${columnaMenuAbierta.x}px`,
+                              top: `${columnaMenuAbierta.y + 4}px`,
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="px-3 py-1 bg-[var(--primary)]/20 rounded-t-md border-b border-[var(--primary)]">
+                              <p className="text-[11px] font-black text-[var(--primary)] uppercase tracking-wider truncate">
+                                {col.etiqueta}
+                              </p>
+                            </div>
+
+                            <button
+                              onClick={() => {
+                                interaccionUsuarioRef.current = true;
+                                setColumnasVisibles((prev) =>
+                                  prev.map((c) =>
+                                    c.key === col.key
+                                      ? { ...c, visible: false }
+                                      : c,
+                                  ),
+                                );
+                                setColumnaMenuAbierta(null);
+                              }}
+                              className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-red-400 hover:bg-red-700/10 flex items-center gap-2 cursor-pointer "
+                            >
+                              <X size={12} /> Ocultar Columna
+                            </button>
+
+                            <div className="border-t border-[var(--border-subtle)] my-1" />
+
+                            <button
+                              onClick={() => {
+                                moverColumna(col.key, "izquierda");
+                                setColumnaMenuAbierta(null);
+                              }}
+                              disabled={idx === 0}
+                              className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
+                            >
+                              <ChevronUp size={12} className="-rotate-90" />{" "}
+                              Mover Izquierda
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                moverColumna(col.key, "derecha");
+                                setColumnaMenuAbierta(null);
+                              }}
+                              disabled={
+                                idx ===
+                                columnasVisibles.filter(
+                                  (c) => c.visible !== false,
+                                ).length -
+                                  1
+                              }
+                              className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
+                            >
+                              <ChevronUp size={12} className="rotate-90" />{" "}
+                              Mover Derecha
+                            </button>
+
+                            <div className="border-t border-[var(--border-subtle)] my-1" />
+
+                            <button
+                              onClick={() => {
+                                interaccionUsuarioRef.current = true;
+                                const nuevas = [...columnasVisibles];
+                                const colItem = nuevas.find(
+                                  (c) => c.key === col.key,
+                                );
+                                const filtradas = nuevas.filter(
+                                  (c) => c.key !== col.key,
+                                );
+                                setColumnasVisibles([colItem, ...filtradas]);
+                                setColumnaMenuAbierta(null);
+                              }}
+                              disabled={idx === 0}
+                              className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
+                            >
+                              <ChevronUp
+                                size={12}
+                                className="text-[var(--primary)]"
+                              />{" "}
+                              Mover al Inicio
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                interaccionUsuarioRef.current = true;
+                                const nuevas = [...columnasVisibles];
+                                const colItem = nuevas.find(
+                                  (c) => c.key === col.key,
+                                );
+                                const filtradas = nuevas.filter(
+                                  (c) => c.key !== col.key,
+                                );
+                                setColumnasVisibles([...filtradas, colItem]);
+                                setColumnaMenuAbierta(null);
+                              }}
+                              disabled={
+                                idx ===
+                                columnasVisibles.filter(
+                                  (c) => c.visible !== false,
+                                ).length -
+                                  1
+                              }
+                              className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
+                            >
+                              <ChevronUp
+                                size={12}
+                                className="rotate-180 text-[var(--primary)]"
+                              />{" "}
+                              Mover al Final
+                            </button>
                           </div>
-
-                          <button
-                            onClick={() => {
-                              interaccionUsuarioRef.current = true;
-                              setColumnasVisibles((prev) =>
-                                prev.map((c) =>
-                                  c.key === col.key
-                                    ? { ...c, visible: false }
-                                    : c,
-                                ),
-                              );
-                              setColumnaMenuAbierta(null);
-                            }}
-                            className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-red-400 hover:bg-red-700/10 flex items-center gap-2 cursor-pointer "
-                          >
-                            <X size={12} /> Ocultar Columna
-                          </button>
-
-                          <div className="border-t border-[var(--border-subtle)] my-1" />
-
-                          <button
-                            onClick={() => {
-                              moverColumna(col.key, "izquierda");
-                              setColumnaMenuAbierta(null);
-                            }}
-                            disabled={idx === 0}
-                            className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
-                          >
-                            <ChevronUp size={12} className="-rotate-90" /> Mover
-                            Izquierda
-                          </button>
-
-                          <button
-                            onClick={() => {
-                              moverColumna(col.key, "derecha");
-                              setColumnaMenuAbierta(null);
-                            }}
-                            disabled={
-                              idx ===
-                              columnasVisibles.filter(
-                                (c) => c.visible !== false,
-                              ).length -
-                              1
-                            }
-                            className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
-                          >
-                            <ChevronUp size={12} className="rotate-90" /> Mover
-                            Derecha
-                          </button>
-
-                          <div className="border-t border-[var(--border-subtle)] my-1" />
-
-                          <button
-                            onClick={() => {
-                              interaccionUsuarioRef.current = true;
-                              const nuevas = [...columnasVisibles];
-                              const colItem = nuevas.find(
-                                (c) => c.key === col.key,
-                              );
-                              const filtradas = nuevas.filter(
-                                (c) => c.key !== col.key,
-                              );
-                              setColumnasVisibles([colItem, ...filtradas]);
-                              setColumnaMenuAbierta(null);
-                            }}
-                            disabled={idx === 0}
-                            className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
-                          >
-                            <ChevronUp
-                              size={12}
-                              className="text-[var(--primary)]"
-                            />{" "}
-                            Mover al Inicio
-                          </button>
-
-                          <button
-                            onClick={() => {
-                              interaccionUsuarioRef.current = true;
-                              const nuevas = [...columnasVisibles];
-                              const colItem = nuevas.find(
-                                (c) => c.key === col.key,
-                              );
-                              const filtradas = nuevas.filter(
-                                (c) => c.key !== col.key,
-                              );
-                              setColumnasVisibles([...filtradas, colItem]);
-                              setColumnaMenuAbierta(null);
-                            }}
-                            disabled={
-                              idx ===
-                              columnasVisibles.filter(
-                                (c) => c.visible !== false,
-                              ).length -
-                              1
-                            }
-                            className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
-                          >
-                            <ChevronUp
-                              size={12}
-                              className="rotate-180 text-[var(--primary)]"
-                            />{" "}
-                            Mover al Final
-                          </button>
-                        </div>
-                      </>
-                    )}
+                        </>
+                      )}
                   </th>
                 ))}
-              {mostrarAcciones && (
-                <th className="px-4 py-3 text-[12px] font-bold text-[var(--text-theme)] uppercase text-right">
-                  Acciones
-                </th>
-              )}
+              {mostrarAcciones &&
+                (modoAcciones === "columna" || modoAcciones === "ambos") && (
+                  <th className="px-4 py-3 text-[12px] font-bold text-[var(--text-theme)] uppercase text-right">
+                    Acciones
+                  </th>
+                )}
             </tr>
           </thead>
           <tbody className="  ">
@@ -874,20 +983,25 @@ const DataTable = ({
                   columnas={columnasVisibles.filter((c) => c.visible !== false)}
                   getChildren={getChildren}
                   renderDetalle={renderDetalle}
-                  estaExpandida={filaExpandidaId === (fila.id || index)}
+                  estaExpandida={
+                    todasExpandidas || filaExpandidaId === (fila.id || index)
+                  }
                   onToggleExpansion={() =>
                     toggleFilaExpansion(fila.id || index)
                   }
+                  busqueda={busqueda}
+                  onContextMenu={handleContextMenu}
+                  modoAcciones={modoAcciones}
                   accionesProps={
                     mostrarAcciones
                       ? {
-                        acciones,
-                        onVer,
-                        onEditar,
-                        onEliminar,
-                        onDescargar,
-                        permisos,
-                      }
+                          acciones,
+                          onVer,
+                          onEditar,
+                          onEliminar,
+                          onDescargar,
+                          permisos,
+                        }
                       : null
                   }
                 />
@@ -907,6 +1021,11 @@ const DataTable = ({
               </tr>
             )}
           </tbody>
+          {renderPiePagina && (
+            <tfoot className="border-t-2 border-[var(--primary)] bg-[var(--primary)]/[0.02]">
+              {renderPiePagina()}
+            </tfoot>
+          )}
         </table>
       </div>
 
@@ -930,7 +1049,7 @@ const DataTable = ({
                 </option>
               ))}
             </select>
-            <div className="flex items-center gap-1.5 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-lg p-1">
+            <div className="flex items-center gap-1.5 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md p-1">
               <button
                 disabled={!meta.prev}
                 onClick={() => onPageChange && onPageChange(meta.prev)}
@@ -953,22 +1072,15 @@ const DataTable = ({
         )}
       </div>
 
-      {/* VISTA MOBILE: Floating Action Button (FAB) en la esquina inferior derecha */}
-      {botonAgregar && (
-        <div className="md:hidden fixed bottom-24 right-5 z-[10000]">
-          <TieneAccion accion={botonAgregar?.tieneAccion}>
-            <div className="relative group">
-              <div className="absolute inset-0 bg-[var(--primary)] rounded-full blur-lg opacity-40"></div>
-              <button
-                onClick={manejarAgregarClick}
-                className="relative w-[56px] h-[56px] bg-[var(--primary)] text-[var(--surface)] rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform cursor-pointer"
-                title={botonAgregar.texto}
-              >
-                <AgregarIcono size={28} />
-              </button>
-            </div>
-          </TieneAccion>
-        </div>
+      {/* Menú Contextual (Estilo Windows) */}
+      {contextMenu && (
+        <ContextMenu
+          fila={contextMenu.fila}
+          x={contextMenu.x}
+          y={contextMenu.y}
+          acciones={acciones}
+          onClose={() => setContextMenu(null)}
+        />
       )}
     </div>
   );

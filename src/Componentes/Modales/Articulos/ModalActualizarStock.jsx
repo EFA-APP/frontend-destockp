@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   X,
   Database,
@@ -19,6 +20,7 @@ const DrawerActualizarStock = ({
   fila,
   depositosRaw,
   depositoInicial,
+  tipoArticulo, // 'PRODUCTO' o 'MATERIA_PRIMA'
 }) => {
   const [modo, setModo] = useState("ajuste"); // 'ajuste' o 'transferencia'
   const [depositoSeleccionado, setDepositoSeleccionado] = useState("");
@@ -69,8 +71,18 @@ const DrawerActualizarStock = ({
 
   if (!isOpen || !fila) return null;
 
-  // Obtener Stock actual según useDepositoUI
-  const stockActualCalculado = Number(fila[`dep_${depositoSeleccionado}`]) || 0;
+  // Obtener Stock actual buscando en el array stockPorDeposito
+  const getStockDeDeposito = (depId) => {
+    if (!fila.stockPorDeposito || !depId) return 0;
+    const stockItem = fila.stockPorDeposito.find(
+      (sp) =>
+        String(sp.codigoDeposito) === String(depId) ||
+        String(sp.deposito?.codigoSecuencial) === String(depId),
+    );
+    return Number(stockItem?.stock || 0);
+  };
+
+  const stockActualCalculado = getStockDeDeposito(depositoSeleccionado);
   const proximoStock = cantidad
     ? tipoAjuste === "agregar"
       ? stockActualCalculado + Number(cantidad)
@@ -78,7 +90,7 @@ const DrawerActualizarStock = ({
     : stockActualCalculado;
 
   // Cálculo para transferencia
-  const stockOrigenActual = Number(fila[`dep_${depositoOrigen}`]) || 0;
+  const stockOrigenActual = getStockDeDeposito(depositoOrigen);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -93,15 +105,21 @@ const DrawerActualizarStock = ({
         cantidadFinal = Math.abs(cantidadFinal);
       }
 
+      const isProducto = tipoArticulo === "PRODUCTO" || !!fila.codigoProducto;
+      const codigoIdentificador = Number(
+        fila.codigoSecuencial || fila.codigoProducto || fila.codigoMateriaPrima,
+      );
+
+      const depSeleccionadoObj = depositosRaw?.find(
+        (d) => String(d.codigoSecuencial) === String(depositoSeleccionado),
+      );
+
       actualizarStock(
         {
-          codigoProducto: fila.codigoProducto
-            ? Number(fila.codigoProducto)
-            : undefined,
-          codigoMateriaPrima: fila.codigoMateriaPrima
-            ? Number(fila.codigoMateriaPrima)
-            : undefined,
-          codigoDeposito: Number(depositoSeleccionado),
+          codigoProducto: isProducto ? codigoIdentificador : undefined,
+          codigoMateriaPrima: !isProducto ? codigoIdentificador : undefined,
+          codigoDeposito: Number(depositoSeleccionado), // Volvemos a enviar ID
+          nombreDeposito: depSeleccionadoObj?.nombre, // Opcional: enviamos nombre aparte
           cantidad: cantidadFinal,
           codigoUsuario: usuario?.codigoSecuencial
             ? Number(usuario.codigoSecuencial)
@@ -112,6 +130,7 @@ const DrawerActualizarStock = ({
           observacion: observacion || undefined,
           generarMovimiento: true,
           origenMovimiento: "AJUSTE_MANUAL",
+          descripcion: fila.descripcion || undefined,
         },
         { onSuccess: onClose },
       );
@@ -119,16 +138,26 @@ const DrawerActualizarStock = ({
       // Modo Transferencia
       if (!depositoOrigen || !depositoDestino || !cantidad) return;
 
+      const isProducto = tipoArticulo === "PRODUCTO" || !!fila.codigoProducto;
+      const codigoIdentificador = Number(
+        fila.codigoSecuencial || fila.codigoProducto || fila.codigoMateriaPrima,
+      );
+
+      const depOrigenObj = depositosRaw?.find(
+        (d) => String(d.codigoSecuencial) === String(depositoOrigen),
+      );
+      const depDestinoObj = depositosRaw?.find(
+        (d) => String(d.codigoSecuencial) === String(depositoDestino),
+      );
+
       transferirStock(
         {
-          codigoProducto: fila.codigoProducto
-            ? Number(fila.codigoProducto)
-            : undefined,
-          codigoMateriaPrima: fila.codigoMateriaPrima
-            ? Number(fila.codigoMateriaPrima)
-            : undefined,
-          codigoDepositoOrigen: Number(depositoOrigen),
-          codigoDepositoDestino: Number(depositoDestino),
+          codigoProducto: isProducto ? codigoIdentificador : undefined,
+          codigoMateriaPrima: !isProducto ? codigoIdentificador : undefined,
+          codigoDepositoOrigen: Number(depositoOrigen), // ID numérico para la DB
+          codigoDepositoDestino: Number(depositoDestino), // ID numérico para la DB
+          nombreDepositoOrigen: depOrigenObj?.nombre, // Nombre para el historial
+          nombreDepositoDestino: depDestinoObj?.nombre, // Nombre para el historial
           cantidad: Number(cantidad),
           codigoUsuario: usuario?.codigoSecuencial
             ? Number(usuario.codigoSecuencial)
@@ -137,33 +166,34 @@ const DrawerActualizarStock = ({
             `${usuario?.nombre || ""} ${usuario?.apellido || ""}`.trim() ||
             undefined,
           observacion: observacion || undefined,
+          descripcion: fila.descripcion || undefined,
         },
         { onSuccess: onClose },
       );
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-[100] flex justify-end">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex justify-end">
       {/* Overlay background (blur) */}
       <div
-        className={`absolute inset-0 bg-black/20 backdrop-blur-sm   ${isOpen ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0"}`}
         onClick={!isPending ? onClose : undefined}
       />
 
       {/* Slide-over panel */}
       <div
         className={`
-                relative w-full max-w-md h-full bg-[var(--surface-active)] shadow-[-10px_0_30px_max(rgba(0,0,0,0.5))] 
+                relative w-full max-w-md h-screen bg-[var(--surface)] shadow-[-10px_0_30px_rgba(0,0,0,0.3)] 
                 border-l border-[var(--border-subtle)] flex flex-col
-                transform   cubic-bezier(0.16, 1, 0.3, 1)
+                transform transition-transform duration-300 cubic-bezier(0.16, 1, 0.3, 1)
                 ${isOpen ? "translate-x-0" : "translate-x-full"}
             `}
       >
         {/* Header Premium */}
         <div className="px-6 py-5 border-b border-[var(--border-subtle)] bg-white/[0.02] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center border border-[var(--primary)]/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
+            <div className="w-10 h-10 rounded-md bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center border border-[var(--primary)]/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
               <InventarioIcono size={20} strokeWidth={2.5} />
             </div>
             <div className="flex flex-col">
@@ -178,7 +208,7 @@ const DrawerActualizarStock = ({
           <button
             onClick={onClose}
             disabled={isPending}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-secondary)] hover:text-black hover:bg-black/10 "
+            className="w-8 h-8 rounded-md flex items-center justify-center text-[var(--text-secondary)] hover:text-black hover:bg-black/10 "
           >
             <X size={18} strokeWidth={2.5} />
           </button>
@@ -189,17 +219,99 @@ const DrawerActualizarStock = ({
           <button
             type="button"
             onClick={() => setModo("ajuste")}
-            className={`flex-1 py-2 rounded-lg text-[13px] font-black uppercase tracking-wider flex items-center justify-center gap-2  ${modo === "ajuste" ? "bg-[var(--primary)]/20 border border-[var(--primary)]/30 text-[var(--primary)] shadow-md" : "text-[var(--text-theme)] hover:bg-black/5 border border-transparent"}`}
+            className={`flex-1 py-2 rounded-md text-[13px] font-black uppercase tracking-wider flex items-center justify-center gap-2  ${modo === "ajuste" ? "bg-[var(--primary)]/20 border border-[var(--primary)]/30 text-[var(--primary)] shadow-md" : "text-[var(--text-theme)] hover:bg-black/5 border border-transparent"}`}
           >
             <TrendingUp size={14} /> Ajuste manual
           </button>
           <button
             type="button"
             onClick={() => setModo("transferencia")}
-            className={`flex-1 py-2 rounded-lg text-[13px] font-black uppercase tracking-wider flex items-center justify-center gap-2  ${modo === "transferencia" ? "bg-blue-700/20 border border-blue-700/30 text-blue-400 shadow-md" : "text-[var(--text-theme)] hover:bg-black/5 border border-transparent"}`}
+            className={`flex-1 py-2 rounded-md text-[13px] font-black uppercase tracking-wider flex items-center justify-center gap-2  ${modo === "transferencia" ? "bg-blue-700/20 border border-blue-700/30 text-blue-400 shadow-md" : "text-[var(--text-theme)] hover:bg-black/5 border border-transparent"}`}
           >
             <ArrowLeftRight size={14} /> Transferencia
           </button>
+        </div>
+
+        {/* --- Card de Stock por Depósito (SIEMPRE VISIBLE) --- */}
+        <div className="px-6 py-4 bg-black/5 border-b border-black/5 flex flex-col gap-3 shrink-0">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-black text-black/40 uppercase tracking-[0.15em] flex items-center gap-2">
+              <Database size={12} className="text-[var(--primary)]" />
+              Stock Actual en Depósitos
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {(fila.stockPorDeposito || []).map((sp) => {
+              const stockDep = sp.stock || 0;
+              const dep = sp.deposito || {};
+              const esSeleccionado =
+                (modo === "ajuste" &&
+                  String(dep.codigoSecuencial) ===
+                    String(depositoSeleccionado)) ||
+                (modo === "transferencia" &&
+                  String(dep.codigoSecuencial) === String(depositoOrigen));
+
+              const getStockColor = (val) => {
+                if (val > 50)
+                  return {
+                    bg: "bg-emerald-500/10",
+                    border: "border-emerald-500/20",
+                    text: "text-emerald-700",
+                    indicator: "bg-emerald-500",
+                  };
+                if (val > 0)
+                  return {
+                    bg: "bg-amber-500/10",
+                    border: "border-amber-500/20",
+                    text: "text-amber-700",
+                    indicator: "bg-amber-500",
+                  };
+                return {
+                  bg: "bg-rose-500/10",
+                  border: "border-rose-500/20",
+                  text: "text-rose-700",
+                  indicator: "bg-rose-500",
+                };
+              };
+
+              const colors = getStockColor(stockDep);
+
+              return (
+                <div
+                  key={dep.codigoSecuencial || Math.random()}
+                  className={`p-2.5 rounded-md border transition-all duration-300 flex flex-col gap-0.5 ${esSeleccionado ? "bg-[var(--primary)]/10 border-[var(--primary)] shadow-lg shadow-amber-700/5 scale-[1.02]" : `${colors.bg} ${colors.border}`}`}
+                >
+                  <div className="flex items-center justify-between gap-1.5 mb-1">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <div
+                        className={`w-1.5 h-1.5 rounded-full ${colors.indicator} ${stockDep > 0 ? "animate-pulse" : ""}`}
+                      />
+                      <span
+                        className={`text-[10px] font-black uppercase tracking-tight truncate ${esSeleccionado ? "text-[var(--primary)]" : "text-black/40"}`}
+                      >
+                        {dep.nombre || "DEPÓSITO"}
+                      </span>
+                    </div>
+                    {esSeleccionado && (
+                      <span className="text-[8px] font-black bg-[var(--primary)] text-white px-1 py-0.5 rounded shadow-sm animate-bounce-short">
+                        SELECCIONADA
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-end justify-between">
+                    <span
+                      className={`text-[20px] font-black tabular-nums leading-none ${esSeleccionado ? "text-black" : colors.text}`}
+                    >
+                      {stockDep}
+                    </span>
+                    <span className="text-[10px] font-bold text-black/20 mb-0.5">
+                      {fila.unidadMedida || "UNI"}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Body scrollable */}
@@ -223,7 +335,7 @@ const DrawerActualizarStock = ({
                       value={depositoSeleccionado}
                       onChange={(e) => setDepositoSeleccionado(e.target.value)}
                       disabled={isPending}
-                      className="w-full h-12 bg-[var(--border-subtle)] border border-black/10 rounded-xl pl-4 pr-10 text-[16px] font-medium text-black focus:outline-none focus:border-[var(--primary)]/50 appearance-none  group-hover:border-black/20"
+                      className="w-full h-12 bg-[var(--border-subtle)] border border-black/10 rounded-md pl-4 pr-10 text-[16px] font-medium text-black focus:outline-none focus:border-[var(--primary)]/50 appearance-none  group-hover:border-black/20"
                     >
                       <option
                         value=""
@@ -257,7 +369,7 @@ const DrawerActualizarStock = ({
                     <button
                       type="button"
                       onClick={() => setTipoAjuste("agregar")}
-                      className={`flex flex-col items-center justify-center p-3 rounded-xl border   relative overflow-hidden ${tipoAjuste === "agregar" ? "bg-emerald-700/10 border-emerald-700/30 text-emerald-700" : "bg-black/10 border-black/5 text-black/40 hover:bg-black/5"}`}
+                      className={`flex flex-col items-center justify-center p-3 rounded-md border   relative overflow-hidden ${tipoAjuste === "agregar" ? "bg-emerald-700/10 border-emerald-700/30 text-emerald-700" : "bg-black/10 border-black/5 text-black/40 hover:bg-black/5"}`}
                     >
                       {tipoAjuste === "agregar" && (
                         <div className="absolute inset-x-0 top-0 h-0.5 bg-emerald-700" />
@@ -270,7 +382,7 @@ const DrawerActualizarStock = ({
                     <button
                       type="button"
                       onClick={() => setTipoAjuste("quitar")}
-                      className={`flex flex-col items-center justify-center p-3 rounded-xl border   relative overflow-hidden ${tipoAjuste === "quitar" ? "bg-red-700/10 border-red-700/30 text-red-700" : "bg-black/10 border-black/5 text-black/40 hover:bg-black/5"}`}
+                      className={`flex flex-col items-center justify-center p-3 rounded-md border   relative overflow-hidden ${tipoAjuste === "quitar" ? "bg-red-700/10 border-red-700/30 text-red-700" : "bg-black/10 border-black/5 text-black/40 hover:bg-black/5"}`}
                     >
                       {tipoAjuste === "quitar" && (
                         <div className="absolute inset-x-0 top-0 h-0.5 bg-red-700" />
@@ -299,7 +411,7 @@ const DrawerActualizarStock = ({
                       value={depositoOrigen}
                       onChange={(e) => setDepositoOrigen(e.target.value)}
                       disabled={isPending}
-                      className="w-full h-12 bg-[var(--border-subtle)] border border-black/10 rounded-xl pl-4 pr-10 text-[16px] font-medium text-black focus:outline-none focus:border-[var(--primary)]/50 appearance-none"
+                      className="w-full h-12 bg-[var(--border-subtle)] border border-black/10 rounded-md pl-4 pr-10 text-[16px] font-medium text-black focus:outline-none focus:border-[var(--primary)]/50 appearance-none"
                     >
                       <option
                         value=""
@@ -349,7 +461,7 @@ const DrawerActualizarStock = ({
                       value={depositoDestino}
                       onChange={(e) => setDepositoDestino(e.target.value)}
                       disabled={isPending}
-                      className="w-full h-12 bg-[var(--border-subtle)] border border-black/10 rounded-xl pl-4 pr-10 text-[16px] font-medium text-black focus:outline-none focus:border-[var(--primary)]/50 appearance-none "
+                      className="w-full h-12 bg-[var(--border-subtle)] border border-black/10 rounded-md pl-4 pr-10 text-[16px] font-medium text-black focus:outline-none focus:border-[var(--primary)]/50 appearance-none "
                     >
                       <option
                         value=""
@@ -387,7 +499,7 @@ const DrawerActualizarStock = ({
                 </span>
               </label>
               <div
-                className={`relative flex items-center justify-center bg-[var(--border-subtle)] border rounded-xl p-2  focus-within:border-[var(--primary)]/50 ${modo === "transferencia" ? "border-blue-700/10 focus-within:border-blue-700/50" : "border-black/10"}`}
+                className={`relative flex items-center justify-center bg-[var(--border-subtle)] border rounded-md p-2  focus-within:border-[var(--primary)]/50 ${modo === "transferencia" ? "border-blue-700/10 focus-within:border-blue-700/50" : "border-black/10"}`}
               >
                 <div
                   className={`px-4 text-3xl font-black ${modo === "transferencia" ? "text-blue-400" : tipoAjuste === "agregar" ? "text-emerald-700" : "text-red-700"}`}
@@ -422,7 +534,7 @@ const DrawerActualizarStock = ({
 
             {/* Previsualización del cálculo si seleccionó cantidad */}
             {modo === "ajuste" && depositoSeleccionado && cantidad && (
-              <div className="flex items-center justify-center gap-4 bg-white/[0.02] p-3 rounded-lg border border-black/5">
+              <div className="flex items-center justify-center gap-4 bg-white/[0.02] p-3 rounded-md border border-black/5">
                 <span className="text-[12px] uppercase font-bold text-black">
                   Act:{" "}
                   <b className="text-[15px] font-black text-[var(--primary)]">
@@ -453,7 +565,7 @@ const DrawerActualizarStock = ({
                 placeholder="Escribe motivos de la operación..."
                 disabled={isPending}
                 rows={2}
-                className="w-full border border-black/10 rounded-xl p-3 text-sm text-black focus:outline-none focus:border-[var(--primary)]/50  resize-none"
+                className="w-full border border-black/10 rounded-md p-3 text-sm text-black focus:outline-none focus:border-[var(--primary)]/50  resize-none"
               />
             </div>
           </form>
@@ -474,7 +586,7 @@ const DrawerActualizarStock = ({
                   Number(cantidad) > stockOrigenActual))
             }
             className={`
-                            w-full h-14 rounded-xl text-[15px] font-black uppercase tracking-[0.1em] text-black   flex items-center justify-center gap-3 shadow-xl border cursor-pointer!
+                            w-full h-14 rounded-md text-[15px] font-black uppercase tracking-[0.1em] text-black   flex items-center justify-center gap-3 shadow-xl border cursor-pointer!
                             ${
                               !cantidad ||
                               (modo === "ajuste" && !depositoSeleccionado) ||
@@ -526,7 +638,8 @@ const DrawerActualizarStock = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
 

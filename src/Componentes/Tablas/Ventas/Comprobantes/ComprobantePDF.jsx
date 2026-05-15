@@ -239,13 +239,27 @@ const mapearCondicionIva = (condicion) => {
 
 // Helper para determinar el título según tipoDocumento
 const obtenerTituloComprobante = (tipo, fiscal) => {
-  if (!fiscal) return "RECIBO";
   const t = Number(tipo);
-  // Tipos AFIP estándar
+
+  // 1. Identificar Comprobantes Internos (Suelen ser fiscal = false)
+  if (t === 991) return "COMPROBANTE DE VENTA INTERNO";
+  if (t === 992) return "RECIBO INTERNO";
+  if (t === 993) return "NOTA DE CRÉDITO INTERNA";
+  if (t === 994) return "NOTA DE DÉBITO INTERNA";
+  if (t === 99) return "COMPROBANTE INTERNO";
+
+  // 2. Si no es fiscal y no es interno conocido, por defecto es RECIBO o COMPROBANTE
+  if (!fiscal) {
+    if ([4, 9, 15, 54].includes(t)) return "RECIBO";
+    return "COMPROBANTE";
+  }
+
+  // 3. Tipos AFIP estándar
   if ([1, 6, 11, 51, 201, 206, 211].includes(t)) return "FACTURA";
   if ([2, 7, 12, 52, 202, 207, 212].includes(t)) return "NOTA DE DÉBITO";
   if ([3, 8, 13, 53, 203, 208, 213].includes(t)) return "NOTA DE CRÉDITO";
   if ([4, 9, 15, 54].includes(t)) return "RECIBO";
+
   return "COMPROBANTE";
 };
 

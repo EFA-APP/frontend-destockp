@@ -1,5 +1,6 @@
 // components/ui/ModalDetalleBase.jsx
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 
 const ModalDetalleBase = ({ open, onClose, children, width = "max-w-[400px]" }) => {
   useEffect(() => {
@@ -9,8 +10,8 @@ const ModalDetalleBase = ({ open, onClose, children, width = "max-w-[400px]" }) 
 
   if (!open) return null;
 
-  return (
-    <div className="fixed inset-0 z-[99999999] flex items-end md:items-center justify-center bg-black/80 backdrop-blur-sm   ">
+  const modalContent = (
+    <div className="fixed inset-0 z-[99999999] flex items-end md:items-center justify-center bg-black/80 backdrop-blur-sm">
       {/* Overlay for clicking outside */}
       <div
         className="absolute inset-0 h-screen cursor-default"
@@ -23,7 +24,6 @@ const ModalDetalleBase = ({ open, onClose, children, width = "max-w-[400px]" }) 
           relative z-10 w-full ${width}
           max-h-[85vh] md:max-h-[90vh]
           bg-[var(--fill)] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-2xl
-            md: 
           overflow-hidden rounded-t-[32px] md:rounded-3xl
           border-t md:border border-black/10
         `}
@@ -40,6 +40,8 @@ const ModalDetalleBase = ({ open, onClose, children, width = "max-w-[400px]" }) 
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default ModalDetalleBase;

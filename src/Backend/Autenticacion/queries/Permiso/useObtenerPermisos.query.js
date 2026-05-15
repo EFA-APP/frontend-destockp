@@ -3,12 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { ObtenerPermisosApi } from "../../api/Permiso/permiso.api";
 import { useAlertas } from "../../../../store/useAlertas";
 
-export const useObtenerPermisos = () => {
+export const useObtenerPermisos = (filtros = {}) => {
     const agregarAlerta = useAlertas((state) => state.agregarAlerta);
     
     const query = useQuery({
-        queryKey: ["permisos"],
-        queryFn: ObtenerPermisosApi,
+        queryKey: ["permisos", filtros],
+        queryFn: () => ObtenerPermisosApi(filtros),
         staleTime: 1000 * 60 * 10, // 10 minutos
     });
 

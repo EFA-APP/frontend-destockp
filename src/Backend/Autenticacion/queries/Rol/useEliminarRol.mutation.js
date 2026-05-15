@@ -7,7 +7,7 @@ export const useEliminarRol = () => {
     const agregarAlerta = useAlertas((state) => state.agregarAlerta);
 
     return useMutation({
-        mutationFn: (parametros) => eliminarRolApi(parametros.codigo),
+        mutationFn: ({ codigo, codigoEmpresa }) => eliminarRolApi(codigo, codigoEmpresa),
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ["roles"] }); // Refrescar la lista de roles
             queryClient.invalidateQueries({ queryKey: ["usuarios"] }); // Refrescar usuarios por si tenían este rol asignado

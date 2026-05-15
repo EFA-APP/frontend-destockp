@@ -14,8 +14,9 @@ export const IniciarSesionArcaApi = async () => {
 /**
  * Obtiene los tipos de comprobantes habilitados por AFIP/ARCA.
  */
-export const ObtenerTiposComprobanteApi = async () => {
+export const ObtenerTiposComprobanteApi = async (params) => {
   const respuesta = await axiosInitial.get(`/arca/comprobantes/tipos`, {
+    params,
     showLoader: false,
   });
   return respuesta.data;

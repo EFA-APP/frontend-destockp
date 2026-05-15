@@ -3,7 +3,7 @@ import { useAuthStore } from "../../../Autenticacion/store/authenticacion.store"
 import { useObtenerComprobantesQuery } from "../../../Ventas/queries/Comprobante/useObtenerComprobantes.query";
 import { usePersistentState } from "../../../../hooks/usePersistentState";
 
-export const useFacturas = (prefijoKey = "") => {
+export const useFacturas = (prefijoKey = "", tipo = "VENTA") => {
   const { unidadActiva } = useAuthStore();
 
   // Cálculo del mes actual para el rango predeterminado
@@ -26,8 +26,9 @@ export const useFacturas = (prefijoKey = "") => {
 
   // Filtros de UI
   const [pagina, setPagina] = useState(1);
-  const [limite, setLimite] = useState(20);
-  const [tipoFactura, setTypeFactura] = useState("TODAS");
+  const [limite, setLimite] = usePersistentState(`${prefijoKey}facturas_limite`, 20);
+  const [tipoFactura, setTypeFactura] = useState("TODAS"); // Ahora es el ID directo
+  
   const [busqueda, setBusqueda] = usePersistentState(
     `${prefijoKey}facturas_busqueda`,
     "",
@@ -46,6 +47,24 @@ export const useFacturas = (prefijoKey = "") => {
   // NUEVO FILTRO CONDICIÓN DE VENTA
   const [condicionVenta, setCondicionVenta] = useState("TODAS");
 
+  // Memoizamos los filtros para estabilidad de la query
+  const filtrosQuery = useMemo(() => {
+    const obj = {
+      pagina,
+      limite,
+      tipo,
+      codigoUnidadNegocio: unidadNegocio,
+      tipoDocumento: tipoFactura === "TODAS" ? undefined : Number(tipoFactura),
+      fechaDesde,
+      fechaHasta,
+      busqueda: busqueda,
+      fiscal: isFiscal === "TODAS" ? undefined : isFiscal === "FISCAL" ? true : false,
+      condicionVenta: condicionVenta === "TODAS" ? undefined : condicionVenta,
+    };
+    console.log("Comprobantes Filtros Actualizados:", obj);
+    return obj;
+  }, [pagina, limite, unidadNegocio, tipoFactura, fechaDesde, fechaHasta, busqueda, isFiscal, condicionVenta, tipo]);
+
   // QUERY REAL: El corazón del listado
   const {
     data: respuesta,
@@ -53,22 +72,31 @@ export const useFacturas = (prefijoKey = "") => {
     isFetching,
     isError,
     refetch,
-  } = useObtenerComprobantesQuery({
-    pagina,
-    limite,
-    codigoUnidadNegocio: unidadNegocio,
-    tipoDocumento: tipoFactura === "TODAS" ? undefined : Number(tipoFactura),
-    fechaDesde,
-    fechaHasta,
-    buscarReceptor: busqueda,
-    // Convertimos el estado del select "TODAS/FISCAL/INTERNAS" al booleano esperado por el backend
-    fiscal:
-      isFiscal === "TODAS" ? undefined : isFiscal === "FISCAL" ? true : false,
-    condicionVenta: condicionVenta === "TODAS" ? undefined : condicionVenta,
-  });
+  } = useObtenerComprobantesQuery(filtrosQuery);
 
   const facturas = useMemo(() => respuesta?.data || [], [respuesta]);
-  const meta = useMemo(() => respuesta?.meta || {}, [respuesta]);
+  const meta = useMemo(() => {
+    const defaultMeta = {
+      total: facturas.length,
+      lastPage: 1,
+      currentPage: pagina,
+      perPage: limite,
+      next: null,
+      prev: null
+    };
+
+    if (!respuesta?.meta) return defaultMeta;
+    
+    const { totalItems, totalPaginas, paginaActual, itemsPorPagina } = respuesta.meta;
+    return {
+      total: totalItems,
+      lastPage: totalPaginas,
+      currentPage: paginaActual,
+      perPage: itemsPorPagina,
+      next: paginaActual < totalPaginas ? paginaActual + 1 : null,
+      prev: paginaActual > 1 ? paginaActual - 1 : null,
+    };
+  }, [respuesta, facturas.length, pagina, limite]);
 
   const manejarDetalle = (id) => {
     console.log("Visualizando detalle:", id);
@@ -92,6 +120,8 @@ export const useFacturas = (prefijoKey = "") => {
     isError,
     pagina,
     setPagina,
+    limite,
+    setLimite,
     busqueda,
     setBusqueda,
     tipoFactura,

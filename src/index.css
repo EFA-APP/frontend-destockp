@@ -5,9 +5,6 @@
   font-optical-sizing: auto;
   font-style: normal;
   box-sizing: border-box;
-  /* Sacar todas las animaciones por optimización */
-  transition: none !important;
-  animation: none !important;
 }
 
 /* Scrollbar elegante adaptada a blanco */

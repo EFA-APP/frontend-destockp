@@ -4,26 +4,34 @@ export const useVentaPagos = (totalVenta, condicionVenta, setCondicionVenta, agr
   const [metodoPago, setMetodoPago] = useState("efectivo");
   const [listaPagos, setListaPagos] = useState([]);
   const [nuevoPago, setNuevoPago] = useState({
-    tipo: null,
+    tipo: "EFECTIVO", // Default a EFECTIVO
     entidadId: "",
     monto: 0,
     pagaCon: 0,
     detalles: "",
     referencia: "",
+    // Campos para Cheque
+    tipoCheque: "TERCERO",
+    bancoCheque: "",
+    numeroCheque: "",
+    vencimientoCheque: "",
   });
 
+  const totalPagadoReal = useMemo(() => {
+    return listaPagos.reduce((acc, p) => acc + parseFloat(p.monto || 0), 0);
+  }, [listaPagos]);
+
   const vuelto = useMemo(() => {
-    if (nuevoPago.metodo !== "efectivo" || !nuevoPago.pagaCon) return 0;
-    const totalPagado = listaPagos.reduce((acc, p) => acc + p.monto, 0);
-    const restante = totalVenta - totalPagado;
-    return Math.max(0, nuevoPago.pagaCon - restante);
-  }, [nuevoPago.pagaCon, nuevoPago.metodo, totalVenta, listaPagos]);
+    // Usamos 'tipo' que es el campo real del estado
+    if (nuevoPago.tipo?.toLowerCase() !== "efectivo" || !nuevoPago.pagaCon) return 0;
+    const restante = totalVenta - totalPagadoReal;
+    return Math.max(0, parseFloat(nuevoPago.pagaCon) - restante);
+  }, [nuevoPago.pagaCon, nuevoPago.tipo, totalVenta, totalPagadoReal]);
 
   useEffect(() => {
-    const totalPagado = listaPagos.reduce((acc, p) => acc + p.monto, 0);
-    const restante = Math.max(0, totalVenta - totalPagado);
+    const restante = Math.max(0, totalVenta - totalPagadoReal);
 
-    if (totalPagado >= totalVenta - 0.01 && condicionVenta === "cuenta_corriente") {
+    if (totalPagadoReal >= totalVenta - 0.01 && condicionVenta === "cuenta_corriente") {
       setCondicionVenta("contado");
     }
 
@@ -31,7 +39,7 @@ export const useVentaPagos = (totalVenta, condicionVenta, setCondicionVenta, agr
       ...prev,
       monto: Math.round(restante * 100) / 100,
     }));
-  }, [totalVenta, listaPagos, condicionVenta, setCondicionVenta]);
+  }, [totalVenta, totalPagadoReal, condicionVenta, setCondicionVenta]);
 
   const agregarPago = useCallback(() => {
     if (!nuevoPago.tipo) {
@@ -45,16 +53,34 @@ export const useVentaPagos = (totalVenta, condicionVenta, setCondicionVenta, agr
       return;
     }
     
-    if (nuevoPago.monto <= 0) return;
+    const montoNum = parseFloat(nuevoPago.monto);
+    if (isNaN(montoNum) || montoNum <= 0) return;
     
-    setListaPagos((prev) => [...prev, { ...nuevoPago, id: Date.now() }]);
+    let detallesFinales = nuevoPago.detalles;
+    
+    // Si es cheque, armamos un detalle descriptivo
+    if (nuevoPago.tipo === "CHEQUE") {
+      detallesFinales = `CHEQUE ${nuevoPago.tipoCheque} | BNCO: ${nuevoPago.bancoCheque || 'S/D'} | NRO: ${nuevoPago.numeroCheque || 'S/D'} | VTO: ${nuevoPago.vencimientoCheque || 'S/D'}`;
+    }
+
+    setListaPagos((prev) => [...prev, { 
+      ...nuevoPago, 
+      detalles: detallesFinales,
+      monto: montoNum, // Aseguramos que sea número
+      id: Date.now() 
+    }]);
+    
     setNuevoPago({
-      tipo: null,
+      tipo: "EFECTIVO",
       entidadId: "",
       monto: 0,
       pagaCon: 0,
       detalles: "",
       referencia: "",
+      tipoCheque: "TERCERO",
+      bancoCheque: "",
+      numeroCheque: "",
+      vencimientoCheque: "",
     });
   }, [nuevoPago, agregarAlerta]);
 
@@ -68,8 +94,8 @@ export const useVentaPagos = (totalVenta, condicionVenta, setCondicionVenta, agr
     const nuevosPagos = [
       {
         id: `recibido-${Date.now()}`,
-        metodo: "efectivo",
-        monto: recibido,
+        tipo: "EFECTIVO",
+        monto: parseFloat(recibido),
         detalles: "DINERO RECIBIDO",
       },
     ];
@@ -77,8 +103,8 @@ export const useVentaPagos = (totalVenta, condicionVenta, setCondicionVenta, agr
     if (vueltoCalculado > 0) {
       nuevosPagos.push({
         id: `vuelto-${Date.now() + 1}`,
-        metodo: "efectivo",
-        monto: -vueltoCalculado,
+        tipo: "EFECTIVO",
+        monto: -parseFloat(vueltoCalculado),
         detalles: "VUELTO ENTREGADO",
       });
     }

@@ -113,13 +113,13 @@ const TablaMateriaPrima = () => {
           handleEditarClick,
         })}
         botonAgregar={{
-          texto: "Nueva Materia Prima",
+          texto: "Crear",
           ruta: "/panel/inventario/materia-prima/nuevo",
-          tieneAccion: "CREAR_MATERIAPRIMA",
+          tieneAccion: "CREAR_MATERIA_PRIMA",
         }}
         elementosSuperior={
           <div className="flex items-center gap-2">
-            <TieneAccion accion="HISTORIAL_MATERIAPRIMA">
+            <TieneAccion accion="HISTORIAL_MATERIA_PRIMA">
               <button
                 onClick={() =>
                   navigate("/panel/inventario/historial-stock/MATERIA_PRIMA")
@@ -141,12 +141,15 @@ const TablaMateriaPrima = () => {
         placeholderBuscador="Filtrar por ingrediente o código..."
       />
 
-      <DrawerActualizarStock
-        isOpen={drawerData.isOpen}
-        onClose={cerrarDrawer}
-        fila={drawerData.fila}
-        depositosRaw={dataDepositosRaw}
-      />
+      <TieneAccion accion="EDITAR_STOCK_MANUAL">
+        <DrawerActualizarStock
+          isOpen={drawerData.isOpen}
+          onClose={cerrarDrawer}
+          fila={drawerData.fila}
+          depositosRaw={dataDepositosRaw}
+          tipoArticulo="MATERIA_PRIMA"
+        />
+      </TieneAccion>
     </div>
   );
 };

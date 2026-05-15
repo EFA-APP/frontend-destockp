@@ -41,7 +41,28 @@ const getTipoConfig = (tipo) => {
   }
 };
 
-export const ColumnasMovimientos = () => [
+const Highlight = ({ text, term }) => {
+  if (!term || !text) return text;
+  const parts = String(text).split(new RegExp(`(${term})`, "gi"));
+  return (
+    <span>
+      {parts.map((part, i) =>
+        part.toLowerCase() === term.toLowerCase() ? (
+          <mark
+            key={i}
+            className="bg-yellow-400/40 text-[var(--primary)] px-0.5 rounded font-black italic"
+          >
+            {part}
+          </mark>
+        ) : (
+          part
+        ),
+      )}
+    </span>
+  );
+};
+
+export const ColumnasMovimientos = (busqueda) => [
   {
     key: "fecha",
     etiqueta: "Fecha",
@@ -62,14 +83,19 @@ export const ColumnasMovimientos = () => [
   {
     key: "nombreArticulo",
     etiqueta: "Producto",
-    renderizar: (valor, fila) => (
-      <div className="flex flex-col min-w-[200px]">
+    renderizar: (valor, fila, busqueda) => (
+      <div className="flex flex-col min-w-[220px]">
         <span className="font-black text-[14px] uppercase tracking-tight text-black">
-          {valor}
+          <Highlight text={valor} term={busqueda} />
         </span>
-        <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
-          {fila.origenMovimiento?.replace(/_/g, " ")}
-        </span>
+        {fila.descripcion && (
+          <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest pt-1">
+            <Highlight
+              text={fila.descripcion?.replace(/_/g, " ")}
+              term={busqueda}
+            />
+          </span>
+        )}
       </div>
     ),
   },
@@ -79,7 +105,9 @@ export const ColumnasMovimientos = () => [
     renderizar: (valor) => {
       const config = getTipoConfig(valor);
       return (
-        <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest border ${config.estilo}`}>
+        <span
+          className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest border ${config.estilo}`}
+        >
           {valor}
         </span>
       );
@@ -92,8 +120,11 @@ export const ColumnasMovimientos = () => [
       const config = getTipoConfig(fila.tipoMovimiento);
       return (
         <div className="flex flex-col items-start md:items-end pr-4">
-          <span className={`text-[16px] font-black tracking-tighter ${config.color}`}>
-            {config.simbolo}{valor}
+          <span
+            className={`text-[16px] font-black tracking-tighter ${config.color}`}
+          >
+            {config.simbolo}
+            {valor}
           </span>
           <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
             {fila.unidadMedida || ""}
@@ -113,7 +144,7 @@ export const ColumnasMovimientos = () => [
           </span>
         </div>
         <span className="text-[11px] font-black uppercase tracking-wider text-[var(--text-muted)]">
-          {valor}
+          <Highlight text={valor} term={busqueda} />
         </span>
       </div>
     ),

@@ -8,18 +8,18 @@ export const useActualizarEstadoUsuario = () => {
 
     return useMutation({
         mutationFn: actualizarEstadoUsuarioApi,
-        onSuccess: (_, variables) => {
-            queryClient.invalidateQueries(["usuarios"]);
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["usuarios-empresa"] });
             agregarAlerta({
                 type: "success",
-                message: `Usuario ${variables.activo ? 'activado' : 'bloqueado'} con éxito`,
+                message: "El estado del usuario se actualizó correctamente.",
             });
         },
         onError: (error) => {
             agregarAlerta({
                 type: "error",
-                message: error?.response?.data?.message || "Ocurrió un error al actualizar el estado del usuario",
+                message: error?.response?.data?.message || "Ocurrió un error al intentar cambiar el estado.",
             });
-        }
+        },
     });
 };

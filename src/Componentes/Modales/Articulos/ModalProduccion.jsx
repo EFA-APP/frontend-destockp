@@ -233,7 +233,7 @@ const ModalProduccion = ({
           <section className="space-y-4    ">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 opacity-80">
-                <span className="flex items-center justify-center w-5 h-5 rounded-md! bg-purple-600/20 text-purple-400 text-[12px] font-black border border-purple-700/20">
+                <span className="flex items-center justify-center w-5 h-5 rounded-md! bg-purple-600/20 text-purple-700 text-[12px] font-black border border-purple-700/20">
                   01
                 </span>
                 <h4 className="text-[12px] font-black text-black uppercase tracking-[0.2em]">
@@ -244,7 +244,7 @@ const ModalProduccion = ({
 
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
               {/* Product Insight Card - Premium Glassmorphism */}
-              <div className="md:col-span-5 bg-white/[0.03] border border-black/10 rounded-md p-4 relative overflow-hidden group hover:border-purple-700/30   shadow-2xl shadow-purple-700/5">
+              <div className="md:col-span-5 rounded-md p-4 relative overflow-hidden border border-purple-700/20   shadow-2xl shadow-purple-700/5 bg-purple-700/10">
                 <div className="absolute top-0 right-0 p-8 bg-purple-600/10 blur-[60px] rounded-full -mr-10 -mt-10 group-hover:bg-purple-600/20  " />
 
                 <div className="relative z-10 flex flex-col h-full justify-between">
@@ -258,7 +258,7 @@ const ModalProduccion = ({
                     <div className="text-base font-bold text-black tracking-tight uppercase leading-tight">
                       {articulo.nombre}
                     </div>
-                    <div className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-black/5 border border-black/5 text-[11px] font-mono font-black text-purple-400/80 uppercase mt-1 tracking-tighter">
+                    <div className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-black/5 border border-black/5 text-[13px] font-mono font-black text-purple-700/80 uppercase mt-1 tracking-tighter">
                       SKU: #
                       {articulo.codigoSecuencial?.toString().padStart(4, "0")}
                     </div>
@@ -285,10 +285,10 @@ const ModalProduccion = ({
 
               {/* Action Inputs */}
               <div className="md:col-span-7 space-y-4">
-                <div className="bg-black/20 border border-black/5 rounded-md p-4 space-y-4">
+                <div className="bg-purple-900/10 border border-purple-700/20 rounded-md p-4 space-y-4 shadow-inner">
                   <div className="space-y-2">
-                    <label className="text-[11px] font-black text-black/85 uppercase tracking-[0.2em] flex items-center gap-2">
-                      <div className="w-1 h-1 rounded-full bg-purple-700" />
+                    <label className="text-[11px] font-black text-purple-700/80 uppercase tracking-[0.2em] flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-purple-600" />
                       Cantidad a Producir
                     </label>
                     <div className="relative group/input">
@@ -297,7 +297,7 @@ const ModalProduccion = ({
                         type="number"
                         step="any"
                         placeholder="0.00"
-                        className="w-full bg-black/40 border border-black/10 group-focus-within/input:border-purple-700/40 rounded-md py-3 px-4 text-sm font-black text-black focus:outline-none  placeholder:text-black/5 pr-16"
+                        className="w-full bg-white border border-purple-700/20 group-focus-within/input:border-purple-500/50 rounded-md py-3 px-4 text-sm font-black text-black focus:outline-none transition-all placeholder:text-purple-900/30 pr-16"
                         value={formData.cantidadProducida}
                         onChange={(e) =>
                           setFormData({
@@ -306,20 +306,20 @@ const ModalProduccion = ({
                           })
                         }
                       />
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded bg-black/5 border border-black/5 text-[10px] font-black text-black/85 uppercase tracking-widest font-mono">
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded bg-purple-700/10 border border-purple-700/20 text-[10px] font-black text-purple-700 uppercase tracking-widest font-mono">
                         {articulo.unidadMedida || "UNIT"}
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[11px] font-black text-black/85 uppercase tracking-[0.2em] flex items-center gap-2">
-                      <div className="w-1 h-1 rounded-full bg-black/20" />
+                    <label className="text-[11px] font-black text-purple-700/80 uppercase tracking-[0.2em] flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-purple-700/30" />
                       Observación / Referencia
                     </label>
                     <input
                       placeholder="Escriba una nota para este lote..."
-                      className="w-full bg-black/40 border border-black/10 focus:border-purple-700/20 rounded-md py-2.5 px-4 text-[13px] font-medium text-black/70 focus:outline-none  placeholder:text-black/5"
+                      className="w-full bg-white border border-purple-700/20 focus:border-purple-500/40 rounded-md py-2.5 px-4 text-[13px] font-medium text-black/70 focus:outline-none transition-all placeholder:text-purple-900/30"
                       value={formData.observacion}
                       onChange={(e) =>
                         setFormData({
@@ -345,17 +345,17 @@ const ModalProduccion = ({
               </h4>
             </div>
 
-            <div className="bg-zinc-900/20 border border-black/5 rounded-md p-5 space-y-4 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/[0.02] to-transparent pointer-events-none" />
+            <div className="bg-purple-900/10 border border-purple-700/20 rounded-md p-5 space-y-4 relative overflow-hidden shadow-inner">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/[0.03] to-transparent pointer-events-none" />
 
               {/* Add Insumo Header-style UI */}
               <div className="relative flex flex-col md:flex-row gap-3">
                 <div className="flex-1 relative group">
-                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-black/85 group-focus-within:text-purple-700  pointer-events-none">
+                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-700/50 group-focus-within:text-purple-500 transition-colors pointer-events-none">
                     <Layers size={14} />
                   </div>
                   <select
-                    className="w-full bg-black/20 border border-black/10 rounded-md! py-3 pl-10 pr-10 text-black text-[13px] font-bold focus:outline-none focus:border-purple-700/40  appearance-none cursor-pointer shadow-inner"
+                    className="w-full bg-white border border-purple-700/20 rounded-md py-3 pl-10 pr-10 text-black text-[13px] font-bold focus:outline-none focus:border-purple-500/40 transition-all appearance-none cursor-pointer"
                     value={nuevoInsumo.codigoMateriaPrima}
                     onChange={(e) =>
                       setNuevoInsumo({
@@ -364,20 +364,20 @@ const ModalProduccion = ({
                       })
                     }
                   >
-                    <option value="" disabled className="bg-[#0a0a0a]">
+                    <option value="" disabled className="bg-white">
                       Seleccionar Insumo...
                     </option>
                     {materiasPrimas.map((mp) => (
                       <option
                         key={mp.codigoSecuencial}
                         value={mp.codigoSecuencial}
-                        className="bg-[#0a0a0a]"
+                        className="bg-white text-black"
                       >
                         {mp.nombre} ({mp.unidadMedida})
                       </option>
                     ))}
                   </select>
-                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-black/85">
+                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-purple-700/40">
                     <DesplegadorIcono size={12} />
                   </div>
                 </div>
@@ -387,7 +387,7 @@ const ModalProduccion = ({
                     <input
                       type="number"
                       placeholder="0.0"
-                      className={`w-full bg-black/20 border ${excedeStock ? "border-red-700/50 text-red-400" : "border-black/10 group-focus-within:border-purple-700/40 text-black"} rounded-md! py-3 px-4 text-sm font-black focus:outline-none  text-center placeholder:text-black/5 shadow-inner`}
+                      className={`w-full bg-white border ${excedeStock ? "border-red-700/40 text-red-600" : "border-purple-700/20 group-focus-within:border-purple-500/40 text-black"} rounded-md py-3 px-4 text-sm font-black focus:outline-none transition-all text-center placeholder:text-purple-900/30 shadow-inner`}
                       value={nuevoInsumo.cantidad}
                       onChange={(e) =>
                         setNuevoInsumo({
@@ -405,7 +405,7 @@ const ModalProduccion = ({
                       excedeStock
                     }
                     onClick={handleAgregarInsumo}
-                    className="bg-purple-600 hover:bg-purple-700 disabled:opacity-20 disabled:grayscale text-black px-6 rounded-md!  active:scale-95 flex items-center justify-center shrink-0 shadow-lg shadow-purple-900/20"
+                    className="bg-[var(--primary)]/10  disabled:grayscale disabled:opacity-50 px-6 rounded-md! border border-[var(--primary)]  active:scale-95 flex items-center justify-center shrink-0 shadow-lg shadow-purple-900/20 cursor-pointer disabled:cursor-not-allowed"
                   >
                     <AgregarIcono size={18} />
                   </button>
@@ -414,28 +414,28 @@ const ModalProduccion = ({
 
               {/* REFINED REAL-TIME STOCK INDICATOR - Glassy & High Info Density */}
               {nuevoInsumo.codigoMateriaPrima && (
-                <div className="relative px-4 py-3 rounded-md bg-white/[0.02] border border-black/10 flex flex-col gap-3    ">
+                <div className="relative px-4 py-3 rounded-md bg-white border border-purple-700/10 flex flex-col gap-3 shadow-inner">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div
-                        className={`w-1.5 h-1.5 rounded-full ${excedeStock ? "bg-red-700 " : "bg-emerald-700"}`}
+                        className={`w-1.5 h-1.5 rounded-full ${excedeStock ? "bg-red-600" : "bg-purple-600"}`}
                       />
-                      <span className="text-[11px] font-black text-black/85 uppercase tracking-[0.2em]">
-                        Estatus de Disponibilidad
+                      <span className="text-[11px] font-black text-purple-700/70 uppercase tracking-[0.2em]">
+                        Validación de Inventario
                       </span>
                     </div>
                     {excedeStock ? (
-                      <div className="px-2 py-0.5 bg-red-700/10 border border-red-700/20 rounded text-red-700  flex items-center gap-1.5">
+                      <div className="px-2 py-0.5 bg-red-600/10 border border-red-600/20 rounded text-red-600 flex items-center gap-1.5">
                         <AdvertenciaIcono size={10} />
                         <span className="text-[10px] font-black uppercase tracking-tight">
-                          Inventario Insuficiente
+                          Stock Insuficiente
                         </span>
                       </div>
                     ) : (
-                      <div className="px-2 py-0.5 bg-emerald-700/10 border border-emerald-700/20 rounded text-emerald-700 flex items-center gap-1.5">
+                      <div className="px-2 py-0.5 bg-purple-600/10 border border-purple-600/20 rounded text-purple-700 flex items-center gap-1.5">
                         <CheckIcono size={10} />
                         <span className="text-[10px] font-black uppercase tracking-tight">
-                          Stock Verificado
+                          Material Disponible
                         </span>
                       </div>
                     )}
@@ -443,10 +443,10 @@ const ModalProduccion = ({
 
                   <div className="flex items-end justify-between">
                     <div className="space-y-1">
-                      <p className="text-[10px] text-black/85 font-black uppercase tracking-widest leading-none font-mono">
-                        Stock en Almacén
+                      <p className="text-[10px] text-[var(--primary)] font-black uppercase tracking-widest leading-none font-mono">
+                        En Almacén
                       </p>
-                      <p className="text-sm font-black text-black/70 font-mono tracking-tighter">
+                      <p className="text-sm font-black text-black/60 font-mono tracking-tighter">
                         {mpSeleccionada?.stock?.toFixed(2) || 0}{" "}
                         <span className="text-[11px] font-normal opacity-40 uppercase">
                           {mpSeleccionada?.unidadMedida}
@@ -456,11 +456,11 @@ const ModalProduccion = ({
 
                     <div className="flex items-baseline gap-4">
                       <div className="text-right">
-                        <p className="text-[10px] text-black/85 font-black uppercase tracking-widest leading-none font-mono">
-                          Restante Proyectado
+                        <p className="text-[10px] text-[var(--primary)] font-black uppercase tracking-widest leading-none font-mono">
+                          Proyección Final
                         </p>
                         <p
-                          className={`text-xl font-black ${excedeStock ? "text-red-700" : "text-emerald-400"} font-mono leading-none tracking-tighter mt-1`}
+                          className={`text-xl font-black ${excedeStock ? "text-red-600" : "text-[var(--primary)]"} font-mono leading-none tracking-tighter mt-1`}
                         >
                           {(
                             stockDisponibleReal -
@@ -471,9 +471,9 @@ const ModalProduccion = ({
                     </div>
                   </div>
 
-                  <div className="relative h-1.5 w-full bg-black/5 rounded-full overflow-hidden shadow-inner">
+                  <div className="relative h-1 w-full bg-purple-700/10 rounded-full overflow-hidden shadow-inner">
                     <div
-                      className={`h-full    shadow-[0_0_10px_rgba(168,85,247,0.3)] ${excedeStock ? "bg-red-700" : "bg-gradient-to-r from-purple-600 to-purple-400"}`}
+                      className={`h-full transition-all duration-500 shadow-[0_0_10px_rgba(168,85,247,0.3)] ${excedeStock ? "bg-red-600" : "bg-gradient-to-r from-purple-600 to-purple-400"}`}
                       style={{
                         width: `${Math.min(100, Math.max(0, ((stockDisponibleReal - (parseFloat(nuevoInsumo.cantidad) || 0)) / (mpSeleccionada?.stock || 1)) * 100))}%`,
                       }}
@@ -483,26 +483,26 @@ const ModalProduccion = ({
               )}
 
               {/* List - Minimalist & Delicate */}
-              <div className="bg-black/40 rounded-md border border-black/5 overflow-hidden shadow-2xl">
-                <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-white/[0.03] border-b border-black/5">
-                  <div className="col-span-6 text-[10px] font-black text-black/85 uppercase tracking-[0.2em]">
+              <div className="bg-purple-950/10 rounded-md border border-purple-700/20 overflow-hidden shadow-xl">
+                <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-black/10 border-b border-purple-700/10">
+                  <div className="col-span-6 text-[10px] font-black text-[var(--primary)]/50 uppercase tracking-[0.2em]">
                     Insumo Seleccionado
                   </div>
-                  <div className="col-span-3 text-[10px] font-black text-black/85 uppercase tracking-[0.2em] text-center">
+                  <div className="col-span-3 text-[10px] font-black text-[var(--primary)]/50 uppercase tracking-[0.2em] text-center">
                     Consumo
                   </div>
-                  <div className="col-span-3 text-[10px] font-black text-black/85 uppercase tracking-[0.2em] text-right">
+                  {/* <div className="col-span-3 text-[10px] font-black text-[var(--primary)]/50 uppercase tracking-[0.2em] text-right">
                     Saldo Final
-                  </div>
+                  </div> */}
                 </div>
 
-                <div className="max-h-[220px] overflow-y-auto custom-scrollbar divide-y divide-white/[0.03]">
+                <div className="max-h-[220px] overflow-y-auto custom-scrollbar divide-y divide-purple-700/5 bg-white">
                   {formData.insumos.length === 0 ? (
                     <div className="p-10 flex flex-col items-center justify-center text-center">
-                      <div className="w-12 h-12 rounded-full bg-white/[0.02] border border-dashed border-black/10 flex items-center justify-center mb-4 text-black/5 ">
+                      <div className="w-12 h-12 rounded-full bg-purple-300/10 border border-dashed border-purple-700/20 flex items-center justify-center mb-4 text-purple-700/20">
                         <MovimientoIcono size={24} />
                       </div>
-                      <p className="text-[12px] uppercase font-black tracking-[0.3em] text-black/10 italic">
+                      <p className="text-[12px] uppercase font-black tracking-[0.3em] text-purple-700 italic">
                         Sin materiales agregados
                       </p>
                     </div>
@@ -513,16 +513,15 @@ const ModalProduccion = ({
                       );
                       const stockFinal =
                         (mpRef?.stock || 0) - parseFloat(i.cantidad);
-                      const isLast = index === formData.insumos.length - 1;
 
                       return (
                         <div
                           key={i.codigoMateriaPrima}
-                          className={`grid grid-cols-12 gap-4 px-4 py-3.5 hover:bg-white/[0.02]  items-center group    `}
+                          className={`grid grid-cols-12 gap-4 px-4 py-3.5 hover:bg-purple-700/[0.02] items-center group transition-colors`}
                           style={{ animationDelay: `${index * 50}ms` }}
                         >
                           <div className="col-span-6 flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-md bg-purple-600/5 border border-purple-700/10 flex items-center justify-center text-purple-400  ">
+                            <div className="w-8 h-8 rounded-md bg-purple-600/5 border border-purple-700/10 flex items-center justify-center text-purple-600">
                               <span className="text-[12px] font-black">
                                 {index + 1}
                               </span>
@@ -531,38 +530,38 @@ const ModalProduccion = ({
                               <div className="text-[13px] font-bold text-black uppercase tracking-tight line-clamp-1">
                                 {i.nombre}
                               </div>
-                              <div className="text-[10px] font-black text-black/85 uppercase tracking-widest">
+                              <div className="text-[10px] font-black text-purple-600/80 uppercase tracking-widest">
                                 Insumo Base
                               </div>
                             </div>
                           </div>
 
                           <div className="col-span-3 text-center flex flex-col items-center">
-                            <span className="text-purple-400 font-black text-xs leading-none">
+                            <span className="text-purple-600 font-black text-[12px] leading-none">
                               {i.cantidad}
                             </span>
-                            <span className="text-[10px] font-bold text-black/20 uppercase font-mono mt-1">
+                            <span className="text-[10px] font-bold text-[var(--primary)]/80 uppercase font-mono mt-1">
                               {i.unidad}
                             </span>
                           </div>
 
                           <div className="col-span-3 flex items-center justify-end gap-3">
-                            <div className="text-right">
+                            {/* <div className="text-right">
                               <div
-                                className={`text-[13px] font-mono font-black leading-none ${stockFinal < 0 ? "text-red-700" : "text-black/40"}`}
+                                className={`text-[13px] font-mono font-black leading-none ${stockFinal < 0 ? "text-red-600" : "text-black/40"}`}
                               >
                                 {stockFinal.toFixed(2)}
                               </div>
-                              <div className="text-[9px] font-black text-black/85 uppercase tracking-widest mt-1">
+                              <div className="text-[9px] font-black text-purple-700/30 uppercase tracking-widest mt-1">
                                 Estimado
                               </div>
-                            </div>
+                            </div> */}
                             <button
                               type="button"
                               onClick={() =>
                                 handleEliminarInsumo(i.codigoMateriaPrima)
                               }
-                              className="w-7 h-7 flex items-center justify-center rounded-md bg-red-700/5 hover:bg-red-700/20 text-red-700/20 hover:text-red-700  border border-black/5 group-hover:opacity-100 sm:opacity-0"
+                              className="w-7 h-7 flex items-center justify-center rounded-md bg-red-600/5 hover:bg-red-600/20 text-red-600/30 hover:text-red-600 border border-red-600/10 transition-all opacity-0 group-hover:opacity-100"
                             >
                               <BorrarIcono size={12} />
                             </button>
@@ -604,13 +603,13 @@ const ModalProduccion = ({
 
       {/* Footer - Final Action */}
       <div
-        className={`${isStandalone ? "p-4 bg-black/20" : "p-5 md:p-6 bg-[#0a0a0a]"} border-t border-black/5 flex flex-col sm:flex-row gap-3 shrink-0`}
+        className={`${isStandalone ? "p-4 bg-black/5" : "p-5 md:p-6 bg-[#0a0a0a]"} border-t border-black/5 flex flex-col sm:flex-row gap-3 shrink-0`}
       >
         {!isStandalone && (
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 order-2 sm:order-1 bg-black/5 hover:bg-black/10 border border-black/10 text-black/85 hover:text-black font-black py-3 rounded-md  text-[12px] uppercase tracking-[0.2em] active:scale-90"
+            className="flex-1 order-2 sm:order-1 bg-purple-700/10 hover:bg-purple-700/20 border border-black/10 text-black/85 hover:text-black font-black py-3 rounded-md  text-[12px] uppercase tracking-[0.2em] active:scale-90"
           >
             Cancelar Operación
           </button>
@@ -622,7 +621,7 @@ const ModalProduccion = ({
             !formData.cantidadProducida ||
             formData.insumos.length === 0
           }
-          className={`${isStandalone ? "flex-1" : "flex-[2]"} order-1 sm:order-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed text-black font-black py-3 rounded-md  text-[12px] uppercase tracking-[0.25em] flex items-center justify-center gap-2.5 shadow-xl shadow-purple-900/20 active:scale-95 group/submit`}
+          className={`${isStandalone ? "flex-1" : "flex-[2]"} order-1 sm:order-2 bg-purple-600/10 border border-purple-600 text-purple-700/85 font-black py-3 rounded-md  text-[12px] uppercase tracking-[0.25em] flex items-center justify-center gap-2.5 active:scale-95 group/submit cursor-pointer hover:bg-purple-700/20`}
         >
           {isPending ? (
             <div className="w-4 h-4 border-2 border-black/20 border-t-white rounded-full " />

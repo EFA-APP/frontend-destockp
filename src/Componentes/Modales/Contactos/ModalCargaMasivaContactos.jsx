@@ -218,14 +218,14 @@ const ModalCargaMasivaContactos = ({ open, onClose, onExito }) => {
                 setFileData([]);
                 setError(null);
               }}
-              className={`p-3 rounded-xl border flex items-center gap-3  ${
+              className={`p-3 rounded-md border flex items-center gap-3  ${
                 entidadSeleccionada === ent.clave
                   ? "bg-[var(--primary)]/10 border-[var(--primary)] text-black shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)]"
                   : "bg-white/[0.02] border-black/5 text-black/40 hover:bg-black/5"
               }`}
             >
               <div
-                className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                className={`w-8 h-8 rounded-md flex items-center justify-center ${
                   entidadSeleccionada === ent.clave
                     ? "bg-[var(--primary)]/20 text-[var(--primary)]"
                     : "bg-black/5 text-black/20"
@@ -302,9 +302,9 @@ const ModalCargaMasivaContactos = ({ open, onClose, onExito }) => {
             {fileData.map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-4 bg-white/[0.03] p-3 rounded-xl border border-black/5 hover:bg-white/[0.06] "
+                className="flex items-center gap-4 bg-white/[0.03] p-3 rounded-md border border-black/5 hover:bg-white/[0.06] "
               >
-                <div className="w-8 h-8 rounded-lg bg-black/5 flex items-center justify-center border border-black/10 shrink-0">
+                <div className="w-8 h-8 rounded-md bg-black/5 flex items-center justify-center border border-black/10 shrink-0">
                   <CuentaIcono size={14} className="text-black/40" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -353,7 +353,7 @@ const ModalCargaMasivaContactos = ({ open, onClose, onExito }) => {
       <button
         onClick={handleSubmit}
         disabled={fileData.length === 0 || cargando}
-        className="flex items-center gap-3 px-8 py-2.5 bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:brightness-110 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed text-black rounded-xl font-black text-[13px] uppercase tracking-widest  shadow-xl shadow-[var(--primary)]/20 active:scale-95"
+        className="flex items-center gap-3 px-8 py-2.5 bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:brightness-110 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed text-black rounded-md font-black text-[13px] uppercase tracking-widest  shadow-xl shadow-[var(--primary)]/20 active:scale-95"
       >
         {cargando ? (
           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full " />

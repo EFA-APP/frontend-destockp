@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useObtenerMovimientos } from "../../../Backend/Articulos/queries/Movimientos/useObtenerMovimientos.query";
-import { useEliminarMovimiento } from "../../../Backend/Articulos/queries/Movimientos/useEliminarMovimiento.mutation";
 import { useAuthStore } from "../../../Backend/Autenticacion/store/authenticacion.store";
 import {
   CargandoIcono,
@@ -11,7 +10,6 @@ import {
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import ReporteMovimientosPDF from "./ReporteMovimientosPDF";
 import FechaInput from "../FechaInput/FechaInput";
-import ModalConfirmacion from "../ModalConfirmacion/ModalConfirmacion";
 import DataTable from "../DataTable/DataTable";
 import { ColumnasMovimientos } from "./ColumnasMovimientos";
 import { accionesMovimientos } from "./accionesMovimeintos";
@@ -22,7 +20,6 @@ const ListaMovimientos = ({
   filtroOrigen = null,
 }) => {
   const usuario = useAuthStore((state) => state.usuario);
-  const [movimientoAEliminar, setMovimientoAEliminar] = useState(null);
   const [busqueda, setBusqueda] = useState("");
 
   const formatDateForInput = (date) => {
@@ -57,9 +54,6 @@ const ListaMovimientos = ({
   const totalItems = response?.total || 0;
   const totalPaginas = Math.ceil(totalItems / (limite || 15));
 
-  const { mutate: eliminarMovimiento, isPending: isEliminando } =
-    useEliminarMovimiento();
-
   const movimientos = filtroOrigen
     ? rawMovimientos?.filter((m) => m.origenMovimiento === filtroOrigen)
     : rawMovimientos;
@@ -68,21 +62,6 @@ const ListaMovimientos = ({
     setFechaInicio("");
     setFechaFin("");
     setBusqueda("");
-  };
-
-  const handleEliminar = () => {
-    if (!movimientoAEliminar) return;
-
-    eliminarMovimiento(
-      {
-        codigoEmpresa: usuario?.codigoEmpresa,
-        codigoSecuencial: movimientoAEliminar.codigoSecuencial,
-        tipoArticulo: tipoArticulo,
-      },
-      {
-        onSuccess: () => setMovimientoAEliminar(null),
-      },
-    );
   };
 
   const formatFecha = (fechaStr) => {
@@ -139,12 +118,10 @@ const ListaMovimientos = ({
     <div className="pt-2">
       <DataTable
         datos={movimientos}
-        columnas={ColumnasMovimientos()}
-        acciones={accionesMovimientos({ onAnular: setMovimientoAEliminar })}
-        mostrarAcciones={true}
+        columnas={ColumnasMovimientos(busqueda)}
+        mostrarAcciones={false}
         loading={isLoading}
         mostrarBuscador={true}
-        todasExpandidas={true}
         busqueda={busqueda}
         setBusqueda={setBusqueda}
         placeholderBuscador="Buscar por artículo, usuario u observación..."
@@ -156,7 +133,26 @@ const ListaMovimientos = ({
                 Observaciones del Movimiento
               </span>
               <p className="text-[13px] text-[var(--text-theme)]/70 italic font-medium leading-relaxed">
-                "{mov.observacion}"
+                {busqueda ? (
+                  <span>
+                    {String(mov.observacion)
+                      .split(new RegExp(`(${busqueda})`, "gi"))
+                      .map((part, i) =>
+                        part.toLowerCase() === busqueda.toLowerCase() ? (
+                          <mark
+                            key={i}
+                            className="bg-yellow-400/40 text-[var(--primary)] px-0.5 rounded font-black italic"
+                          >
+                            {part}
+                          </mark>
+                        ) : (
+                          part
+                        ),
+                      )}
+                  </span>
+                ) : (
+                  `"${mov.observacion}"`
+                )}
               </p>
             </div>
           ) : null
@@ -219,21 +215,6 @@ const ListaMovimientos = ({
             </PDFDownloadLink>
           )
         }
-      />
-
-      {/* Confirmation Modal */}
-      <ModalConfirmacion
-        open={!!movimientoAEliminar}
-        onClose={() => setMovimientoAEliminar(null)}
-        onConfirm={handleEliminar}
-        isPending={isEliminando}
-        titulo="Eliminar Movimiento"
-        mensaje={
-          movimientoAEliminar?.origenMovimiento === "PRODUCCION"
-            ? "⚠️ Este es un movimiento de PRODUCCIÓN. Al eliminarlo se revertirá el stock del producto Y de todas las materias primas utilizadas. ¿Estás seguro?"
-            : `¿Estás seguro de que deseas eliminar este movimiento? El stock de ${movimientoAEliminar?.nombreArticulo} será revertido automáticamente.`
-        }
-        textoConfirmar="Eliminar y Revertir"
       />
     </div>
   );

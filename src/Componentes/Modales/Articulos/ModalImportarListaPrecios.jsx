@@ -14,8 +14,7 @@ const ModalImportarListaPrecios = ({ open, onClose, onExito }) => {
       />
 
       {/* Contenedor del Modal — compacto */}
-      <div className="relative w-full max-w-2xl max-h-[85vh] bg-[var(--surface)] border border-black/10 rounded-xl shadow-2xl overflow-hidden flex flex-col">
-
+      <div className="relative w-full max-w-2xl max-h-[85vh] bg-[var(--surface)] border border-black/10 rounded-md shadow-2xl overflow-hidden flex flex-col">
         {/* Header slim */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-black/5 bg-[var(--surface-hover)] shrink-0">
           <div className="flex items-center gap-2">

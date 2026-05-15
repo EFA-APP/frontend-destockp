@@ -4,7 +4,7 @@ const TarjetaMes = ({ mes, index, activo, onClick }) => {
   return (
     <button
       onClick={onClick}
-      className={`relative flex flex-col items-center justify-center p-3 rounded-xl border   group overflow-hidden ${
+      className={`relative flex flex-col items-center justify-center p-3 rounded-md border   group overflow-hidden ${
         activo
           ? "bg-[var(--primary)] border-[var(--primary)] shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] scale-[1.02]"
           : "bg-[var(--surface)] border-black/5 hover:border-black/20 hover:bg-white/[0.05]"

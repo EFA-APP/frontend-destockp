@@ -2,12 +2,9 @@ import React, { useEffect } from "react";
 import "./App.css";
 import { ContenedorAlerta } from "./Componentes/UI/Alertas/ContenedorAlerta";
 import Router from "./router/Router";
-import Cargador from "./Componentes/UI/Cargador/Cargador";
 import { useVerificarToken } from "./Backend/Autenticacion/queries/Usuario/useVerificarToken.query";
 import { useLocation } from "react-router-dom";
-import useCargadorStore from "./store/useCargadorStore";
 import { useAuthStore } from "./Backend/Autenticacion/store/authenticacion.store";
-import { ControladorVersiones } from "./Componentes/UI/ControladorVersiones/ControladorVersiones";
 
 const hexToHsl = (hex) => {
   if (!hex || typeof hex !== "string" || !hex.startsWith("#"))
@@ -60,7 +57,6 @@ const hexToHsl = (hex) => {
 
 export default function App() {
   const location = useLocation();
-  const { cargando, setCargando } = useCargadorStore((state) => state);
   const usuario = useAuthStore((state) => state.usuario);
 
   // Inicializamos el hook de verificación de token
@@ -84,17 +80,9 @@ export default function App() {
     }
   }, [usuario?.configuracionVisual]);
 
-  // 🔄 Detener loader en cada cambio de ruta
-  useEffect(() => {
-    setCargando(false);
-  }, [location.pathname, setCargando]);
-
   return (
     <>
-      {cargando && <div className="top-loading-bar" />}
-      <Cargador />
       <ContenedorAlerta />
-      <ControladorVersiones />
       <Router />
     </>
   );

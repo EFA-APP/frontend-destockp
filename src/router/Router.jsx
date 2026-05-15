@@ -14,10 +14,6 @@ const SeleccionarUnidad = lazy(() => import("../pages/SeleccionarUnidad"));
 const Configuracion = lazy(
   () => import("../Componentes/Secciones/Configuracion/Configuracion"),
 );
-const RolesPermisos = lazy(
-  () =>
-    import("../Componentes/Secciones/Configuracion/RolesPermisos/TablaUsuarioRoles/RolesPermisos"),
-);
 const Productos = lazy(
   () => import("../Componentes/Secciones/Articulos/Productos/Productos"),
 );
@@ -31,13 +27,13 @@ const Listados = lazy(
   () => import("../Componentes/Secciones/Ventas/Listados/Listados"),
 );
 
-const FacturasProveedor = lazy(
+const ListadoFacturasProveedores = lazy(
   () =>
     import("../Componentes/Secciones/Compras/FacturaProveedor/FacturaProveedor"),
 );
-const CrearFacturaProveedor = lazy(
+const RegistroFacturaProveedor = lazy(
   () =>
-    import("../Componentes/Secciones/Compras/CrearFacturaProveedor/CrearFacturaProveedor"),
+    import("../Componentes/Secciones/Compras/FacturasProveedores/FacturasProveedores"),
 );
 const PlanDeCuentas = lazy(
   () =>
@@ -45,7 +41,7 @@ const PlanDeCuentas = lazy(
 );
 const CrearPlanDeCuenta = lazy(
   () =>
-    import("../Componentes/Secciones/Contabilidad/CrearContabilidad/CrearPlanDeCuenta.jsx/CrearPlanDeCuenta"),
+    import("../Componentes/Secciones/Contabilidad/CrearContabilidad/CrearPlanDeCuenta"),
 );
 const Asientos = lazy(
   () => import("../Componentes/Secciones/Contabilidad/Asientos/Asientos"),
@@ -71,19 +67,17 @@ const CrearMateriaPrima = lazy(
 const Cuotas = lazy(
   () => import("../Componentes/Secciones/Escuela/Cuotas/Cuotas"),
 );
-const Recibos = lazy(
-  () => import("../Componentes/Secciones/Escuela/Recibos/Recibos"),
-);
-const CrearRecibo = lazy(
-  () =>
-    import("../Componentes/Secciones/Escuela/CrearEscuela/CrearRecibo/CrearRecibo"),
-);
+
 const CrearAsientos = lazy(
   () =>
     import("../Componentes/Secciones/Contabilidad/CrearContabilidad/CrearAsientos/CrearAsientos"),
 );
 const Balance = lazy(
   () => import("../Componentes/Secciones/Contabilidad/Balance/Balance"),
+);
+const ConfiguracionContable = lazy(
+  () =>
+    import("../Componentes/Secciones/Contabilidad/Configuracion/ConfiguracionContable"),
 );
 const Bienvenida = lazy(
   () => import("../Componentes/Secciones/Inicio/Bienvenida"),
@@ -92,10 +86,10 @@ const MisComprobantesAFIP = lazy(
   () =>
     import("../Componentes/Secciones/MisComprobantesAFIP/MisComprobantesAFIP"),
 );
-const CrearRolesPermisos = lazy(
-  () =>
-    import("../Componentes/Secciones/Configuracion/RolesPermisos/CrearRoles/CrearRolesPermisos"),
-);
+// const CrearRolesPermisos = lazy(
+//   () =>
+//     import("../Componentes/Secciones/Configuracion/RolesPermisos/CrearRoles/CrearRolesPermisos"),
+// );
 const Deposito = lazy(
   () => import("../Componentes/Secciones/Articulos/Deposito/Deposito"),
 );
@@ -125,18 +119,16 @@ const GestionMateriaPrima = lazy(
     import("../Componentes/Secciones/Articulos/MateriaPrima/GestionMateriaPrima"),
 );
 const ImportadorPrecios = lazy(
-  () => import("../Componentes/Secciones/Articulos/Importacion/ImportadorPrecios"),
+  () =>
+    import("../Componentes/Secciones/Articulos/Importacion/ImportadorPrecios"),
+);
+const Empresas = lazy(
+  () => import("../Componentes/Secciones/Sistema/Empresas"),
 );
 
 export default function Router() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center items-center h-screen bg-[var(--surface)] text-[var(--text-muted)]">
-          Cargando...
-        </div>
-      }
-    >
+    <Suspense>
       <Routes>
         {/* 🔓 RUTAS PÚBLICAS (Solo si NO está logueado) */}
         <Route element={<RutaPublica />}>
@@ -152,9 +144,6 @@ export default function Router() {
             {/* CONFIGURACION */}
             <Route element={<RutaProtegida />}>
               <Route path="configuracion" element={<Configuracion />} />
-              {/* <Route path="configuracion/roles" element={<RolesPermisos />} /> */}
-              {/* <Route path="configuracion/roles/nuevo" element={<CrearRolesPermisos />} /> */}
-              {/* <Route path="configuracion/roles/editar" element={<CrearRolesPermisos />} /> */}
             </Route>
 
             {/* INVENTARIO */}
@@ -237,20 +226,18 @@ export default function Router() {
             {/* COMPRAS */}
             <Route element={<RutaProtegida />}>
               <Route
-                path="compras/facturas-proveedores"
-                element={<FacturasProveedor />}
+                path="compras/listados-proveedor"
+                element={<ListadoFacturasProveedores />}
               />
               <Route
-                path="compras/facturas-proveedores/nueva"
-                element={<CrearFacturaProveedor />}
+                path="compras/factura-proveedor"
+                element={<RegistroFacturaProveedor />}
               />
             </Route>
 
             {/* ESCUELA */}
             <Route element={<RutaProtegida />}>
               <Route path="escuela/cuotas" element={<Cuotas />} />
-              <Route path="escuela/recibos" element={<Recibos />} />
-              <Route path="escuela/recibos/nuevo" element={<CrearRecibo />} />
             </Route>
 
             {/* CONTABILIDAD */}
@@ -271,6 +258,10 @@ export default function Router() {
               />
               <Route path="contabilidad/libro-mayor" element={<LibroMayor />} />
               <Route path="contabilidad/balance" element={<Balance />} />
+              <Route
+                path="contabilidad/configuracion"
+                element={<ConfiguracionContable />}
+              />
             </Route>
 
             {/* AFIP */}
@@ -279,6 +270,11 @@ export default function Router() {
                 path="comprobantes-afip"
                 element={<MisComprobantesAFIP />}
               />
+            </Route>
+
+            {/* SISTEMA */}
+            <Route element={<RutaProtegida />}>
+              <Route path="sistema/empresa" element={<Empresas />} />
             </Route>
 
             {/* <Route path="demo" element={<SistemaContable />} /> */}

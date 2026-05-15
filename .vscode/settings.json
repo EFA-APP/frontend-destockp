@@ -13,5 +13,6 @@
       "folderPath": "frontend\\src\\api\\hooks\\",
       "color": "foldercolorizer.color_cc33ff"
     }
-  ]
+  ],
+  "prisma.pinToPrisma6": true
 }

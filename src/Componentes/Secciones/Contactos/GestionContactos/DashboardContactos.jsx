@@ -43,7 +43,7 @@ const DashboardContactos = () => {
   return (
     <div className="flex flex-col h-screen bg-[var(--fill)] text-[var(--text-primary)] overflow-hidden p-4 lg:p-6 gap-4">
       <EncabezadoSeccion
-        ruta={modoAdmin ? "CONTACTOS / CONFIGURACIÓN" : "GESTIÓN DE CONTACTOS"}
+        ruta={modoAdmin ? "CONFIGURACIÓN" : "CONTACTOS"}
         icono={<CuentaIcono size={18} />}
       >
         <div className="flex items-center gap-3">
@@ -73,62 +73,61 @@ const DashboardContactos = () => {
         </div>
       </EncabezadoSeccion>
 
-      <div className="flex-1 flex gap-4 lg:gap-6 overflow-hidden">
-        {/* Sidebar Moderna */}
-        <div className="w-64 shrink-0 flex flex-col gap-1.5 bg-[var(--surface)] rounded-md border border-[var(--border-subtle)] p-4 overflow-y-auto custom-scrollbar shadow-sm">
-          <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] px-3 mb-3">
-            Entidades
-          </span>
-
-          {cargandoEntidades ? (
-            <div className="space-y-3 px-1">
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="h-10 bg-[var(--fill-secondary)] animate-pulse rounded-md"
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col gap-1">
-              {entidades.map((ent) => {
-                const isActive =
-                  entidadSeleccionada?.clave === ent.clave && !modoAdmin;
+      <div className="flex-1 flex flex-col gap-4 overflow-hidden">
+        {/* SISTEMA DE TABS HORIZONTAL PREMIUM */}
+        {!modoAdmin && (
+          <div className="flex items-center gap-2 p-1.5 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md shadow-sm overflow-x-auto no-scrollbar shrink-0">
+            {cargandoEntidades ? (
+              <div className="flex gap-2">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="w-32 h-9 bg-[var(--fill-secondary)] animate-pulse rounded-md"
+                  />
+                ))}
+              </div>
+            ) : (
+              entidades.map((ent) => {
+                const isActive = entidadSeleccionada?.clave === ent.clave;
                 return (
                   <button
                     key={ent.codigoSecuencial}
                     onClick={() => {
                       setEntidadSeleccionada(ent);
-                      setModoAdmin(false);
                       setFiltros((prev) => ({ ...prev, pagina: 1 }));
                     }}
-                    className={`w-full text-left px-4 py-3 rounded-md text-[12px] font-bold flex items-center justify-between group transition-all tracking-wide cursor-pointer ${
-                      isActive
-                        ? "bg-[var(--primary-subtle)] text-[var(--primary-emphasis)] border border-[var(--primary)]/20 shadow-sm"
-                        : "text-[var(--text-secondary)] hover:bg-[var(--fill-secondary)] hover:text-[var(--text-primary)] border border-transparent"
-                    }`}
+                    className={`
+                      relative px-6 py-2 rounded-md text-[11px] font-black uppercase tracking-[0.15em] transition-all duration-300 flex items-center gap-3 cursor-pointer whitespace-nowrap
+                      ${
+                        isActive
+                          ? "text-[var(--primary)]"
+                          : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--fill-secondary)]"
+                      }
+                    `}
                   >
-                    <div className="flex items-center gap-3">
+                    {isActive && (
                       <div
-                        className="w-2 h-2 rounded-full shadow-sm"
+                        className="absolute inset-0 bg-[var(--primary)]/5 rounded-md border border-[var(--primary)]/20"
                         style={{
-                          backgroundColor: ent.color || "var(--primary)",
+                          backgroundColor: `${ent.color || "var(--primary)"}10`,
+                          borderColor: `${ent.color || "var(--primary)"}30`,
                         }}
                       />
-                      <span className="uppercase">{ent.nombre}</span>
-                    </div>
-                    {isActive && (
-                      <div className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]" />
                     )}
+                    <div
+                      className="w-1.5 h-1.5 rounded-full shadow-sm"
+                      style={{ backgroundColor: ent.color || "var(--primary)" }}
+                    />
+                    <span className="relative z-10">{ent.nombre}</span>
                   </button>
                 );
-              })}
-            </div>
-          )}
-        </div>
+              })
+            )}
+          </div>
+        )}
 
         {/* Content Area Refinada */}
-        <div className="flex-1 bg-[var(--surface)] rounded-md border border-[var(--border-subtle)] overflow-hidden flex flex-col relative shadow-md">
+        <div className="flex-1 rounded-md flex flex-col ">
           {modoAdmin ? (
             <GestionEntidades />
           ) : (

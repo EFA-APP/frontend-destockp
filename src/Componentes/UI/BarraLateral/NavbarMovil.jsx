@@ -25,9 +25,7 @@ const NavbarMovil = () => {
   const setCargando = useCargadorStore((estado) => estado.setCargando);
 
   const manejarNavegacion = (ruta) => {
-    if (ruta && ruta !== "#" && location.pathname !== ruta) {
-      setCargando(true);
-    }
+    // Cerramos el menú inmediatamente para dar respuesta táctil
     cerrarMenu();
   };
 
@@ -182,7 +180,7 @@ const NavbarMovil = () => {
                   onClick={() => toggleMenu(item.id)}
                 >
                   <div
-                    className={`p-1 rounded-lg   ${isActive ? "text-[var(--primary)] scale-110" : "group-hover:bg-[var(--surface-hover)]"}`}
+                    className={`p-1 rounded-md   ${isActive ? "text-[var(--primary)] scale-110" : "group-hover:bg-[var(--surface-hover)]"}`}
                   >
                     {item.icono}
                   </div>
@@ -203,7 +201,7 @@ const NavbarMovil = () => {
                 onClick={() => manejarNavegacion(item.redireccion)}
               >
                 <div
-                  className={`p-1 rounded-lg   ${isActive ? "text-[var(--primary)] scale-110" : "group-hover:bg-[var(--surface-hover)]"}`}
+                  className={`p-1 rounded-md   ${isActive ? "text-[var(--primary)] scale-110" : "group-hover:bg-[var(--surface-hover)]"}`}
                 >
                   {item.icono}
                 </div>
@@ -228,7 +226,7 @@ const NavbarMovil = () => {
               onClick={() => toggleMenu("mas_opciones")}
             >
               <div
-                className={`p-1 rounded-lg   ${menuAbierto === "mas_opciones" || itemsExtras.some(esSeccionActiva) ? "text-[var(--primary)] scale-110" : "group-hover:bg-[var(--surface-hover)]"}`}
+                className={`p-1 rounded-md   ${menuAbierto === "mas_opciones" || itemsExtras.some(esSeccionActiva) ? "text-[var(--primary)] scale-110" : "group-hover:bg-[var(--surface-hover)]"}`}
               >
                 <LayoutGrid size={20} />
               </div>

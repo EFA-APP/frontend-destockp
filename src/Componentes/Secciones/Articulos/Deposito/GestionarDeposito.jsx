@@ -90,7 +90,7 @@ const GestionarDeposito = () => {
 
   return (
     <ContenedorSeccion className="px-3 py-4">
-      <div className="card no-inset no-ring bg-[var(--surface)] shadow-md rounded-xl mb-6 overflow-hidden">
+      <div className="card no-inset no-ring bg-[var(--surface)] shadow-md rounded-md mb-6 overflow-hidden">
         <EncabezadoSeccion
           ruta={esEdicion ? "Edición de Sucursal" : "Gestión de Sucursales"}
           icono={<InventarioIcono size={18} />}

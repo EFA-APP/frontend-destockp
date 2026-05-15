@@ -19,7 +19,7 @@ const Error = () => {
       {/* Botón */}
       <Link
         to="/panel"
-        className="px-6 py-3 rounded-lg font-semibold text-black  shadow-md"
+        className="px-6 py-3 rounded-md font-semibold text-black  shadow-md"
         style={{ backgroundColor: "#f29222" }}
       >
         <InicioIcono />

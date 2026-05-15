@@ -5,8 +5,11 @@ export const obtenerRolesApi = async (filtros) => {
     return respuesta.data;
 }
 
-export const crearRolesApi = async (data) => {
-    const respuesta = await axiosInitial.post(`/roles/crear`, data, { showLoader: false });
+export const crearRolesApi = async (codigoEmpresa, data) => {
+    const respuesta = await axiosInitial.post(`/roles/crear`, data, { 
+        params: { codigoEmpresa },
+        showLoader: false 
+    });
     return respuesta.data;
 }
 
@@ -15,12 +18,20 @@ export const asignarRolApi = async (data) => {
     return respuesta.data;
 }
 
-export const actualizarRolApi = async (codigo, data) => {
-    const respuesta = await axiosInitial.patch(`/roles/actualizar?codigo=${codigo}`, data, { showLoader: false, checkAuth: true });
+export const actualizarRolApi = async (codigo, codigoEmpresa, data) => {
+    const respuesta = await axiosInitial.patch(`/roles/actualizar`, data, { 
+        params: { codigo, codigoEmpresa },
+        showLoader: false, 
+        checkAuth: true 
+    });
     return respuesta.data;
 }
 
-export const eliminarRolApi = async (codigo) => {
-    const respuesta = await axiosInitial.delete(`/roles/${codigo}`, { showLoader: false, checkAuth: true });
+export const eliminarRolApi = async (codigo, codigoEmpresa) => {
+    const respuesta = await axiosInitial.delete(`/roles/${codigo}`, { 
+        params: { codigoEmpresa },
+        showLoader: false, 
+        checkAuth: true 
+    });
     return respuesta.data;
 }

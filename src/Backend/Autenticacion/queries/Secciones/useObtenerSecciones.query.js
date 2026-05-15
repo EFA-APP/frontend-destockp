@@ -3,12 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchObtenerSeccionesApi } from "../../api/Secciones/seccion.api";
 import { useAlertas } from "../../../../store/useAlertas";
 
-export const useObtenerSeccionesQuery = () => {
+export const useObtenerSeccionesQuery = (filtros = {}) => {
     const agregarAlerta = useAlertas((state) => state.agregarAlerta);
 
     const query = useQuery({
-        queryKey: ["obtenerSecciones"],
-        queryFn: fetchObtenerSeccionesApi,
+        queryKey: ["obtenerSecciones", filtros],
+        queryFn: () => fetchObtenerSeccionesApi(filtros),
         staleTime: 1000 * 60 * 60, // 1 hour
         cacheTime: 1000 * 60 * 60 * 2, // 2 hours
     });

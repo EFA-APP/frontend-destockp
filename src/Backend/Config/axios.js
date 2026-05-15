@@ -18,9 +18,10 @@ const createAxiosInstance = (baseURL) => {
   // 🔹 REQUEST
   instance.interceptors.request.use(
     (config) => {
-      const showLoader = config.showLoader !== undefined 
-        ? config.showLoader 
-        : config.method !== 'get';
+      const showLoader =
+        config.showLoader !== undefined
+          ? config.showLoader
+          : config.method !== "get";
 
       if (showLoader) {
         useCargadorStore.getState().setCargando(true);
@@ -33,16 +34,12 @@ const createAxiosInstance = (baseURL) => {
       }
 
       // 🏢 Contexto de Empresa y Unidad de Negocio
-      const { usuario, unidadActiva } = useAuthStore.getState();
+      const { usuario } = useAuthStore.getState();
 
       if (usuario?.codigoEmpresa) {
-        // if (usuario?.codigoEmpresa || unidadActiva?.codigoSecuencial) {
         config.params = {
-          ...(usuario?.codigoEmpresa && {
-            codigoEmpresa: usuario.codigoEmpresa,
-          }),
-          // ...(unidadActiva?.codigoSecuencial && { codigoUnidadNegocio: unidadActiva.codigoSecuencial }),
-          ...config.params,
+          codigoEmpresa: usuario.codigoEmpresa, // Valor por defecto (sesión)
+          ...config.params, // Sobrescribe con el valor explícito si existe
         };
       }
 
@@ -64,11 +61,6 @@ const createAxiosInstance = (baseURL) => {
       useCargadorStore.getState().setCargando(false);
 
       if (error.response?.status === 401) {
-        agregarAlerta({
-          type: "error",
-          message:
-            "Sesión expirada o inválida. Por favor, inicie sesión nuevamente.",
-        });
         useAuthStore.getState().clearAuth(); // 🔐 Limpiar estado y forzar redirección
       }
 

@@ -1,8 +1,7 @@
 import { axiosInitial } from "../../../Config";
 
-
 export const obtenerComprobantesPaginados = async (filtros) => {
-  const { data } = await axiosInitial.get("/ventas/obtener", {
+  const { data } = await axiosInitial.get("/comprobantes/obtener", {
     params: {
       ...filtros,
     },
@@ -11,13 +10,21 @@ export const obtenerComprobantesPaginados = async (filtros) => {
   return data;
 };
 
-export const generarComprobante = async ({ dto, codigoEmpresa, codigoUnidadNegocio }) => {
-  const { data } = await axiosInitial.post("/ventas/generar-comprobante", dto, {
-    params: {
+export const generarComprobante = async ({
+  dto,
+  codigoEmpresa,
+  codigoUnidadNegocio,
+}) => {
+  const { data } = await axiosInitial.post(
+    "/comprobantes/generar-comprobante",
+    dto,
+    {
+      params: {
         codigoEmpresa,
-        codigoUnidadNegocio
+        codigoUnidadNegocio,
+      },
+      showLoader: false,
     },
-    showLoader: false,
-  });
+  );
   return data;
 };

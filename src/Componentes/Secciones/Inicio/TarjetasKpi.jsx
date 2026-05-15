@@ -30,7 +30,7 @@ const TarjetaKpi = ({
   const current = trendStyles[trend || "neutral"];
 
   return (
-    <div className="relative overflow-hidden rounded-xl bg-[var(--surface)] p-4 border border-[var(--border-subtle)] shadow-sm hover:border-[var(--border-medium)] ">
+    <div className="relative overflow-hidden rounded-md bg-[var(--surface)] p-4 border border-[var(--border-subtle)] shadow-sm hover:border-[var(--border-medium)] ">
       {/* CONTENIDO */}
       <div className="relative z-10 flex flex-col h-full">
         {/* Header */}
@@ -38,7 +38,7 @@ const TarjetaKpi = ({
           <div className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
             {title}
           </div>
-          <div className="p-1.5 rounded-lg bg-[var(--surface-hover)] text-[var(--primary)] border border-[var(--border-subtle)]">
+          <div className="p-1.5 rounded-md bg-[var(--surface-hover)] text-[var(--primary)] border border-[var(--border-subtle)]">
             {React.isValidElement(icon)
               ? React.cloneElement(icon, { size: 14 })
               : icon}

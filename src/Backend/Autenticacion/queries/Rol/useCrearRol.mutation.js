@@ -7,7 +7,7 @@ export const useCrearRol = () => {
     const agregarAlerta = useAlertas((state) => state.agregarAlerta);
 
     return useMutation({
-        mutationFn: crearRolesApi,
+        mutationFn: ({ codigoEmpresa, data }) => crearRolesApi(codigoEmpresa, data),
         onSuccess: () => {
             queryClient.invalidateQueries(["roles"]);
             agregarAlerta({

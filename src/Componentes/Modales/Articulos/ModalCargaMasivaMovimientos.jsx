@@ -5,7 +5,13 @@ import { useObtenerProductos } from "../../../Backend/Articulos/queries/Producto
 import { useObtenerMateriasPrimas } from "../../../Backend/Articulos/queries/MateriaPrima/useObtenerMateriasPrimas.query";
 import ModalDetalleBase from "../../UI/ModalDetalleBase/ModalDetalleBase";
 import ModalDetalle from "../../UI/ModalDetalleBase/ModalDetalle";
-import { GuardarIcono, MovimientoIcono, ProduccionIcono, AgregarIcono, BuscadorIcono } from "../../../assets/Icons";
+import {
+  GuardarIcono,
+  MovimientoIcono,
+  ProduccionIcono,
+  AgregarIcono,
+  BuscadorIcono,
+} from "../../../assets/Icons";
 import { Trash2, Package, Plus, ChevronRight, AlertCircle } from "lucide-react";
 
 const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
@@ -18,12 +24,15 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
 
   const allItems = useMemo(() => {
     if (tipo === "PRODUCTO") {
-      return Array.isArray(queryProductos.data?.data) ? queryProductos.data.data : [];
+      return Array.isArray(queryProductos.data?.data)
+        ? queryProductos.data.data
+        : [];
     } else {
-      return Array.isArray(queryMateriasPrimas.data) ? queryMateriasPrimas.data : [];
+      return Array.isArray(queryMateriasPrimas.data)
+        ? queryMateriasPrimas.data
+        : [];
     }
   }, [tipo, queryProductos.data, queryMateriasPrimas.data]);
-
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
@@ -38,11 +47,17 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
   // Resetear origen según el tipo de movimiento global
   useEffect(() => {
     if (globalConfig.tipoMovimiento === "AJUSTE") {
-      setGlobalConfig(prev => ({ ...prev, origenMovimiento: "AJUSTE_MANUAL" }));
+      setGlobalConfig((prev) => ({
+        ...prev,
+        origenMovimiento: "AJUSTE_MANUAL",
+      }));
     } else if (globalConfig.tipoMovimiento === "EGRESO") {
-      setGlobalConfig(prev => ({ ...prev, origenMovimiento: "VENTA" }));
+      setGlobalConfig((prev) => ({ ...prev, origenMovimiento: "VENTA" }));
     } else {
-      setGlobalConfig(prev => ({ ...prev, origenMovimiento: tipo === "PRODUCTO" ? "PRODUCCION" : "DEPOSITO" }));
+      setGlobalConfig((prev) => ({
+        ...prev,
+        origenMovimiento: tipo === "PRODUCTO" ? "PRODUCCION" : "DEPOSITO",
+      }));
     }
   }, [globalConfig.tipoMovimiento, tipo]);
 
@@ -50,33 +65,45 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
     if (!searchTerm) return [];
     const term = searchTerm.toLowerCase();
     return allItems
-      .filter(item =>
-        (item.nombre?.toLowerCase().includes(term) || String(item.codigoSecuencial).includes(term)) &&
-        !selectedItems.find(selected => selected.codigoSecuencial === item.codigoSecuencial)
+      .filter(
+        (item) =>
+          (item.nombre?.toLowerCase().includes(term) ||
+            String(item.codigoSecuencial).includes(term)) &&
+          !selectedItems.find(
+            (selected) => selected.codigoSecuencial === item.codigoSecuencial,
+          ),
       )
       .slice(0, 5); // Limitar resultados sugeridos
   }, [searchTerm, allItems, selectedItems]);
 
   const handleAddItem = (item) => {
-    setSelectedItems(prev => [...prev, { ...item, cantidadCarga: "" }]);
+    setSelectedItems((prev) => [...prev, { ...item, cantidadCarga: "" }]);
     setSearchTerm("");
   };
 
   const handleRemoveItem = (codigo) => {
-    setSelectedItems(prev => prev.filter(item => item.codigoSecuencial !== codigo));
+    setSelectedItems((prev) =>
+      prev.filter((item) => item.codigoSecuencial !== codigo),
+    );
   };
 
   const handleUpdateQuantity = (codigo, value) => {
-    setSelectedItems(prev => prev.map(item =>
-      item.codigoSecuencial === codigo ? { ...item, cantidadCarga: value } : item
-    ));
+    setSelectedItems((prev) =>
+      prev.map((item) =>
+        item.codigoSecuencial === codigo
+          ? { ...item, cantidadCarga: value }
+          : item,
+      ),
+    );
   };
 
   const handleSubmit = async () => {
     if (selectedItems.length === 0 || processing) return;
 
     // Validar que todos tengan cantidad
-    const invalid = selectedItems.some(item => !item.cantidadCarga || parseFloat(item.cantidadCarga) <= 0);
+    const invalid = selectedItems.some(
+      (item) => !item.cantidadCarga || parseFloat(item.cantidadCarga) <= 0,
+    );
     if (invalid) return;
 
     setProcessing(true);
@@ -113,11 +140,18 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
       {/* Configuración Global */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-black/5 p-4 rounded-2xl border border-black/10">
         <div className="space-y-1.5">
-          <label className="text-[13px] font-bold text-black/50 uppercase ml-1">Tipo de Movimiento</label>
+          <label className="text-[13px] font-bold text-black/50 uppercase ml-1">
+            Tipo de Movimiento
+          </label>
           <select
             value={globalConfig.tipoMovimiento}
-            onChange={(e) => setGlobalConfig(prev => ({ ...prev, tipoMovimiento: e.target.value }))}
-            className="w-full bg-[#1a1c1e] border border-black/10 rounded-xl px-4 py-2.5 text-sm text-black focus:outline-none focus:border-amber-500/50  cursor-pointer"
+            onChange={(e) =>
+              setGlobalConfig((prev) => ({
+                ...prev,
+                tipoMovimiento: e.target.value,
+              }))
+            }
+            className="w-full bg-[#1a1c1e] border border-black/10 rounded-md px-4 py-2.5 text-sm text-black focus:outline-none focus:border-amber-500/50  cursor-pointer"
           >
             <option value="INGRESO">Ingreso (+)</option>
             <option value="EGRESO">Egreso (-)</option>
@@ -126,11 +160,18 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[13px] font-bold text-black/50 uppercase ml-1">Origen / Destino</label>
+          <label className="text-[13px] font-bold text-black/50 uppercase ml-1">
+            Origen / Destino
+          </label>
           <select
             value={globalConfig.origenMovimiento}
-            onChange={(e) => setGlobalConfig(prev => ({ ...prev, origenMovimiento: e.target.value }))}
-            className="w-full bg-[#1a1c1e] border border-black/10 rounded-xl px-4 py-2.5 text-sm text-black focus:outline-none focus:border-amber-500/50  cursor-pointer"
+            onChange={(e) =>
+              setGlobalConfig((prev) => ({
+                ...prev,
+                origenMovimiento: e.target.value,
+              }))
+            }
+            className="w-full bg-[#1a1c1e] border border-black/10 rounded-md px-4 py-2.5 text-sm text-black focus:outline-none focus:border-amber-500/50  cursor-pointer"
           >
             {globalConfig.tipoMovimiento === "INGRESO" && (
               <>
@@ -152,13 +193,20 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
         </div>
 
         <div className="md:col-span-2 space-y-1.5">
-          <label className="text-[13px] font-bold text-black/50 uppercase ml-1">Observación General (Opcional)</label>
+          <label className="text-[13px] font-bold text-black/50 uppercase ml-1">
+            Observación General (Opcional)
+          </label>
           <textarea
             value={globalConfig.observacion}
-            onChange={(e) => setGlobalConfig(prev => ({ ...prev, observacion: e.target.value }))}
+            onChange={(e) =>
+              setGlobalConfig((prev) => ({
+                ...prev,
+                observacion: e.target.value,
+              }))
+            }
             rows="1"
             placeholder="Razón del movimiento masivo..."
-            className="w-full bg-[#1a1c1e] border border-black/10 rounded-xl px-4 py-2.5 text-sm text-black focus:outline-none focus:border-amber-500/50  resize-none"
+            className="w-full bg-[#1a1c1e] border border-black/10 rounded-md px-4 py-2.5 text-sm text-black focus:outline-none focus:border-amber-500/50  resize-none"
           />
         </div>
       </div>
@@ -179,19 +227,24 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
         {/* Sugerencias */}
         {filteredItems.length > 0 && (
           <div className="absolute z-50 left-0 right-0 mt-2 bg-[#1a1c1e] border border-black/10 rounded-2xl shadow-2xl overflow-hidden    ">
-            {filteredItems.map(item => (
+            {filteredItems.map((item) => (
               <button
                 key={item.codigoSecuencial}
                 onClick={() => handleAddItem(item)}
                 className="w-full flex items-center justify-between px-4 py-3 hover:bg-black/5  border-b border-black/5 last:border-0 text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                  <div className="w-8 h-8 rounded-md bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
                     <Package size={14} className="text-amber-500" />
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-black">{item.nombre}</div>
-                    <div className="text-[12px] text-black/40 font-bold uppercase tracking-widest">#{item.codigoSecuencial} • Stock: {item.stock} {item.unidadMedida}</div>
+                    <div className="text-sm font-bold text-black">
+                      {item.nombre}
+                    </div>
+                    <div className="text-[12px] text-black/40 font-bold uppercase tracking-widest">
+                      #{item.codigoSecuencial} • Stock: {item.stock}{" "}
+                      {item.unidadMedida}
+                    </div>
                   </div>
                 </div>
                 <Plus size={18} className="text-amber-500" />
@@ -206,8 +259,12 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
         {selectedItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-black/20 border-2 border-dashed border-black/5 rounded-3xl">
             <Package size={48} strokeWidth={1} className="mb-4 opacity-20" />
-            <p className="text-sm font-bold uppercase tracking-widest">No hay items seleccionados</p>
-            <p className="text-[12px] uppercase tracking-[0.2em] mt-1">Usa el buscador para añadir artículos</p>
+            <p className="text-sm font-bold uppercase tracking-widest">
+              No hay items seleccionados
+            </p>
+            <p className="text-[12px] uppercase tracking-[0.2em] mt-1">
+              Usa el buscador para añadir artículos
+            </p>
           </div>
         ) : (
           selectedItems.map((item) => (
@@ -216,11 +273,17 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
               className="group flex items-center gap-4 bg-black/5 hover:bg-white/[0.08] p-4 rounded-2xl border border-black/10    "
             >
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-bold text-black truncate">{item.nombre}</div>
+                <div className="text-sm font-bold text-black truncate">
+                  {item.nombre}
+                </div>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-[12px] text-amber-500 font-bold uppercase tracking-widest">#{item.codigoSecuencial}</span>
+                  <span className="text-[12px] text-amber-500 font-bold uppercase tracking-widest">
+                    #{item.codigoSecuencial}
+                  </span>
                   <span className="text-[12px] text-black/30">•</span>
-                  <span className="text-[12px] text-black/40 font-medium">Stock: {item.stock} {item.unidadMedida}</span>
+                  <span className="text-[12px] text-black/40 font-medium">
+                    Stock: {item.stock} {item.unidadMedida}
+                  </span>
                 </div>
               </div>
 
@@ -229,9 +292,14 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
                   <input
                     type="number"
                     value={item.cantidadCarga}
-                    onChange={(e) => handleUpdateQuantity(item.codigoSecuencial, e.target.value)}
+                    onChange={(e) =>
+                      handleUpdateQuantity(
+                        item.codigoSecuencial,
+                        e.target.value,
+                      )
+                    }
                     placeholder="Cant."
-                    className="w-24 bg-black/40 border border-black/10 rounded-xl px-3 py-2 text-sm text-black focus:outline-none focus:border-amber-500/50 text-center font-bold "
+                    className="w-24 bg-black/40 border border-black/10 rounded-md px-3 py-2 text-sm text-black focus:outline-none focus:border-amber-500/50 text-center font-bold "
                   />
                   {!item.cantidadCarga && (
                     <div className="absolute -top-1 -right-1">
@@ -242,7 +310,7 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
 
                 <button
                   onClick={() => handleRemoveItem(item.codigoSecuencial)}
-                  className="p-2 text-black/20 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg "
+                  className="p-2 text-black/20 hover:text-rose-500 hover:bg-rose-500/10 rounded-md "
                 >
                   <Trash2 size={18} />
                 </button>
@@ -257,7 +325,8 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
   const footer = (
     <div className="flex items-center justify-between w-full">
       <div className="text-[12px] font-black uppercase tracking-[0.2em] text-black/30">
-        {selectedItems.length} {selectedItems.length === 1 ? 'Artículo' : 'Artículos'}
+        {selectedItems.length}{" "}
+        {selectedItems.length === 1 ? "Artículo" : "Artículos"}
       </div>
       <div className="flex gap-3">
         <button
@@ -269,8 +338,14 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
         </button>
         <button
           onClick={handleSubmit}
-          disabled={processing || selectedItems.length === 0 || selectedItems.some(i => !i.cantidadCarga || parseFloat(i.cantidadCarga) <= 0)}
-          className="flex items-center gap-3 px-8 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed text-black rounded-xl font-black text-[13px] uppercase tracking-widest  shadow-xl shadow-amber-500/20 active:scale-95"
+          disabled={
+            processing ||
+            selectedItems.length === 0 ||
+            selectedItems.some(
+              (i) => !i.cantidadCarga || parseFloat(i.cantidadCarga) <= 0,
+            )
+          }
+          className="flex items-center gap-3 px-8 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed text-black rounded-md font-black text-[13px] uppercase tracking-widest  shadow-xl shadow-amber-500/20 active:scale-95"
         >
           {processing ? (
             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full " />

@@ -27,3 +27,16 @@ export const ImportarProductosApi = async (productos) => {
     const respuesta = await axiosInitial.post(`/producto/importar`, productos, { showLoader: true });
     return respuesta.data;
 }
+
+export const CrearConfiguracionCamposApi = async (data, params = {}) => {
+    const respuesta = await axiosInitial.post(`/producto/configuracion/crear`, data, { 
+        params,
+        showLoader: false 
+    });
+    return respuesta.data;
+}
+
+export const ActualizarConfiguracionCampoApi = async (data) => {
+    const respuesta = await axiosInitial.patch(`/producto/configuracion/actualizar`, data, { showLoader: false });
+    return respuesta.data;
+}

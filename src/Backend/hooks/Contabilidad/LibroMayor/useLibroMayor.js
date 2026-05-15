@@ -1,127 +1,63 @@
-import { useEffect, useMemo, useState } from "react";
-import { usePersistentState } from "../../../../hooks/usePersistentState";
+import { useState, useCallback, useEffect } from "react";
+import { reportesContablesApi } from "../../../Contabilidad/api/reportes.api";
+import { useAlertas } from "../../../../store/useAlertas";
+import { useAuthStore } from "../../../Autenticacion/store/authenticacion.store";
 
 export const useLibroMayor = () => {
-  const [asientos, setAsientos] = useState([]);
-  const [fechaDesde, setFechaDesde] = useState("2025-01-01");
-  const [fechaHasta, setFechaHasta] = useState("2025-01-31");
-  const [busqueda, setBusqueda] = usePersistentState("libro_mayor_busqueda", "");
+  const { usuario } = useAuthStore();
+  const codigoEmpresa = usuario?.codigoEmpresa;
+
+  const [codigoCuenta, setCodigoCuenta] = useState(null);
+  const [codigoContacto, setCodigoContacto] = useState(null);
+  const [datosMayor, setDatosMayor] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [fechaDesde, setFechaDesde] = useState(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - 3);
+    return d.toISOString().split("T")[0];
+  });
+  const [fechaHasta, setFechaHasta] = useState(() =>
+    new Date().toISOString().split("T")[0],
+  );
+  const { agregarAlerta } = useAlertas();
+
+  const cargarLibroMayor = useCallback(async () => {
+    if (!codigoCuenta || !codigoEmpresa) return;
+
+    setLoading(true);
+    try {
+      const data = await reportesContablesApi.obtenerLibroMayor({
+        codigoEmpresa,
+        codigoCuentaContable: Number(codigoCuenta),
+        codigoContacto: codigoContacto ? Number(codigoContacto) : undefined,
+        fechaDesde: fechaDesde || undefined,
+        fechaHasta: fechaHasta || undefined,
+      });
+      setDatosMayor(data);
+    } catch (error) {
+      agregarAlerta({ type: "error", message: "Error al cargar el libro mayor" });
+    } finally {
+      setLoading(false);
+    }
+  }, [codigoCuenta, codigoContacto, codigoEmpresa, fechaDesde, fechaHasta, agregarAlerta]);
 
   useEffect(() => {
-    setAsientos([
-      {
-        id: 1,
-        fecha: "2025-01-10",
-        descripcion: "Factura B 00001-00000123",
-        movimientos: [
-          { cuenta: "1.1.01.001", nombreCuenta: "Caja", debe: 121, haber: 0 },
-          { cuenta: "4.1.01.001", nombreCuenta: "Ventas", debe: 0, haber: 100 },
-          {
-            cuenta: "2.1.05.001",
-            nombreCuenta: "IVA Débito Fiscal",
-            debe: 0,
-            haber: 21,
-          },
-        ],
-      },
-      {
-        id: 2,
-        fecha: "2025-01-15",
-        descripcion: "Factura A 00002-00000456",
-        movimientos: [
-          {
-            cuenta: "5.1.01.001",
-            nombreCuenta: "Compras",
-            debe: 200,
-            haber: 0,
-          },
-          {
-            cuenta: "1.1.04.001",
-            nombreCuenta: "IVA Crédito Fiscal",
-            debe: 42,
-            haber: 0,
-          },
-          {
-            cuenta: "2.1.01.001",
-            nombreCuenta: "Proveedores",
-            debe: 0,
-            haber: 242,
-          },
-        ],
-      },
-    ]);
-  }, []);
-
-  // ─────────────────────────────────────
-  // Asientos filtrados por fecha
-  // ─────────────────────────────────────
-const asientosFiltrados = useMemo(() => {
-  const busq = busqueda.toLowerCase();
-
-  return asientos.filter((a) => {
-    // 🔍 Coincidencia por texto
-    const coincideBusqueda =
-      !busq ||
-      a.descripcion.toLowerCase().includes(busq) ||
-      a.movimientos.some(
-        (m) =>
-          m.nombreCuenta.toLowerCase().includes(busq) ||
-          m.cuenta.toLowerCase().includes(busq)
-      );
-
-    // 📅 Filtro por fecha
-    const fechaFactura = new Date(a.fecha);
-    const desdeValida = !fechaDesde || fechaFactura >= new Date(fechaDesde);
-    const hastaValida = !fechaHasta || fechaFactura <= new Date(fechaHasta);
-
-    return coincideBusqueda && desdeValida && hastaValida;
-  });
-}, [asientos, fechaDesde, fechaHasta, busqueda]);
-
-
-  // ─────────────────────────────────────
-  // Agrupar por cuenta (LIBRO MAYOR)
-  // ─────────────────────────────────────
-  const cuentas = useMemo(() => {
-    const mapa = {};
-
-    asientosFiltrados.forEach((asiento) => {
-      asiento.movimientos.forEach((mov) => {
-        if (!mapa[mov.cuenta]) {
-          mapa[mov.cuenta] = {
-            cuenta: mov.cuenta,
-            nombreCuenta: mov.nombreCuenta,
-            movimientos: [],
-            totalDebe: 0,
-            totalHaber: 0,
-          };
-        }
-
-        mapa[mov.cuenta].movimientos.push({
-          fecha: asiento.fecha,
-          descripcion: asiento.descripcion,
-          debe: mov.debe,
-          haber: mov.haber,
-        });
-
-        mapa[mov.cuenta].totalDebe += mov.debe;
-        mapa[mov.cuenta].totalHaber += mov.haber;
-      });
-    });
-
-    return Object.values(mapa).map((c) => ({
-      ...c,
-      saldo: c.totalDebe - c.totalHaber,
-    }));
-  }, [asientosFiltrados]);
+    if (codigoCuenta) {
+      cargarLibroMayor();
+    }
+  }, [codigoCuenta, codigoContacto, fechaDesde, fechaHasta, cargarLibroMayor]);
 
   return {
-    cuentas,
+    codigoCuenta,
+    setCodigoCuenta,
+    codigoContacto,
+    setCodigoContacto,
+    datosMayor,
+    loading,
     fechaDesde,
     setFechaDesde,
     fechaHasta,
     setFechaHasta,
-    busqueda,
-    setBusqueda,
+    recargar: cargarLibroMayor,
   };
 };

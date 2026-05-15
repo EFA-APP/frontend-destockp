@@ -1,160 +1,68 @@
-// useLibroDiario.js
-import { useEffect, useMemo, useState } from "react";
-import { usePersistentState } from "../../../../hooks/usePersistentState";
+import { useState, useCallback, useEffect } from "react";
+import { listarAsientos } from "../../../Contabilidad/api/asientos.api";
+import { useAlertas } from "../../../../store/useAlertas";
+import { useAuthStore } from "../../../Autenticacion/store/authenticacion.store";
 
 export const useLibroDiario = () => {
+  const { usuario } = useAuthStore();
+  const codigoEmpresa = usuario?.codigoEmpresa;
+  const { agregarAlerta } = useAlertas();
+
   const [loading, setLoading] = useState(false);
   const [asientos, setAsientos] = useState([]);
-  const [busqueda, setBusqueda] = usePersistentState("libro_diario_busqueda", "");
-
-  const [fechaDesde, setFechaDesde] = useState("2025-01-01");
-  const [fechaHasta, setFechaHasta] = useState("2025-01-31");
+  const [fechaDesde, setFechaDesde] = useState(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - 1);
+    return d.toISOString().split("T")[0];
+  });
+  const [fechaHasta, setFechaHasta] = useState(() =>
+    new Date().toISOString().split("T")[0],
+  );
   const [origen, setOrigen] = useState("TODOS");
 
-  // ─────────────────────────────────────
-  // Simulación de backend
-  // ─────────────────────────────────────
-  useEffect(() => {
+  const cargarAsientos = useCallback(async () => {
+    if (!codigoEmpresa) return;
+
     setLoading(true);
-
-    setTimeout(() => {
-      setAsientos([
-        {
-          id: 1,
-          fecha: "2025-01-10",
-          descripcion: "Factura B 00001-00000123",
-          origen: "VENTA",
-          referencia: "FAC-123",
-          movimientos: [
-            { cuenta: "1.1.01.001", nombreCuenta: "Caja", debe: 121, haber: 0 },
-            {
-              cuenta: "4.1.01.001",
-              nombreCuenta: "Ventas",
-              debe: 0,
-              haber: 102,
-            },
-            {
-              cuenta: "2.1.05.001",
-              nombreCuenta: "IVA Débito Fiscal",
-              debe: 0,
-              haber: 21,
-            },
-          ],
-        },
-        {
-          id: 2,
-          fecha: "2025-01-15",
-          descripcion: "Factura A 00002-00000456",
-          origen: "COMPRA",
-          referencia: "COM-456",
-          movimientos: [
-            {
-              cuenta: "5.1.01.001",
-              nombreCuenta: "Compras",
-              debe: 200,
-              haber: 0,
-            },
-            {
-              cuenta: "1.1.04.001",
-              nombreCuenta: "IVA Crédito Fiscal",
-              debe: 42,
-              haber: 0,
-            },
-            {
-              cuenta: "2.1.01.001",
-              nombreCuenta: "Proveedores",
-              debe: 0,
-              haber: 242,
-            },
-          ],
-        },
-        {
-          id: 3,
-          fecha: "2025-01-20",
-          descripcion: "Ajuste por diferencia de cambio",
-          origen: "MANUAL",
-          referencia: "AJ-001",
-          movimientos: [
-            {
-              cuenta: "6.2.01.001",
-              nombreCuenta: "Diferencia de cambio",
-              debe: 50,
-              haber: 0,
-            },
-            {
-              cuenta: "1.1.02.001",
-              nombreCuenta: "Banco",
-              debe: 0,
-              haber: 50,
-            },
-          ],
-        },
-      ]);
-
+    try {
+      const data = await listarAsientos({
+        codigoEmpresa,
+        origenModulo: origen,
+        fechaDesde,
+        fechaHasta: fechaHasta
+          ? (() => {
+              const d = new Date(fechaHasta);
+              d.setDate(d.getDate() + 1);
+              return d.toISOString().split("T")[0];
+            })()
+          : undefined,
+      });
+      setAsientos(data);
+    } catch (error) {
+      agregarAlerta({ type: "error", message: "Error al cargar el libro diario" });
+    } finally {
       setLoading(false);
-    }, 500);
-  }, []);
+    }
+  }, [codigoEmpresa, origen, fechaDesde, fechaHasta, agregarAlerta]);
 
-  // ─────────────────────────────────────
-  // Filtros
-  // ─────────────────────────────────────
-  const asientosFiltrados = useMemo(() => {
-    return asientos.filter((a) => {
-      const dentroRango = a.fecha >= fechaDesde && a.fecha <= fechaHasta;
-      const coincideOrigen = origen === "TODOS" || a.origen === origen;
-      return dentroRango && coincideOrigen;
-    });
-  }, [asientos, fechaDesde, fechaHasta, origen]);
+  useEffect(() => {
+    cargarAsientos();
+  }, [cargarAsientos]);
 
-  // ─────────────────────────────────────
-  // Movimientos planos (para la tabla)
-  // ─────────────────────────────────────
-  const movimientos = useMemo(() => {
-    return asientosFiltrados.flatMap((asiento) =>
-      asiento.movimientos.map((mov, index) => ({
-        id: `${asiento.id}-${index}`,
-        fecha: asiento.fecha,
-        asientoId: asiento.id,
-        descripcion: asiento.descripcion,
-        origen: asiento.origen,
-        referencia: asiento.referencia,
-        cuenta: mov.cuenta,
-        nombreCuenta: mov.nombreCuenta,
-        debe: mov.debe,
-        haber: mov.haber,
-      }))
-    );
-  }, [asientosFiltrados]);
-
-  // ─────────────────────────────────────
-  // Totales contables
-  // ─────────────────────────────────────
-  const totales = useMemo(() => {
-    return movimientos.reduce(
-      (acc, mov) => {
-        acc.debe += mov.debe;
-        acc.haber += mov.haber;
-        return acc;
-      },
-      { debe: 0, haber: 0 }
-    );
-  }, [movimientos]);
-
-  // ─────────────────────────────────────
-  // Acciones
-  // ─────────────────────────────────────
-  const manejarDetalle = (asientoId) => {
-    const asiento = asientos.find((a) => a.id === asientoId);
-    console.log("Detalle del asiento:", asiento);
-  };
-
-  const exportarExcel = () => {
-    console.log("Exportando libro diario...");
-  };
+  const totales = asientos.reduce(
+    (acc, asiento) => {
+      (asiento.detalles || []).forEach((mov) => {
+        acc.debe += Number(mov.debe) || 0;
+        acc.haber += Number(mov.haber) || 0;
+      });
+      return acc;
+    },
+    { debe: 0, haber: 0 },
+  );
 
   return {
     loading,
-    asientos: asientosFiltrados,
+    asientos,
     fechaDesde,
     setFechaDesde,
     fechaHasta,
@@ -162,7 +70,6 @@ export const useLibroDiario = () => {
     origen,
     setOrigen,
     totales,
-    manejarDetalle,
-    exportarExcel,
+    recargar: cargarAsientos,
   };
 };

@@ -12,7 +12,7 @@ const EncabezadoSeccion = ({
   subTitulo,
 }) => {
   return (
-    <div className="relative overflow-hidden p-3 md:p-4  border-b border-[var(--text-theme)]/20  flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="relative overflow-hidden p-3 md:mb-5 md:p-4  border-b border-[var(--text-theme)]/20  flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div className="flex items-center gap-4 md:gap-5">
         {/* Contenedor del Icono */}
         <div className="relative flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-[var(--fill)] text-[var(--primary)] border border-[var(--primary)]/20 shadow-sm">
@@ -39,7 +39,7 @@ const EncabezadoSeccion = ({
         <nav className="flex items-center gap-2">
           <Link
             to={volver ? redireccionAnterior : "/panel"}
-            className="flex items-center justify-center w-10 h-10 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--primary)] hover:border-[var(--primary)]/30 hover:bg-[var(--primary-subtle)] transition-all shadow-sm group"
+            className="flex items-center justify-center w-10 h-10 rounded-md bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--primary)] hover:border-[var(--primary)]/30 hover:bg-[var(--primary-subtle)] transition-all shadow-sm group"
             title={volver ? "Volver" : "Inicio"}
           >
             {volver ? (

@@ -9,6 +9,7 @@ import EncabezadoSeccion from "../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import InputReutilizable from "../../UI/InputReutilizable/InputReutilizable";
 import ModalConfiguracionVisual from "../../Modales/Empresa/ModalConfiguracionVisual";
 import ModalConfiguracionFiscal from "../../Modales/Empresa/ModalConfiguracionFiscal";
+import { TieneAccion } from "../../UI/TieneAccion/TieneAccion";
 
 const Configuracion = () => {
   const usuario = useAuthStore((state) => state.usuario);
@@ -291,8 +292,7 @@ const Configuracion = () => {
           </form>
 
           {/* MI EMPRESA (ADMINS ONLY) */}
-          {(usuario?.roles?.some((r) => r.nombre.includes("Admin")) ||
-            usuario?.codigoSecuencial === 1) && (
+          <TieneAccion accion="CONFIGURACION_EMPRESA_ARCA">
             <div className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md p-5 shadow-md     delay-200">
               <div className="flex items-center gap-2 mb-4 border-b border-[var(--border-subtle)] pb-3">
                 <div className="text-emerald-700">
@@ -324,7 +324,7 @@ const Configuracion = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-[var(--surface-hover)] p-4 rounded-lg border border-[var(--border-subtle)] flex flex-col justify-between items-start gap-4">
+                <div className="bg-[var(--surface-hover)] p-4 rounded-md border border-[var(--border-subtle)] flex flex-col justify-between items-start gap-4">
                   <div>
                     <h5 className="text-[13px] font-bold text-black! uppercase tracking-tight">
                       Configuración Fiscal y AFIP
@@ -342,7 +342,7 @@ const Configuracion = () => {
                   </button>
                 </div>
 
-                <div className="bg-[var(--surface-hover)] p-4 rounded-lg border border-[var(--border-subtle)] flex flex-col justify-between items-start gap-4">
+                <div className="bg-[var(--surface-hover)] p-4 rounded-md border border-[var(--border-subtle)] flex flex-col justify-between items-start gap-4">
                   <div>
                     <h5 className="text-[13px] font-bold text-black! uppercase tracking-tight">
                       Diseño y White-Labeling
@@ -360,7 +360,7 @@ const Configuracion = () => {
                 </div>
               </div>
             </div>
-          )}
+          </TieneAccion>
         </div>
       </div>
 

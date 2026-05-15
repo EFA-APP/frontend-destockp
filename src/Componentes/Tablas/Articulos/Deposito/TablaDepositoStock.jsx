@@ -7,7 +7,7 @@ import { Package, Search, Database, ChevronRight } from "lucide-react";
 import SkeletonFilaTabla from "../../../UI/Skeletons/SkeletonFilaTabla.jsx";
 
 import DrawerActualizarStock from "../../../Modales/Articulos/ModalActualizarStock";
-
+import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
 /**
  * Componente TablaDepositoStock: Visualización de la matriz de stock global.
  */
@@ -43,7 +43,6 @@ const TablaDepositoStock = ({ tipoArticulo = "PRODUCTO", titulo }) => {
     tipoArticulo,
   });
 
-
   const [drawerData, setDrawerData] = React.useState({
     isOpen: false,
     fila: null,
@@ -68,8 +67,8 @@ const TablaDepositoStock = ({ tipoArticulo = "PRODUCTO", titulo }) => {
   );
 
   const columnasStock = React.useMemo(
-    () => generarColumnasStock(dataDepositosRaw),
-    [dataDepositosRaw],
+    () => generarColumnasStock(dataDepositosRaw, busquedaInput),
+    [dataDepositosRaw, busquedaInput],
   );
 
   return (
@@ -86,7 +85,6 @@ const TablaDepositoStock = ({ tipoArticulo = "PRODUCTO", titulo }) => {
                 {titulo ||
                   `${tipoArticulo === "MATERIA_PRIMA" ? "Materia Prima" : "Productos"}`}
               </h2>
-
             </div>
           </div>
 
@@ -120,19 +118,22 @@ const TablaDepositoStock = ({ tipoArticulo = "PRODUCTO", titulo }) => {
               onLimitChange={(l) =>
                 setFiltros((prev) => ({ ...prev, limite: l, pagina: 1 }))
               }
-              todasExpandidas={true}
+              todasExpandidas={!!busquedaInput}
             />
           </div>
         </div>
       </div>
 
-      <DrawerActualizarStock
-        isOpen={drawerData.isOpen}
-        onClose={cerrarDrawer}
-        fila={drawerData.fila}
-        depositosRaw={dataDepositosRaw}
-        depositoInicial={drawerData.depositoInicial}
-      />
+      <TieneAccion accion="EDITAR_STOCK_MANUAL">
+        <DrawerActualizarStock
+          isOpen={drawerData.isOpen}
+          onClose={cerrarDrawer}
+          fila={drawerData.fila}
+          depositosRaw={dataDepositosRaw}
+          depositoInicial={drawerData.depositoInicial}
+          tipoArticulo={tipoArticulo}
+        />
+      </TieneAccion>
     </React.Fragment>
   );
 };

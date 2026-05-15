@@ -1,6 +1,7 @@
-import { memo } from "react";
+import React, { memo, useEffect } from "react";
 import { BuscadorIcono, AgregarIcono } from "../../../../assets/Icons";
 import SkeletonProductoBusqueda from "../../../UI/Skeletons/SkeletonProductoBusqueda.jsx";
+import { formatPrice } from "../../../../utils/formatters";
 
 const BusquedaProducto = ({
   inputCodigoRef,
@@ -24,13 +25,30 @@ const BusquedaProducto = ({
   cantidadInput,
   setCantidadInput,
   getPrecio,
+  totales,
+  siguientePaso,
 }) => {
+  // EFECTO PARA AUTO-SCROLL AL NAVEGAR CON FLECHAS
+  useEffect(() => {
+    if (highlightedIndex >= 0) {
+      const el = document.getElementById(
+        `prod-search-item-${highlightedIndex}`,
+      );
+      if (el) {
+        el.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      }
+    }
+  }, [highlightedIndex]);
+
   return (
     <div className="shrink-0 py-2 bg-transparent relative">
-      <div className="flex flex-wrap md:flex-nowrap gap-3 items-center">
-        <div className="flex flex-[2] gap-2 w-full md:w-auto relative items-center">
+      <div className="flex flex-col xl:flex-row gap-4 items-stretch w-full">
+        <div className="flex flex-col xl:flex-row gap-4 w-full relative items-stretch xl:items-center">
           {/* INPUT CÓDIGO NORMAL */}
-          <div className="relative flex-1 group border-1 border-[var(--primary)]/50! flex bg-white border border-black/5 rounded-md focus-within:border-black/20 focus-within:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all h-[50px] items-center">
+          <div className="relative flex-1 group border-1 border-[var(--primary)]/50! flex bg-white border border-black/5 rounded-md focus-within:border-black/20 focus-within:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all h-[54px] items-center">
             <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-black/20 group-focus-within:text-black">
               <BuscadorIcono
                 size={22}
@@ -52,18 +70,18 @@ const BusquedaProducto = ({
                 setTimeout(() => setMostrarDropdownProducto(false), 200)
               }
               onKeyDown={handleCodigoKeyDown}
-              placeholder="Buscar por Nombre, Código de Barras o ID..."
-              className="w-full bg-transparent pl-14 pr-4 text-[15px] font-bold text-black focus:outline-none placeholder:text-black/20 placeholder:font-bold uppercase tracking-tight"
+              placeholder="BUSCAR PRODUCTO..."
+              className="w-full bg-transparent pl-14 pr-4 py-4 text-[16px] font-black text-black focus:outline-none placeholder:text-black/10 placeholder:font-black uppercase tracking-tight"
             />
 
             {mostrarDropdownProducto && codigoBusqueda && (
-              <div className="absolute top-full mt-2 left-0 right-0 max-h-[450px] overflow-y-auto custom-scrollbar bg-[var(--surface-active)] border border-black/10 rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.2)] z-[100] p-2 flex flex-col gap-1 animate-in fade-in zoom-in-95 duration-200 backdrop-blur-md">
+              <div className="absolute top-full mt-2 left-0 right-0 lg:min-w-[500px] max-h-[500px] overflow-y-auto custom-scrollbar bg-[var(--surface-active)] border border-black/10 rounded-md shadow-[0_25px_70px_rgba(0,0,0,0.3)] z-[100] p-2 flex flex-col gap-1 animate-in fade-in zoom-in-95 duration-200 backdrop-blur-xl">
                 {cargandoProductos && (
                   <div className="flex flex-col gap-2 p-2">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <div
                         key={i}
-                        className="h-[70px] bg-black/5 rounded-xl animate-pulse flex flex-col justify-center px-4 gap-2"
+                        className="h-[70px] bg-black/5 rounded-md animate-pulse flex flex-col justify-center px-4 gap-2"
                       >
                         <div className="h-4 w-3/4 bg-black/10 rounded" />
                         <div className="h-3 w-1/2 bg-black/5 rounded" />
@@ -72,12 +90,12 @@ const BusquedaProducto = ({
                   </div>
                 )}
                 {!cargandoProductos && productos.length === 0 && (
-                  <div className="px-4 py-10 text-center flex flex-col items-center gap-3">
-                    <div className="w-14 h-14 rounded-full bg-gray-50 flex items-center justify-center text-gray-300">
-                      <BuscadorIcono size={28} color={"var(--primary)"} />
+                  <div className="px-4 py-12 text-center flex flex-col items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-black/5 flex items-center justify-center text-black/10">
+                      <BuscadorIcono size={32} color={"var(--primary)"} />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30">
-                      No se encontraron coincidencias
+                    <span className="text-[11px] font-black uppercase tracking-[0.3em] text-black/20">
+                      Sin resultados
                     </span>
                   </div>
                 )}
@@ -87,8 +105,8 @@ const BusquedaProducto = ({
                     const isHighlighted = index === highlightedIndex;
                     const stockClass =
                       p.stock > 0
-                        ? "text-emerald-600 bg-emerald-50"
-                        : "text-rose-600 bg-rose-50";
+                        ? "text-emerald-600 bg-emerald-500/10"
+                        : "text-rose-600 bg-rose-500/10";
                     return (
                       <div
                         id={`prod-search-item-${index}`}
@@ -99,39 +117,33 @@ const BusquedaProducto = ({
                           agregarItem(p, 1);
                           setMostrarDropdownProducto(false);
                         }}
-                        className={`px-4 py-3.5 cursor-pointer rounded-md transition-all border border-transparent ${isHighlighted ? "bg-[var(--primary)]/10! text-black shadow-lg shadow-black/10 scale-[1.01]" : "hover:bg-black/[0.03]"}`}
+                        className={`px-4 py-4 cursor-pointer rounded-md transition-all border border-transparent ${isHighlighted ? "bg-[var(--primary)] text-white shadow-xl shadow-[var(--primary)]/20 scale-[1.02] z-10" : "hover:bg-black/[0.04]"}`}
                       >
-                        <div className="flex justify-between items-center">
-                          <div className="flex flex-col">
+                        <div className="flex justify-between items-center gap-4">
+                          <div className="flex flex-col overflow-hidden">
                             <span
-                              className={`font-black text-[12px] uppercase text-[var(--primary)]`}
+                              className={`font-black text-[13px] uppercase truncate ${isHighlighted ? "text-white" : "text-black"}`}
                             >
                               {p.nombre}
                             </span>
-                            <div className="flex items-center gap-2">
-                              <span
-                                className={`text-[10px] font-bold text-[var(--primary)]/70! uppercase tracking-widest`}
-                              >
-                                {p.descripcion || "ITEM GENERAL"}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex flex-col items-end">
                             <span
-                              className={`text-[12px] font-semibold ${isHighlighted ? "text-[var(--primary)]/80!" : "text-blue-600"}`}
+                              className={`text-[10px] font-bold uppercase tracking-widest truncate ${isHighlighted ? "text-white/60" : "text-black/40"}`}
                             >
-                              $
-                              {getPrecio(
-                                p,
-                                columnaPrecioSeleccionada,
-                              ).toLocaleString("es-AR", {
-                                minimumFractionDigits: 2,
-                              })}
+                              {p.descripcion || "ITEM GENERAL"}
+                            </span>
+                          </div>
+                          <div className="flex flex-col items-end shrink-0">
+                            <span
+                              className={`text-[14px] font-black ${isHighlighted ? "text-white" : "text-[var(--primary)]"}`}
+                            >
+                              {formatPrice(
+                                getPrecio(p, columnaPrecioSeleccionada),
+                              )}
                             </span>
                             <span
-                              className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${stockClass}`}
+                              className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-tighter mt-1 ${isHighlighted ? "bg-white/20 text-white" : stockClass}`}
                             >
-                              {p.stock > 0 ? `Stock: ${p.stock}` : "Sin Stock"}
+                              {p.stock > 0 ? `Stock: ${p.stock}` : "S/S"}
                             </span>
                           </div>
                         </div>
@@ -140,6 +152,31 @@ const BusquedaProducto = ({
                   })}
               </div>
             )}
+          </div>
+
+          {/* RESUMEN RÁPIDO Y BOTÓN SIGUIENTE */}
+          <div className="flex items-center justify-between gap-4 bg-[var(--surface-hover)] border border-[var(--primary)]/50 p-2 rounded-md h-[54px] shadow-sm">
+            <div className="flex flex-col items-end px-4 border-r border-black/5">
+              <span className="text-[8px] font-black uppercase tracking-widest text-[var(--primary)]/70 leading-none mb-1">
+                Total Carrito
+              </span>
+              <span className="text-[20px] font-black text-[var(--primary)]/95 leading-none tracking-tighter">
+                {formatPrice(totales?.total || 0)}
+              </span>
+            </div>
+
+            <button
+              onClick={siguientePaso}
+              disabled={!totales?.total || totales.total <= 0}
+              className={`h-full px-10 rounded-md font-black text-[12px] uppercase tracking-widest transition-all shadow-md active:scale-95 flex items-center gap-3 ${
+                totales?.total > 0
+                  ? "bg-black text-white hover:bg-zinc-800 shadow-black/20"
+                  : "bg-black/5 text-black/10 cursor-not-allowed shadow-none"
+              }`}
+            >
+              Siguiente
+              <span className="text-[16px]">→</span>
+            </button>
           </div>
         </div>
       </div>

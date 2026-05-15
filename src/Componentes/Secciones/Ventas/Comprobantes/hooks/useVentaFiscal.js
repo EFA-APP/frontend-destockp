@@ -1,15 +1,18 @@
 import { useState, useEffect, useMemo } from "react";
 import { ObtenerTiposComprobanteApi } from "../../../../../Backend/Arca/api/arca.api";
-import { obtenerComprobantesPermitidos } from "../reglas/reglasComprobantes";
-import { CONDICION_IVA } from "../reglas/reglasFiscales";
 
-export const useVentaFiscal = (usuario, arcaConectado, infoIva, clienteSeleccionado) => {
+export const useVentaFiscal = (usuario, arcaConectado) => {
   const [tiposComprobanteRaw, setTiposComprobanteRaw] = useState([]);
   const [cargandoVouchers, setCargandoVouchers] = useState(false);
   const [tipoDocumento, setTipoDocumento] = useState(99);
   const [enBlanco, setEnBlanco] = useState("si");
 
-  const aplicaIva = arcaConectado && enBlanco === "si";
+  const aplicaIva = useMemo(() => {
+    if (!arcaConectado || enBlanco !== "si") return false;
+    // Comprobantes que NO llevan IVA (Monotributo/Exento): 11(Factura C), 12(ND C), 13(NC C), 15(Recibo C)
+    const tiposSinIva = [11, 12, 13, 15];
+    return !tiposSinIva.includes(Number(tipoDocumento));
+  }, [arcaConectado, enBlanco, tipoDocumento]);
 
   // Carga inicial de todos los tipos soportados por AFIP para este usuario
   useEffect(() => {
@@ -32,52 +35,40 @@ export const useVentaFiscal = (usuario, arcaConectado, infoIva, clienteSeleccion
     cargarVouchers();
   }, [usuario]);
 
-  // Filtrado DINÁMICO de comprobantes según reglas fiscales
+  // Se eliminó el filtrado dinámico local. Ahora se confía en la respuesta de la API.
+  // Se eliminó el filtrado dinámico local. Ahora se confía en la respuesta de la API.
   const tiposComprobante = useMemo(() => {
     if (enBlanco === "no") {
-      return [{ id: 99, label: "COMPROBANTE INTERNO" }];
+      return [
+        { id: 991, label: "COMPROBANTE DE VENTA (I)" },
+        { id: 992, label: "RECIBO DE COBRO (I)" },
+        { id: 993, label: "NOTA DE CRÉDITO (I)" },
+        { id: 994, label: "NOTA DE DÉBITO (I)" },
+      ];
     }
 
-    const emisorIva = infoIva?.condicionIvaId || CONDICION_IVA.RI;
-    const receptorIva = clienteSeleccionado?.CondicionIVAReceptorId || CONDICION_IVA.CF;
-
-    const permitidosIds = obtenerComprobantesPermitidos(emisorIva, receptorIva);
-    
-    let filtrados = tiposComprobanteRaw
-      .filter(v => permitidosIds.includes(Number(v.Id)))
-      .map((v) => ({
-        id: v.Id,
-        label: v.Desc,
-      }));
-
-    // FALLBACK: Si el filtro es demasiado restrictivo o infoIva aún no cargó 
-    // y no hay resultados, mostrar todos los disponibles para no bloquear la UI.
-    if (filtrados.length === 0 && tiposComprobanteRaw.length > 0) {
-       return tiposComprobanteRaw.map(v => ({ id: v.Id, label: v.Desc }));
-    }
-
-    return filtrados;
-  }, [tiposComprobanteRaw, infoIva, clienteSeleccionado, enBlanco]);
+    return tiposComprobanteRaw.map((v) => ({
+      id: v.Id,
+      label: v.Desc,
+    }));
+  }, [tiposComprobanteRaw, enBlanco]);
 
   // Sincronizar tipoDocumento cuando cambia la lista de permitidos
   useEffect(() => {
     if (enBlanco === "no") {
-      setTipoDocumento(99);
+      const IDsInternos = [991, 992, 993, 994];
+      if (!IDsInternos.includes(Number(tipoDocumento))) {
+        setTipoDocumento(991);
+      }
     } else if (enBlanco === "si") {
-       if (tiposComprobante.length > 0) {
-          const IDs = tiposComprobante.map(t => Number(t.id));
-          if (!IDs.includes(Number(tipoDocumento))) {
-            setTipoDocumento(tiposComprobante[0].id);
-          }
-       }
+      if (tiposComprobante.length > 0) {
+        const IDs = tiposComprobante.map((t) => Number(t.id));
+        if (!IDs.includes(Number(tipoDocumento))) {
+          setTipoDocumento(tiposComprobante[0].id);
+        }
+      }
     }
   }, [enBlanco, tiposComprobante, tipoDocumento]);
-
-  useEffect(() => {
-    if (arcaConectado && infoIva?.tipoFacturaDefault && tiposComprobante.some(t => t.id === infoIva.tipoFacturaDefault)) {
-      setTipoDocumento(infoIva.tipoFacturaDefault);
-    }
-  }, [arcaConectado, infoIva, tiposComprobante]);
 
   return {
     tiposComprobante,

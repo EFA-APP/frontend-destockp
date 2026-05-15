@@ -19,6 +19,7 @@ import { useAuthStore } from "../../../../Backend/Autenticacion/store/authentica
 import { useAlertas } from "../../../../store/useAlertas";
 import { useContactos } from "../../../../Backend/Contactos/hooks/useContactos";
 import { axiosInitial } from "../../../../Backend/Config";
+import { parseCurrency } from "../../../../utils/formatters";
 
 const STEPS = [
   { id: 1, label: "Proveedor" },
@@ -114,18 +115,6 @@ export default function ImportadorPrecios({ onExito, onClose }) {
 
     setIsProcessing(true);
     try {
-      const clean = (val) => {
-        if (typeof val === "number") return parseFloat(val.toFixed(2));
-        if (!val) return 0;
-        const n = parseFloat(
-          String(val)
-            .replace(/[$\s]/g, "")
-            .replace(/\./g, "")
-            .replace(",", "."),
-        );
-        return isNaN(n) ? 0 : parseFloat(n.toFixed(2));
-      };
-
       const processedData = fullData
         .slice(headerIndex + 1)
         .map((row) => {
@@ -141,7 +130,7 @@ export default function ImportadorPrecios({ onExito, onClose }) {
                 l.includes("costo") ||
                 l.includes("lista")
               ) {
-                let v = clean(raw);
+                let v = parseCurrency(raw);
                 if (key === "precioLista" && incluirIva)
                   v = parseFloat((v * (1 + tasaIva / 100)).toFixed(2));
                 obj[key] = v;

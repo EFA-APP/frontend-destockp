@@ -1,90 +1,299 @@
-import React from "react";
+import React, { useState } from "react";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import { BalanceIcono, DescargarIcono } from "../../../../assets/Icons";
 import FechaInput from "../../../UI/FechaInput/FechaInput";
+import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
+import { useBalanceGeneralQuery } from "../../../../Backend/Contabilidad/queries/useReportes.query";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import BalancePDF from "./BalancePDF";
 
 const Balance = () => {
+  const { usuario } = useAuthStore();
+
+  // Función corregida para obtener la fecha LOCAL en formato YYYY-MM-DD
+  const getHoyStr = () => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const getPrimerDiaAnioStr = () => {
+    return `${new Date().getFullYear()}-01-01`;
+  };
+
+  const [filtros, setFiltros] = useState({
+    fechaDesde: getPrimerDiaAnioStr(),
+    fechaHasta: getHoyStr(),
+  });
+
+  const { data: balance, isLoading } = useBalanceGeneralQuery({
+    codigoEmpresa: usuario?.codigoEmpresa,
+    ...filtros,
+  });
+
+  const handleFechaChange = (campo, valor) => {
+    setFiltros((prev) => ({ ...prev, [campo]: valor }));
+  };
+
+  if (isLoading) {
+    return (
+      <div className="p-8 flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <div className="w-12 h-12 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-gray-400 font-medium animate-pulse">
+          Procesando estados contables...
+        </p>
+      </div>
+    );
+  }
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 animate-in fade-in duration-700">
       {/* Card principal */}
-      <div className="rounded-md shadow-md border border-gray-700/40 bg-[var(--fill)]">
+      <div className="rounded-2xl shadow-2xl border border-gray-700/30 bg-[var(--fill)] overflow-hidden">
         {/* Header */}
-        <EncabezadoSeccion
-          ruta={"Balance"}
-          icono={<BalanceIcono size={20} />}
-        />
-
-        {/* Filtros */}
-        <div className="px-6 py-4 flex gap-4 border-b border-gray-700/40 items-center">
-          <FechaInput
-            label="Desde:"
-            value={""}
-            onChange={() => console.log("pedro")}
-            size="sm"
+        <div className="border-b border-gray-700/20 bg-gradient-to-r from-gray-50/50 to-transparent">
+          <EncabezadoSeccion
+            ruta={"Balance General"}
+            icono={<BalanceIcono size={24} className="text-[var(--primary)]" />}
           />
-          <FechaInput
-            label="Hasta:"
-            value={""}
-            onChange={() => console.log("pedro")}
-            size="sm"
-          />
-
-          <button className="w-auto h-8 mt-5 px-2  text-left text-[var(--primary)]! rounded-md! bg-[var(--primary)]/10! flex items-center gap-2 cursor-pointer hover:bg-[var(--primary)]/5!">
-            <DescargarIcono />
-            Exportar Excel
-          </button>
         </div>
 
-        {/* Contenido */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
-          {/* ACTIVO */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-black">Activo</h3>
+        {/* Filtros Modernos */}
+        <div className="px-8 py-6 flex flex-wrap gap-6 items-end bg-gray-50/30">
+          <div className="space-y-1">
+            <FechaInput
+              label="Desde"
+              value={filtros.fechaDesde}
+              onChange={(valor) => handleFechaChange("fechaDesde", valor)}
+              size="sm"
+            />
+          </div>
+          <div className="space-y-1">
+            <FechaInput
+              label="Hasta"
+              value={filtros.fechaHasta}
+              onChange={(valor) => handleFechaChange("fechaHasta", valor)}
+              size="sm"
+            />
+          </div>
 
-            <div className="rounded-md border border-gray-700/40 bg-[var(--fill2)]">
-              <FilaCuenta label="Caja y Bancos" monto={15000} />
-              <FilaCuenta label="Créditos por Cobrar" monto={8000} />
-              <FilaTotal label="Total Activo Corriente" monto={23000} />
+          <div className="flex-1" />
 
-              <div className="border-t border-gray-700/40" />
+          {balance && (
+            <PDFDownloadLink
+              document={
+                <BalancePDF
+                  balance={balance}
+                  empresa={{ nombre: usuario?.nombreEmpresa }}
+                  filtros={filtros}
+                />
+              }
+              fileName={`Balance_${filtros.fechaHasta}.pdf`}
+              className="h-10 px-6 text-sm font-bold text-white rounded-md bg-[var(--primary)] hover:bg-[var(--primary-dark)] shadow-lg shadow-[var(--primary)]/20 transition-all flex items-center gap-2 active:scale-95 no-underline"
+            >
+              {({ loading }) => (
+                <>
+                  <DescargarIcono size={18} />
+                  {loading ? "Generando..." : "Exportar PDF"}
+                </>
+              )}
+            </PDFDownloadLink>
+          )}
+        </div>
 
-              <FilaCuenta label="Bienes de Uso" monto={50000} />
-              <FilaTotal label="Total Activo No Corriente" monto={50000} />
+        {/* Contenido en Dos Columnas */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 p-8 bg-white">
+          {/* COLUMNA ACTIVO */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 pb-2 border-b-2 border-blue-500/20">
+              <div className="w-2 h-5 bg-blue-500 rounded-full"></div>
+              <h3 className="text-lg font-black text-gray-800 uppercase tracking-tight">
+                Activo
+              </h3>
+            </div>
 
-              <FilaTotalFinal label="TOTAL ACTIVO" monto={73000} />
+            <div className="rounded-md border border-gray-200 shadow-sm overflow-hidden divide-y divide-gray-100">
+              {balance?.activo.items.map((item) => (
+                <FilaCuenta
+                  key={item.codigo}
+                  label={item.nombre}
+                  monto={item.saldo}
+                  codigo={item.codigo}
+                />
+              ))}
+
+              {balance?.activo.items.length === 0 && (
+                <div className="p-10 text-center text-gray-400 italic text-sm">
+                  Sin movimientos
+                </div>
+              )}
+
+              <div className="bg-blue-50/50 p-4">
+                <FilaTotal
+                  label="TOTAL ACTIVO"
+                  monto={balance?.activo.total || 0}
+                  color="text-blue-600"
+                />
+              </div>
             </div>
           </div>
 
-          {/* PASIVO + PATRIMONIO */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-black">
-              Pasivo y Patrimonio
-            </h3>
+          {/* COLUMNA PASIVO + PATRIMONIO */}
+          <div className="space-y-8">
+            {/* PASIVO */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b-2 border-orange-500/20">
+                <div className="w-2 h-5 bg-orange-500 rounded-full"></div>
+                <h3 className="text-lg font-black text-gray-800 uppercase tracking-tight">
+                  Pasivo
+                </h3>
+              </div>
+              <div className="rounded-md border border-gray-200 shadow-sm overflow-hidden divide-y divide-gray-100">
+                {balance?.pasivo.items.map((item) => (
+                  <FilaCuenta
+                    key={item.codigo}
+                    label={item.nombre}
+                    monto={item.saldo}
+                    codigo={item.codigo}
+                  />
+                ))}
+                {balance?.pasivo.items.length === 0 && (
+                  <div className="p-4 text-center text-gray-400 text-xs">
+                    Sin obligaciones
+                  </div>
+                )}
+                <div className="bg-orange-50/50 p-3">
+                  <FilaTotal
+                    label="Total Pasivo"
+                    monto={balance?.pasivo.total || 0}
+                    color="text-orange-600"
+                    size="sm"
+                  />
+                </div>
+              </div>
+            </div>
 
-            <div className="rounded-md border border-gray-700/40 bg-[var(--fill2)]">
-              <FilaCuenta label="Proveedores" monto={12000} />
-              <FilaCuenta label="Deudas CP" monto={5000} />
-              <FilaTotal label="Total Pasivo Corriente" monto={17000} />
+            {/* PATRIMONIO */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b-2 border-purple-500/20">
+                <div className="w-2 h-5 bg-purple-500 rounded-full"></div>
+                <h3 className="text-lg font-black text-gray-800 uppercase tracking-tight">
+                  Patrimonio Neto
+                </h3>
+              </div>
+              <div className="rounded-md border border-gray-200 shadow-sm overflow-hidden divide-y divide-gray-100">
+                {balance?.patrimonio.items.map((item) => (
+                  <FilaCuenta
+                    key={item.codigo}
+                    label={item.nombre}
+                    monto={item.saldo}
+                    codigo={item.codigo}
+                  />
+                ))}
+                <FilaCuenta
+                  label="Resultado del Ejercicio"
+                  monto={balance?.patrimonio.resultadoEjercicio || 0}
+                  isSpecial
+                />
+                <div className="bg-purple-50/50 p-3">
+                  <FilaTotal
+                    label="Total Patrimonio"
+                    monto={balance?.patrimonio.total || 0}
+                    color="text-purple-600"
+                    size="sm"
+                  />
+                </div>
+              </div>
+            </div>
 
-              <div className="border-t border-gray-700/40" />
-
-              <FilaCuenta label="Deudas LP" monto={30000} />
-              <FilaTotal label="Total Pasivo No Corriente" monto={30000} />
-
-              <FilaCuenta label="Patrimonio Neto" monto={28000} />
-
-              <FilaTotalFinal label="TOTAL PASIVO + PN" monto={75000} />
+            {/* SUMA FINAL PASIVO + PN */}
+            <div className="p-4 bg-gray-900 rounded-md shadow-lg shadow-gray-900/20">
+              <FilaTotal
+                label="TOTAL PASIVO + PN"
+                monto={
+                  (balance?.pasivo.total || 0) +
+                  (balance?.patrimonio.total || 0)
+                }
+                color="text-white"
+              />
             </div>
           </div>
         </div>
 
-        {/* Estado del balance */}
-        <div className="bg-[var(--primary-opacity-10)] px-6 py-4 border-t border-[var(--primary)] flex justify-between items-center">
-          <p className="text-sm text-[var(--primary)] font-semibold">
-            Total Activo: <span className="text-black">$73.000</span>
-          </p>
+        {/* Estado del balance Barra Inferior */}
+        <div
+          className={`mx-8 mb-8 p-5 rounded-2xl border-2 flex flex-col md:flex-row justify-between items-center gap-4 ${
+            balance?.estaBalanceado
+              ? "bg-green-50 border-green-200"
+              : "bg-red-50 border-red-200"
+          }`}
+        >
+          <div className="flex items-center gap-4">
+            <div className="relative flex h-3 w-3">
+              <span
+                className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${balance?.estaBalanceado ? "bg-green-400" : "bg-red-400"}`}
+              ></span>
+              <span
+                className={`relative inline-flex rounded-full h-3 w-3 ${balance?.estaBalanceado ? "bg-green-500" : "bg-red-500"}`}
+              ></span>
+            </div>
+            <div>
+              <p
+                className={`text-xs font-black uppercase tracking-widest ${balance?.estaBalanceado ? "text-green-600" : "text-red-600"}`}
+              >
+                Estado Contable
+              </p>
+              <p
+                className={`text-xl font-black ${balance?.estaBalanceado ? "text-green-800" : "text-red-800"}`}
+              >
+                {balance?.estaBalanceado
+                  ? "SITUACIÓN EQUILIBRADA"
+                  : "DESCUADRE DETECTADO"}
+              </p>
+            </div>
+          </div>
 
-          <p className="text-sm text-red-400 font-semibold">Desbalanceado ✖</p>
+          <div className="flex gap-8 items-center bg-white/50 px-6 py-2 rounded-md border border-white">
+            <div className="text-center">
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                Total Activo
+              </p>
+              <p className="text-lg font-bold text-gray-800">
+                $
+                {(balance?.activo.total || 0).toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                })}
+              </p>
+            </div>
+            <div className="h-8 w-px bg-gray-200"></div>
+            <div className="text-center">
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                Pasivo + PN
+              </p>
+              <p className="text-lg font-bold text-gray-800">
+                $
+                {(
+                  (balance?.pasivo.total || 0) +
+                  (balance?.patrimonio.total || 0)
+                ).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              </p>
+            </div>
+          </div>
+
+          <div className="text-right">
+            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+              Diferencia
+            </p>
+            <p
+              className={`text-xl font-black ${balance?.estaBalanceado ? "text-green-600" : "text-red-600"}`}
+            >
+              $
+              {Math.abs(balance?.diferencia || 0).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+              })}
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -93,24 +302,36 @@ const Balance = () => {
 
 /* ───────────── Subcomponentes ───────────── */
 
-const FilaCuenta = ({ label, monto }) => (
-  <div className="flex justify-between px-4 py-2 text-sm text-gray-300">
-    <span>{label}</span>
-    <span className="text-black">${monto.toLocaleString()}</span>
+const FilaCuenta = ({ label, monto, codigo, isSpecial }) => (
+  <div
+    className={`flex justify-between items-center px-6 py-3 hover:bg-gray-50 transition-colors group ${isSpecial ? "bg-indigo-50/30" : ""}`}
+  >
+    <div className="flex flex-col">
+      <span className="text-sm font-semibold text-gray-700 group-hover:text-[var(--primary)] transition-colors">
+        {label}
+      </span>
+      {codigo && (
+        <span className="text-[10px] text-gray-400 font-mono">{codigo}</span>
+      )}
+    </div>
+    <span
+      className={`text-sm font-bold ${isSpecial ? "text-indigo-600" : "text-gray-900"}`}
+    >
+      ${monto.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+    </span>
   </div>
 );
 
-const FilaTotal = ({ label, monto }) => (
-  <div className="flex justify-between px-4 py-2 text-sm font-medium text-gray-200 border-t border-gray-700/40">
-    <span>{label}</span>
-    <span>${monto.toLocaleString()}</span>
-  </div>
-);
-
-const FilaTotalFinal = ({ label, monto }) => (
-  <div className="flex justify-between px-4 py-3 text-sm font-semibold bg-[var(--primary-opcaity-10)]">
-    <span className="text-[var(--primary)]">{label}</span>
-    <span className="text-[var(--primary)]">${monto.toLocaleString()}</span>
+const FilaTotal = ({ label, monto, isFinal, color }) => (
+  <div className={`flex justify-between items-center ${isFinal ? "py-1" : ""}`}>
+    <span
+      className={`text-sm font-black uppercase tracking-tight ${color || "text-gray-600"}`}
+    >
+      {label}
+    </span>
+    <span className={`text-lg font-black ${color || "text-gray-900"}`}>
+      ${monto.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+    </span>
   </div>
 );
 

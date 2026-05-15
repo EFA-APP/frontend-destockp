@@ -1,16 +1,38 @@
+const Highlight = ({ text, term }) => {
+  if (!term || !text) return text;
+  const parts = String(text).split(new RegExp(`(${term})`, "gi"));
+  return (
+    <span>
+      {parts.map((part, i) =>
+        part.toLowerCase() === term.toLowerCase() ? (
+          <mark
+            key={i}
+            className="bg-yellow-400/40 text-[var(--primary)] px-0.5 rounded font-black italic"
+          >
+            {part}
+          </mark>
+        ) : (
+          part
+        ),
+      )}
+    </span>
+  );
+};
+
 export const columnasComprobantes = [
   {
     key: "numeroComprobante",
-    etiqueta: "Identificación Comprobante",
-    renderizar: (valor, fila) => {
+    etiqueta: "Comprobante",
+    renderizar: (valor, fila, busqueda) => {
       const ptoVta = String(fila.puntoVenta || 1).padStart(4, "0");
       const nro = String(valor || 0).padStart(8, "0");
+      const textoCompleto = `${ptoVta}-${nro}`;
 
       // Identificación amigable del tipo
       const tipo = Number(fila.tipoDocumento);
-      const esNC = [3, 8, 13, 53].includes(tipo);
-      const esND = [2, 7, 12, 52].includes(tipo);
-      const esRecibo = [4, 9, 15, 54].includes(tipo);
+      const esNC = [3, 8, 13, 53, 993].includes(tipo);
+      const esND = [2, 7, 12, 52, 994].includes(tipo);
+      const esRecibo = [4, 9, 15, 54, 992].includes(tipo);
 
       let label = "Factura";
       let badgeStyle =
@@ -36,29 +58,70 @@ export const columnasComprobantes = [
               {label} {fila.letraComprobante || ""}
             </div>
 
-            {/* BADGES DE ESTADO (ANULACIÓN/AJUSTE) */}
-            {fila.estado === "ANULADO" ? (
-              <div className="text-[11px]  uppercase tracking-wider px-2 py-0.5 border rounded-md whitespace-nowrap bg-red-700/10 text-red-700 border-red-700/30">
-                ANULADO
-              </div>
-            ) : fila.estado === "AJUSTADO_PARCIAL" ? (
-              <div className="text-[11px] uppercase tracking-wider px-2 py-0.5 border rounded-md whitespace-nowrap bg-amber-700/10 text-amber-700 border-amber-700/30">
-                PARCIAL
-              </div>
-            ) : (
-              <div
-                title={
-                  fila.fiscal
-                    ? "Comprobante Fiscal (AFIP)"
-                    : "Comprobante Interno"
-                }
-                className={`w-1.5 h-1.5 rounded-full ${fila.fiscal ? "bg-emerald-700" : "bg-blue-400"
+            {/* BADGES DE ESTADO (ANULACIÓN/AJUSTE/PAGO) */}
+            {(() => {
+              const config = {
+                VALIDO: {
+                  label: "VALIDO",
+                  style:
+                    "bg-emerald-700/10 text-emerald-700 border-emerald-700/30",
+                },
+                ANULADO: {
+                  label: "ANULADO",
+                  style: "bg-red-700/10 text-red-700 border-red-700/30",
+                },
+                ABONADO: {
+                  label: "ABONADO",
+                  style:
+                    "bg-emerald-700/10 text-emerald-700 border-emerald-700/30",
+                },
+                PARCIALMENTE_ABONADO: {
+                  label: "PARCIAL",
+                  style: "bg-amber-700/10 text-amber-700 border-amber-700/30",
+                },
+                AJUSTADO_PARCIAL: {
+                  label: "PARCIAL",
+                  style: "bg-amber-700/10 text-amber-700 border-amber-700/30",
+                },
+                PARCIALMENTE_ANULADO: {
+                  label: "ANUL. PARCIAL",
+                  style: "bg-rose-700/10 text-rose-700 border-rose-700/30",
+                },
+                PENDIENTE_PAGO: {
+                  label: "PENDIENTE",
+                  style:
+                    "bg-yellow-700/10 text-yellow-700 border-yellow-700/30",
+                },
+              };
+
+              const estado = config[fila.estado];
+
+              if (estado) {
+                return (
+                  <div
+                    className={`text-[11px] font-black uppercase tracking-wider px-2 py-0.5 border rounded-md whitespace-nowrap ${estado.style}`}
+                  >
+                    {estado.label}
+                  </div>
+                );
+              }
+
+              return (
+                <div
+                  title={
+                    fila.fiscal
+                      ? "Comprobante Fiscal (AFIP)"
+                      : "Comprobante Interno"
+                  }
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    fila.fiscal ? "bg-emerald-700" : "bg-blue-400"
                   }`}
-              ></div>
-            )}
+                ></div>
+              );
+            })()}
           </div>
           <div className="font-black text-black tracking-tighter text-sm group-hover/cell:text-[var(--primary)] ">
-            {`${ptoVta}-${nro}`}
+            <Highlight text={textoCompleto} term={busqueda} />
           </div>
         </div>
       );
@@ -83,9 +146,9 @@ export const columnasComprobantes = [
   },
   {
     key: "receptor",
-    etiqueta: "Receptor",
+    etiqueta: "contacto",
     filtrable: true,
-    renderizar: (valor) => {
+    renderizar: (valor, fila, busqueda) => {
       const idIva = Number(valor?.CondicionIVAReceptorId);
 
       const configIva = {
@@ -99,7 +162,8 @@ export const columnasComprobantes = [
         },
         5: {
           label: "CF",
-          style: "bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]",
+          style:
+            "bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]",
         },
         6: {
           label: "Exento",
@@ -109,33 +173,60 @@ export const columnasComprobantes = [
 
       const iva = configIva[idIva] || {
         label: "S/D",
-        style: "bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]",
+        style:
+          "bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]",
       };
 
       return (
         <div className="flex flex-col py-1 group/receptor">
-          <div className="flex items-center gap-2 mb-1">
-            <span className=" hidden md:flex text-sm font-black text-black uppercase tracking-tight italic group-hover/receptor:text-[var(--primary)] ">
-              {valor?.razonSocial || "CONSUMIDOR FINAL"}
-            </span>
-            <span
-              className={`text-[10px] font-black uppercase tracking-tighter px-1.5 py-0.5 border rounded-sm ${iva.style}`}
-            >
-              {iva.label}
+          <div className="mb-1">
+            <span className="text-sm font-black text-black uppercase tracking-tight italic group-hover/receptor:text-[var(--primary)] ">
+              <Highlight
+                text={valor?.razonSocial || "CONSUMIDOR FINAL"}
+                term={busqueda}
+              />
             </span>
           </div>
-          {/* Si existe valorDocTipo y valorDocNro se muestra el  */}
-          {valor?.valorDocTipo && valor?.valorDocNro && (
-            <div className="flex items-center gap-1.5 opacity-40">
-              <span className="text-[12px] font-bold">
-                {valor?.valorDocTipo === 80 ? "CUIT" : "DNI"}
-              </span>
-              <div className="w-1 h-1 rounded-full bg-white/30" />
-              <span className="text-[12px] font-medium tracking-wider">
-                {valor?.DocNro || "0"}
-              </span>
-            </div>
-          )}
+
+          {/* INDICADOR DE COINCIDENCIA EN ITEMS */}
+          {busqueda &&
+            fila.detalles?.some((d) =>
+              d.nombre?.toLowerCase().includes(busqueda.toLowerCase()),
+            ) && (
+              <div className="flex items-center gap-1 mb-1 animate-pulse">
+                <div className="w-1 h-3 bg-[var(--primary)] rounded-full" />
+                <span className="text-[10px] font-black text-[var(--primary)] uppercase tracking-widest">
+                  Item:{" "}
+                  <Highlight
+                    text={
+                      fila.detalles.find((d) =>
+                        d.nombre
+                          ?.toLowerCase()
+                          .includes(busqueda.toLowerCase()),
+                      )?.nombre
+                    }
+                    term={busqueda}
+                  />
+                </span>
+              </div>
+            )}
+          {/* Si existe DocTipo y DocNro se muestra el, evitar que quede DNI: 0, y CUIT: 0, ose directamente no renderizar nada   */}
+          {valor?.DocTipo &&
+            valor?.DocNro &&
+            String(valor.DocNro).trim() !== "0" &&
+            String(valor.DocNro).trim() !== "" && (
+              <div className="w.full">
+                <div className="flex justify-end">
+                  <span className="text-[12px] font-bold">
+                    {valor?.DocTipo === 80 ? "CUIT:" : "DNI:"}
+                  </span>
+                  <div className="w-1 h-1 rounded-full bg-white/30" />
+                  <span className="text-[12px] font-medium tracking-wider">
+                    <Highlight text={valor?.DocNro || ""} term={busqueda} />
+                  </span>
+                </div>
+              </div>
+            )}
         </div>
       );
     },
@@ -144,11 +235,10 @@ export const columnasComprobantes = [
     key: "total",
     etiqueta: "Total Bruto",
     renderizar: (valor) => (
-      <div className="flex flex-col items-start  md:items-end px-4">
+      <div className="flex flex-col  md:items-end px-4">
         <span className="font-black text-blue-400 text-sm tracking-tighter">
           ${Number(valor).toLocaleString("es-AR", { minimumFractionDigits: 2 })}
         </span>
-        <div className="w-8 h-0.5 bg-blue-700/20 rounded-full mt-0.5" />
       </div>
     ),
   },

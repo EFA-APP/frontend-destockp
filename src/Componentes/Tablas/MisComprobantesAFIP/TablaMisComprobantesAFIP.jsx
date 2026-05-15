@@ -85,7 +85,7 @@ const TablaMisComprobantesAFIP = () => {
           <div className="flex items-center justify-center">
             <button
               type="button"
-              className="group flex items-center gap-2 px-4 py-2 bg-violet-700/10 text-violet-400 border border-violet-700/20 rounded-lg hover:bg-violet-700/20  text-[13px] font-bold uppercase tracking-wider cursor-pointer"
+              className="group flex items-center gap-2 px-4 py-2 bg-violet-700/10 text-violet-400 border border-violet-700/20 rounded-md hover:bg-violet-700/20  text-[13px] font-bold uppercase tracking-wider cursor-pointer"
               onClick={() => document.getElementById("importar-excel").click()}
             >
               <DescargarIcono size={14} />

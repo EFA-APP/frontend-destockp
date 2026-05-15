@@ -104,10 +104,13 @@ export const ActualizarSaldoApi = async (codigoSecuencial, dto) => {
   return data;
 };
 
-export const ListarMovimientosApi = async (codigoSecuencial) => {
-  const url = codigoSecuencial
+export const ListarMovimientosApi = async (codigoSecuencial, filtros = {}) => {
+  const params = new URLSearchParams({ ...filtros }).toString();
+  const base = codigoSecuencial
     ? `/contactos/movimientos/${codigoSecuencial}`
     : `/contactos/movimientos`;
+  
+  const url = `${base}${params ? `?${params}` : ""}`;
 
   const { data } = await axiosInitial.get(url, { showLoader: false });
   return data;

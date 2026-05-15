@@ -6,9 +6,9 @@ export const columnasMateriaPrima = (onAbrirDrawer) => [
     etiqueta: "Cód.",
     filtrable: true,
     renderizar: (valor) => (
-      <div className="flex items-center gap-2">
-        <div className="font-mono text-[12px] font-black text-emerald-700 bg-emerald-700/10 px-2 py-1 rounded-md border border-emerald-700/20 shadow-sm tracking-tighter">
-          #{String(valor).padStart(4, "0")}
+      <div className="flex justify-end gap-2">
+        <div className="font-mono text-[12px] font-black text-[var(--primary)]">
+          {String(valor).padStart(4, "0")}
         </div>
       </div>
     ),
@@ -76,7 +76,7 @@ export const columnasMateriaPrima = (onAbrirDrawer) => [
         <div className="py-2">
           <div
             onClick={() => onAbrirDrawer && onAbrirDrawer(fila)}
-            className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border backdrop-blur-md ${config.bg} ${config.color} ${config.border} ${config.glow}   shadow-sm hover:scale-105 transform origin-left cursor-pointer`}
+            className={`inline-flex items-center gap-2 px-3 py-1 rounded-md border backdrop-blur-md ${config.bg} ${config.color} ${config.border} ${config.glow}   shadow-sm hover:scale-105 transform origin-left cursor-pointer`}
           >
             <span className="text-[14px] font-black tracking-tight">
               {valor || 0}

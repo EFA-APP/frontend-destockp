@@ -25,9 +25,18 @@ body {
 }
 
 @keyframes loading-progress {
-  0% { width: 0%; opacity: 1; }
-  50% { width: 50%; opacity: 1; }
-  100% { width: 100%; opacity: 0; }
+  0% {
+    width: 0%;
+    opacity: 1;
+  }
+  50% {
+    width: 50%;
+    opacity: 1;
+  }
+  100% {
+    width: 100%;
+    opacity: 0;
+  }
 }
 
 .fle-oca {
@@ -60,7 +69,7 @@ body {
   --p-l: 54%;
 
   --primary: hsl(var(--p-h), var(--p-s), var(--p-l));
-  --fucsia: #FF007F;
+  --fucsia: #ff007f;
   --primary-hover: hsl(var(--p-h), var(--p-s), calc(var(--p-l) - 5%));
   --primary-active: hsl(var(--p-h), var(--p-s), calc(var(--p-l) - 10%));
   --primary-light: hsl(var(--p-h), var(--p-s), 70%);
@@ -99,9 +108,18 @@ body {
   --font-weight-bold: 700;
 
   /* --- Semantic Colors --- */
-  --fill: hsl(230, 25%, 96%); /* Fondo principal ligeramente más oscuro para dar contraste a las tarjetas blancas */
+  --fill: hsl(
+    230,
+    25%,
+    96%
+  ); /* Fondo principal ligeramente más oscuro para dar contraste a las tarjetas blancas */
   --fill-secondary: hsl(230, 25%, 92%);
-  --surface: rgba(255, 255, 255, 0.95); /* Superficies casi blancas pero con sutil transparencia */
+  --surface: rgba(
+    255,
+    255,
+    255,
+    0.95
+  ); /* Superficies casi blancas pero con sutil transparencia */
   --surface-hover: rgba(255, 255, 255, 1);
   --surface-active: hsl(230, 20%, 98%);
 
@@ -119,6 +137,8 @@ body {
   --error: #f43f5e;
   --warning: #f59e0b;
   --info: var(--primary);
+
+  --text-green: #02680e;
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 8px 24px rgba(31, 38, 135, 0.04);
@@ -914,20 +934,42 @@ svg {
 
 /* --- Sophisticated Loader Animations --- */
 @keyframes orbit {
-  from { transform: rotate(0deg) translateX(45px) rotate(0deg); }
-  to { transform: rotate(360deg) translateX(45px) rotate(-360deg); }
+  from {
+    transform: rotate(0deg) translateX(45px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(45px) rotate(-360deg);
+  }
 }
 
 @keyframes pulsate-glow {
-  0% { transform: scale(0.95); opacity: 0.5; filter: blur(15px); }
-  50% { transform: scale(1.1); opacity: 0.8; filter: blur(25px); }
-  100% { transform: scale(0.95); opacity: 0.5; filter: blur(15px); }
+  0% {
+    transform: scale(0.95);
+    opacity: 0.5;
+    filter: blur(15px);
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+    filter: blur(25px);
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.5;
+    filter: blur(15px);
+  }
 }
 
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 .loader-orbit-ring {
@@ -951,8 +993,12 @@ svg {
 }
 
 @keyframes spin-loader {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Fallback for Tailwind animate-spin */
@@ -961,20 +1007,40 @@ svg {
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 @keyframes progress-slide {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(300%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
 }
 
 /* --- Top Loading Bar --- */
 @keyframes loading-progress {
-  0% { width: 0%; left: 0; opacity: 1; }
-  50% { width: 70%; left: 0; opacity: 1; }
-  100% { width: 100%; left: 0; opacity: 0; }
+  0% {
+    width: 0%;
+    left: 0;
+    opacity: 1;
+  }
+  50% {
+    width: 70%;
+    left: 0;
+    opacity: 1;
+  }
+  100% {
+    width: 100%;
+    left: 0;
+    opacity: 0;
+  }
 }
 
 .top-loading-bar {
@@ -982,7 +1048,7 @@ svg {
   top: 0;
   left: 0;
   height: 3px;
-  background: linear-gradient(to right, transparent, var(--primary), #FF007F);
+  background: linear-gradient(to right, transparent, var(--primary), #ff007f);
   z-index: 10001;
   box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
   animation: loading-progress 1.5s ease-in-out infinite;

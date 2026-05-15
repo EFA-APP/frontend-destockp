@@ -1,0 +1,141 @@
+import { Plus } from "lucide-react";
+import { useMemo } from "react";
+import { usePlanDeCuentas } from "../../../../Backend/hooks/Contabilidad/PlanDeCuenta/usePlanDeCuentas";
+import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
+import FormularioDinamico from "../../../UI/FormularioReutilizable/FormularioDinamico";
+import { useAlertas } from "../../../../store/useAlertas";
+
+const CrearPlanDeCuenta = () => {
+  const {
+    agregarCuenta,
+    rawCuentasNoImputables,
+    isCreando,
+    isLoadingNoImputables,
+  } = usePlanDeCuentas();
+  const { agregarAlerta } = useAlertas();
+
+  // Opciones para el selector de cuenta padre (solo no imputables)
+  const cuentasPadreOptions = useMemo(() => {
+    const options = (rawCuentasNoImputables || []).map((node) => ({
+      value: node.codigoSecuencial,
+      label: `${node.codigo} - ${node.nombre}`,
+    }));
+
+    return [{ value: null, label: "-- Sin cuenta padre --" }, ...options];
+  }, [rawCuentasNoImputables]);
+
+  const camposCuenta = [
+    {
+      name: "codigo",
+      label: "Código de Cuenta",
+      type: "text",
+      required: true,
+      section: "Estructura",
+      placeholder: "1.1.01",
+      helpText: "Ej: 1.1.01 para Caja",
+    },
+    {
+      name: "nombre",
+      label: "Nombre de la Cuenta",
+      type: "text",
+      required: true,
+      section: "Estructura",
+      placeholder: "Ej: Caja Central",
+    },
+    {
+      name: "tipo",
+      label: "Tipo de Cuenta",
+      type: "select",
+      required: true,
+      section: "Clasificación",
+      options: [
+        { value: "ACTIVO", label: "Activo" },
+        { value: "PASIVO", label: "Pasivo" },
+        { value: "PATRIMONIO", label: "Patrimonio" },
+        { value: "RESULTADO_POSITIVO", label: "Resultado Positivo (Ingresos)" },
+        { value: "RESULTADO_NEGATIVO", label: "Resultado Negativo (Egresos)" },
+      ],
+    },
+    {
+      name: "codigoCuentaPadre",
+      label: "Cuenta Padre",
+      type: "search-select",
+      section: "Jerarquía",
+      options: cuentasPadreOptions,
+      placeholder: "Escriba para buscar una cuenta padre...",
+      helpText:
+        "Seleccione la cuenta agrupadora bajo la cual colgará esta cuenta",
+    },
+    {
+      name: "imputable",
+      label: "¿Permite Movimientos?",
+      type: "select",
+      section: "Configuración",
+      defaultValue: true,
+      options: [
+        { value: true, label: "SÍ (Cuenta Operativa)" },
+        { value: false, label: "NO (Solo Agrupadora)" },
+      ],
+      helpText: "Las cuentas no imputables se usan para agrupar saldos",
+    },
+  ];
+
+  const handleSubmit = async (data) => {
+    try {
+      const payload = {
+        codigo: data.codigo,
+        nombre: data.nombre,
+        tipo: data.tipo,
+        imputable: data.imputable === "true" || data.imputable === true,
+        codigoCuentaPadre: data.codigoCuentaPadre
+          ? Number(data.codigoCuentaPadre)
+          : null,
+      };
+
+      await agregarCuenta(payload);
+
+      agregarAlerta({
+        type: "success",
+        message: "Cuenta contable creada correctamente.",
+      });
+
+      // Redirigir al listado
+      window.location.href = "/panel/contabilidad/cuentas";
+    } catch (error) {
+      agregarAlerta({
+        type: "error",
+        message: error.message || "Error al crear la cuenta.",
+      });
+    }
+  };
+
+  return (
+    <div className="w-full h-full flex flex-col">
+      <EncabezadoSeccion
+        ruta="Crear Plan de Cuentas "
+        icono={
+          <div className="w-10 h-10 bg-black/40 rounded-md flex items-center justify-center text-black shadow-lg">
+            <Plus size={20} strokeWidth={2.5} />
+          </div>
+        }
+        volver
+        redireccionAnterior="/panel/contabilidad/cuentas"
+      />
+
+      <div className="flex-1 px-8 pb-8">
+        <div className="p-4">
+          <FormularioDinamico
+            titulo="Nueva Cuenta"
+            subtitulo="Complete los datos de la cuenta"
+            campos={camposCuenta}
+            onSubmit={handleSubmit}
+            submitLabel={isCreando ? "Creando..." : "Crear Cuenta"}
+            disabled={isCreando}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CrearPlanDeCuenta;

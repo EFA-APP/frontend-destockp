@@ -15,7 +15,7 @@ import React from "react";
 
 const DashboardCard = ({ children, className = "", title, icon }) => (
   <div
-    className={`rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-sm overflow-hidden flex flex-col ${className}`}
+    className={`rounded-md bg-[var(--surface)] border border-[var(--border-subtle)] shadow-sm overflow-hidden flex flex-col ${className}`}
   >
     {title && (
       <div className="px-5 py-3 border-b border-[var(--border-subtle)] flex justify-between items-center bg-[var(--fill-secondary)]/30">
@@ -36,9 +36,9 @@ const DashboardCard = ({ children, className = "", title, icon }) => (
 );
 
 const Movimiento = ({ icon, concepto, monto, negativo }) => (
-  <div className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)] last:border-0 group hover:bg-[var(--surface-hover)]  rounded-xl px-2 -mx-2">
+  <div className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)] last:border-0 group hover:bg-[var(--surface-hover)]  rounded-md px-2 -mx-2">
     <div className="flex items-center gap-3">
-      <div className="w-8 h-8 rounded-lg bg-[var(--surface-hover)] flex items-center justify-center text-[12px] font-bold text-[var(--primary)] border border-[var(--border-subtle)] group-hover:border-[var(--primary)]/30 ">
+      <div className="w-8 h-8 rounded-md bg-[var(--surface-hover)] flex items-center justify-center text-[12px] font-bold text-[var(--primary)] border border-[var(--border-subtle)] group-hover:border-[var(--primary)]/30 ">
         {React.isValidElement(icon)
           ? React.cloneElement(icon, { size: 14 })
           : icon}
@@ -64,7 +64,7 @@ const Movimiento = ({ icon, concepto, monto, negativo }) => (
 const QuickAction = ({ icon, label, redirigir }) => (
   <Link
     to={redirigir}
-    className="group flex flex-col items-center justify-center p-4 rounded-xl hover:bg-[var(--surface)] border hover:border-[var(--border-subtle)] border-[var(--primary)]/40 bg-[var(--primary-subtle)]   gap-2.5 shadow-sm"
+    className="group flex flex-col items-center justify-center p-4 rounded-md hover:bg-[var(--surface)] border hover:border-[var(--border-subtle)] border-[var(--primary)]/40 bg-[var(--primary-subtle)]   gap-2.5 shadow-sm"
   >
     <div className="p-2.5 rounded-md bg-[var(--surface-hover)] group-hover:text-[var(--text-secondary)] text-[var(--primary)]    border border-[var(--border-subtle)]">
       {React.isValidElement(icon)
@@ -106,7 +106,7 @@ const Inicio = () => {
           </p>
 
           <div className="w-full mt-6 py-4 px-5 rounded-2xl bg-black/5 border border-black/5 text-left flex items-start gap-4">
-            <div className="w-8 h-8 rounded-xl bg-[var(--primary)]/20 text-[var(--primary)] flex items-center justify-center border border-[var(--primary)] shrink-0 font-bold">
+            <div className="w-8 h-8 rounded-md bg-[var(--primary)]/20 text-[var(--primary)] flex items-center justify-center border border-[var(--primary)] shrink-0 font-bold">
               ?
             </div>
             <div>
@@ -125,7 +125,7 @@ const Inicio = () => {
               window.localStorage.clear();
               window.location.reload();
             }}
-            className="flex items-center gap-2 mt-8 px-5 py-2.5 bg-black/5 hover:bg-black/10 rounded-xl text-[13px] font-bold text-black/60 hover:text-black uppercase tracking-wider  border border-black/5 cursor-pointer active:scale-95"
+            className="flex items-center gap-2 mt-8 px-5 py-2.5 bg-black/5 hover:bg-black/10 rounded-md text-[13px] font-bold text-black/60 hover:text-black uppercase tracking-wider  border border-black/5 cursor-pointer active:scale-95"
           >
             <LogOut size={14} /> Cerrar Sesión
           </button>
@@ -190,7 +190,7 @@ const Inicio = () => {
             title="Rendimiento Mensual"
             icon={<ListaIcono size={16} />}
           >
-            <div className="h-56 mt-1 rounded-xl bg-[var(--fill-secondary)]/20 flex items-center justify-center border border-[var(--border-subtle)] text-[var(--text-muted)] text-[11px] font-bold uppercase tracking-[0.2em] opacity-50">
+            <div className="h-56 mt-1 rounded-md bg-[var(--fill-secondary)]/20 flex items-center justify-center border border-[var(--border-subtle)] text-[var(--text-muted)] text-[11px] font-bold uppercase tracking-[0.2em] opacity-50">
               Visualización de Datos (Ingresos v Egresos)
             </div>
 
@@ -223,7 +223,7 @@ const Inicio = () => {
               <QuickAction
                 icon={<PagosIcono />}
                 label="Nueva Compra"
-                redirigir={"/panel/compras/facturas-proveedores/nueva"}
+                redirigir={"/panel/compras/factura-proveedor"}
               />
               <QuickAction
                 icon={<ContableIcono />}

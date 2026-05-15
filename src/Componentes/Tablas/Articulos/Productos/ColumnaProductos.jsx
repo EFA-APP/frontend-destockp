@@ -3,13 +3,11 @@ import { InventarioIcono } from "../../../../assets/Icons";
 export const columnasProductos = [
   {
     key: "codigoSecuencial",
-    etiqueta: "Cód.",
+    etiqueta: "Código",
     filtrable: true,
-    renderizar: (valor) => (
-      <div className="flex items-center gap-2">
-        <div className="font-mono text-[12px] font-black text-amber-700 px-2 py-1 rounded-md border border-amber-700 shadow-sm tracking-tighter">
-          #{String(valor).padStart(4, "0")}
-        </div>
+    renderizar: (valor, fila) => (
+      <div className="font-mono text-[12px] text-[var(--primary)] px-2 py-1">
+        {fila.codigoSecuencial}
       </div>
     ),
   },
@@ -71,7 +69,7 @@ export const columnasProductos = [
       return (
         <div className="py-2">
           <div
-            className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border backdrop-blur-md ${config.bg} ${config.color} ${config.border} ${config.glow}  `}
+            className={`inline-flex items-center gap-2 px-3 py-1 rounded-md border backdrop-blur-md ${config.bg} ${config.color} ${config.border} ${config.glow}  `}
           >
             <span className="text-[14px] font-black tracking-tight">
               {valor || 0}

@@ -3,7 +3,7 @@ import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { ObtenerMateriasPrimasApi } from "../../api/MateriaPrima/materiaprima.api";
 import { useAlertas } from "../../../../store/useAlertas";
 
-export const useObtenerMateriasPrimas = (filtros) => {
+export const useObtenerMateriasPrimas = (filtros, options = {}) => {
     const agregarAlerta = useAlertas((state) => state.agregarAlerta);
 
     const query = useQuery({
@@ -11,6 +11,7 @@ export const useObtenerMateriasPrimas = (filtros) => {
         queryFn: () => ObtenerMateriasPrimasApi(filtros),
         placeholderData: keepPreviousData,
         staleTime: 1000 * 60 * 5,
+        ...options
     });
 
     const { error, isError } = query;

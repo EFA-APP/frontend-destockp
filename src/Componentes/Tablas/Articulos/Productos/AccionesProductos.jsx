@@ -4,6 +4,7 @@ export const accionesProductos = ({
   handleEditarClick,
   handleEliminarClick,
   handleDuplicarClick,
+  handleAgregarImagen,
   tieneAccion,
 }) => [
   ...(tieneAccion("EDITAR_PRODUCTO")
@@ -11,6 +12,14 @@ export const accionesProductos = ({
         {
           ...accionesReutilizables.editar,
           onClick: (fila) => handleEditarClick(fila),
+        },
+      ]
+    : []),
+  ...(tieneAccion("CARGAR_IMAGEN_PRODUCTO")
+    ? [
+        {
+          ...accionesReutilizables.agregarImagen,
+          onClick: (fila) => handleAgregarImagen(fila),
         },
       ]
     : []),

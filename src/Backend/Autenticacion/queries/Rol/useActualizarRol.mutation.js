@@ -7,7 +7,7 @@ export const useActualizarRol = () => {
     const agregarAlerta = useAlertas((state) => state.agregarAlerta);
 
     return useMutation({
-        mutationFn: ({ codigo, data }) => actualizarRolApi(codigo, data),
+        mutationFn: ({ codigo, codigoEmpresa, data }) => actualizarRolApi(codigo, codigoEmpresa, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["roles"] });
             agregarAlerta({

@@ -1,1 +1,0 @@
-import{j as o}from"./index-Crj2lV65.js";const n=({children:r})=>o.jsx("div",{className:"px-1 mb-20 md:mb-0 md:px-5 md:py-4 border-0 card no-inset no-ring bg-[var(--primary)]/5 rounded-md",children:r});export{n as C};
