@@ -9,6 +9,7 @@ const CrearPlanDeCuenta = () => {
   const {
     agregarCuenta,
     rawCuentasNoImputables,
+    rawCuentas,
     isCreando,
     isLoadingNoImputables,
   } = usePlanDeCuentas();
@@ -24,6 +25,21 @@ const CrearPlanDeCuenta = () => {
     return [{ value: null, label: "-- Sin cuenta padre --" }, ...options];
   }, [rawCuentasNoImputables]);
 
+  // Pre-computar códigos existentes para validación rápida
+  const codigosExistentes = useMemo(() => {
+    const codigos = new Set();
+    const recorrer = (nodos) => {
+      if (!nodos) return;
+      nodos.forEach((nodo) => {
+        if (nodo.codigo) codigos.add(nodo.codigo);
+        if (nodo.subCuentas) recorrer(nodo.subCuentas);
+        if (nodo.children) recorrer(nodo.children);
+      });
+    };
+    recorrer(rawCuentas);
+    return codigos;
+  }, [rawCuentas]);
+
   const camposCuenta = [
     {
       name: "codigo",
@@ -32,7 +48,28 @@ const CrearPlanDeCuenta = () => {
       required: true,
       section: "Estructura",
       placeholder: "1.1.01",
-      helpText: "Ej: 1.1.01 para Caja",
+      helpText: (formData) => {
+        if (!formData.codigo) return "Ej: 1.1.01 para Caja";
+        const existe = codigosExistentes.has(formData.codigo.trim());
+        if (existe) {
+          return (
+            <span className="text-red-600 font-bold">
+              ⚠️ Este código ya existe en el plan de cuentas.
+            </span>
+          );
+        }
+        return (
+          <span className="text-green-600 font-bold">
+            ✅ Código disponible.
+          </span>
+        );
+      },
+      validate: (value) => {
+        if (value && codigosExistentes.has(value.trim())) {
+          return "El código de cuenta ya existe.";
+        }
+        return null;
+      },
     },
     {
       name: "nombre",

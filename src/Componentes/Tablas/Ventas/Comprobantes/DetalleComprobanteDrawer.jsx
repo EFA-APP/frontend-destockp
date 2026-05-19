@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   X,
   Download,
@@ -115,7 +116,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
     return { icon: <CreditCard size={20} />, color: "bg-slate-500", lightBg: "bg-slate-50/50", border: "border-slate-100", text: "text-slate-600" };
   };
 
-  return (
+  return createPortal(
     <div className={`h-full fixed inset-0 z-[1000] flex justify-end transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
       <div className="absolute inset-0 bg-black/30 backdrop-blur-md" onClick={onClose} />
       <div className={`relative w-full max-w-[550px] bg-white shadow-2xl transform transition-transform duration-500 flex flex-col h-full ${open ? "translate-x-0" : "translate-x-full"}`}>
@@ -279,7 +280,8 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
           </section>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

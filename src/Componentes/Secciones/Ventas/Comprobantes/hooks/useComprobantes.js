@@ -769,7 +769,7 @@ export const useComprobantes = () => {
         meta: {
           manejoSaldoNC: opciones.manejoSaldoNC,
         },
-        tipoEntidad: (clienteSeleccionado || receptorVinculado)?.enteFacturacion?.tipoEntidad || (clienteSeleccionado || receptorVinculado)?.tipoEntidad || null,
+        tipoEntidad: (clienteSeleccionado || receptorVinculado)?.tipoEntidad || (clienteSeleccionado || receptorVinculado)?.enteFacturacion?.tipoEntidad || null,
         codigoDeposito: unidadSeleccionada?.configuracion?.codigoDeposito ? Number(unidadSeleccionada.configuracion.codigoDeposito) : undefined,
         usaContabilidad: !!usuario?.usaContabilidad,
       };

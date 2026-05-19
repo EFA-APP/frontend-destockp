@@ -183,7 +183,7 @@ const Comprobantes = () => {
   const noopProductoEncontrado = useCallback(() => {}, []);
   const cargandoInicial = cargandoConfigs && items.length === 0;
   return (
-    <div className="flex flex-col min-h-screen w-full pt-4 md:py-6 px-2">
+    <div className="flex flex-col md:h-[calc(100vh-56px)] w-full p-2 md:p-4 md:overflow-hidden min-h-0">
       {/* 1. SECCIÓN: CABECERA */}
       <EncabezadoSeccion
         ruta={"Comprobantes"}
@@ -275,10 +275,10 @@ const Comprobantes = () => {
       {cargandoInicial ? (
         <ComprobantesSkeleton />
       ) : (
-        <div className="flex-1 flex flex-col overflow-hidden mx-auto w-full md:px-4 mt-4">
+        <div className="flex-1 flex flex-col overflow-hidden mx-auto w-full md:px-4 mt-4 min-h-0">
           {/* PASO 1: AGREGAR PRODUCTOS */}
           {paso === 1 && (
-            <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-500 pr-1 pb-20">
+            <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-500 pr-1 pb-4 md:pb-0 min-h-0 overflow-hidden">
               <div className="flex flex-col gap-0.5 mb-0.5">
                 <div className="flex justify-between items-center bg-[var(--surface-hover)] p-3 rounded-md border border-black/5 shadow-sm">
                   <div className="flex items-center gap-3">
@@ -376,7 +376,7 @@ const Comprobantes = () => {
                 )}
               </div>
 
-              <div className="flex-1   flex flex-col">
+              <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar pr-1">
                 <DataTable
                   datos={items.map((it, idx) => ({ ...it, _pos: idx }))}
                   columnas={ColumnasTicket({
@@ -578,10 +578,9 @@ const Comprobantes = () => {
             </div>
           )}
 
-          {/* PASO 4: FORMA DE PAGO (VERSION FINAL SEGÚN IMAGEN) */}
           {paso === 4 && (
-            <div className="flex-1 flex flex-col md:flex-row gap-6 animate-in fade-in slide-in-from-right-4 duration-500 overflow-y-auto pb-20 ">
-              <div className="flex-1 flex flex-col gap-6">
+            <div className="flex-1 flex flex-col md:flex-row gap-6 animate-in fade-in slide-in-from-right-4 duration-500 overflow-hidden min-h-0">
+              <div className="flex-1 flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-1 pb-6 min-h-0">
                 {/* 1. SELECCION DE CONDICION (IMAGEN 1) */}
                 <div className="bg-white shadow-md border border-black/10 rounded-md p-4 flex flex-col gap-3">
                   <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest opacity-80">

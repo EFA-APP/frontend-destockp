@@ -52,11 +52,12 @@ export const columnasCuotas = ({ periodoSeleccionado, formatCurrency }) => [
     etiqueta: "Interés",
     renderizar: (_, alumno) => {
       const cuota = alumno.cuotas?.[periodoSeleccionado];
+      const mostrarInteres = cuota?.interes > 0 && cuota?.estado !== "pagado";
       return (
         <span
-          className={`font-bold text-[13px] ${cuota?.interes > 0 ? "text-amber-600" : "text-[var(--primary)]/30"}`}
+          className={`font-bold text-[13px] ${mostrarInteres ? "text-amber-600" : "text-[var(--primary)]/30"}`}
         >
-          {cuota?.interes > 0 ? `+ ${formatCurrency(cuota.interes)}` : "—"}
+          {mostrarInteres ? `+ ${formatCurrency(cuota.interes)}` : "—"}
         </span>
       );
     },
@@ -71,6 +72,7 @@ export const columnasCuotas = ({ periodoSeleccionado, formatCurrency }) => [
         .reduce((sum, c) => sum + c.monto, 0);
 
       const total = (cuota?.monto || 0) + deudaPrevia;
+      const mostrarMoraBadge = cuota?.interes > 0 && cuota?.estado !== "pagado";
       return (
         <div className="flex flex-col">
           <span
@@ -78,7 +80,7 @@ export const columnasCuotas = ({ periodoSeleccionado, formatCurrency }) => [
           >
             {formatCurrency(total)}
           </span>
-          {cuota?.interes > 0 && (
+          {mostrarMoraBadge && (
             <span className="text-[9px] font-bold text-amber-600 uppercase">
               Incluye Mora
             </span>

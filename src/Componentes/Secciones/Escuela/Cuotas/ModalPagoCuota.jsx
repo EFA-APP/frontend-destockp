@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { createPortal } from "react-dom";
 import {
   X,
   CreditCard,
@@ -9,6 +10,7 @@ import {
   Info,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ComprobanteIcono } from "../../../../assets/Icons";
 
 const ModalPagoCuota = ({ alumno, onClose }) => {
   const navigate = useNavigate();
@@ -108,14 +110,14 @@ const ModalPagoCuota = ({ alumno, onClose }) => {
     }).format(val || 0);
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-[var(--surface)] border border-black/10 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+      <div className="bg-[var(--surface)] border border-black/10 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
         {/* Header */}
         <div className="p-6 border-b border-black/5 flex items-center justify-between bg-gradient-to-r from-[var(--primary)]/10 to-transparent">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-[var(--primary)] flex items-center justify-center text-white shadow-lg shadow-[var(--primary)]/20">
-              <CreditCard size={24} />
+              <ComprobanteIcono size={24} />
             </div>
             <div className="flex flex-col">
               <h2 className="text-[20px] font-black text-black/80 uppercase tracking-tighter leading-none">
@@ -135,7 +137,7 @@ const ModalPagoCuota = ({ alumno, onClose }) => {
         </div>
 
         {/* Content */}
-        <div className="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
+        <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2 text-[11px] font-black text-black/40 uppercase tracking-widest mb-2">
               <Calendar size={14} />
@@ -260,7 +262,8 @@ const ModalPagoCuota = ({ alumno, onClose }) => {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
 

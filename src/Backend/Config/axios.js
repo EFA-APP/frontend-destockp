@@ -36,11 +36,13 @@ const createAxiosInstance = (baseURL) => {
       // 🏢 Contexto de Empresa y Unidad de Negocio
       const { usuario } = useAuthStore.getState();
 
-      if (usuario?.codigoEmpresa) {
+      if (usuario?.codigoEmpresa && !config.sinEmpresa) {
         config.params = {
           codigoEmpresa: usuario.codigoEmpresa, // Valor por defecto (sesión)
           ...config.params, // Sobrescribe con el valor explícito si existe
         };
+      } else if (config.sinEmpresa && config.params) {
+        delete config.params.codigoEmpresa;
       }
 
       return config;

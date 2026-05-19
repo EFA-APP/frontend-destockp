@@ -82,6 +82,12 @@ const ConfiguracionContable = () => {
         },
         { id: "IVA", label: "IVA Débito Fiscal", side: "HABER", color: "rose" },
         {
+          id: "INTERES",
+          label: "Intereses por Mora (Ganancia)",
+          side: "HABER",
+          color: "rose",
+        },
+        {
           id: "CLIENTES",
           label: "Deudores / Cuenta Corriente",
           side: "DEBE",
@@ -140,39 +146,21 @@ const ConfiguracionContable = () => {
     useConfiguracionContable();
   const { cuentasImputables, isLoading: isLoadingCuentas } = usePlanDeCuentas();
 
-  const [unidadSeleccionada, setUnidadSeleccionada] = useState(
-    usuario?.unidadesNegocio?.[0]?.codigoSecuencial || 0,
-  );
   const [reglaSeleccionada, setReglaSeleccionada] = useState({
     accion: filtroModulo === "VENTAS" ? "FACTURACION" : "COMPRA",
     tiposComprobante: [],
-    tipoEntidad: null,
     metodoPago: "EFECTIVO",
+    tipoEntidad: null,
   });
 
   const [conceptosEditando, setConceptosEditando] = useState({});
-  const [tiposEntidad, setTiposEntidad] = useState([]);
   const [tiposComprobanteArca, setTiposComprobanteArca] = useState([]);
   const [cargandoDesdeLista, setCargandoDesdeLista] = useState(false);
-
-  const unidadesNegocio = useMemo(
-    () =>
-      usuario?.unidadesNegocio?.map((un) => ({
-        id: un.codigoSecuencial,
-        label: un.nombre,
-      })) || [],
-    [usuario],
-  );
+  const [entidadesOptions, setEntidadesOptions] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const dataEntidades = await ListarEntidadesApi();
-        if (Array.isArray(dataEntidades)) {
-          setTiposEntidad(
-            dataEntidades.map((ent) => ({ id: ent.clave, label: ent.nombre })),
-          );
-        }
         const dataArca = await ObtenerTiposComprobanteApi();
         const listaTipos = Array.isArray(dataArca)
           ? dataArca
@@ -181,6 +169,17 @@ const ConfiguracionContable = () => {
           setTiposComprobanteArca(
             listaTipos.map((t) => ({ id: t.Id, label: t.Desc })),
           );
+        }
+
+        const dataEntidades = await ListarEntidadesApi();
+        if (Array.isArray(dataEntidades)) {
+          setEntidadesOptions([
+            { value: "", label: "-- Todas las Entidades --" },
+            ...dataEntidades.map((e) => ({
+              value: e.clave,
+              label: e.descripcion || e.nombre || e.clave,
+            })),
+          ]);
         }
       } catch (e) {
         console.error("Error al cargar datos auxiliares:", e);
@@ -199,27 +198,19 @@ const ConfiguracionContable = () => {
 
   useEffect(() => {
     if (codigoEmpresa)
-      cargarMapeos(codigoEmpresa, filtroModulo, unidadSeleccionada);
-  }, [cargarMapeos, codigoEmpresa, filtroModulo, unidadSeleccionada]);
-
-  // Sincronizar unidad inicial cuando carga el usuario
-  useEffect(() => {
-    if (usuario?.unidadesNegocio?.length > 0 && unidadSeleccionada === 0) {
-      setUnidadSeleccionada(usuario.unidadesNegocio[0].codigoSecuencial);
-    }
-  }, [usuario, unidadSeleccionada]);
+      cargarMapeos(codigoEmpresa, filtroModulo);
+  }, [cargarMapeos, codigoEmpresa, filtroModulo]);
 
   const reglasAgrupadas = useMemo(() => {
     const grupos = {};
     mapeos.forEach((mapItem) => {
-      const key = `${mapItem.accion}-${mapItem.tipoComprobante}-${mapItem.tipoEntidad}-${mapItem.metodoPago}-${mapItem.codigoUnidadNegocio}`;
+      const key = `${mapItem.accion}-${mapItem.tipoComprobante}-${mapItem.metodoPago}-${mapItem.tipoEntidad}`;
       if (!grupos[key]) {
         grupos[key] = {
           accion: mapItem.accion,
           tipoComprobante: mapItem.tipoComprobante,
-          tipoEntidad: mapItem.tipoEntidad,
           metodoPago: mapItem.metodoPago,
-          codigoUnidadNegocio: mapItem.codigoUnidadNegocio,
+          tipoEntidad: mapItem.tipoEntidad,
           conceptos: {},
         };
       }
@@ -234,11 +225,10 @@ const ConfiguracionContable = () => {
       (item) =>
         item.accion === reglaSeleccionada.accion &&
         item.tipoComprobante == primerTipo &&
-        item.tipoEntidad == reglaSeleccionada.tipoEntidad &&
         item.metodoPago == reglaSeleccionada.metodoPago &&
-        item.codigoUnidadNegocio == unidadSeleccionada,
+        item.tipoEntidad == reglaSeleccionada.tipoEntidad,
     );
-  }, [reglaSeleccionada, reglasAgrupadas, unidadSeleccionada]);
+  }, [reglaSeleccionada, reglasAgrupadas]);
 
   useEffect(() => {
     if (cargandoDesdeLista)
@@ -250,8 +240,8 @@ const ConfiguracionContable = () => {
     setReglaSeleccionada({
       accion: filtroModulo === "VENTAS" ? "FACTURACION" : "COMPRA",
       tiposComprobante: [],
-      tipoEntidad: null,
       metodoPago: null,
+      tipoEntidad: null,
     });
     setConceptosEditando({});
   };
@@ -279,9 +269,8 @@ const ConfiguracionContable = () => {
         items,
         {
           tipoComprobante: tipo,
-          tipoEntidad: reglaSeleccionada.tipoEntidad,
           metodoPago: reglaSeleccionada.metodoPago,
-          codigoUnidadNegocio: unidadSeleccionada,
+          tipoEntidad: reglaSeleccionada.tipoEntidad,
         },
       );
     }
@@ -412,24 +401,6 @@ const ConfiguracionContable = () => {
               </div>
 
               <div className="space-y-6">
-                {/* UNIDAD */}
-                <div className="space-y-2">
-                  <label className="text-[9px] font-black text-[var(--primary)]/70 uppercase tracking-widest ml-1">
-                    Unidad de Negocio
-                  </label>
-                  <SearchableSelect
-                    value={unidadSeleccionada}
-                    onChange={(e) => {
-                      setCargandoDesdeLista(false);
-                      setUnidadSeleccionada(Number(e.target.value));
-                    }}
-                    options={unidadesNegocio.map((un) => ({
-                      value: un.id,
-                      label: un.label,
-                    }))}
-                  />
-                </div>
-
                 {/* ACCIÓN */}
                 <div className="space-y-2">
                   <label className="text-[9px] font-black text-[var(--primary)]/70 uppercase tracking-widest ml-1">
@@ -485,30 +456,6 @@ const ConfiguracionContable = () => {
                   />
                 </div>
 
-                {/* ENTIDAD */}
-                <div className="space-y-2">
-                  <label className="text-[9px] font-black text-[var(--primary)]/70 uppercase tracking-widest ml-1">
-                    Segmento de Entidad
-                  </label>
-                  <SearchableSelect
-                    value={reglaSeleccionada.tipoEntidad || ""}
-                    onChange={(e) => {
-                      setCargandoDesdeLista(false);
-                      setReglaSeleccionada({
-                        ...reglaSeleccionada,
-                        tipoEntidad: e.target.value || null,
-                      });
-                    }}
-                    options={[
-                      { value: "", label: "Todos los Segmentos" },
-                      ...tiposEntidad.map((ent) => ({
-                        value: ent.id,
-                        label: ent.label,
-                      })),
-                    ]}
-                  />
-                </div>
-
                 {/* PAGO */}
                 <div className="space-y-2">
                   <label className="text-[9px] font-black text-[var(--primary)]/70 uppercase tracking-widest ml-1">
@@ -524,11 +471,34 @@ const ConfiguracionContable = () => {
                       });
                     }}
                     options={[
+                      { value: "", label: "-- Cualquier Medio de Pago --" },
                       ...METODOS_PAGO.map((met) => ({
                         value: met.id,
                         label: met.label,
                       })),
                     ]}
+                  />
+                </div>
+
+                {/* ENTIDAD */}
+                <div className="space-y-2">
+                  <label className="text-[9px] font-black text-[var(--primary)]/70 uppercase tracking-widest ml-1">
+                    Tipo de Entidad
+                  </label>
+                  <SearchableSelect
+                    value={reglaSeleccionada.tipoEntidad || ""}
+                    onChange={(e) => {
+                      setCargandoDesdeLista(false);
+                      setReglaSeleccionada({
+                        ...reglaSeleccionada,
+                        tipoEntidad: e.target.value || null,
+                      });
+                    }}
+                    options={
+                      entidadesOptions.length > 0
+                        ? entidadesOptions
+                        : [{ value: "", label: "-- Todas las Entidades --" }]
+                    }
                   />
                 </div>
               </div>
@@ -856,12 +826,6 @@ const ConfiguracionContable = () => {
                               </span>
                               <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
                               <div className="px-3 py-1 bg-slate-100 rounded-md flex items-center gap-2">
-                                <Users size={12} className="text-slate-400" />
-                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">
-                                  {regla.tipoEntidad || "Todo Segmento"}
-                                </span>
-                              </div>
-                              <div className="px-3 py-1 bg-slate-100 rounded-md flex items-center gap-2">
                                 <CreditCard
                                   size={12}
                                   className="text-slate-400"
@@ -870,6 +834,17 @@ const ConfiguracionContable = () => {
                                   {regla.metodoPago || "Cualquier Pago"}
                                 </span>
                               </div>
+                              {regla.tipoEntidad && (
+                                <div className="px-3 py-1 bg-slate-100 rounded-md flex items-center gap-2">
+                                  <Users
+                                    size={12}
+                                    className="text-slate-400"
+                                  />
+                                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">
+                                    {entidadesOptions.find(e => e.value === regla.tipoEntidad)?.label || regla.tipoEntidad}
+                                  </span>
+                                </div>
+                              )}
                             </div>
 
                             <div className="flex gap-4">
@@ -912,11 +887,9 @@ const ConfiguracionContable = () => {
                               ) {
                                 eliminarMapeo(codigoEmpresa, filtroModulo, {
                                   accion: regla.accion,
-                                  codigoUnidadNegocio:
-                                    regla.codigoUnidadNegocio,
                                   tipoComprobante: regla.tipoComprobante,
-                                  tipoEntidad: regla.tipoEntidad,
                                   metodoPago: regla.metodoPago,
+                                  tipoEntidad: regla.tipoEntidad,
                                 });
                               }
                             }}

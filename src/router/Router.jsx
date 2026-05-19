@@ -67,6 +67,9 @@ const CrearMateriaPrima = lazy(
 const Cuotas = lazy(
   () => import("../Componentes/Secciones/Escuela/Cuotas/Cuotas"),
 );
+const AlumnosCtaCte = lazy(
+  () => import("../Componentes/Secciones/Escuela/AlumnosCtaCte"),
+);
 
 const CrearAsientos = lazy(
   () =>
@@ -235,9 +238,9 @@ export default function Router() {
               />
             </Route>
 
-            {/* ESCUELA */}
             <Route element={<RutaProtegida />}>
               <Route path="escuela/cuotas" element={<Cuotas />} />
+              <Route path="escuela/alumnos-cta-cte" element={<AlumnosCtaCte />} />
             </Route>
 
             {/* CONTABILIDAD */}

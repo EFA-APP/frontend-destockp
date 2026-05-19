@@ -95,41 +95,6 @@ const ListaContactos = ({
         </div>
       ),
     },
-    {
-      key: "saldo",
-      etiqueta: "Saldo Actual",
-      renderizar: (_, fila) => {
-        const saldo = fila.atributos?.saldo || 0;
-        return (
-          <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-[var(--fill-secondary)]">
-            <span
-              className={`text-[12px] font-black tracking-tight ${
-                saldo > 0.01
-                  ? "text-rose-500"
-                  : saldo < -0.01
-                    ? "text-emerald-500"
-                    : "text-[var(--text-muted)]"
-              }`}
-            >
-              {new Intl.NumberFormat("es-AR", {
-                style: "currency",
-                currency: "ARS",
-              }).format(saldo)}
-            </span>
-          </div>
-        );
-      },
-    },
-    {
-      key: "tipoEntidad",
-      etiqueta: "Tipo",
-      renderizar: (valor) => (
-        <span className="px-2 py-0.5 rounded bg-[var(--primary-subtle)] text-[10px] font-black uppercase tracking-wider text-[var(--primary-emphasis)] border border-[var(--primary)]/10">
-          {valor}
-        </span>
-      ),
-      ocultar: !!entidad,
-    },
   ];
 
   return (

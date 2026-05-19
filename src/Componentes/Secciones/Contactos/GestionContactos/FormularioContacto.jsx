@@ -154,7 +154,7 @@ const FormularioContacto = ({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm h-full bg-[var(--surface)] border-l border-[var(--border-subtle)] shadow-2xl flex flex-col animate-in slide-in-from-right duration-300"
+        className="w-full md:w-[500px] h-screen bg-[var(--surface)] border-l border-[var(--border-subtle)] shadow-2xl flex flex-col animate-in slide-in-from-right duration-300"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Elegante */}

@@ -39,7 +39,6 @@ const Cuotas = () => {
     alumnos,
     cargandoAlumnos,
     emitirCuotasMensuales,
-    cargarInteresesMensuales,
     busqueda,
     setBusqueda,
     mesSeleccionado,
@@ -107,7 +106,6 @@ const Cuotas = () => {
   const [cargando, setCargando] = useState(false);
   const [cargandoMora, setCargandoMora] = useState(false);
   const [emitirCargando, setEmitirCargando] = useState(false);
-  const [interesesCargando, setInteresesCargando] = useState(false);
   const [guardadoExitosa, setGuardadoExitosa] = useState(false);
   const [guardadoMoraExitosa, setGuardadoMoraExitosa] = useState(false);
   const [mostrarModalPago, setMostrarModalPago] = useState(false);
@@ -203,15 +201,6 @@ const Cuotas = () => {
     }
   };
 
-  const handleCargarInteresesMasivo = async () => {
-    setInteresesCargando(true);
-    try {
-      await cargarInteresesMensuales(periodoSeleccionado);
-    } finally {
-      setInteresesCargando(false);
-    }
-  };
-
   const handleAbrirEmisionIndividual = (alumno) => {
     setAlumnoParaEmitir(alumno);
     setMostrarModalEmision(true);
@@ -254,26 +243,6 @@ const Cuotas = () => {
                 </span>
               </div>
             </button>
-
-            {tieneVencidos && (
-              <button
-                onClick={handleCargarInteresesMasivo}
-                disabled={interesesCargando}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--text-green)] text-white rounded-md text-[11px] font-black uppercase tracking-widest hover:bg-[var(--text-green)]/20 hover:text-[var(--text-green)] hover:border hover:border-[var(--text-green)] transition-all shadow-md shadow-[var(--text-green)]/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {interesesCargando ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <AumentarCuotaIcono size={20} />
-                )}
-                <div className="flex flex-col items-start leading-none">
-                  <span>{interesesCargando ? "Cargando..." : "Cargar Interés"}</span>
-                  <span className="text-[9px] opacity-60 lowercase font-bold mt-1">
-                    {anioSeleccionado}-{String(Number(mesSeleccionado) + 1).padStart(2, "0")}
-                  </span>
-                </div>
-              </button>
-            )}
           </div>
 
           <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-bold text-black/30 uppercase tracking-[0.2em] bg-black/5 px-4 py-2 rounded-full w-full sm:w-auto justify-center">

@@ -265,18 +265,45 @@ const TablaComprobantes = () => {
             const sub = det.subtotal || 0;
             const meta = det.metadata || {};
 
-            // Buscamos cualquier flag booleano en el metadata y lo sumamos como base
+            const activeBooleans = [];
+            const numericValues = {};
+
+            // Buscamos valores en el metadata para acumular
             Object.keys(meta).forEach((key) => {
               // Normalizar la clave para que sea una variable válida (ej: "Mi Atributo" -> "Mi_Atributo")
               const safeKey = key.replace(/[^a-zA-Z0-9_]/g, "_");
+              const valorMeta = meta[key];
 
-              if (
-                meta[key] === true ||
-                meta[key] === "true" ||
-                meta[key] === 1
-              ) {
+              if (valorMeta === true || valorMeta === "true") {
+                activeBooleans.push(safeKey);
+                // Si es un flag booleano explícito, acumulamos el subtotal del ítem
                 acc[safeKey] = (acc[safeKey] || 0) + sub;
+              } else if (!isNaN(parseFloat(valorMeta)) && isFinite(valorMeta)) {
+                // Si es un número (ej: ganancia: 500 unitario)
+                const numVal = parseFloat(valorMeta);
+                const cantidad = det.cantidad || 1;
+                const totalVal = numVal * cantidad;
+
+                numericValues[safeKey] = totalVal;
+
+                // Por defecto, asumimos que si usan la variable (ej: "ganancia")
+                // quieren el total real de esa línea (valor * cantidad)
+                acc[safeKey] = (acc[safeKey] || 0) + totalVal;
+
+                // Extra: dejamos disponible la versión estrictamente unitaria sin multiplicar
+                acc[`${safeKey}_unitario`] =
+                  (acc[`${safeKey}_unitario`] || 0) + numVal;
               }
+            });
+
+            // Cruzamos las variables booleanas activas con los valores numéricos
+            // Ej: si 'aplicar10' está activo y 'ganancia' vale 50000, acumulamos 50000 en 'aplicar10_ganancia'
+            activeBooleans.forEach((boolKey) => {
+              Object.keys(numericValues).forEach((numKey) => {
+                const intersectionKey = `${boolKey}_${numKey}`;
+                acc[intersectionKey] =
+                  (acc[intersectionKey] || 0) + numericValues[numKey];
+              });
             });
           });
         }
@@ -461,7 +488,7 @@ const TablaComprobantes = () => {
   }
 
   return (
-    <div className="space-y-8  mt-4 ">
+    <div className="mt-4 ">
       <DetalleComprobanteDrawer
         open={modalAbierto}
         onClose={() => setModalAbierto(false)}

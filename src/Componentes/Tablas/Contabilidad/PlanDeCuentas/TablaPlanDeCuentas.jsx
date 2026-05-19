@@ -5,6 +5,7 @@ import DataTable from "../../../UI/DataTable/DataTable";
 import { columnasPlanDeCuentas } from "./columnaPlanDeCuentas";
 import ModalImportarPlan from "../../../Modales/Contabilidad/ModalImportarPlan";
 import { FileDown, Plus } from "lucide-react";
+import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
 
 const TablaPlanDeCuentas = () => {
   const {
@@ -40,15 +41,18 @@ const TablaPlanDeCuentas = () => {
         botonAgregar={{
           texto: "Crear",
           ruta: "/panel/contabilidad/cuentas/nueva",
+          tieneAccion: "CREAR_PLAN_DE_CUENTA",
         }}
         elementosSuperior={
-          <button
-            onClick={() => setIsModalImportarOpen(true)}
-            className="flex items-center gap-2 px-4 h-10 bg-black/40 border border-black/10 rounded-md text-[13px] font-black uppercase tracking-wider text-black hover:bg-black/10 transition-all active:scale-95"
-          >
-            <FileDown size={16} strokeWidth={2.5} />
-            Importar Plan
-          </button>
+          <TieneAccion accion="IMPORTAR_PLAN_DE_CUENTA">
+            <button
+              onClick={() => setIsModalImportarOpen(true)}
+              className="flex items-center gap-2 px-4 h-10 bg-black/40 border border-black/10 rounded-md text-[13px] font-black uppercase tracking-wider text-black hover:bg-black/10 transition-all active:scale-95"
+            >
+              <FileDown size={16} strokeWidth={2.5} />
+              Importar Plan
+            </button>
+          </TieneAccion>
         }
         filtrosElementos={
           <div className="flex items-center gap-3">

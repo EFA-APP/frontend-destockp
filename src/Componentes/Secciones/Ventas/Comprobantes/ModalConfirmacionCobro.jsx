@@ -42,7 +42,7 @@ const ModalConfirmacionCobro = ({
       />
 
       {/* Drawer Content */}
-      <div className="relative w-full md:w-[500px] bg-[var(--surface)] h-full shadow-[-30px_0_60px_rgba(0,0,0,0.15)] border-l border-black/5 flex flex-col animate-in slide-in-from-right-full duration-500">
+      <div className="relative w-full md:w-[500px] bg-[var(--surface)] h-screen shadow-[-30px_0_60px_rgba(0,0,0,0.15)] border-l border-black/5 flex flex-col animate-in slide-in-from-right-full duration-500">
         {/* OVERLAY DE CARGA */}
         {cargandoCobro && (
           <div className="absolute inset-0 z-[1100] bg-white/95 backdrop-blur-xl flex flex-col items-center justify-center">
@@ -68,7 +68,7 @@ const ModalConfirmacionCobro = ({
         )}
 
         {/* Header */}
-        <div className="p-5 bg-[var(--primary)]/10 border-b border-[var(--primary)]/10 flex justify-between items-center shrink-0">
+        <div className="p-4 md:p-5 bg-[var(--primary)]/10 border-b border-[var(--primary)]/10 flex justify-between items-center shrink-0">
           <h2 className="text-xl font-black text-[var(--primary)] uppercase tracking-tighter leading-none">
             Confirmar Venta
           </h2>
@@ -84,7 +84,7 @@ const ModalConfirmacionCobro = ({
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-2 md:p-8 space-y-10">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 space-y-6 md:space-y-8">
           {/* Items */}
           <section className="space-y-5">
             <div className="flex items-center gap-3 text-[var(--primary)]/80 px-2">
@@ -93,7 +93,7 @@ const ModalConfirmacionCobro = ({
                 Detalle del Carrito
               </span>
             </div>
-            <div className="bg-white border border-black/5 rounded-3xl p-8 shadow-sm space-y-6 relative overflow-hidden">
+            <div className="bg-white border border-black/5 rounded-2xl p-4 md:p-6 shadow-sm space-y-4 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1 h-full bg-rose-500/10" />
               {items.map((item, idx) => (
                 <div
@@ -255,10 +255,10 @@ const ModalConfirmacionCobro = ({
         </div>
 
         {/* Footer */}
-        <div className="p-10 pt-0 bg-white border-t-2 border-black/5 space-y-8 shrink-0">
-          <div className="space-y-4">
+        <div className="p-4 md:p-6 pb-6 md:pb-8 bg-white border-t border-black/5 space-y-4 shrink-0">
+          <div className="space-y-3">
             {esTipoA && (
-              <div className="space-y-3 bg-gray-50/50 p-6 rounded-2xl border border-black/5">
+              <div className="space-y-2 bg-gray-50/50 p-4 rounded-xl border border-black/5">
                 <div className="flex justify-between text-[var(--primary)]/40 text-[11px] font-black uppercase tracking-[0.15em]">
                   <span>Neto Gravado</span>
                   <span className="tabular-nums">
@@ -276,7 +276,7 @@ const ModalConfirmacionCobro = ({
               </div>
             )}
             {vuelto > 0 && (
-              <div className="flex justify-between items-center bg-emerald-500 p-6 rounded-3xl shadow-xl shadow-emerald-500/20">
+              <div className="flex justify-between items-center bg-emerald-500 p-4 rounded-2xl shadow-xl shadow-emerald-500/20">
                 <div className="flex flex-col">
                   <span className="text-[11px] font-black text-white/70 uppercase mb-1">
                     Vuelto

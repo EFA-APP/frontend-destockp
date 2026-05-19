@@ -7,13 +7,12 @@ export const useConfiguracionContable = () => {
   const [loading, setLoading] = useState(false);
   const { agregarAlerta } = useAlertas();
 
-  const cargarMapeos = useCallback(async (codigoEmpresa, modulo, codigoUnidadNegocio) => {
+  const cargarMapeos = useCallback(async (codigoEmpresa, modulo) => {
     setLoading(true);
     try {
       const data = await configuracionApi.obtenerMapeos({ 
         codigoEmpresa, 
         modulo, 
-        codigoUnidadNegocio: codigoUnidadNegocio || 0 
       });
       setMapeos(data);
     } catch (error) {
@@ -31,16 +30,15 @@ export const useConfiguracionContable = () => {
         modulo,
         accion,
         mapeos: items,
-        codigoUnidadNegocio: extra.codigoUnidadNegocio || 0
       };
 
       if (extra.tipoComprobante !== null && extra.tipoComprobante !== undefined) payload.tipoComprobante = Number(extra.tipoComprobante);
-      if (extra.tipoEntidad) payload.tipoEntidad = extra.tipoEntidad;
       if (extra.metodoPago) payload.metodoPago = extra.metodoPago;
+      if (extra.tipoEntidad) payload.tipoEntidad = extra.tipoEntidad;
 
       await configuracionApi.guardarMapeo(payload, { codigoEmpresa });
       agregarAlerta({ type: "success", message: "Configuración guardada correctamente" });
-      await cargarMapeos(codigoEmpresa, modulo, extra.codigoUnidadNegocio);
+      await cargarMapeos(codigoEmpresa, modulo);
     } catch (error) {
       console.error("Error en guardarMapeo:", error);
       agregarAlerta({ type: "error", message: "Error al guardar la configuración" });
@@ -55,15 +53,14 @@ export const useConfiguracionContable = () => {
       const payload = {
         modulo,
         accion: extra.accion,
-        codigoUnidadNegocio: extra.codigoUnidadNegocio || 0,
         tipoComprobante: (extra.tipoComprobante !== undefined && extra.tipoComprobante !== null) ? Number(extra.tipoComprobante) : null,
-        tipoEntidad: extra.tipoEntidad || null,
-        metodoPago: extra.metodoPago || null
+        metodoPago: extra.metodoPago || null,
+        tipoEntidad: extra.tipoEntidad || null
       };
 
       await configuracionApi.eliminarMapeo(payload, { codigoEmpresa });
       agregarAlerta({ type: "success", message: "Regla eliminada correctamente" });
-      await cargarMapeos(codigoEmpresa, modulo, extra.codigoUnidadNegocio);
+      await cargarMapeos(codigoEmpresa, modulo);
     } catch (error) {
       console.error("Error en eliminarMapeo:", error);
       agregarAlerta({ type: "error", message: "Error al eliminar la regla" });

@@ -494,17 +494,18 @@ export const useAlumnos = () => {
   // 📊 6. Emisión Individual de Cuota
   const emitirCuotaIndividual = async (alumnoId, periodoStr, monto, concepto, fechaVencimiento) => {
     try {
-      await ActualizarSaldoApi(alumnoId, {
-        monto: Number(monto),
-        concepto: concepto || `CUOTA INDIVIDUAL PERIODO ${formatearPeriodo(periodoStr)}`,
+      await EmitirCuotasMasivasApi({
+        tipoEntidad: "ALUM",
+        diaVencimiento: 10,
+        formulaMonto: String(monto),
+        formulaInteres: formulaInteres,
         periodo: periodoStr,
-        referencia: "EMISION_INDIVIDUAL",
-        fechaVencimiento,
+        codigoContacto: Number(alumnoId),
       });
 
       agregarAlerta({
         title: "Cuota Emitida",
-        message: "Se ha generado la cuota individual correctamente.",
+        message: "Se ha generado la cuota contable individual correctamente.",
         type: "success",
       });
 
@@ -514,7 +515,7 @@ export const useAlumnos = () => {
       console.error("Error al emitir cuota individual:", e);
       agregarAlerta({
         title: "Error",
-        message: "No se pudo emitir la cuota individual.",
+        message: "No se pudo emitir la cuota contable individual.",
         type: "error",
       });
     }

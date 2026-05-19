@@ -184,6 +184,7 @@ const TablaAsientos = () => {
       botonAgregar={{
         texto: "Crear",
         ruta: "/panel/contabilidad/asientos/nuevo",
+        tieneAccion: "CREAR_ASIENTO_MANUAL",
       }}
       busqueda={busqueda}
       setBusqueda={setBusqueda}
