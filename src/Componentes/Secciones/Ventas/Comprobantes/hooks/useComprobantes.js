@@ -11,6 +11,7 @@ import { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useProductoUI } from "../../../../../Backend/Articulos/hooks/Producto/useProductoUI";
 import { useGenerarComprobante } from "../../../../../Backend/Ventas/queries/Comprobante/useGenerarComprobante.mutation";
+import { useFacturarEnvios } from "../../../../../Backend/Articulos/queries/Transporte/useTransporte";
 import { calcularNetoItem, calcularTotalItem, getPrecio } from "../utils/fiscal.utils";
 
 // Sub-hooks refactorizados
@@ -142,6 +143,7 @@ export const useComprobantes = () => {
   const [receptorVinculado, setReceptorVinculado] = useState(null);
   const [observaciones, setObservaciones] = useState("");
   const [esEmisionPago, setEsEmisionPago] = useState(false);
+  const [guiasIds, setGuiasIds] = useState([]);
 
   // === 4. ESTADOS DE CAMPOS DINÁMICOS ===
   const [camposDinamicos, setCamposDinamicos] = useState([]);
@@ -178,6 +180,7 @@ export const useComprobantes = () => {
 
   // === 6.1 MUTACIONES ===
   const mutationGenerar = useGenerarComprobante();
+  const mutationFacturarEnvios = useFacturarEnvios();
 
   const puedeHacerFiscal =
     usuario?.conexionArca || usuario?.configuracionArca?.activo;
@@ -189,7 +192,7 @@ export const useComprobantes = () => {
     }
   }, [puedeHacerFiscal, enBlanco, setEnBlanco]);
 
-  // === EFECTO: Carga desde Navegación (Ej: Escuela -> POS) ===
+  // === EFECTO: Carga desde Navegación (Ej: Escuela -> POS o Transporte -> POS) ===
   useEffect(() => {
     if (
       location.state?.origen === "ESCUELA_CUOTAS" &&
@@ -234,6 +237,47 @@ export const useComprobantes = () => {
       agregarAlerta({
         title: "Cobro de Cuota",
         message: "Se han cargado los datos del alumno y la cuota seleccionada.",
+        type: "success",
+      });
+    } else if (
+      location.state?.origen === "TRANSPORTE_GUIAS" &&
+      location.state?.itemsCobro
+    ) {
+      console.log("[POS] Cargando datos desde Transporte (Guías)...", location.state);
+
+      const { cliente, itemsCobro, guiasIds: ids } = location.state;
+
+      // 1. Cargar Cliente
+      if (cliente) {
+        setClienteSeleccionado(cliente);
+        setBusquedaCliente(
+          cliente.razonSocial || `${cliente.nombre} ${cliente.apellido}`,
+        );
+      }
+
+      // 2. Cargar Items del Carrito
+      if (Array.isArray(itemsCobro)) {
+        const nuevosItems = itemsCobro.map((item, index) => ({
+          ...item,
+          id: item.id || `m-transporte-${Date.now()}-${index}`, // ID temporal
+          codigoSecuencial: item.codigoSecuencial || `TRA-${index}`,
+          descuento: 0,
+          atributos: {
+            precioVenta: item.precioUnitario,
+          },
+          esManual: true,
+        }));
+        setItems(nuevosItems);
+      }
+
+      // 3. Cargar IDs de Guías
+      if (Array.isArray(ids)) {
+        setGuiasIds(ids);
+      }
+
+      agregarAlerta({
+        title: "Cobro de Guías",
+        message: "Se han cargado las guías seleccionadas en el punto de cobro.",
         type: "success",
       });
     }
@@ -603,16 +647,18 @@ export const useComprobantes = () => {
     }
 
     if (condicionVenta === "contado" && listaPagos.length === 0) {
-      agregarAlerta({
-        title: "Pago requerido",
-        message: "Debe registrar al menos un pago para ventas al contado",
-        type: "warning",
-      });
-      return;
+      if (Number(tipoDocumento) !== 995) {
+        agregarAlerta({
+          title: "Pago requerido",
+          message: "Debe registrar al menos un pago para ventas al contado",
+          type: "warning",
+        });
+        return;
+      }
     }
 
     setMostrarPreview(true);
-  }, [cart.items.length, condicionVenta, listaPagos.length, agregarAlerta]);
+  }, [cart.items.length, condicionVenta, listaPagos.length, agregarAlerta, tipoDocumento]);
 
   const confirmarVentaFinal = useCallback(
     async (opciones = {}) => {
@@ -768,6 +814,9 @@ export const useComprobantes = () => {
         periodo: periodo || null,
         meta: {
           manejoSaldoNC: opciones.manejoSaldoNC,
+          origen: location.state?.origen || null,
+          formaPagoGuia: location.state?.formaPagoGuia || null,
+          accion: location.state?.accion || "FACTURACION",
         },
         tipoEntidad: (clienteSeleccionado || receptorVinculado)?.tipoEntidad || (clienteSeleccionado || receptorVinculado)?.enteFacturacion?.tipoEntidad || null,
         codigoDeposito: unidadSeleccionada?.configuracion?.codigoDeposito ? Number(unidadSeleccionada.configuracion.codigoDeposito) : undefined,
@@ -799,12 +848,22 @@ export const useComprobantes = () => {
           codigoUnidadNegocio: Number(unidadLocal),
         },
         {
-          onSuccess: () => {
+          onSuccess: (res) => {
             agregarAlerta({
               title: "Venta Exitosa",
               message: "Comprobante generado correctamente",
               type: "success",
             });
+
+            // Si viene de transporte de guías, marcar los envíos como facturados
+            if (location.state?.origen === "TRANSPORTE_GUIAS" && guiasIds.length > 0) {
+              const codigoComprobante = res?.comprobante?.codigoSecuencial || "";
+              mutationFacturarEnvios.mutate({
+                enviosIds: guiasIds,
+                codigoComprobante: String(codigoComprobante),
+              });
+            }
+
             cart.setItems([]);
             pagos.setListaPagos([]);
             setClienteSeleccionado(null);
@@ -812,6 +871,7 @@ export const useComprobantes = () => {
             setComprobanteAsociado("");
             setObservaciones("");
             setMostrarPreview(false);
+            setGuiasIds([]);
             setPaso(1);
             limpiarCaptura();
           },
@@ -849,6 +909,9 @@ export const useComprobantes = () => {
       esNotaCreditoNav,
       esNotaDebitoNav,
       esEmisionPago,
+      location.state,
+      guiasIds,
+      mutationFacturarEnvios,
     ],
   );
 
@@ -933,5 +996,8 @@ export const useComprobantes = () => {
     mostrarFormularioContacto,
     setMostrarFormularioContacto,
     puedeHacerFiscal,
+    // Guías de Transporte
+    guiasIds,
+    setGuiasIds,
   };
 };

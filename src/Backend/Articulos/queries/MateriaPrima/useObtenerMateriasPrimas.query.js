@@ -18,9 +18,16 @@ export const useObtenerMateriasPrimas = (filtros, options = {}) => {
 
     useEffect(() => {
         if (isError && error) {
+            const rawMsg = error?.response?.data?.message;
+            const cleanMsg = Array.isArray(rawMsg)
+                ? rawMsg.join(", ")
+                : typeof rawMsg === "object" && rawMsg !== null
+                ? JSON.stringify(rawMsg)
+                : rawMsg || "Hubo un error al obtener las materias primas";
+
             agregarAlerta({
                 type: "error",
-                message: error?.response?.data?.message || "Hubo un error al obtener las materias primas",
+                message: cleanMsg,
             });
         }
     }, [isError, error, agregarAlerta]);

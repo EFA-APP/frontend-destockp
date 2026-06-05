@@ -366,13 +366,12 @@ const ModalCargaMasivaContactos = ({ open, onClose, onExito }) => {
   );
 
   return (
-    <ModalDetalleBase open={open} onClose={handleClose}>
+    <ModalDetalleBase open={open} onClose={handleClose} width="max-w-xl">
       <ModalDetalle
         title="Carga Masiva de Contactos"
         icon={<MovimientoIcono size={20} />}
         onClose={handleClose}
         footer={footer}
-        width="max-w-xl"
       >
         {content}
       </ModalDetalle>

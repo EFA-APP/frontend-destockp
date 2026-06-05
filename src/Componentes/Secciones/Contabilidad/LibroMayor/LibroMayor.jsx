@@ -55,6 +55,33 @@ const LibroMayor = () => {
     limite: 100,
   });
 
+  const [paginaActual, setPaginaActual] = React.useState(1);
+  const [filasPorPagina, setFilasPorPagina] = React.useState(15);
+
+  React.useEffect(() => {
+    setPaginaActual(1);
+  }, [codigoCuenta, codigoContacto, fechaDesde, fechaHasta]);
+
+  const movimientosPaginados = useMemo(() => {
+    if (!datosMayor?.movimientos) return [];
+    const inicio = (paginaActual - 1) * filasPorPagina;
+    return datosMayor.movimientos.slice(inicio, inicio + filasPorPagina);
+  }, [datosMayor?.movimientos, paginaActual, filasPorPagina]);
+
+  const metaPaginacion = useMemo(() => {
+    if (!datosMayor?.movimientos) return null;
+    const totalItems = datosMayor.movimientos.length;
+    const totalPaginas = Math.ceil(totalItems / filasPorPagina) || 1;
+    return {
+      total: totalItems,
+      perPage: filasPorPagina,
+      currentPage: paginaActual,
+      lastPage: totalPaginas,
+      prev: paginaActual > 1 ? paginaActual - 1 : null,
+      next: paginaActual < totalPaginas ? paginaActual + 1 : null,
+    };
+  }, [datosMayor?.movimientos, paginaActual, filasPorPagina]);
+
   const columnas = [
     {
       key: "fecha",
@@ -415,8 +442,15 @@ const LibroMayor = () => {
             </div>
             <DataTable
               columnas={columnas}
-              datos={datosMayor.movimientos}
+              datos={movimientosPaginados}
               mostrarBuscador={false}
+              mostrarAcciones={false}
+              meta={metaPaginacion}
+              onPageChange={(pagina) => setPaginaActual(pagina)}
+              onLimitChange={(limite) => {
+                setFilasPorPagina(limite);
+                setPaginaActual(1);
+              }}
               emptyMessage="No hay movimientos registrados para los criterios seleccionados"
             />
           </div>

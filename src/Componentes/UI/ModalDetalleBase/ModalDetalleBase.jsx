@@ -26,6 +26,7 @@ const ModalDetalleBase = ({ open, onClose, children, width = "max-w-[400px]" }) 
           bg-[var(--fill)] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-2xl
           overflow-hidden rounded-t-[32px] md:rounded-3xl
           border-t md:border border-black/10
+          flex flex-col
         `}
       >
         {/* Barra de arrastre superior para Mobile */}
@@ -34,7 +35,7 @@ const ModalDetalleBase = ({ open, onClose, children, width = "max-w-[400px]" }) 
         </div>
 
         {/* Contenido scrolleable */}
-        <div className="h-full overflow-y-auto custom-scrollbar flex flex-col pt-6 md:pt-0">
+        <div className="flex-1 overflow-y-auto md:overflow-hidden custom-scrollbar flex flex-col pt-6 md:pt-0">
           {children}
         </div>
       </div>

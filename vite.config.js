@@ -11,10 +11,7 @@ export default defineConfig({
     host: true,
     port: 5177,
     allowedHosts: ["localhost", "ventryx.fun"],
-    hmr: {
-      protocol: "wss",
-      host: "ventryx.fun",
-      port: 443,
-    },
+    // Use default HMR settings for local development (ws on localhost)
+    // hmr configuration removed to avoid mismatched WebSocket connection
   },
 });

@@ -96,6 +96,7 @@ const ModalPagoCuota = ({ alumno, onClose }) => {
     navigate("/panel/ventas/comprobantes", {
       state: {
         origen: "ESCUELA_CUOTAS",
+        accion: "RECIBO",
         cliente: alumno,
         itemsCobro,
         periodo: itemsCobro[0].periodo,

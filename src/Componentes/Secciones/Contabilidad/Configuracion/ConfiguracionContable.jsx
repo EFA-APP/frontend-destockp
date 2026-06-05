@@ -29,6 +29,7 @@ import { ListarEntidadesApi } from "../../../../Backend/Contactos/api/contactos.
 import SearchableSelect from "../../../UI/Select/SearchableSelect";
 import MultiSearchableSelect from "../../../UI/Select/MultiSearchableSelect";
 import { ObtenerTiposComprobanteApi } from "../../../../Backend/Arca/api/arca.api";
+import { obtenerTodasLasEmpresasApi } from "../../../../Backend/Autenticacion/api/Empresa/empresa.api";
 
 const TIPOS_PERSONALIZADOS = [
   { id: 991, label: "📄 Comprobante Interno" },
@@ -70,6 +71,10 @@ const ConfiguracionContable = () => {
 
   const [filtroModulo, setFiltroModulo] = useState("VENTAS");
   const [activeTab, setActiveTab] = useState("editor"); // 'editor' o 'listado'
+  const [empresas, setEmpresas] = useState([]);
+  const [empresaSeleccionada, setEmpresaSeleccionada] = useState(
+    codigoEmpresa || "",
+  );
 
   const CONCEPTOS = useMemo(() => {
     if (filtroModulo === "VENTAS") {
@@ -170,7 +175,11 @@ const ConfiguracionContable = () => {
             listaTipos.map((t) => ({ id: t.Id, label: t.Desc })),
           );
         }
+      } catch (e) {
+        console.error("Error al cargar tipos de comprobante ARCA:", e);
+      }
 
+      try {
         const dataEntidades = await ListarEntidadesApi();
         if (Array.isArray(dataEntidades)) {
           setEntidadesOptions([
@@ -182,7 +191,19 @@ const ConfiguracionContable = () => {
           ]);
         }
       } catch (e) {
-        console.error("Error al cargar datos auxiliares:", e);
+        console.error("Error al cargar entidades auxiliares:", e);
+      }
+
+      try {
+        const dataEmpresas = await obtenerTodasLasEmpresasApi();
+        const listaEmpresas = Array.isArray(dataEmpresas)
+          ? dataEmpresas
+          : dataEmpresas?.data || [];
+        if (Array.isArray(listaEmpresas)) {
+          setEmpresas(listaEmpresas);
+        }
+      } catch (e) {
+        console.error("Error al cargar lista de empresas:", e);
       }
     };
     fetchData();
@@ -197,9 +218,8 @@ const ConfiguracionContable = () => {
   }, [tiposComprobanteArca]);
 
   useEffect(() => {
-    if (codigoEmpresa)
-      cargarMapeos(codigoEmpresa, filtroModulo);
-  }, [cargarMapeos, codigoEmpresa, filtroModulo]);
+    cargarMapeos(empresaSeleccionada || null, filtroModulo);
+  }, [cargarMapeos, empresaSeleccionada, filtroModulo]);
 
   const reglasAgrupadas = useMemo(() => {
     const grupos = {};
@@ -212,12 +232,34 @@ const ConfiguracionContable = () => {
           metodoPago: mapItem.metodoPago,
           tipoEntidad: mapItem.tipoEntidad,
           conceptos: {},
+          codigoEmpresa: mapItem.codigoEmpresa,
         };
       }
       grupos[key].conceptos[mapItem.concepto] = mapItem.codigoCuentaContable;
     });
     return Object.values(grupos);
   }, [mapeos]);
+
+  const optionsEmpresa = useMemo(() => {
+    return [
+      { value: "", label: "🌐 Reglas Globales (Todas las Empresas)" },
+      ...empresas.map((emp) => ({
+        value: emp.codigo,
+        label: `🏢 ${emp.nombre || emp.razonSocial || `Empresa #${emp.codigo}`}`,
+      })),
+    ];
+  }, [empresas]);
+
+  const handleEmpresaChange = (val) => {
+    const code = val ? Number(val) : "";
+    setEmpresaSeleccionada(code);
+  };
+
+  const getNombreEmpresa = (code) => {
+    if (!code) return "🌐 Regla Global";
+    const emp = empresas.find((e) => e.codigo === code);
+    return emp ? `🏢 ${emp.nombre || emp.razonSocial}` : `🏢 Empresa #${code}`;
+  };
 
   const reglaExistente = useMemo(() => {
     const primerTipo = reglaSeleccionada.tiposComprobante[0];
@@ -247,7 +289,7 @@ const ConfiguracionContable = () => {
   };
 
   const handleGuardarRegla = async () => {
-    if (!codigoEmpresa) return;
+    const targetEmpresa = empresaSeleccionada || null;
     const items = Object.entries(conceptosEditando)
       .map(([concepto, codigo]) => ({
         concepto,
@@ -263,7 +305,7 @@ const ConfiguracionContable = () => {
         : [null];
     for (const tipo of tipos) {
       await guardarMapeo(
-        codigoEmpresa,
+        targetEmpresa,
         filtroModulo,
         reglaSeleccionada.accion,
         items,
@@ -299,7 +341,6 @@ const ConfiguracionContable = () => {
     });
     return entryItems.sort((a, b) => b.debe - a.debe);
   }, [conceptosEditando, CONCEPTOS, cuentasImputables]);
-
 
   const isRuleComplete =
     CONCEPTOS.length > 0 && CONCEPTOS.every((c) => conceptosEditando[c.id]);
@@ -382,6 +423,25 @@ const ConfiguracionContable = () => {
                   Compras
                 </button>
               </div>
+            </div>
+
+            {/* CONTEXTO DE EMPRESA */}
+            <div className="space-y-4">
+              <h3 className="text-[10px] font-black text-[var(--primary)]/70 uppercase tracking-[0.2em] flex items-center gap-2">
+                <Briefcase size={14} className="text-indigo-500" />
+                Contexto de Empresa
+              </h3>
+              <SearchableSelect
+                value={empresaSeleccionada}
+                onChange={(e) => handleEmpresaChange(e.target.value)}
+                options={optionsEmpresa}
+                placeholder="Seleccionar Empresa..."
+              />
+              <p className="text-[9px] text-[var(--primary)]/50 font-medium leading-relaxed italic ml-1">
+                {empresaSeleccionada
+                  ? "Configurando reglas exclusivas para la empresa seleccionada."
+                  : "Configurando reglas globales del sistema aplicables a todos los comprobantes."}
+              </p>
             </div>
 
             {/* CRITERIOS DINÁMICOS */}
@@ -797,6 +857,7 @@ const ConfiguracionContable = () => {
                         className="group bg-white border border-slate-200/60 rounded-3xl p-6 hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-1 transition-all flex items-center justify-between cursor-pointer"
                         onClick={() => {
                           setCargandoDesdeLista(true);
+                          setEmpresaSeleccionada(regla.codigoEmpresa || "");
                           setReglaSeleccionada({
                             ...regla,
                             tiposComprobante: [regla.tipoComprobante],
@@ -825,6 +886,12 @@ const ConfiguracionContable = () => {
                                 )?.label || "Cualquier Comprobante"}
                               </span>
                               <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
+                              <span
+                                className={`text-[9px] font-black px-2.5 py-0.5 rounded-full border ${!regla.codigoEmpresa ? "bg-indigo-50 border-indigo-200 text-indigo-700" : "bg-emerald-50 border-emerald-200 text-emerald-700"}`}
+                              >
+                                {getNombreEmpresa(regla.codigoEmpresa)}
+                              </span>
+                              <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
                               <div className="px-3 py-1 bg-slate-100 rounded-md flex items-center gap-2">
                                 <CreditCard
                                   size={12}
@@ -836,12 +903,11 @@ const ConfiguracionContable = () => {
                               </div>
                               {regla.tipoEntidad && (
                                 <div className="px-3 py-1 bg-slate-100 rounded-md flex items-center gap-2">
-                                  <Users
-                                    size={12}
-                                    className="text-slate-400"
-                                  />
+                                  <Users size={12} className="text-slate-400" />
                                   <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">
-                                    {entidadesOptions.find(e => e.value === regla.tipoEntidad)?.label || regla.tipoEntidad}
+                                    {entidadesOptions.find(
+                                      (e) => e.value === regla.tipoEntidad,
+                                    )?.label || regla.tipoEntidad}
                                   </span>
                                 </div>
                               )}
@@ -885,12 +951,16 @@ const ConfiguracionContable = () => {
                                   "¿Estás seguro de eliminar esta regla de configuración contable?",
                                 )
                               ) {
-                                eliminarMapeo(codigoEmpresa, filtroModulo, {
-                                  accion: regla.accion,
-                                  tipoComprobante: regla.tipoComprobante,
-                                  metodoPago: regla.metodoPago,
-                                  tipoEntidad: regla.tipoEntidad,
-                                });
+                                eliminarMapeo(
+                                  regla.codigoEmpresa || null,
+                                  filtroModulo,
+                                  {
+                                    accion: regla.accion,
+                                    tipoComprobante: regla.tipoComprobante,
+                                    metodoPago: regla.metodoPago,
+                                    tipoEntidad: regla.tipoEntidad,
+                                  },
+                                );
                               }
                             }}
                           >

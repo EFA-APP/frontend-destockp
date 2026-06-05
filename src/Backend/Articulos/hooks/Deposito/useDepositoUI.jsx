@@ -33,13 +33,34 @@ export const useDepositoUI = (filtros = {}) => {
 
   // Filtrado local de depósitos (para las cards)
   const depositosFiltrados = useMemo(() => {
-    const data = (
+    const rawData = (
       Array.isArray(query.data)
         ? query.data
         : Array.isArray(query.data?.data)
           ? query.data.data
           : []
     ).filter((d) => d.activo !== false);
+
+    // Ordenar por prioridad:
+    // 1. Principal primero
+    // 2. Por número de prefijo en nombre si existe (ej: "1. Deposito", "2. Deposito")
+    // 3. Alfabéticamente por nombre
+    const data = [...rawData].sort((a, b) => {
+      if (a.principal && !b.principal) return -1;
+      if (!a.principal && b.principal) return 1;
+
+      const numA = parseInt((a.nombre || "").match(/^\d+/)?.[0] || "", 10);
+      const numB = parseInt((b.nombre || "").match(/^\d+/)?.[0] || "", 10);
+
+      const hasNumA = !isNaN(numA);
+      const hasNumB = !isNaN(numB);
+
+      if (hasNumA && hasNumB) return numA - numB;
+      if (hasNumA && !hasNumB) return -1;
+      if (!hasNumA && hasNumB) return 1;
+
+      return (a.nombre || "").localeCompare(b.nombre || "", "es");
+    });
 
     if (!busqueda) return data;
 
@@ -75,12 +96,31 @@ export const useDepositoUI = (filtros = {}) => {
     },
 
     matrizStock,
-    dataDepositosRaw: (Array.isArray(query.data)
-      ? query.data
-      : Array.isArray(query.data?.data)
-        ? query.data.data
-        : []
-    ).filter((d) => d.activo !== false),
+    dataDepositosRaw: (() => {
+      const rawData = (Array.isArray(query.data)
+        ? query.data
+        : Array.isArray(query.data?.data)
+          ? query.data.data
+          : []
+      ).filter((d) => d.activo !== false);
+
+      return [...rawData].sort((a, b) => {
+        if (a.principal && !b.principal) return -1;
+        if (!a.principal && b.principal) return 1;
+
+        const numA = parseInt((a.nombre || "").match(/^\d+/)?.[0] || "", 10);
+        const numB = parseInt((b.nombre || "").match(/^\d+/)?.[0] || "", 10);
+
+        const hasNumA = !isNaN(numA);
+        const hasNumB = !isNaN(numB);
+
+        if (hasNumA && hasNumB) return numA - numB;
+        if (hasNumA && !hasNumB) return -1;
+        if (!hasNumA && hasNumB) return 1;
+
+        return (a.nombre || "").localeCompare(b.nombre || "", "es");
+      });
+    })(),
     cargandoStock:
       queryStock.isLoading ||
       queryStock.isFetching ||

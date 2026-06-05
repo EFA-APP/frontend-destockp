@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import {
   AgregarIcono,
   BuscadorIcono,
@@ -218,12 +219,12 @@ const DataRow = ({
     <>
       <tr
         onContextMenu={(e) => onContextMenu && onContextMenu(e, fila)}
-        className={`border-b border-[var(--primary)]/20 group ${estaExpandida ? "bg-[var(--primary-subtle)]/30" : "hover:bg-[var(--surface-hover)]"}`}
+        className={`border-b border-black/5 hover:bg-black/[0.01] transition-colors group text-[12px] font-bold text-[var(--primary)]/80 ${estaExpandida ? "bg-[var(--primary)]/[0.03]" : ""}`}
       >
         {columnas.map((col, index) => (
           <td
             key={col.key}
-            className={`px-1 py-1 text-[15px] text-[var(--text-primary)] ${index === 0 ? "font-medium" : ""}`}
+            className={`py-3.5 px-4 text-[12px] ${index === 0 ? "font-bold uppercase text-[var(--primary)]" : "font-bold text-[var(--primary)]/80"}`}
             onClick={manejarClick}
           >
             <div
@@ -675,6 +676,19 @@ const DataTable = ({
                   {elementosSuperior}
                 </div>
               )}
+              {mostrarFiltros && (
+                <button
+                  onClick={() => setFiltrosAbiertos(!filtrosAbiertos)}
+                  className={`flex items-center gap-2 px-4 py-2 border rounded-md text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-lg group ${
+                    filtrosAbiertos
+                      ? "bg-[var(--primary)] text-white border-[var(--primary)] shadow-[var(--primary)]/10"
+                      : "bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border-[var(--primary)]/20 text-[var(--primary)] shadow-amber-700/5"
+                  }`}
+                >
+                  <FiltroIcono size={14} className={filtrosAbiertos ? "animate-pulse" : ""} />
+                  Filtros
+                </button>
+              )}
               {mostrarBuscador && setBusqueda && (
                 <div
                   className="flex-1 min-w-[280px] max-w-full lg:max-w-[480px] relative"
@@ -808,14 +822,14 @@ const DataTable = ({
       >
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-[var(--primary-light)]/20 border-b border-[var(--primary-light)]/50">
+            <tr className="bg-black/[0.02] border-b border-black/5 text-[9px] font-black text-slate-700 uppercase tracking-[0.15em] select-none">
               {columnasVisibles
                 .filter((c) => c.visible !== false)
                 .map((col, idx) => (
                   <th
                     key={col.key}
                     onClick={(e) => handleHeaderClick(e, col)}
-                    className="px-4 py-2 text-[12px] font-bold text-[var(--text-theme)] uppercase tracking-widest cursor-pointer hover:bg-[var(--surface-hover)] group/th relative"
+                    className="px-4 py-4 text-[9px] font-black text-slate-700 uppercase tracking-[0.15em] cursor-pointer hover:bg-black/[0.03] group/th relative select-none"
                   >
                     <div className="flex items-center gap-1.5 ">
                       {col.etiqueta}{" "}
@@ -843,130 +857,133 @@ const DataTable = ({
                               setColumnaMenuAbierta(null);
                             }}
                           />
-                          <div
-                            className="fixed z-[9999] bg-[var(--surface)] border border-[var(--border-medium)]/50 rounded-md shadow-2xl py-1.5 w-44     text-left"
-                            style={{
-                              left: `${columnaMenuAbierta.x}px`,
-                              top: `${columnaMenuAbierta.y + 4}px`,
-                            }}
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <div className="px-3 py-1 bg-[var(--primary)]/20 rounded-t-md border-b border-[var(--primary)]">
-                              <p className="text-[11px] font-black text-[var(--primary)] uppercase tracking-wider truncate">
-                                {col.etiqueta}
-                              </p>
-                            </div>
-
-                            <button
-                              onClick={() => {
-                                interaccionUsuarioRef.current = true;
-                                setColumnasVisibles((prev) =>
-                                  prev.map((c) =>
-                                    c.key === col.key
-                                      ? { ...c, visible: false }
-                                      : c,
-                                  ),
-                                );
-                                setColumnaMenuAbierta(null);
+                          {createPortal(
+                            <div
+                              className="fixed z-[99999] bg-[var(--surface)] border border-[var(--border-medium)]/50 rounded-md shadow-2xl py-1.5 w-44 text-left border-black/10 backdrop-blur-md"
+                              style={{
+                                left: `${columnaMenuAbierta.x}px`,
+                                top: `${columnaMenuAbierta.y + 4}px`,
                               }}
-                              className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-red-400 hover:bg-red-700/10 flex items-center gap-2 cursor-pointer "
+                              onClick={(e) => e.stopPropagation()}
                             >
-                              <X size={12} /> Ocultar Columna
-                            </button>
+                              <div className="px-3 py-1 bg-[var(--primary)]/20 rounded-t-md border-b border-[var(--primary)]">
+                                <p className="text-[11px] font-black text-[var(--primary)] uppercase tracking-wider truncate">
+                                  {col.etiqueta}
+                                </p>
+                              </div>
 
-                            <div className="border-t border-[var(--border-subtle)] my-1" />
+                              <button
+                                onClick={() => {
+                                  interaccionUsuarioRef.current = true;
+                                  setColumnasVisibles((prev) =>
+                                    prev.map((c) =>
+                                      c.key === col.key
+                                        ? { ...c, visible: false }
+                                        : c,
+                                    ),
+                                  );
+                                  setColumnaMenuAbierta(null);
+                                }}
+                                className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-red-400 hover:bg-red-700/10 flex items-center gap-2 cursor-pointer "
+                              >
+                                <X size={12} /> Ocultar Columna
+                              </button>
 
-                            <button
-                              onClick={() => {
-                                moverColumna(col.key, "izquierda");
-                                setColumnaMenuAbierta(null);
-                              }}
-                              disabled={idx === 0}
-                              className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
-                            >
-                              <ChevronUp size={12} className="-rotate-90" />{" "}
-                              Mover Izquierda
-                            </button>
+                              <div className="border-t border-[var(--border-subtle)] my-1" />
 
-                            <button
-                              onClick={() => {
-                                moverColumna(col.key, "derecha");
-                                setColumnaMenuAbierta(null);
-                              }}
-                              disabled={
-                                idx ===
-                                columnasVisibles.filter(
-                                  (c) => c.visible !== false,
-                                ).length -
-                                  1
-                              }
-                              className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
-                            >
-                              <ChevronUp size={12} className="rotate-90" />{" "}
-                              Mover Derecha
-                            </button>
+                              <button
+                                onClick={() => {
+                                  moverColumna(col.key, "izquierda");
+                                  setColumnaMenuAbierta(null);
+                                }}
+                                disabled={idx === 0}
+                                className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
+                              >
+                                <ChevronUp size={12} className="-rotate-90" />{" "}
+                                Mover Izquierda
+                              </button>
 
-                            <div className="border-t border-[var(--border-subtle)] my-1" />
+                              <button
+                                onClick={() => {
+                                  moverColumna(col.key, "derecha");
+                                  setColumnaMenuAbierta(null);
+                                }}
+                                disabled={
+                                  idx ===
+                                  columnasVisibles.filter(
+                                    (c) => c.visible !== false,
+                                  ).length -
+                                    1
+                                }
+                                className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
+                              >
+                                <ChevronUp size={12} className="rotate-90" />{" "}
+                                Mover Derecha
+                              </button>
 
-                            <button
-                              onClick={() => {
-                                interaccionUsuarioRef.current = true;
-                                const nuevas = [...columnasVisibles];
-                                const colItem = nuevas.find(
-                                  (c) => c.key === col.key,
-                                );
-                                const filtradas = nuevas.filter(
-                                  (c) => c.key !== col.key,
-                                );
-                                setColumnasVisibles([colItem, ...filtradas]);
-                                setColumnaMenuAbierta(null);
-                              }}
-                              disabled={idx === 0}
-                              className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
-                            >
-                              <ChevronUp
-                                size={12}
-                                className="text-[var(--primary)]"
-                              />{" "}
-                              Mover al Inicio
-                            </button>
+                              <div className="border-t border-[var(--border-subtle)] my-1" />
 
-                            <button
-                              onClick={() => {
-                                interaccionUsuarioRef.current = true;
-                                const nuevas = [...columnasVisibles];
-                                const colItem = nuevas.find(
-                                  (c) => c.key === col.key,
-                                );
-                                const filtradas = nuevas.filter(
-                                  (c) => c.key !== col.key,
-                                );
-                                setColumnasVisibles([...filtradas, colItem]);
-                                setColumnaMenuAbierta(null);
-                              }}
-                              disabled={
-                                idx ===
-                                columnasVisibles.filter(
-                                  (c) => c.visible !== false,
-                                ).length -
-                                  1
-                              }
-                              className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
-                            >
-                              <ChevronUp
-                                size={12}
-                                className="rotate-180 text-[var(--primary)]"
-                              />{" "}
-                              Mover al Final
-                            </button>
-                          </div>
+                              <button
+                                onClick={() => {
+                                  interaccionUsuarioRef.current = true;
+                                  const nuevas = [...columnasVisibles];
+                                  const colItem = nuevas.find(
+                                    (c) => c.key === col.key,
+                                  );
+                                  const filtradas = nuevas.filter(
+                                    (c) => c.key !== col.key,
+                                  );
+                                  setColumnasVisibles([colItem, ...filtradas]);
+                                  setColumnaMenuAbierta(null);
+                                }}
+                                disabled={idx === 0}
+                                className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
+                              >
+                                <ChevronUp
+                                  size={12}
+                                  className="text-[var(--primary)]"
+                                />{" "}
+                                Mover al Inicio
+                              </button>
+
+                              <button
+                                onClick={() => {
+                                  interaccionUsuarioRef.current = true;
+                                  const nuevas = [...columnasVisibles];
+                                  const colItem = nuevas.find(
+                                    (c) => c.key === col.key,
+                                  );
+                                  const filtradas = nuevas.filter(
+                                    (c) => c.key !== col.key,
+                                  );
+                                  setColumnasVisibles([...filtradas, colItem]);
+                                  setColumnaMenuAbierta(null);
+                                }}
+                                disabled={
+                                  idx ===
+                                  columnasVisibles.filter(
+                                    (c) => c.visible !== false,
+                                  ).length -
+                                    1
+                                }
+                                className="w-full px-3 py-1.5 text-left text-[13px] font-bold text-[var(--text-primary)] hover:bg-[var(--surface-hover)] flex items-center gap-2 cursor-pointer  disabled:opacity-30 disabled:pointer-events-none"
+                              >
+                                <ChevronUp
+                                  size={12}
+                                  className="rotate-180 text-[var(--primary)]"
+                                />{" "}
+                                Mover al Final
+                              </button>
+                            </div>,
+                            document.body
+                          )}
                         </>
                       )}
                   </th>
                 ))}
               {mostrarAcciones &&
                 (modoAcciones === "columna" || modoAcciones === "ambos") && (
-                  <th className="px-4 py-3 text-[12px] font-bold text-[var(--text-theme)] uppercase text-right">
+                  <th className="px-4 py-4 text-[9px] font-black text-slate-700 uppercase tracking-[0.15em] text-right select-none">
                     Acciones
                   </th>
                 )}

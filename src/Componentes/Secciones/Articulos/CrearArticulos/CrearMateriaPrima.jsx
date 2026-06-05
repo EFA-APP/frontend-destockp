@@ -16,6 +16,13 @@ const CrearMateriaPrima = () => {
   const location = useLocation();
   const isEdit = !!id;
 
+  const esEspecie = location.pathname.includes("/inventario/especies");
+  const baseRoute = esEspecie
+    ? "/panel/inventario/especies"
+    : "/panel/inventario/materia-prima";
+  const labelSingular = esEspecie ? "Especie" : "Materia Prima";
+  const labelPlural = esEspecie ? "Especies" : "Materias Primas";
+
   const {
     crearMateriaPrima,
     actualizarMateriaPrima,
@@ -44,10 +51,12 @@ const CrearMateriaPrima = () => {
     // ─────────────────────────────
     {
       name: "nombre",
-      label: "Nombre del Insumo",
+      label: esEspecie ? "Nombre de la Especie" : "Nombre del Insumo",
       type: "text",
       required: true,
-      section: "Identificación de Insumo",
+      section: esEspecie
+        ? "Identificación de Especie"
+        : "Identificación de Insumo",
       sectionIcon: <ArcaIcono />,
     },
     {
@@ -56,10 +65,17 @@ const CrearMateriaPrima = () => {
       type: "select",
       required: true,
       options: [
-        { value: "INSUMO", label: "INSUMO - Materia prima base" },
+        {
+          value: "INSUMO",
+          label: esEspecie
+            ? "ESPECIE - Tipo especie"
+            : "INSUMO - Materia prima base",
+        },
         { value: "FRUTA", label: "FRUTA - Insumo fresco/agrícola" },
       ],
-      section: "Identificación de Insumo",
+      section: esEspecie
+        ? "Identificación de Especie"
+        : "Identificación de Insumo",
     },
 
     // ─────────────────────────────
@@ -112,6 +128,7 @@ const CrearMateriaPrima = () => {
         codigoUnidadNegocio,
         createdAt,
         cantidadMovimientos,
+        stockPorDeposito,
         updatedAt,
         ...rest
       } = data;
@@ -129,16 +146,16 @@ const CrearMateriaPrima = () => {
       } else {
         await crearMateriaPrima(payload);
       }
-      navigate("/panel/inventario/materia-prima");
+      navigate(baseRoute);
     } catch (error) {
-      console.error("Error al procesar materia prima:", error);
+      console.error(`Error al procesar ${labelSingular.toLowerCase()}:`, error);
     }
   };
 
   if (isEdit && cargando && !initialData) {
     return (
       <div className="flex items-center justify-center p-20  text-emerald-700 font-black uppercase tracking-[0.2em]">
-        Cargando Datos del Insumo...
+        Cargando Datos de la {labelSingular}...
       </div>
     );
   }
@@ -148,20 +165,26 @@ const CrearMateriaPrima = () => {
       {/* Encabezado */}
       <div className="card no-inset no-ring bg-[var(--surface)] shadow-md rounded-md mb-6">
         <EncabezadoSeccion
-          ruta={isEdit ? "Registro de Insumos > Editar" : "Registro de Insumos"}
+          ruta={
+            isEdit
+              ? `Registro de ${esEspecie ? "Especies" : "Insumos"} > Editar`
+              : `Registro de ${esEspecie ? "Especies" : "Insumos"}`
+          }
           icono={isEdit ? <EditarIcono /> : <AgregarIcono />}
           volver={true}
-          redireccionAnterior={isEdit ? -1 : "/panel/inventario/materia-prima"}
+          redireccionAnterior={isEdit ? -1 : baseRoute}
         />
       </div>
 
       {/* Formulario */}
       <FormularioDinamico
-        titulo={isEdit ? "Edición de Materia Prima" : "Alta de Materia Prima"}
+        titulo={
+          isEdit ? `Edición de ${labelSingular}` : `Alta de ${labelSingular}`
+        }
         subtitulo={
           isEdit
-            ? "Modifique los parámetros del insumo en el sistema."
-            : "Registre nuevos componentes para su cadena de producción."
+            ? `Modifique los parámetros de la ${labelSingular.toLowerCase()} en el sistema.`
+            : `Registre nuevas ${labelPlural.toLowerCase()} para su cadena de producción.`
         }
         campos={materiaPrimaCampos}
         initialData={initialData}
@@ -173,9 +196,9 @@ const CrearMateriaPrima = () => {
               : "Guardar Cambios"
             : estaCreando
               ? "Registrando..."
-              : "Confirmar Alta de Material"
+              : `Confirmar Alta de ${labelSingular}`
         }
-        onCancel={() => navigate("/panel/inventario/materia-prima")}
+        onCancel={() => navigate(baseRoute)}
       />
     </div>
   );

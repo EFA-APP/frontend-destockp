@@ -72,8 +72,7 @@ const ModalDetalle = ({
     <div
       className={`
         relative overflow-hidden
-        w-full 
-        flex flex-col
+        w-full h-full flex flex-col flex-1 min-h-0
         ${
           isStandalone
             ? "bg-transparent! border-none!"

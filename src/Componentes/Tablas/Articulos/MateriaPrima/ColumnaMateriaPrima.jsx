@@ -2,20 +2,8 @@ import { ArcaIcono } from "../../../../assets/Icons";
 
 export const columnasMateriaPrima = (onAbrirDrawer) => [
   {
-    key: "codigoSecuencial",
-    etiqueta: "Cód.",
-    filtrable: true,
-    renderizar: (valor) => (
-      <div className="flex justify-end gap-2">
-        <div className="font-mono text-[12px] font-black text-[var(--primary)]">
-          {String(valor).padStart(4, "0")}
-        </div>
-      </div>
-    ),
-  },
-  {
     key: "nombre",
-    etiqueta: "Materia Prima",
+    etiqueta: "Descripción",
     filtrable: true,
     renderizar: (valor, fila) => (
       <div className="py-2 group">

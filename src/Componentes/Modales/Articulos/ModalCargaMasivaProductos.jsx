@@ -283,13 +283,12 @@ const ModalCargaMasivaProductos = ({ open, onClose, onExito }) => {
   );
 
   return (
-    <ModalDetalleBase open={open} onClose={handleClose}>
+    <ModalDetalleBase open={open} onClose={handleClose} width="max-w-2xl">
       <ModalDetalle
         title="Carga Masiva de Productos"
         icon={<MovimientoIcono size={20} />}
         onClose={handleClose}
         footer={footer}
-        width="max-w-2xl"
       >
         {content}
       </ModalDetalle>

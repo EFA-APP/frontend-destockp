@@ -17,6 +17,7 @@ const FormularioContacto = ({
   contacto,
   onClose,
   onExito,
+  posicion = "derecha",
 }) => {
   const { entidades, cargandoEntidades } = useEntidades();
   const { configs, cargandoConfigs } = useConfiguracionContactos();
@@ -148,13 +149,28 @@ const FormularioContacto = ({
     }));
   };
 
+  const isLeft = posicion === "izquierda";
+  const isCenter = posicion === "centro";
+
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-end bg-black/50 backdrop-blur-sm transition-all"
+      className={`fixed inset-0 z-[100] flex ${
+        isCenter
+          ? "items-start justify-center p-4 md:p-6"
+          : isLeft
+            ? "items-stretch justify-start"
+            : "items-center justify-end"
+      } bg-black/50 backdrop-blur-sm transition-all`}
       onClick={onClose}
     >
       <div
-        className="w-full md:w-[500px] h-screen bg-[var(--surface)] border-l border-[var(--border-subtle)] shadow-2xl flex flex-col animate-in slide-in-from-right duration-300"
+        className={`w-full bg-[var(--surface)] shadow-2xl flex flex-col ${
+          isCenter
+            ? "max-w-2xl max-h-[85vh] rounded-lg border border-[var(--border-subtle)] animate-in zoom-in duration-300"
+            : isLeft
+              ? "md:w-[500px] h-full border-r border-[var(--border-subtle)] slide-in-from-left animate-in duration-300"
+              : "md:w-[500px] h-screen border-l border-[var(--border-subtle)] slide-in-from-right animate-in duration-300"
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Elegante */}

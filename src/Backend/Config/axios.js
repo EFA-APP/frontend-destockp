@@ -41,8 +41,6 @@ const createAxiosInstance = (baseURL) => {
           codigoEmpresa: usuario.codigoEmpresa, // Valor por defecto (sesión)
           ...config.params, // Sobrescribe con el valor explícito si existe
         };
-      } else if (config.sinEmpresa && config.params) {
-        delete config.params.codigoEmpresa;
       }
 
       return config;

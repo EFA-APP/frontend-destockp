@@ -1,4 +1,5 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
+import { useMemo } from "react";
 import { useDepositoUI } from "../../../../Backend/Articulos/hooks/Deposito/useDepositoUI.jsx";
 import { InventarioIcono } from "../../../../assets/Icons";
 import ContenedorSeccion from "../../../ContenidoPanel/ContenedorSeccion";
@@ -12,7 +13,13 @@ import { camposDeposito } from "../../../Tablas/Articulos/Deposito/camposDeposit
 const GestionarDeposito = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const id = searchParams.get("codigoSecuencial");
+
+  const esGalpon = location.pathname.includes("/inventario/galpones");
+  const labelSingular = esGalpon ? "Galpón" : "Depósito";
+  const labelPlural = esGalpon ? "Galpones" : "Depósitos";
+  const baseRoute = esGalpon ? "/panel/inventario/galpones" : "/panel/inventario/depositos";
 
   const {
     depositos,
@@ -49,10 +56,10 @@ const GestionarDeposito = () => {
       } else {
         await crearDeposito(payload);
       }
-      navigate("/panel/inventario/depositos");
+      navigate(baseRoute);
     } catch (error) {
       console.error(
-        `Error al ${esEdicion ? "actualizar" : "crear"} depósito:`,
+        `Error al ${esEdicion ? "actualizar" : "crear"} ${labelSingular.toLowerCase()}:`,
         error,
       );
     }
@@ -79,7 +86,7 @@ const GestionarDeposito = () => {
             Error de Identificación
           </p>
           <p className="text-black/60 font-medium italic">
-            El depósito con código{" "}
+            El {labelSingular.toLowerCase()} con código{" "}
             <span className="text-black font-bold">#{id}</span> no fue
             encontrado o no existe.
           </p>
@@ -88,28 +95,40 @@ const GestionarDeposito = () => {
     );
   }
 
+  const camposDinamicos = useMemo(() => {
+    return camposDeposito.map((field) => {
+      let newLabel = field.label;
+      if (esGalpon) {
+        newLabel = newLabel
+          .replace(/Depósito/g, "Galpón")
+          .replace(/depósito/g, "galpón");
+      }
+      return { ...field, label: newLabel };
+    });
+  }, [camposDeposito, esGalpon]);
+
   return (
     <ContenedorSeccion className="px-3 py-4">
       <div className="card no-inset no-ring bg-[var(--surface)] shadow-md rounded-md mb-6 overflow-hidden">
         <EncabezadoSeccion
-          ruta={esEdicion ? "Edición de Sucursal" : "Gestión de Sucursales"}
+          ruta={esEdicion ? `Edición de ${labelSingular}` : `Gestión de ${labelPlural}`}
           icono={<InventarioIcono size={18} />}
           volver={true}
-          redireccionAnterior={"/panel/inventario/depositos"}
+          redireccionAnterior={baseRoute}
         />
       </div>
 
       <FormularioDinamico
-        titulo={esEdicion ? "Configurar Depósito" : "Alta de Punto de Depósito"}
+        titulo={esEdicion ? `Configurar ${labelSingular}` : `Alta de Punto de ${labelSingular}`}
         subtitulo={
           esEdicion
-            ? `Actualice la información de ${depositoAEditar?.nombre || "la sucursal"}.`
-            : "Registre una nueva ubicación física para la gestión de stock global."
+            ? `Actualice la información de ${depositoAEditar?.nombre || `el ${labelSingular.toLowerCase()}`}.`
+            : `Registre una nueva ubicación física para la gestión de stock global.`
         }
-        campos={camposDeposito}
+        campos={camposDinamicos}
         initialData={depositoAEditar}
         onSubmit={handleSubmit}
-        onCancel={() => navigate("/panel/inventario/depositos")}
+        onCancel={() => navigate(baseRoute)}
         submitLabel={
           esEdicion
             ? estaActualizando

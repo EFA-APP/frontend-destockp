@@ -78,6 +78,38 @@ export const columnasEmpresas = (busqueda) => [
     ),
   },
   {
+    key: "landingHabilitada",
+    etiqueta: "Landing Page",
+    renderizar: (valor, fila) => {
+      const slug = fila.landingSlug || fila.nombre?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const habilitada = valor !== false; // Default to active/enabled if not explicitly false
+      return (
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-1.5">
+            <div
+              className={`w-2 h-2 rounded-full ${habilitada ? "bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]" : "bg-black/10"}`}
+            />
+            <span
+              className={`text-[10px] font-black uppercase tracking-widest ${habilitada ? "text-purple-600" : "text-[var(--text-muted)] opacity-50"}`}
+            >
+              {habilitada ? "ACTIVO" : "DESACTIVADO"}
+            </span>
+          </div>
+          {habilitada && (
+            <a
+              href={`/e/${slug}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-[9px] font-black text-blue-500 hover:underline tracking-tight"
+            >
+              /e/{slug}
+            </a>
+          )}
+        </div>
+      );
+    },
+  },
+  {
     key: "activo",
     etiqueta: "Estado",
     renderizar: (valor) => (

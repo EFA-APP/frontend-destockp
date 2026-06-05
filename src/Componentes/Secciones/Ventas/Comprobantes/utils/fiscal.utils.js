@@ -13,19 +13,40 @@
 export const getPrecio = (prod, col) => {
   if (!prod || !col) return 0;
 
-  let attr = prod.atributos?.[col];
-
-  if (typeof prod.atributos === "string") {
+  // Try to retrieve from atributos object (could be a JSON string).
+  let attr;
+  if (prod.atributos && typeof prod.atributos === "object") {
+    attr = prod.atributos[col];
+  } else if (typeof prod.atributos === "string") {
     try {
       const parsed = JSON.parse(prod.atributos);
       attr = parsed[col];
-    } catch (e) {}
+    } catch (e) {
+      // ignore JSON parse errors
+    }
   }
 
+  // Direct property fallback.
   if (attr === undefined && prod[col] !== undefined) {
     attr = prod[col];
   }
 
+  // Common alternative price field names.
+  if (attr === undefined) {
+    const alternatives = ["precio", "price", "precioVenta", "precioUnitario", "valor"];
+    for (const alt of alternatives) {
+      if (prod[alt] !== undefined) {
+        attr = prod[alt];
+        break;
+      }
+      if (prod.atributos && typeof prod.atributos === "object" && prod.atributos[alt] !== undefined) {
+        attr = prod.atributos[alt];
+        break;
+      }
+    }
+  }
+
+  // Normalize to number.
   if (attr !== undefined && attr !== null && attr !== "") {
     if (typeof attr === "number") return attr;
     if (typeof attr === "string") {

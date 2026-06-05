@@ -41,7 +41,7 @@ const BarraLateral = () => {
 
   // Transformamos y filtramos el menú según los datos de la API y permisos
   const menuFiltrado = useMemo(() => {
-    return seccionesApi
+    const menu = seccionesApi
       .filter(
         (seccion) =>
           seccion.activo &&
@@ -64,6 +64,8 @@ const BarraLateral = () => {
           submenu,
         };
       });
+
+    return menu;
   }, [seccionesApi, codigosSeccionPermitidos]);
 
   // Abrir el primer item con submenú por defecto al cargar

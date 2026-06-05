@@ -1,1 +1,0 @@
-import{e as r}from"./index-DNlVVc_i.js";import{L as u}from"./producto.api-PK8_RTPJ.js";const a=(o={})=>r({queryKey:["configuracion_producto"],queryFn:()=>u("PRODUCTO"),staleTime:1e3*60*60,...o});export{a as u};

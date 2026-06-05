@@ -2,16 +2,6 @@ import { InventarioIcono } from "../../../../assets/Icons";
 
 export const columnasProductos = [
   {
-    key: "codigoSecuencial",
-    etiqueta: "Código",
-    filtrable: true,
-    renderizar: (valor, fila) => (
-      <div className="font-mono text-[12px] text-[var(--primary)] px-2 py-1">
-        {fila.codigoSecuencial}
-      </div>
-    ),
-  },
-  {
     key: "nombre",
     etiqueta: "Producto",
     filtrable: true,

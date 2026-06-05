@@ -20,6 +20,10 @@ const GestionMateriaPrima = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const esEspecie = location.pathname.includes("/inventario/especies");
+  const baseRoute = esEspecie ? "/panel/inventario/especies" : "/panel/inventario/materia-prima";
+  const labelSingular = esEspecie ? "Especie" : "Materia Prima";
+
   const { materiasPrimas, actualizarMateriaPrima, cargando } =
     useMateriaPrimaUI();
   const [materiaPrima, setMateriaPrima] = useState(
@@ -46,7 +50,7 @@ const GestionMateriaPrima = () => {
     return (
       <ContenedorSeccion className="flex items-center justify-center p-20">
         <div className=" text-[var(--primary)] font-black uppercase tracking-widest text-[12px]">
-          Cargando Materia Prima...
+          Cargando {labelSingular}...
         </div>
       </ContenedorSeccion>
     );
@@ -57,10 +61,10 @@ const GestionMateriaPrima = () => {
       <ContenedorSeccion className="p-8">
         <div className="bg-rose-700/10 border border-rose-700/20 rounded-md! p-8 text-center">
           <p className="text-rose-700 font-black uppercase tracking-widest mb-2 text-[12px]">
-            Materia Prima no encontrada
+            {labelSingular} no encontrada
           </p>
           <button
-            onClick={() => navigate("/panel/inventario/materia-prima")}
+            onClick={() => navigate(baseRoute)}
             className="text-black/60 hover:text-black underline font-bold mt-4 text-[12px] uppercase cursor-pointer"
           >
             Volver al listado
@@ -74,10 +78,10 @@ const GestionMateriaPrima = () => {
     <ContenedorSeccion className="px-3 py-2">
       <div className="card no-inset no-ring bg-[var(--surface)] shadow-md rounded-md! mb-4 overflow-hidden">
         <EncabezadoSeccion
-          ruta={`Materia Prima: ${materiaPrima.nombre}`}
+          ruta={`${labelSingular}: ${materiaPrima.nombre}`}
           icono={<CanastaIcono size={18} />}
           volver={true}
-          redireccionAnterior={"/panel/inventario/materia-prima"}
+          redireccionAnterior={baseRoute}
         />
       </div>
 
@@ -115,7 +119,7 @@ const GestionMateriaPrima = () => {
               accentColor="purple"
               isStandalone={true}
               hideTabs={activeTab === "info"}
-              onClose={() => navigate("/panel/inventario/materia-prima")}
+              onClose={() => navigate(baseRoute)}
               mode={activeTab === "editar" ? "editar" : "view"}
               data={materiaPrima}
               {...materiaPrimaConfig}
@@ -138,9 +142,9 @@ const GestionMateriaPrima = () => {
                     materiaPrima.codigoSecuencial,
                     payload,
                   );
-                  navigate("/panel/inventario/materia-prima");
+                  navigate(baseRoute);
                 } catch (err) {
-                  console.error("Error updating raw material:", err);
+                  console.error(`Error updating ${labelSingular.toLowerCase()}:`, err);
                 }
               }}
             >

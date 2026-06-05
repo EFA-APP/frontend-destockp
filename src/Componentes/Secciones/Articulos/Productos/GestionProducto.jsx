@@ -4,16 +4,12 @@ import { useProductoUI } from "../../../../Backend/Articulos/hooks/Producto/useP
 import {
   InventarioIcono,
   HistorialIcono,
-  VentasIcono,
-  ProduccionIcono,
   ComprobanteIcono,
-  MovimientoIcono,
 } from "../../../../assets/Icons";
 import ContenedorSeccion from "../../../ContenidoPanel/ContenedorSeccion";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import ModalDetalleGenerico from "../../../UI/ModalDetalleBase/ModalDetalleGenerico";
 import productoConfig from "../../../Modales/Articulos/ConfigProducto";
-import ModalMovimiento from "../../../Modales/Articulos/ModalMovimiento";
 import ListaMovimientos from "../../../UI/ListaMovimientos/ListaMovimientos";
 
 const GestionProducto = () => {
@@ -137,7 +133,10 @@ const GestionProducto = () => {
                   // Force redirect or update
                   navigate("/panel/inventario/productos");
                 } catch (err) {
-                  console.error("Error updating product:", err);
+                  console.error(
+                    "Error updating product:",
+                    err,
+                  );
                 }
               }}
             >

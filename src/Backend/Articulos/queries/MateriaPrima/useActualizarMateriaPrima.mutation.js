@@ -17,9 +17,16 @@ export const useActualizarMateriaPrima = () => {
             });
         },
         onError: (error) => {
+            const rawMsg = error?.response?.data?.message;
+            const cleanMsg = Array.isArray(rawMsg)
+                ? rawMsg.join(", ")
+                : typeof rawMsg === "object" && rawMsg !== null
+                ? JSON.stringify(rawMsg)
+                : rawMsg || "Ocurrió un error al actualizar la materia prima";
+
             agregarAlerta({
                 type: "error",
-                message: error?.response?.data?.message || "Ocurrió un error al actualizar la materia prima",
+                message: cleanMsg,
             });
         }
     });

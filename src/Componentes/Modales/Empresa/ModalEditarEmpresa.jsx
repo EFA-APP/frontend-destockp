@@ -16,7 +16,14 @@ const ModalEditarEmpresa = ({ isOpen, onClose, empresaAEditar }) => {
     conexionArca: false,
     esProduccion: false,
     usaContabilidad: false,
+    configuracion: "",
+    landingHabilitada: true,
+    landingSlug: "",
+    landingSlogan: "",
+    landingColorPrimario: "#6366f1",
   });
+
+  const [jsonError, setJsonError] = useState(null);
 
   const { mutateAsync: actualizarEmpresa, isPending } = useActualizarEmpresa();
 
@@ -44,7 +51,18 @@ const ModalEditarEmpresa = ({ isOpen, onClose, empresaAEditar }) => {
         conexionArca: empresaAEditar.conexionArca || false,
         esProduccion: empresaAEditar.esProduccion || false,
         usaContabilidad: empresaAEditar.usaContabilidad || false,
+        configuracion: empresaAEditar.configuracion
+          ? JSON.stringify(empresaAEditar.configuracion, null, 2)
+          : "",
+        landingHabilitada:
+          empresaAEditar.landingHabilitada !== undefined
+            ? empresaAEditar.landingHabilitada
+            : true,
+        landingSlug: empresaAEditar.landingSlug || empresaAEditar.nombre?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "",
+        landingSlogan: empresaAEditar.landingSlogan || "",
+        landingColorPrimario: empresaAEditar.landingColorPrimario || "#6366f1",
       });
+      setJsonError(null);
     }
   }, [empresaAEditar]);
 
@@ -58,10 +76,23 @@ const ModalEditarEmpresa = ({ isOpen, onClose, empresaAEditar }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setJsonError(null);
+    let parsedConfig = null;
+    if (formData.configuracion && formData.configuracion.trim()) {
+      try {
+        parsedConfig = JSON.parse(formData.configuracion);
+      } catch (err) {
+        setJsonError("El formato JSON de la configuración no es válido. Verificá llaves, comas y comillas dobles.");
+        return;
+      }
+    }
+
     try {
+      const { configuracion, ...restFormData } = formData;
       const payload = {
         codigoEmpresa: empresaAEditar.codigo || empresaAEditar.codigoSecuencial,
-        ...formData,
+        ...restFormData,
+        configuracion: parsedConfig,
       };
 
       // Convertir fecha a ISO si existe, o eliminarla si está vacía
@@ -333,6 +364,149 @@ const ModalEditarEmpresa = ({ isOpen, onClose, empresaAEditar }) => {
                 placeholder="Dirección fiscal completa"
                 className="w-full px-4 py-2.5 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:border-black/30 focus:bg-white transition-all"
               />
+            </div>
+
+            {/* SECCIÓN LANDING PAGE */}
+            <div className="md:col-span-2 mt-4">
+              <h3 className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] border-b border-black/10 pb-1 mb-3">
+                Personalización de Landing Page Pública
+              </h3>
+            </div>
+
+            {/* HABILITADA */}
+            <div className="flex flex-col items-center justify-center p-3 bg-black/5 rounded-md border border-black/10 gap-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-black/70">
+                Página Pública Activa
+              </span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="landingHabilitada"
+                  checked={formData.landingHabilitada}
+                  onChange={handleChange}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-black/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500"></div>
+                <span className="ml-3 text-[11px] font-black uppercase tracking-widest text-black">
+                  {formData.landingHabilitada ? "Habilitada" : "Deshabilitada"}
+                </span>
+              </label>
+            </div>
+
+            {/* COLOR PRIMARIO HEX */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-black uppercase tracking-widest text-black/70 ml-1">
+                Color Primario Corporativo
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="color"
+                  name="landingColorPrimario"
+                  value={formData.landingColorPrimario}
+                  onChange={handleChange}
+                  className="w-10 h-10 border border-black/10 rounded-md cursor-pointer bg-transparent"
+                />
+                <input
+                  type="text"
+                  name="landingColorPrimario"
+                  value={formData.landingColorPrimario}
+                  onChange={handleChange}
+                  placeholder="#6366f1"
+                  className="flex-grow px-4 py-2.5 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:border-black/30 focus:bg-white transition-all font-mono"
+                />
+              </div>
+            </div>
+
+            {/* SLUG DE URL */}
+            <div className="flex flex-col gap-1.5 md:col-span-2">
+              <label className="text-[11px] font-black uppercase tracking-widest text-black/70 ml-1">
+                Enlace de la Página (URL Slug)
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] font-bold text-black/40">/e/</span>
+                <input
+                  type="text"
+                  name="landingSlug"
+                  value={formData.landingSlug}
+                  onChange={(e) => {
+                    const cleanSlug = e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, "-");
+                    setFormData(prev => ({ ...prev, landingSlug: cleanSlug }));
+                  }}
+                  placeholder="ej-agro-cereales"
+                  className="w-full pl-8 pr-4 py-2.5 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:border-black/30 focus:bg-white transition-all font-mono"
+                />
+              </div>
+            </div>
+
+            {/* SLOGAN PUBLICO */}
+            <div className="flex flex-col gap-1.5 md:col-span-2">
+              <label className="text-[11px] font-black uppercase tracking-widest text-black/70 ml-1">
+                Eslogan de la Landing Page
+              </label>
+              <input
+                type="text"
+                name="landingSlogan"
+                value={formData.landingSlogan}
+                onChange={handleChange}
+                placeholder="Líderes en el sector con tecnología integrada..."
+                className="w-full px-4 py-2.5 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:border-black/30 focus:bg-white transition-all"
+              />
+            </div>
+
+            {/* SECCIÓN CONFIGURACIÓN JSON */}
+            <div className="md:col-span-2 mt-4">
+              <h3 className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] border-b border-black/10 pb-1 mb-3">
+                Configuración Contable Avanzada (SaaS JSON)
+              </h3>
+            </div>
+
+            {/* INPUT JSON CONFIGURACION */}
+            <div className="flex flex-col gap-1.5 md:col-span-2">
+              <div className="flex justify-between items-center ml-1">
+                <label className="text-[11px] font-black uppercase tracking-widest text-black/70">
+                  Parámetros JSON de Cuentas Contables
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      configuracion: JSON.stringify(
+                        {
+                          cuentas: {
+                            deudoresFletes: "1105",
+                            ingresoFletes: "4108",
+                            ctaCteAlumnos: "1106",
+                            ingresoCuotas: "4106"
+                          }
+                        },
+                        null,
+                        2
+                      )
+                    }));
+                    setJsonError(null);
+                  }}
+                  className="text-[9px] font-black uppercase tracking-wider text-[var(--primary)] hover:underline cursor-pointer"
+                >
+                  Cargar plantilla por defecto
+                </button>
+              </div>
+              <textarea
+                name="configuracion"
+                value={formData.configuracion}
+                onChange={handleChange}
+                rows="6"
+                placeholder={`{\n  "cuentas": {\n    "deudoresFletes": "1105",\n    "ingresoFletes": "4108",\n    "ctaCteAlumnos": "1106",\n    "ingresoCuotas": "4106"\n  }\n}`}
+                className="w-full px-4 py-2.5 bg-black/5 border border-black/10 rounded-md font-mono text-[12px] font-bold focus:outline-none focus:border-black/30 focus:bg-white transition-all resize-y"
+              />
+              <span className="text-[10px] text-black/40 font-bold ml-1">
+                Define las cuentas contables personalizadas que esta empresa utilizará en sus módulos de transporte y colegio.
+              </span>
+              {jsonError && (
+                <span className="text-[11px] text-rose-600 font-bold ml-1 mt-1">
+                  ⚠ {jsonError}
+                </span>
+              )}
             </div>
           </div>
 

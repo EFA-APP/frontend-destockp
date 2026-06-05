@@ -1,16 +1,26 @@
 import { useState, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import DataTable from "../../../UI/DataTable/DataTable";
 import ModalConfirmacion from "../../../UI/ModalConfirmacion/ModalConfirmacion";
 import { accionesMateriaPrimas } from "./AccionesMateriaPrima";
 import { columnasMateriaPrima } from "./ColumnaMateriaPrima";
 import { BorrarIcono, HistorialIcono } from "../../../../assets/Icons";
+import { FileSpreadsheet } from "lucide-react";
 import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
 import { useDepositoUI } from "../../../../Backend/Articulos/hooks/Deposito/useDepositoUI.jsx";
 import DrawerActualizarStock from "../../../Modales/Articulos/ModalActualizarStock";
+import ModalCargaMasivaMateriaPrima from "../../../Modales/Articulos/ModalCargaMasivaMateriaPrima";
 
 const TablaMateriaPrima = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const esEspecie = location.pathname.includes("/inventario/especies");
+  const baseRoute = esEspecie
+    ? "/panel/inventario/especies"
+    : "/panel/inventario/materia-prima";
+  const labelPlural = esEspecie ? "Especies" : "Materias Primas";
+  const labelSingular = esEspecie ? "Especie" : "Materia Prima";
 
   // Estados para filtros API y paginación
   const [filtros, setFiltros] = useState({
@@ -28,6 +38,7 @@ const TablaMateriaPrima = () => {
     estaEliminando,
     meta,
     dataDepositosRaw,
+    refetch,
   } = useDepositoUI(filtros);
 
   const [confirmarEliminar, setConfirmarEliminar] = useState({
@@ -35,6 +46,8 @@ const TablaMateriaPrima = () => {
     codigo: null,
     nombre: "",
   });
+
+  const [modalMasivoOpen, setModalMasivoOpen] = useState(false);
 
   const [drawerData, setDrawerData] = useState({
     isOpen: false,
@@ -50,12 +63,9 @@ const TablaMateriaPrima = () => {
   }, []);
 
   const handleEditarClick = (materiaPrima) => {
-    navigate(
-      `/panel/inventario/materia-prima/${materiaPrima.codigoSecuencial}/editar`,
-      {
-        state: { materiaPrima },
-      },
-    );
+    navigate(`${baseRoute}/${materiaPrima.codigoSecuencial}/editar`, {
+      state: { materiaPrima },
+    });
   };
 
   const handleEliminarClick = (codigo, nombre) => {
@@ -88,7 +98,7 @@ const TablaMateriaPrima = () => {
           setConfirmarEliminar({ open: false, codigo: null, nombre: "" })
         }
         onConfirm={confirmarEliminacion}
-        titulo="Archivar Materia Prima"
+        titulo={`Archivar ${labelSingular}`}
         mensaje={`¿Estás seguro de que deseas eliminar "${confirmarEliminar.nombre}"? No aparecerá en el listado activo.`}
         textoConfirmar={estaEliminando ? "Eliminando..." : "Confirmar"}
         textoCancelar="Cancelar"
@@ -114,11 +124,11 @@ const TablaMateriaPrima = () => {
         })}
         botonAgregar={{
           texto: "Crear",
-          ruta: "/panel/inventario/materia-prima/nuevo",
+          ruta: `${baseRoute}/nuevo`,
           tieneAccion: "CREAR_MATERIA_PRIMA",
         }}
         elementosSuperior={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <TieneAccion accion="HISTORIAL_MATERIA_PRIMA">
               <button
                 onClick={() =>
@@ -133,12 +143,37 @@ const TablaMateriaPrima = () => {
                 Historial
               </button>
             </TieneAccion>
+
+            <TieneAccion accion="CARGA_MASIVA_MATERIA_PRIMA">
+              <button
+                onClick={() => setModalMasivoOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-700/20 rounded-md text-[11px] font-bold text-emerald-600 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-emerald-700/5 group"
+              >
+                <FileSpreadsheet
+                  size={14}
+                  className="group-hover:scale-110 transition-transform"
+                />
+                Carga Masiva
+              </button>
+            </TieneAccion>
           </div>
         }
         mostrarBuscador={true}
         busqueda={busqueda}
         setBusqueda={setBusqueda}
-        placeholderBuscador="Filtrar por ingrediente o código..."
+        placeholderBuscador={
+          esEspecie
+            ? "Filtrar por especie o código..."
+            : "Filtrar por ingrediente o código..."
+        }
+      />
+
+      <ModalCargaMasivaMateriaPrima
+        open={modalMasivoOpen}
+        onClose={() => setModalMasivoOpen(false)}
+        onExito={() => {
+          refetch();
+        }}
       />
 
       <TieneAccion accion="EDITAR_STOCK_MANUAL">

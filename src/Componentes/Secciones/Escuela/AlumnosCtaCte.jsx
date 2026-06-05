@@ -4,13 +4,9 @@ import { useLocation } from "react-router-dom";
 import { useAlumnos } from "../../../Backend/Contactos/hooks/useAlumnos";
 import EncabezadoSeccion from "../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import {
-  AumentarCuotaIcono,
-  ComprobanteIcono,
   CuotasIcono,
-  DineroIcono,
-  EmitirCuotasIcono,
-  OjosIcono,
 } from "../../../assets/Icons";
+import { accionesReutilizables } from "../../UI/AccionesReutilizables/accionesReutilizables";
 import {
   AlertCircle,
   CheckCircle,
@@ -28,6 +24,7 @@ import {
 import ModalPagoCuota from "./Cuotas/ModalPagoCuota";
 import ModalEmisionIndividual from "./Cuotas/ModalEmisionIndividual";
 import { ListarMovimientosApi } from "../../../Backend/Contactos/api/contactos.api";
+import DataTable from "../../UI/DataTable/DataTable";
 
 const AlumnosCtaCte = () => {
   const meses = [
@@ -62,6 +59,7 @@ const AlumnosCtaCte = () => {
     setBusqueda,
     mesSeleccionado,
     setMesSeleccionado,
+    codigoCtaCte,
   } = useAlumnos();
 
   // Filtros rápidos locales
@@ -84,8 +82,8 @@ const AlumnosCtaCte = () => {
   const [cargandoMayor, setCargandoMayor] = useState(false);
 
   // Filtros de fecha para el Libro Mayor
-  const [fechaDesde, setFechaDesde] = useState("");
-  const [fechaHasta, setFechaHasta] = useState("");
+  const [mesSeleccionadoMayor, setMesSeleccionadoMayor] = useState(new Date().getMonth());
+  const [anioSeleccionadoMayor, setAnioSeleccionadoMayor] = useState(new Date().getFullYear());
 
   // Recargar datos cuando cambia de vista
   useEffect(() => {
@@ -97,11 +95,12 @@ const AlumnosCtaCte = () => {
   const handleAbrirLibroMayor = async (alumno) => {
     setAlumnoSeleccionadoMayor(alumno);
     setCargandoMayor(true);
-    setFechaDesde("");
-    setFechaHasta("");
+    setMesSeleccionadoMayor(mesSeleccionado);
+    setAnioSeleccionadoMayor(anioSeleccionado);
     try {
       const res = await ListarMovimientosApi(alumno.codigoSecuencial, {
         limite: 500,
+        codigoCuenta: codigoCtaCte,
       });
       setMovimientosMayor(res || []);
     } catch (e) {
@@ -115,43 +114,29 @@ const AlumnosCtaCte = () => {
   const handleCerrarLibroMayor = () => {
     setAlumnoSeleccionadoMayor(null);
     setMovimientosMayor([]);
-    setFechaDesde("");
-    setFechaHasta("");
   };
 
   // Filtrar los movimientos del Libro Mayor en tiempo real
   const movimientosMayorFiltrados = useMemo(() => {
-    if (!fechaDesde && !fechaHasta) return movimientosMayor;
     return movimientosMayor.filter((mov) => {
-      if (!mov.fecha) return true;
-      const fMov = new Date(mov.fecha);
-      const fMovInicio = new Date(
-        fMov.getFullYear(),
-        fMov.getMonth(),
-        fMov.getDate(),
+      let m, y;
+      if (mov.periodo && typeof mov.periodo === "string" && mov.periodo.includes("-")) {
+        const parts = mov.periodo.split("-");
+        y = Number(parts[0]);
+        m = Number(parts[1]) - 1;
+      } else if (mov.fecha) {
+        const fMov = new Date(mov.fecha);
+        m = fMov.getMonth();
+        y = fMov.getFullYear();
+      } else {
+        return true;
+      }
+      return (
+        m === Number(mesSeleccionadoMayor) &&
+        y === Number(anioSeleccionadoMayor)
       );
-
-      if (fechaDesde) {
-        const fDesde = new Date(fechaDesde);
-        const fDesdeInicio = new Date(
-          fDesde.getFullYear(),
-          fDesde.getMonth(),
-          fDesde.getDate(),
-        );
-        if (fMovInicio < fDesdeInicio) return false;
-      }
-      if (fechaHasta) {
-        const fHasta = new Date(fechaHasta);
-        const fHastaInicio = new Date(
-          fHasta.getFullYear(),
-          fHasta.getMonth(),
-          fHasta.getDate(),
-        );
-        if (fMovInicio > fHastaInicio) return false;
-      }
-      return true;
     });
-  }, [movimientosMayor, fechaDesde, fechaHasta]);
+  }, [movimientosMayor, mesSeleccionadoMayor, anioSeleccionadoMayor]);
 
   const handlePagarCuota = (alumno) => {
     setAlumnoParaPagar(alumno);
@@ -279,6 +264,95 @@ const AlumnosCtaCte = () => {
     }).format(val || 0);
   };
 
+  const columnasAlumnos = [
+    {
+      key: "codigoSecuencial",
+      etiqueta: "ID",
+      renderizar: (val) => (
+        <span className="text-[10px] font-black text-black/30">
+          {val}
+        </span>
+      ),
+    },
+    {
+      key: "nombre",
+      etiqueta: "Alumno",
+      renderizar: (_, alumno) => (
+        <span className="font-black text-slate-800 uppercase text-[12.5px]">
+          {alumno.nombre} {alumno.apellido}
+        </span>
+      ),
+    },
+    {
+      key: "curso",
+      etiqueta: "Curso",
+      renderizar: (_, alumno) => (
+        <span className="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase">
+          {alumno.atributos?.curso || "N/A"}
+        </span>
+      ),
+    },
+    {
+      key: "saldoBase",
+      etiqueta: "Saldo Contable (Base)",
+      renderizar: (val) => (
+        <div className="text-right font-bold text-slate-700">
+          {formatARS(val)}
+        </div>
+      ),
+    },
+    {
+      key: "totalIntereses",
+      etiqueta: "Mora Acumulada",
+      renderizar: (val) => (
+        <div className="text-right font-bold text-rose-600">
+          {val > 0 ? formatARS(val) : "-"}
+        </div>
+      ),
+    },
+    {
+      key: "deudaConsolidada",
+      etiqueta: "Deuda Consolidada",
+      renderizar: (val) => (
+        <div className="text-right font-black text-[13px] text-slate-900">
+          {formatARS(val)}
+        </div>
+      ),
+    },
+    {
+      key: "estado",
+      etiqueta: "Estado",
+      renderizar: (_, alumno) => (
+        <div className="text-center">
+          <span
+            className={`inline-block px-3 py-1 rounded-full border text-[9px] font-black uppercase tracking-wider ${alumno.badgeStyle}`}
+          >
+            {alumno.estadoLabel}
+          </span>
+        </div>
+      ),
+    },
+  ];
+
+  const accionesAlumnos = [
+    {
+      ...accionesReutilizables.registrarPago,
+      label: "Registrar Cobro",
+      onClick: (alumno) => handlePagarCuota(alumno),
+      mostrar: (alumno) => alumno.deudaConsolidada > 0,
+    },
+    {
+      ...accionesReutilizables.verCuentaCorriente,
+      label: "Ver Cuenta Corriente Contable",
+      onClick: (alumno) => handleAbrirLibroMayor(alumno),
+    },
+    {
+      ...accionesReutilizables.aumentarCuota,
+      label: "Emitir Cuota individual",
+      onClick: (alumno) => handleAbrirEmisionIndividual(alumno),
+    },
+  ];
+
   return (
     <div className="flex flex-col min-h-screen text-black p-4">
       <EncabezadoSeccion
@@ -307,7 +381,7 @@ const AlumnosCtaCte = () => {
         <div className="p-5 bg-white border border-[var(--border-subtle)] rounded-2xl shadow-sm flex items-center justify-between">
           <div className="flex flex-col">
             <span className="text-[10px] font-black text-black/40 uppercase tracking-widest leading-none">
-              Saldo Contable (1106)
+              Saldo Contable ({codigoCtaCte})
             </span>
             <span className="text-[26px] font-black text-[var(--primary)] mt-2 leading-none">
               {formatARS(metricas.totalSaldoBase)}
@@ -346,222 +420,85 @@ const AlumnosCtaCte = () => {
         </div>
       </div>
 
-      {/* FILTROS Y BUSQUEDA */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-4 bg-white border border-[var(--border-subtle)] rounded-2xl shadow-sm mb-6">
-        {/* Pestañas de Filtro de Estado */}
-        <div className="flex items-center gap-1 bg-black/5 p-1 rounded-xl overflow-x-auto self-start lg:self-auto">
-          {[
-            { id: "TODOS", label: "Todos" },
-            { id: "AL_DIA", label: "Al Día" },
-            { id: "CON_DEUDA", label: "Con Deuda" },
-            { id: "EN_MORA", label: "En Mora" },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setFiltroEstado(tab.id)}
-              className={`px-4 py-2 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                filtroEstado === tab.id
-                  ? "bg-white text-black shadow-sm"
-                  : "text-black/50 hover:text-black hover:bg-white/30"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Filtros de Período y Búsqueda */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
-          {/* Select de Período */}
-          <div className="flex items-center gap-2 bg-black/5 border border-black/5 rounded-xl px-3 py-1.5 w-full sm:w-auto justify-center">
-            <span className="text-[10px] font-black text-black/40 uppercase tracking-wider whitespace-nowrap">
-              Período:
-            </span>
-            <select
-              value={mesSeleccionado}
-              onChange={(e) => setMesSeleccionado(Number(e.target.value))}
-              className="bg-transparent border-none text-[12px] font-bold text-black/80 outline-none cursor-pointer focus:ring-0 py-0 pr-8 pl-1"
-            >
-              {meses.map((mes, idx) => (
-                <option key={idx} value={idx}>
-                  {mes}
-                </option>
+      <DataTable
+        id_tabla="tabla-alumnos-ctacte"
+        columnas={columnasAlumnos}
+        datos={alumnosFiltradosPorEstado}
+        loading={cargandoAlumnos}
+        mostrarBuscador={true}
+        busqueda={busqueda}
+        setBusqueda={setBusqueda}
+        placeholderBuscador="Buscar por alumno, documento, curso..."
+        meta={{
+          total: total,
+          currentPage: paginaActual,
+          lastPage: paginas,
+          prev: paginaActual > 1 ? paginaActual - 1 : null,
+          next: paginaActual < paginas ? paginaActual + 1 : null,
+        }}
+        onPageChange={(page) => setPagina(page)}
+        mostrarAcciones={true}
+        acciones={accionesAlumnos}
+        elementosSuperior={
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Pestañas de Filtro de Estado */}
+            <div className="flex items-center gap-1 bg-black/5 p-1 rounded-xl overflow-x-auto">
+              {[
+                { id: "TODOS", label: "Todos" },
+                { id: "AL_DIA", label: "Al Día" },
+                { id: "CON_DEUDA", label: "Con Deuda" },
+                { id: "EN_MORA", label: "En Mora" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setFiltroEstado(tab.id)}
+                  className={`px-4 py-2 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                    filtroEstado === tab.id
+                      ? "bg-white text-black shadow-sm"
+                      : "text-black/50 hover:text-black hover:bg-white/30"
+                  }`}
+                >
+                  {tab.label}
+                </button>
               ))}
-            </select>
-            <select
-              value={anioSeleccionado}
-              onChange={(e) => setAnioSeleccionado(Number(e.target.value))}
-              className="bg-transparent border-none text-[12px] font-bold text-black/80 outline-none cursor-pointer focus:ring-0 py-0 pr-8 pl-1 border-l border-black/10"
-            >
-              {[-2, -1, 0, 1, 2].map((offset) => {
-                const yr = new Date().getFullYear() + offset;
-                return (
-                  <option key={yr} value={yr}>
-                    {yr}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
+            </div>
 
-          {/* Input de Búsqueda */}
-          <div className="flex items-center gap-2 bg-black/5 border border-black/5 rounded-xl px-4 py-2.5 focus-within:border-[var(--primary)]/30 focus-within:bg-white transition-all w-full lg:max-w-md">
-            <Search size={16} className="text-black/40" />
-            <input
-              type="text"
-              placeholder="Buscar por alumno, documento, curso..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              className="bg-transparent border-none text-[12px] font-bold text-black/80 w-full outline-none focus:ring-0"
-            />
-            {busqueda && (
-              <button
-                onClick={() => setBusqueda("")}
-                className="text-black/30 hover:text-black/60 transition-colors"
-              >
-                <X size={14} />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* GRILLA PRINCIPAL */}
-      <div className="flex-1 bg-white border border-[var(--border-subtle)] rounded-2xl shadow-sm overflow-hidden flex flex-col">
-        <div className="flex-1 overflow-x-auto">
-          {cargandoAlumnos ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <Loader
-                size={36}
-                className="text-[var(--primary)] animate-spin"
-              />
-              <span className="text-[11px] font-black text-black/40 uppercase tracking-widest">
-                Cargando Cuentas Corrientes...
+            {/* Select de Período */}
+            <div className="flex items-center gap-2 bg-black/5 border border-black/5 rounded-xl px-3 py-1.5 justify-center">
+              <span className="text-[10px] font-black text-black/40 uppercase tracking-wider whitespace-nowrap">
+                Período:
               </span>
-            </div>
-          ) : alumnosFiltradosPorEstado.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center px-4">
-              <AlertCircle size={48} className="text-black/20 mb-4" />
-              <h3 className="text-sm font-black text-black/70 uppercase tracking-widest">
-                No se encontraron cuentas corrientes
-              </h3>
-              <p className="text-[11px] font-bold text-black/40 uppercase tracking-wider mt-1">
-                Probá modificando los filtros de búsqueda o el estado
-              </p>
-            </div>
-          ) : (
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-black/[0.02] border-b border-black/5 text-[9px] font-black text-black/40 uppercase tracking-[0.15em] select-none">
-                  <th className="py-4 px-6">ID</th>
-                  <th className="py-4 px-4">Alumno</th>
-                  <th className="py-4 px-4">Curso</th>
-                  <th className="py-4 px-4 text-right">
-                    Saldo Contable (Base)
-                  </th>
-                  <th className="py-4 px-4 text-right">Mora Acumulada</th>
-                  <th className="py-4 px-4 text-right">Deuda Consolidada</th>
-                  <th className="py-4 px-4 text-center">Estado</th>
-                  <th className="py-4 px-6 text-center">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-black/5">
-                {alumnosFiltradosPorEstado.map((a) => (
-                  <tr
-                    key={a.codigoSecuencial}
-                    className="hover:bg-black/[0.01] transition-colors group text-[12px] font-bold text-black/80"
-                  >
-                    <td className="py-3.5 px-6 text-[10px] font-black text-black/30">
-                      {a.codigoSecuencial}
-                    </td>
-                    <td className="py-3.5 px-4 font-black text-slate-800 uppercase">
-                      {a.nombre} {a.apellido}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase">
-                        {a.atributos?.curso || "N/A"}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-right font-bold text-slate-700">
-                      {formatARS(a.saldoBase)}
-                    </td>
-                    <td className="py-3.5 px-4 text-right font-bold text-rose-600">
-                      {a.totalIntereses > 0 ? formatARS(a.totalIntereses) : "-"}
-                    </td>
-                    <td className="py-3.5 px-4 text-right font-black text-[13px] text-slate-900">
-                      {formatARS(a.deudaConsolidada)}
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full border text-[9px] font-black uppercase tracking-wider ${a.badgeStyle}`}
-                      >
-                        {a.estadoLabel}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-6 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        {/* BOTÓN COBRAR */}
-                        {a.deudaConsolidada > 0 && (
-                          <button
-                            onClick={() => handlePagarCuota(a)}
-                            className="p-2 bg-[var(--primary)] text-white hover:bg-[var(--primary)]/20 hover:text-[var(--primary)] hover:border hover:border-[var(--primary)]/40 rounded-lg transition-all cursor-pointer"
-                            title="Registrar Cobro"
-                          >
-                            <DineroIcono size={15} />
-                          </button>
-                        )}
-
-                        {/* BOTÓN VER LIBRO MAYOR */}
-                        <button
-                          onClick={() => handleAbrirLibroMayor(a)}
-                          className="p-2 bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800 rounded-lg transition-all cursor-pointer"
-                          title="Ver Cuenta Corriente Contable"
-                        >
-                          <OjosIcono size={15} />
-                        </button>
-
-                        {/* BOTÓN EMITIR INDIVIDUAL */}
-                        <button
-                          onClick={() => handleAbrirEmisionIndividual(a)}
-                          className="p-2 bg-green-100 text-green-600 hover:bg-[var(--primary)]/10 hover:text-[var(--primary)] rounded-lg transition-all cursor-pointer font-bold text-[14px]"
-                          title="Emitir Cuota individual"
-                        >
-                          <AumentarCuotaIcono size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+              <select
+                value={mesSeleccionado}
+                onChange={(e) => setMesSeleccionado(Number(e.target.value))}
+                className="bg-transparent border-none text-[12px] font-bold text-black/80 outline-none cursor-pointer focus:ring-0 py-0 pr-8 pl-1"
+              >
+                {meses.map((mes, idx) => (
+                  <option key={idx} value={idx}>
+                    {mes}
+                  </option>
                 ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        {/* PAGINACIÓN */}
-        {paginas > 1 && !busqueda && (
-          <div className="p-4 border-t border-black/5 bg-black/[0.01] flex items-center justify-between">
-            <span className="text-[11px] font-bold text-black/40 uppercase tracking-wider">
-              Página {paginaActual} de {paginas} ({total} alumnos en total)
-            </span>
-            <div className="flex items-center gap-1">
-              <button
-                disabled={paginaActual === 1}
-                onClick={() => setPagina(paginaActual - 1)}
-                className="px-3 py-1.5 bg-white border border-black/10 text-[11px] font-black uppercase rounded-lg hover:bg-black/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+              </select>
+              <select
+                value={anioSeleccionado}
+                onChange={(e) => setAnioSeleccionado(Number(e.target.value))}
+                className="bg-transparent border-none text-[12px] font-bold text-black/80 outline-none cursor-pointer focus:ring-0 py-0 pr-8 pl-1 border-l border-black/10"
               >
-                Anterior
-              </button>
-              <button
-                disabled={paginaActual === paginas}
-                onClick={() => setPagina(paginaActual + 1)}
-                className="px-3 py-1.5 bg-white border border-black/10 text-[11px] font-black uppercase rounded-lg hover:bg-black/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-              >
-                Siguiente
-              </button>
+                {[-2, -1, 0, 1, 2].map((offset) => {
+                  const yr = new Date().getFullYear() + offset;
+                  return (
+                    <option key={yr} value={yr}>
+                      {yr}
+                    </option>
+                  );
+                })}
+              </select>
             </div>
           </div>
-        )}
-      </div>
+        }
+        emptyMessage="No se encontraron cuentas corrientes con los filtros seleccionados"
+        llaveTituloMobile="nombre"
+      />
 
       {/* MODAL COBRO DE CUOTA */}
       {mostrarModalPago && alumnoParaPagar && (
@@ -638,7 +575,7 @@ const AlumnosCtaCte = () => {
                       className="mx-auto text-black/20 mb-3"
                     />
                     <p className="text-[11px] font-black text-black/40 uppercase tracking-widest">
-                      Sin registros contables en cuenta 1106
+                      Sin registros contables en cuenta {codigoCtaCte}
                     </p>
                   </div>
                 ) : (
@@ -661,47 +598,44 @@ const AlumnosCtaCte = () => {
                       </button>
                     </div>
 
-                    {/* Filtro de Fechas Premium */}
-                    <div className="flex flex-col sm:flex-row items-end gap-3 bg-slate-50 p-4 rounded-xl border border-black/5">
-                      <div className="flex-1 flex flex-col gap-1.5 w-full">
-                        <label className="text-[9px] font-black text-black/40 uppercase tracking-wider">
-                          Fecha Desde
-                        </label>
-                        <input
-                          type="date"
-                          value={fechaDesde}
-                          onChange={(e) => setFechaDesde(e.target.value)}
-                          className="w-full bg-white border border-black/10 rounded-lg px-3 py-2 text-[12px] font-bold outline-none focus:border-[var(--primary)]/40 transition-colors"
-                        />
-                      </div>
-                      <div className="flex-1 flex flex-col gap-1.5 w-full">
-                        <label className="text-[9px] font-black text-black/40 uppercase tracking-wider">
-                          Fecha Hasta
-                        </label>
-                        <input
-                          type="date"
-                          value={fechaHasta}
-                          onChange={(e) => setFechaHasta(e.target.value)}
-                          className="w-full bg-white border border-black/10 rounded-lg px-3 py-2 text-[12px] font-bold outline-none focus:border-[var(--primary)]/40 transition-colors"
-                        />
-                      </div>
-                      {(fechaDesde || fechaHasta) && (
-                        <button
-                          onClick={() => {
-                            setFechaDesde("");
-                            setFechaHasta("");
-                          }}
-                          className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer w-full sm:w-auto h-[38px] flex items-center justify-center"
+                    {/* Filtro de Período Premium */}
+                    <div className="flex flex-col sm:flex-row items-center gap-3 bg-slate-50 p-4 rounded-xl border border-black/5">
+                      <div className="flex items-center gap-2 bg-white border border-black/10 rounded-xl px-4 py-2 w-full sm:w-auto justify-center shadow-sm">
+                        <span className="text-[10px] font-black text-slate-700 uppercase tracking-wider whitespace-nowrap">
+                          Filtrar Período:
+                        </span>
+                        <select
+                          value={mesSeleccionadoMayor}
+                          onChange={(e) => setMesSeleccionadoMayor(Number(e.target.value))}
+                          className="bg-transparent border-none text-[12px] font-bold text-black/80 outline-none cursor-pointer focus:ring-0 py-0 pr-8 pl-1"
                         >
-                          Limpiar
-                        </button>
-                      )}
+                          {meses.map((mes, idx) => (
+                            <option key={idx} value={idx}>
+                              {mes}
+                            </option>
+                          ))}
+                        </select>
+                        <select
+                          value={anioSeleccionadoMayor}
+                          onChange={(e) => setAnioSeleccionadoMayor(Number(e.target.value))}
+                          className="bg-transparent border-none text-[12px] font-bold text-black/80 outline-none cursor-pointer focus:ring-0 py-0 pr-8 pl-1 border-l border-black/10"
+                        >
+                          {[-2, -1, 0, 1, 2].map((offset) => {
+                            const yr = new Date().getFullYear() + offset;
+                            return (
+                              <option key={yr} value={yr}>
+                                {yr}
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </div>
                     </div>
 
                     <div className="overflow-hidden border border-black/5 rounded-xl">
                       <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="bg-black/[0.01] border-b border-black/5 text-[9px] font-black text-black/40 uppercase tracking-wider select-none">
+                          <tr className="bg-black/[0.01] border-b border-black/5 text-[9px] font-black text-slate-700 uppercase tracking-wider select-none">
                             <th className="p-3">Fecha</th>
                             <th className="p-3">Concepto</th>
                             <th className="p-3">Ref / Asiento</th>

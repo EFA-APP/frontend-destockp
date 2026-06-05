@@ -1,0 +1,1 @@
+import{l as s}from"./index-BwayGW6P.js";const r=async()=>(await s.get("/arca/sesion/iniciar",{showLoader:!1})).data,o=async a=>(await s.get("/arca/comprobantes/tipos",{params:a,showLoader:!1})).data;export{r as I,o as O};

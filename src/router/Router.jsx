@@ -9,6 +9,11 @@ const Error = lazy(() => import("../pages/Error"));
 const Panel = lazy(() => import("../pages/Panel"));
 const IniciarSesion = lazy(() => import("../pages/IniciarSesion"));
 const SeleccionarUnidad = lazy(() => import("../pages/SeleccionarUnidad"));
+const LandingPage = lazy(() => import("../pages/LandingPage"));
+const ConfiguracionPaginaWeb = lazy(
+  () =>
+    import("../Componentes/Secciones/PaginaWeb/ConfiguracionGeneral/ConfiguracionPaginaWeb"),
+);
 
 // Lazy Components/Sections
 const Configuracion = lazy(
@@ -128,14 +133,53 @@ const ImportadorPrecios = lazy(
 const Empresas = lazy(
   () => import("../Componentes/Secciones/Sistema/Empresas"),
 );
+const NuevoIngreso = lazy(
+  () => import("../Componentes/Secciones/Articulos/Movimientos/NuevoIngreso"),
+);
+const NuevoEgreso = lazy(
+  () => import("../Componentes/Secciones/Articulos/Movimientos/NuevoEgreso"),
+);
+const HistorialMovimientos = lazy(
+  () =>
+    import("../Componentes/Secciones/Articulos/Movimientos/HistorialMovimientos"),
+);
+const ReportePorCliente = lazy(
+  () => import("../Componentes/Secciones/Articulos/Reportes/ReportePorCliente"),
+);
+const ReportePorLote = lazy(
+  () => import("../Componentes/Secciones/Articulos/Reportes/ReportePorLote"),
+);
+const ReporteUbicacionProducto = lazy(
+  () =>
+    import("../Componentes/Secciones/Articulos/Reportes/ReporteUbicacionProducto"),
+);
+const ReporteUbicacionGeneral = lazy(
+  () =>
+    import("../Componentes/Secciones/Articulos/Reportes/ReporteUbicacionGeneral"),
+);
+const GuiasPendientesTransporte = lazy(
+  () => import("../Componentes/Secciones/Transporte/GuiasPendientes"),
+);
+const CrearGuiaTransporte = lazy(
+  () => import("../Componentes/Secciones/Transporte/CrearGuia"),
+);
+const CuentaCorrienteTransporte = lazy(
+  () =>
+    import("../Componentes/Secciones/Transporte/CuentaCorriente/CuentaCorriente"),
+);
 
 export default function Router() {
   return (
     <Suspense>
       <Routes>
+        {/* 🌐 RUTAS LIBRES (Sin importar si está logueado) */}
+        <Route path="/e/:slug" element={<LandingPage />} />
+        <Route path="/pagina/:slug" element={<LandingPage />} />
+
         {/* 🔓 RUTAS PÚBLICAS (Solo si NO está logueado) */}
         <Route element={<RutaPublica />}>
           <Route path="/" element={<IniciarSesion />} />
+          <Route path="/login" element={<IniciarSesion />} />
           <Route path="/seleccionar-unidad" element={<SeleccionarUnidad />} />
         </Route>
 
@@ -149,6 +193,14 @@ export default function Router() {
               <Route path="configuracion" element={<Configuracion />} />
             </Route>
 
+            {/* PAGINA WEB */}
+            <Route element={<RutaProtegida />}>
+              <Route
+                path="pagina-web/configuracion"
+                element={<ConfiguracionPaginaWeb />}
+              />
+            </Route>
+
             {/* INVENTARIO */}
             <Route element={<RutaProtegida />}>
               <Route path="inventario/productos" element={<Productos />} />
@@ -159,6 +211,19 @@ export default function Router() {
               <Route
                 path="inventario/productos/:id/acciones"
                 element={<GestionProducto />}
+              />
+              <Route path="inventario/especies" element={<MateriaPrima />} />
+              <Route
+                path="inventario/especies/nuevo"
+                element={<CrearMateriaPrima />}
+              />
+              <Route
+                path="inventario/especies/:id/acciones"
+                element={<GestionMateriaPrima />}
+              />
+              <Route
+                path="inventario/especies/:id/editar"
+                element={<CrearMateriaPrima />}
               />
               <Route
                 path="inventario/materia-prima"
@@ -179,6 +244,15 @@ export default function Router() {
               />
               <Route
                 path="inventario/depositos/editar/"
+                element={<GestionarDeposito />}
+              />
+              <Route path="inventario/galpones" element={<Deposito />} />
+              <Route
+                path="inventario/galpones/nuevo"
+                element={<GestionarDeposito />}
+              />
+              <Route
+                path="inventario/galpones/editar"
                 element={<GestionarDeposito />}
               />
               <Route
@@ -213,6 +287,39 @@ export default function Router() {
                 path="inventario/importar-precios"
                 element={<ImportadorPrecios />}
               />
+
+              {/* MOVIMIENTOS DE STOCK (INGRESOS / EGRESOS / HISTORIAL) */}
+              <Route path="movimientos/ingreso" element={<NuevoIngreso />} />
+              <Route path="movimeintos/ingreso" element={<NuevoIngreso />} />
+
+              <Route path="movimientos/egreso" element={<NuevoEgreso />} />
+              <Route path="movimeintos/egreso" element={<NuevoEgreso />} />
+              <Route path="movimeintos/egeso" element={<NuevoEgreso />} />
+
+              <Route
+                path="movimientos/historial-movimientos"
+                element={<HistorialMovimientos />}
+              />
+              <Route
+                path="movimeintos/historial-movimeitnos"
+                element={<HistorialMovimientos />}
+              />
+              <Route
+                path="movimientos/historial-movimeitnos"
+                element={<HistorialMovimientos />}
+              />
+
+              {/* REPORTES DE GRANO */}
+              <Route path="reportes/cliente" element={<ReportePorCliente />} />
+              <Route path="reportes/lote" element={<ReportePorLote />} />
+              <Route
+                path="reportes/ubicacion-producto"
+                element={<ReporteUbicacionProducto />}
+              />
+              <Route
+                path="reportes/ubicacion-general"
+                element={<ReporteUbicacionGeneral />}
+              />
             </Route>
 
             {/* CONTACTOS */}
@@ -240,7 +347,10 @@ export default function Router() {
 
             <Route element={<RutaProtegida />}>
               <Route path="escuela/cuotas" element={<Cuotas />} />
-              <Route path="escuela/alumnos-cta-cte" element={<AlumnosCtaCte />} />
+              <Route
+                path="escuela/alumnos-cta-cte"
+                element={<AlumnosCtaCte />}
+              />
             </Route>
 
             {/* CONTABILIDAD */}
@@ -278,6 +388,22 @@ export default function Router() {
             {/* SISTEMA */}
             <Route element={<RutaProtegida />}>
               <Route path="sistema/empresa" element={<Empresas />} />
+            </Route>
+
+            {/* TRANSPORTE */}
+            <Route element={<RutaProtegida />}>
+              <Route
+                path="transporte/guias"
+                element={<GuiasPendientesTransporte />}
+              />
+              <Route
+                path="transporte/crear-guia"
+                element={<CrearGuiaTransporte />}
+              />
+              <Route
+                path="transporte/cuenta-corriente"
+                element={<CuentaCorrienteTransporte />}
+              />
             </Route>
 
             {/* <Route path="demo" element={<SistemaContable />} /> */}

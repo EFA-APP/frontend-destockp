@@ -1,4 +1,4 @@
-import { Building2 } from "lucide-react";
+import { Building2, Wallet } from "lucide-react";
 import {
   OjosIcono,
   DescargarIcono,
@@ -273,6 +273,24 @@ export const accionesReutilizables = {
     icono: (
       <div className="p-1 rounded-md bg-indigo-700/10 text-indigo-700 hover:bg-indigo-700/20 ">
         <TablaConfiguracionIcono size={18} />
+      </div>
+    ),
+  },
+  registrarPago: {
+    key: "registrarPago",
+    label: "Registrar Pago",
+    icono: (
+      <div className="bg-orange-500 text-white p-1.5 rounded-md cursor-pointer hover:bg-orange-600 flex items-center justify-center shadow-md shadow-orange-500/10">
+        <Wallet size={18} />
+      </div>
+    ),
+  },
+  verCuentaCorriente: {
+    key: "verCuentaCorriente",
+    label: "Ver Cuenta Corriente",
+    icono: (
+      <div className="p-1.5 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center cursor-pointer border border-transparent hover:border-slate-300">
+        <OjosIcono size={18} />
       </div>
     ),
   },

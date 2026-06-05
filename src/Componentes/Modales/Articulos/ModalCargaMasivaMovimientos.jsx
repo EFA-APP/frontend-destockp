@@ -359,13 +359,12 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
   );
 
   return (
-    <ModalDetalleBase open={open} onClose={onClose}>
+    <ModalDetalleBase open={open} onClose={onClose} width="max-w-2xl">
       <ModalDetalle
         title={`Carga Masiva de ${tipo === "PRODUCTO" ? "Productos" : "Insumos"}`}
         icon={<MovimientoIcono size={20} />}
         onClose={onClose}
         footer={footer}
-        width="max-w-2xl"
       >
         {content}
       </ModalDetalle>

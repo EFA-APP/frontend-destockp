@@ -11,9 +11,13 @@ import {
   ActualizarSaldoApi,
 } from "../api/contactos.api";
 import { usePersistentState } from "../../../hooks/usePersistentState";
+import { useAuthStore } from "../../Autenticacion/store/authenticacion.store";
 
 export const useAlumnos = () => {
   const { agregarAlerta } = useAlertas();
+  const usuario = useAuthStore((state) => state.usuario);
+  const codigoCtaCte = usuario?.configuracion?.cuentas?.ctaCteAlumnos || "1106";
+  const codigoIngreso = usuario?.configuracion?.cuentas?.ingresoCuotas || "4106";
   const fechaActual = new Date();
 
   // 🔍 1. Estado de Filtros (Simplificado)
@@ -46,22 +50,23 @@ export const useAlumnos = () => {
     busqueda: busquedaDebounced,
     pagina,
     limite: 15, // Límite solicitado por el usuario para una interfaz más limpia
+    codigoCuenta: codigoCtaCte,
   });
 
   const { configs } = useConfiguracionContactos();
 
-  // 🏦 3. Movimientos: Seguimos trayéndolos para el historial rápido,
-  // pero la cabecera ya viene pre-calculada en CuentaDeuda (opcional)
+  // 🏦 3. Movimientos: Seguimos trayéndolos para el historial rápido
   const {
     data: responseMovimientos,
     isLoading: cargandoMovimientos,
     refetch: refetchMovs,
   } = useQuery({
-    queryKey: ["movimientos_alumnos", busquedaDebounced],
+    queryKey: ["movimientos_alumnos", busquedaDebounced, codigoCtaCte],
     queryFn: () =>
       ListarMovimientosApi(null, {
         busqueda: busquedaDebounced,
         limite: 2000,
+        codigoCuenta: codigoCtaCte,
       }), // Límite amplio para ver meses anteriores (Deuda Anterior)
     showLoader: false,
     enabled: !!alumnos.length,
@@ -440,6 +445,8 @@ export const useAlumnos = () => {
         formulaMonto: formulaCuota,
         formulaInteres: formulaInteres,
         periodo: periodoStr, // Enviamos el periodo seleccionado
+        codigoCtaCte,
+        codigoIngreso,
       });
 
       agregarAlerta({
@@ -501,6 +508,8 @@ export const useAlumnos = () => {
         formulaInteres: formulaInteres,
         periodo: periodoStr,
         codigoContacto: Number(alumnoId),
+        codigoCtaCte,
+        codigoIngreso,
       });
 
       agregarAlerta({
@@ -588,5 +597,6 @@ export const useAlumnos = () => {
     paginaActual,
     total,
     setPagina,
+    codigoCtaCte,
   };
 };
