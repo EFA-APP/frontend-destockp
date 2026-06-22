@@ -3,7 +3,6 @@ import { Routes, Route } from "react-router-dom";
 
 import RutaProtegida from "./RutaProtegida";
 import RutaPublica from "./RutaPublica";
-
 // Lazy Pages
 const Error = lazy(() => import("../pages/Error"));
 const Panel = lazy(() => import("../pages/Panel"));
@@ -28,17 +27,14 @@ const MateriaPrima = lazy(
 const Comprobantes = lazy(
   () => import("../Componentes/Secciones/Ventas/Comprobantes/Comprobantes"),
 );
-const Listados = lazy(
-  () => import("../Componentes/Secciones/Ventas/Listados/Listados"),
+
+const CrearComprobante = lazy(
+  () =>
+    import("../Componentes/Secciones/Comprobantes/CrearComprobante/CrearComprobante"),
 );
 
-const ListadoFacturasProveedores = lazy(
-  () =>
-    import("../Componentes/Secciones/Compras/FacturaProveedor/FacturaProveedor"),
-);
-const RegistroFacturaProveedor = lazy(
-  () =>
-    import("../Componentes/Secciones/Compras/FacturasProveedores/FacturasProveedores"),
+const Listados = lazy(
+  () => import("../Componentes/Secciones/Ventas/Listados/Listados"),
 );
 const PlanDeCuentas = lazy(
   () =>
@@ -79,13 +75,6 @@ const AlumnosCtaCte = lazy(
 const CrearAsientos = lazy(
   () =>
     import("../Componentes/Secciones/Contabilidad/CrearContabilidad/CrearAsientos/CrearAsientos"),
-);
-const Balance = lazy(
-  () => import("../Componentes/Secciones/Contabilidad/Balance/Balance"),
-);
-const ConfiguracionContable = lazy(
-  () =>
-    import("../Componentes/Secciones/Contabilidad/Configuracion/ConfiguracionContable"),
 );
 const Bienvenida = lazy(
   () => import("../Componentes/Secciones/Inicio/Bienvenida"),
@@ -157,29 +146,17 @@ const ReporteUbicacionGeneral = lazy(
   () =>
     import("../Componentes/Secciones/Articulos/Reportes/ReporteUbicacionGeneral"),
 );
-const GuiasPendientesTransporte = lazy(
-  () => import("../Componentes/Secciones/Transporte/GuiasPendientes"),
-);
-const CrearGuiaTransporte = lazy(
-  () => import("../Componentes/Secciones/Transporte/CrearGuia"),
-);
-const CuentaCorrienteTransporte = lazy(
-  () =>
-    import("../Componentes/Secciones/Transporte/CuentaCorriente/CuentaCorriente"),
-);
 
 export default function Router() {
   return (
     <Suspense>
       <Routes>
         {/* 🌐 RUTAS LIBRES (Sin importar si está logueado) */}
-        <Route path="/e/:slug" element={<LandingPage />} />
         <Route path="/pagina/:slug" element={<LandingPage />} />
 
         {/* 🔓 RUTAS PÚBLICAS (Solo si NO está logueado) */}
         <Route element={<RutaPublica />}>
           <Route path="/" element={<IniciarSesion />} />
-          <Route path="/login" element={<IniciarSesion />} />
           <Route path="/seleccionar-unidad" element={<SeleccionarUnidad />} />
         </Route>
 
@@ -330,18 +307,9 @@ export default function Router() {
             {/* VENTAS */}
             <Route element={<RutaProtegida />}>
               <Route path="ventas/listados" element={<Listados />} />
-              <Route path="ventas/comprobantes" element={<Comprobantes />} />
-            </Route>
-
-            {/* COMPRAS */}
-            <Route element={<RutaProtegida />}>
               <Route
-                path="compras/listados-proveedor"
-                element={<ListadoFacturasProveedores />}
-              />
-              <Route
-                path="compras/factura-proveedor"
-                element={<RegistroFacturaProveedor />}
+                path="ventas/comprobantes"
+                element={<CrearComprobante />}
               />
             </Route>
 
@@ -370,11 +338,6 @@ export default function Router() {
                 element={<LibroDiario />}
               />
               <Route path="contabilidad/libro-mayor" element={<LibroMayor />} />
-              <Route path="contabilidad/balance" element={<Balance />} />
-              <Route
-                path="contabilidad/configuracion"
-                element={<ConfiguracionContable />}
-              />
             </Route>
 
             {/* AFIP */}
@@ -389,23 +352,6 @@ export default function Router() {
             <Route element={<RutaProtegida />}>
               <Route path="sistema/empresa" element={<Empresas />} />
             </Route>
-
-            {/* TRANSPORTE */}
-            <Route element={<RutaProtegida />}>
-              <Route
-                path="transporte/guias"
-                element={<GuiasPendientesTransporte />}
-              />
-              <Route
-                path="transporte/crear-guia"
-                element={<CrearGuiaTransporte />}
-              />
-              <Route
-                path="transporte/cuenta-corriente"
-                element={<CuentaCorrienteTransporte />}
-              />
-            </Route>
-
             {/* <Route path="demo" element={<SistemaContable />} /> */}
           </Route>
         </Route>

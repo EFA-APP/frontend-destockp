@@ -84,3 +84,4 @@ export { default as MovimientosIcono } from "./MovimientosIcono";
 export { default as TransporteIcono } from "./TransporteIcono";
 export { default as NuevoIcono } from "./NuevoIcono";
 export { default as PaginaWebIcono } from "./PaginaWebIcono";
+export { default as FechaIcono } from "./FechaIcono";

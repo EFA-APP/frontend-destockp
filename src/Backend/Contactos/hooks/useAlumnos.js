@@ -9,16 +9,19 @@ import {
   CargarInteresMasivaApi,
   ListarMovimientosApi,
   ActualizarSaldoApi,
+  ObtenerMetricasCuentaApi,
+  ObtenerMetricasLoteApi,
 } from "../api/contactos.api";
 import { usePersistentState } from "../../../hooks/usePersistentState";
 import { useAuthStore } from "../../Autenticacion/store/authenticacion.store";
 
-export const useAlumnos = () => {
+export const useAlumnos = (anioSeleccionado) => {
   const { agregarAlerta } = useAlertas();
   const usuario = useAuthStore((state) => state.usuario);
   const codigoCtaCte = usuario?.configuracion?.cuentas?.ctaCteAlumnos || "1106";
   const codigoIngreso = usuario?.configuracion?.cuentas?.ingresoCuotas || "4106";
   const fechaActual = new Date();
+  const anio = anioSeleccionado || fechaActual.getFullYear();
 
   // 🔍 1. Estado de Filtros (Simplificado)
   const [busqueda, setBusqueda] = usePersistentState("alumnos_busqueda", "");
@@ -36,7 +39,7 @@ export const useAlumnos = () => {
   }, [mesSeleccionado, busquedaDebounced]);
 
   // 📊 2. Obtención de Datos Reales del API Filtrados por el Servidor
-  const periodoFiltro = `${fechaActual.getFullYear()}-${String(mesSeleccionado + 1).padStart(2, "0")}`;
+  const periodoFiltro = `${anio}-${String(mesSeleccionado + 1).padStart(2, "0")}`;
 
   const {
     contactos: alumnos = [],
@@ -65,14 +68,41 @@ export const useAlumnos = () => {
     queryFn: () =>
       ListarMovimientosApi(null, {
         busqueda: busquedaDebounced,
-        limite: 2000,
+        limite: 400,
         codigoCuenta: codigoCtaCte,
-      }), // Límite amplio para ver meses anteriores (Deuda Anterior)
+      }), // Límite de 400 para mapeo rápido de la página actual
     showLoader: false,
     enabled: !!alumnos.length,
   });
 
   const todosLosMovimientos = responseMovimientos?.data || [];
+
+  // 📊 3b. Métricas calculadas en el Backend (Multitenant y optimizado)
+  const periodoMetricas = `${anio}-${String(mesSeleccionado + 1).padStart(2, "0")}`;
+
+  const {
+    data: metricasCuenta,
+    isLoading: cargandoMetricasCuenta,
+    refetch: refetchMetricasCuenta,
+  } = useQuery({
+    queryKey: ["metricas_cuenta_alumnos", usuario?.codigoEmpresa || 2, codigoCtaCte, periodoMetricas],
+    queryFn: () =>
+      ObtenerMetricasCuentaApi(usuario?.codigoEmpresa || 2, codigoCtaCte, periodoMetricas),
+    showLoader: false,
+    enabled: !!codigoCtaCte,
+  });
+
+  const {
+    data: metricasLote,
+    isLoading: cargandoMetricasLote,
+    refetch: refetchMetricasLote,
+  } = useQuery({
+    queryKey: ["metricas_lote_cuotas", usuario?.codigoEmpresa || 2, periodoMetricas, codigoCtaCte],
+    queryFn: () =>
+      ObtenerMetricasLoteApi(usuario?.codigoEmpresa || 2, periodoMetricas, codigoCtaCte),
+    showLoader: false,
+    enabled: !!codigoCtaCte,
+  });
 
   // 🎚️ 3. Obtener Fórmulas de la Configuración Real
   const formulaCuota = useMemo(() => {
@@ -427,6 +457,8 @@ export const useAlumnos = () => {
 
       refetch();
       refetchMovs();
+      refetchMetricasCuenta();
+      refetchMetricasLote();
     } catch (e) {
       console.error("Error al registrar pago:", e);
     }
@@ -457,6 +489,8 @@ export const useAlumnos = () => {
 
       refetch();
       refetchMovs();
+      refetchMetricasCuenta();
+      refetchMetricasLote();
     } catch (e) {
       console.error("Error en la emisión masiva:", e);
       agregarAlerta({
@@ -488,6 +522,8 @@ export const useAlumnos = () => {
 
       refetch();
       refetchMovs();
+      refetchMetricasCuenta();
+      refetchMetricasLote();
     } catch (e) {
       console.error("Error en la carga masiva de intereses:", e);
       agregarAlerta({
@@ -520,6 +556,8 @@ export const useAlumnos = () => {
 
       refetch();
       refetchMovs();
+      refetchMetricasCuenta();
+      refetchMetricasLote();
     } catch (e) {
       console.error("Error al emitir cuota individual:", e);
       agregarAlerta({
@@ -532,13 +570,17 @@ export const useAlumnos = () => {
 
   // 📊 Estadísticas generales
   const obtenerEstadisticas = () => {
+    if (metricasLote?.stats) {
+      return metricasLote.stats;
+    }
+
     const totalAlumnos = alumnosConCuotas.length;
     const activos = alumnosConCuotas.filter((a) => a.activo).length;
 
     const totalDeudaProyectada = alumnosConCuotas.reduce((sum, a) => {
       const deudaAlumno = Object.values(a.cuotas)
         .filter((c) => c.estado === "vencido")
-        .reduce((s, c) => s + c.montoConInteres, 0);
+        .reduce((s, c) => s + c.monto, 0);
       return sum + deudaAlumno;
     }, 0);
 
@@ -584,19 +626,25 @@ export const useAlumnos = () => {
     setBusqueda,
     mesSeleccionado,
     setMesSeleccionado,
-    cargandoAlumnos: cargandoContactos || cargandoMovimientos,
+    cargandoAlumnos: cargandoContactos || cargandoMovimientos || cargandoMetricasCuenta || cargandoMetricasLote,
     obtenerEstadisticas,
     registrarPago,
     emitirCuotasMensuales,
     cargarInteresesMensuales,
     emitirCuotaIndividual,
     refetchAlumnos: refetch,
-    refetchMovimientos: refetchMovs,
+    refetchMovimientos: () => {
+      refetchMovs();
+      refetchMetricasCuenta();
+      refetchMetricasLote();
+    },
     movimientos: todosLosMovimientos,
     paginas,
     paginaActual,
     total,
     setPagina,
     codigoCtaCte,
+    metricasCuenta: metricasCuenta || null,
+    metricasLote: metricasLote || null,
   };
 };

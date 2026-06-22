@@ -12,7 +12,12 @@ import { useLocation } from "react-router-dom";
 import { useProductoUI } from "../../../../../Backend/Articulos/hooks/Producto/useProductoUI";
 import { useGenerarComprobante } from "../../../../../Backend/Ventas/queries/Comprobante/useGenerarComprobante.mutation";
 import { useFacturarEnvios } from "../../../../../Backend/Articulos/queries/Transporte/useTransporte";
-import { calcularNetoItem, calcularTotalItem, getPrecio } from "../utils/fiscal.utils";
+import { usePlanDeCuentas } from "../../../../../Backend/hooks/Contabilidad/PlanDeCuenta/usePlanDeCuentas";
+import {
+  calcularNetoItem,
+  calcularTotalItem,
+  getPrecio,
+} from "../utils/fiscal.utils";
 
 // Sub-hooks refactorizados
 import { useVentaCart } from "./useVentaCart";
@@ -44,6 +49,26 @@ const MESES_MAP = {
   DICIEMBRE: "12",
 };
 
+const MOCK_CUENTAS_CONTABLES = [
+  { value: 10101, label: "1.01.01 - Caja General", codigo: "1.01.01", nombre: "Caja General" },
+  { value: 10102, label: "1.01.02 - Banco Nación", codigo: "1.01.02", nombre: "Banco Nación" },
+  { value: 10103, label: "1.01.03 - Banco Galicia", codigo: "1.01.03", nombre: "Banco Galicia" },
+  { value: 10104, label: "1.01.04 - Valores a Depositar (Cheques)", codigo: "1.01.04", nombre: "Valores a Depositar (Cheques)" },
+  { value: 11201, label: "1.01.12 - Deudores por Ventas", codigo: "1.01.12", nombre: "Deudores por Ventas" },
+  { value: 460, label: "4.01.01 - Ingreso por Cuotas", codigo: "4.01.01", nombre: "INGRESO POR CUOTAS" },
+  { value: 40102, label: "4.01.02 - Ventas de Servicios", codigo: "4.01.02", nombre: "Ventas de Servicios" },
+  { value: 50101, label: "5.01.01 - Costo de Mercaderías Vendidas", codigo: "5.01.01", nombre: "Costo de Mercaderías Vendidas" },
+];
+
+const MOCK_BANCOS = [
+  { value: 475, label: "Banco Galicia SA" },
+  { value: 476, label: "Banco Nación Argentina" },
+  { value: 477, label: "Banco Provincia de Buenos Aires" },
+  { value: 478, label: "Banco Macro" },
+  { value: 479, label: "Banco Santander" },
+  { value: 480, label: "Banco de Córdoba" },
+];
+
 export const useComprobantes = () => {
   // === 1. DATOS Y CONTEXTO EXTERNO ===
   const usuario = useAuthStore((state) => state.usuario);
@@ -57,6 +82,25 @@ export const useComprobantes = () => {
     unidadActiva?.codigoSecuencial || 0,
   );
 
+  // === TABS DE OPERACIÓN (VENTAS = INGRESO, COMPRAS = EGRESO) ===
+  const [tipoOperacion, setTipoOperacion] = useState("INGRESO");
+
+  // === CAMPOS DE COMPRAS (EGRESO) ===
+  const [cae, setCae] = useState("");
+  const [vtoCae, setVtoCae] = useState("");
+  const [numeroComprobante, setNumeroComprobante] = useState("");
+  const [materiaPrimaCheck, setMateriaPrimaCheck] = useState(false);
+
+  // === GESTIÓN DE PRODUCTO / CUENTA CONTABLE ===
+  const [tipoItemAgregar, setTipoItemAgregar] = useState("PRODUCTO"); // PRODUCTO / CUENTA_CONTABLE
+  const [cuentaContableSeleccionada, setCuentaContableSeleccionada] = useState("");
+  const [precioCuentaContable, setPrecioCuentaContable] = useState("");
+  const [nombreCuentaContable, setNombreCuentaContable] = useState("");
+  const [ivaCuentaContable, setIvaCuentaContable] = useState(21);
+
+  // === COMPROBANTES ASOCIADOS (MÚLTIPLES) ===
+  const [comprobantesAsociados, setComprobantesAsociados] = useState([]);
+
   // === 2. ESTADOS DE CLIENTE Y ENTIDADES (Mantenidos aquí para evitar ReferenceError en módulos) ===
   const entidades = useMemo(() => usuario?.unidadesNegocio || [], [usuario]);
   const [entidadSeleccionada, setEntidadSeleccionada] = useState("");
@@ -68,8 +112,15 @@ export const useComprobantes = () => {
   const [highlightedIndexCliente, setHighlightedIndexCliente] = useState(-1);
 
   // === 3. MODULOS REFACTORIZADOS ===
+  const planDeCuentas = usePlanDeCuentas();
   const fiscal = useVentaFiscal(usuario, arcaConectado);
-  const cart = useVentaCart(agregarAlerta, "precioVenta", fiscal.aplicaIva);
+  const letraComprobante = useMemo(() => {
+    return fiscal.enBlanco === "si"
+      ? obtenerLetraPorTipo(fiscal.tipoDocumento)
+      : "X";
+  }, [fiscal.enBlanco, fiscal.tipoDocumento]);
+
+  const cart = useVentaCart(agregarAlerta, "precioVenta", fiscal.aplicaIva, letraComprobante);
   const [condicionVenta, setCondicionVenta] = useState("contado");
   const pagos = useVentaPagos(
     cart.totales.total,
@@ -80,11 +131,18 @@ export const useComprobantes = () => {
 
   // Destructuración para lógica interna
   const { items, setItems, agregarItem } = cart;
-  const { listaPagos, setListaPagos } = pagos;
+  const { listaPagos, setListaPagos, vuelto } = pagos;
   const { tipoDocumento, setTipoDocumento, enBlanco, setEnBlanco } = fiscal;
 
+  const cuentasContables = useMemo(() => {
+    if (planDeCuentas?.cuentasImputables && planDeCuentas.cuentasImputables.length > 0) {
+      return planDeCuentas.cuentasImputables;
+    }
+    return MOCK_CUENTAS_CONTABLES;
+  }, [planDeCuentas?.cuentasImputables]);
+
   const { contactos: clientesRaw } = useContactos({
-    tipoEntidad: entidadSeleccionada,
+    tipoEntidad: entidadSeleccionada || (tipoOperacion === "EGRESO" ? "PROV" : "CLIE"),
     busqueda: busquedaCliente,
     limite: 10,
   });
@@ -154,7 +212,10 @@ export const useComprobantes = () => {
 
   // === 5.5 GESTIÓN DE PASOS (STEPPER) ===
   const [paso, setPaso] = useState(1);
-  const [modalContabilidad, setModalContabilidad] = useState({ show: false, message: "" }); // 1: Productos, 2: Config/Cliente, 3: Pagos, 4: Preview
+  const [modalContabilidad, setModalContabilidad] = useState({
+    show: false,
+    message: "",
+  }); // 1: Productos, 2: Config/Cliente, 3: Pagos, 4: Preview
 
   const siguientePaso = useCallback(() => {
     setPaso((prev) => {
@@ -243,7 +304,10 @@ export const useComprobantes = () => {
       location.state?.origen === "TRANSPORTE_GUIAS" &&
       location.state?.itemsCobro
     ) {
-      console.log("[POS] Cargando datos desde Transporte (Guías)...", location.state);
+      console.log(
+        "[POS] Cargando datos desde Transporte (Guías)...",
+        location.state,
+      );
 
       const { cliente, itemsCobro, guiasIds: ids } = location.state;
 
@@ -646,6 +710,18 @@ export const useComprobantes = () => {
       return;
     }
 
+    const totalPagado = listaPagos.reduce((acc, p) => acc + parseFloat(p.monto || 0), 0);
+    const difiere = Math.abs(totalPagado - cart.totales.total) > 0.01;
+
+    if (tipoOperacion === "EGRESO" && difiere) {
+      agregarAlerta({
+        title: "Error de Conciliación",
+        message: "En Compras (Egresos), el total registrado de pagos debe coincidir exactamente con el total del comprobante.",
+        type: "danger",
+      });
+      return;
+    }
+
     if (condicionVenta === "contado" && listaPagos.length === 0) {
       if (Number(tipoDocumento) !== 995) {
         agregarAlerta({
@@ -658,237 +734,324 @@ export const useComprobantes = () => {
     }
 
     setMostrarPreview(true);
-  }, [cart.items.length, condicionVenta, listaPagos.length, agregarAlerta, tipoDocumento]);
+  }, [
+    cart.items.length,
+    cart.totales.total,
+    condicionVenta,
+    listaPagos,
+    tipoDocumento,
+    tipoOperacion,
+    agregarAlerta,
+  ]);
+     // === FUNCIÓN DE AGREGAR CUENTA CONTABLE ITEM ===
+  const agregarCuentaContableItem = useCallback((cuentaId, nombre, precio, ivaPct) => {
+    if (!cuentaId || !nombre || !precio) {
+      agregarAlerta({
+        title: "Datos incompletos",
+        message: "Debe seleccionar una cuenta contable, ingresar un nombre y un precio",
+        type: "warning",
+      });
+      return;
+    }
+
+    const pr = parseFloat(precio);
+    if (isNaN(pr) || pr <= 0) {
+      agregarAlerta({
+        title: "Precio Inválido",
+        message: "El precio debe ser mayor a 0",
+        type: "warning",
+      });
+      return;
+    }
+
+    const nuevoItem = {
+      id: `cuenta-${cuentaId}-${Date.now()}`,
+      codigoSecuencial: Number(cuentaId),
+      tipoDetalle: "CUENTA_CONTABLE",
+      nombre: nombre.toUpperCase(),
+      descripcion: "IMPUTACIÓN DIRECTA A CUENTA CONTABLE",
+      cantidad: 1,
+      precioUnitario: pr,
+      descuento: 0,
+      tasaIva: parseFloat(ivaPct) || 0,
+    };
+
+    setItems((prev) => [...prev, nuevoItem]);
+    setCuentaContableSeleccionada("");
+    setPrecioCuentaContable("");
+    setNombreCuentaContable("");
+    agregarAlerta({
+      title: "Cuenta agregada",
+      message: `Se agregó la imputación contable por ${formatPrice(pr)}`,
+      type: "success",
+    });
+  }, [agregarAlerta, setItems]);
+
+  // === GESTIÓN DE COMPROBANTES ASOCIADOS ===
+  const agregarComprobanteAsociado = useCallback((comp) => {
+    if (!comp) return;
+    const yaExiste = comprobantesAsociados.some(
+      (c) => c.numeroComprobante === comp.numeroComprobante && c.codigoTipoComprobante === (comp.tipoDocumento || comp.codigoTipoComprobante)
+    );
+    if (yaExiste) {
+      agregarAlerta({
+        title: "Ya asociado",
+        message: "Este comprobante ya se encuentra asociado",
+        type: "warning",
+      });
+      return;
+    }
+
+    const nuevoAsociado = {
+      codigoComprobante: comp.id || comp.codigoSecuencial || null,
+      tipoDescripcionComprobante: comp.tipoDescripcionComprobante || "FACTURA",
+      tipoRelacion: esNotaCredito(tipoDocumento) ? "NOTA_CREDITO" : esNotaDebito(tipoDocumento) ? "NOTA_DEBITO" : "APLICA_PAGO",
+      numeroComprobante: comp.numeroComprobante,
+      codigoTipoComprobante: comp.tipoDocumento || comp.codigoTipoComprobante || 11,
+      importeAplicado: comp.saldoPendiente !== undefined ? Number(comp.saldoPendiente) : Number(comp.total || 0),
+      codigoUnidadNegocio: comp.codigoUnidadNegocio || Number(unidadLocal) || 1,
+    };
+    setComprobantesAsociados((prev) => [...prev, nuevoAsociado]);
+  }, [comprobantesAsociados, tipoDocumento, unidadLocal, agregarAlerta]);
+
+  const eliminarComprobanteAsociado = useCallback((index) => {
+    setComprobantesAsociados((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const actualizarImporteAsociado = useCallback((index, valor) => {
+    setComprobantesAsociados((prev) =>
+      prev.map((c, i) => (i === index ? { ...c, importeAplicado: parseFloat(valor) || 0 } : c))
+    );
+  }, []);
+
+  const [vueltoMetodo, setVueltoMetodo] = useState("EFECTIVO");
+  const [vueltoBancoDestino, setVueltoBancoDestino] = useState("");
+
+  const tipoDescripcionComprobante = useMemo(() => {
+    if (esNotaCredito(tipoDocumento)) return "NOTA_CREDITO";
+    if (esNotaDebito(tipoDocumento)) return "NOTA_DEBITO";
+    if (esRecibo(tipoDocumento)) {
+      return tipoOperacion === "EGRESO" ? "ORDEN_PAGO" : "RECIBO";
+    }
+    return "FACTURA";
+  }, [tipoDocumento, tipoOperacion]);
+
+  const tipoOperacionFinal = useMemo(() => {
+    if (tipoDescripcionComprobante === "NOTA_CREDITO") {
+      return tipoOperacion === "EGRESO" ? "ANULACION_EGRESO" : "ANULACION_INGRESO";
+    }
+    return tipoOperacion; // INGRESO or EGRESO
+  }, [tipoOperacion, tipoDescripcionComprobante]);
+
+  const tiposComprobante = useMemo(() => {
+    if (enBlanco === "no") {
+      if (tipoOperacion === "EGRESO") {
+        return [
+          { id: 991, label: "COMPROBANTE DE COMPRA (I)" },
+          { id: 993, label: "NOTA DE CRÉDITO (I)" },
+          { id: 994, label: "NOTA DE DÉBITO (I)" },
+          { id: 992, label: "ORDEN DE PAGO (I)" },
+        ];
+      }
+      return [
+        { id: 991, label: "COMPROBANTE DE VENTA (I)" },
+        { id: 992, label: "RECIBO DE COBRO (I)" },
+        { id: 993, label: "NOTA DE CRÉDITO (I)" },
+        { id: 994, label: "NOTA DE DÉBITO (I)" },
+      ];
+    }
+    return fiscal.tiposComprobante;
+  }, [fiscal.tiposComprobante, enBlanco, tipoOperacion]);
 
   const confirmarVentaFinal = useCallback(
     async (opciones = {}) => {
-      if (mutationGenerar.isPending) return;
-
       const r2 = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
       const itemsProcesados = cart.items.map((i) => {
-        const subtotalLinea = r2(calcularTotalItem(i));
-        const netoLinea = r2(calcularNetoItem(i, fiscal.aplicaIva));
+        const subtotalLinea = r2(calcularTotalItem(i, fiscal.aplicaIva, letraComprobante));
+        const netoLinea = r2(calcularNetoItem(i, fiscal.aplicaIva, letraComprobante));
         const ivaLinea = r2(subtotalLinea - netoLinea);
         const precioUnitarioNeto = r2(netoLinea / (i.cantidad || 1));
 
         return {
-          codigoProducto: Number(i.codigoSecuencial || i.id) || undefined,
-          tipoArticulo: i.tipoArticulo || "PRODUCTO",
+          tipoDetalle: i.tipoDetalle || "PRODUCTO",
+          codigoDetalle: Number(i.codigoSecuencial || i.id) || 1,
           nombre: i.nombre,
-          descripcion: i.descripcion,
-          cantidad: i.cantidad,
-          precioUnitario: precioUnitarioNeto,
-          descuento: i.descuento || 0,
-          tasaIva: i.tasaIva || 0,
-          subtotal: subtotalLinea,
-          metadata: i.atributos || i.metadata || {},
+          descripcion: i.descripcion || "",
+          codigoDeposito: i.codigoDeposito || 2,
+          cantidad: Number(i.cantidad) || 1,
+          descuento: Number(i.descuento) || 0,
+          precioUnitario: Number(precioUnitarioNeto),
+          iva: Number(ivaLinea),
+          subtotal: Number(subtotalLinea),
+          ...(i.atributos ? { metadata: i.atributos } : {})
         };
       });
-      console.log(
-        "Punto de venta unidad negocio",
-        unidadActiva?.configuracion?.puntoVenta,
-      );
-      // Buscar la unidad seleccionada en el selector (puede diferir de la activa globalmente)
-      const unidadSeleccionada =
-        entidades.find((u) => u.codigoSecuencial === Number(unidadLocal)) ||
-        unidadActiva;
 
-      // --- VALIDACIÓN DE COHERENCIA DE COMPROBANTE ---
-      if (esNotaCreditoNav && !esNotaCredito(fiscal.tipoDocumento)) {
-        agregarAlerta({
-          title: "Tipo Inválido",
-          message:
-            "Debe seleccionar un tipo de Nota de Crédito para realizar esta anulación/ajuste.",
-          type: "warning",
-        });
-        return;
-      }
+      const totalPagos = pagos.listaPagos.reduce((a, p) => a + Number(p.monto || 0), 0);
+      const conditionFinal = totalPagos > 0 && totalPagos < cart.totales.total - 0.01
+        ? "CUENTA_CORRIENTE"
+        : totalPagos === 0
+          ? "CUENTA_CORRIENTE"
+          : condicionVenta.toUpperCase();
 
-      if (esNotaDebitoNav && !esNotaDebito(fiscal.tipoDocumento)) {
-        agregarAlerta({
-          title: "Tipo Inválido",
-          message:
-            "Debe seleccionar un tipo de Nota de Débito para realizar este ajuste.",
-          type: "warning",
-        });
-        return;
-      }
+      const receptorObj = (() => {
+        const contacto = clienteSeleccionado || receptorVinculado;
+        const ente = contacto?.enteFacturacion;
+        const fuente = ente || contacto;
 
-      if (esEmisionPago && !esRecibo(fiscal.tipoDocumento)) {
-        agregarAlerta({
-          title: "Tipo Inválido",
-          message:
-            "Debe seleccionar un tipo de Recibo o Pago para registrar este cobro.",
-          type: "warning",
-        });
-        return;
-      }
+        return contacto
+          ? {
+              razonSocial: fuente.razonSocial || `${fuente.nombre || ""} ${fuente.apellido || ""}`.trim() || "CONSUMIDOR FINAL",
+              nombre: fuente.nombre || "",
+              apellido: fuente.apellido || "",
+              DocTipo: Number(fuente.tipoDocumento || fuente.DocTipo || fuente.tipoDocumentoId || 99),
+              DocNro: Number(fuente.documento || fuente.DocNro || fuente.numeroDocumento || 0),
+              CondicionIVAReceptorId: Number(fuente.CondicionIVAReceptorId || fuente.condicionIvaId || 5),
+              domicilio: fuente.domicilio || fuente.direccion || "",
+            }
+          : {
+              razonSocial: "CONSUMIDOR FINAL",
+              DocTipo: 99,
+              DocNro: 0,
+              CondicionIVAReceptorId: 5,
+            };
+      })();
+
+      // Mapping pagos to detallePagos
+      const detallePagos = opciones.manejoSaldoNC === "favor"
+        ? []
+        : pagos.listaPagos.map((p) => {
+            const mapped = {
+              fechaPago: p.fechaPago || new Date().toISOString().split("T")[0],
+              metodoPago: (() => {
+                if (p.tipo === "CREDITO") return "TARJETA_CREDITO";
+                if (p.tipo === "DEBITO") return "TARJETA_DEBITO";
+                if (p.tipo === "TRANSFERENCIA") return "TRANSFERENCIA";
+                if (p.tipo === "CHEQUE") {
+                  return p.tipoCheque === "PROPIO" ? "CHEQUE_PROPIO" : "CHEQUE_TERCERO";
+                }
+                return "EFECTIVO";
+              })(),
+              monto: r2(p.monto),
+            };
+
+            if (p.codigoBancoDestino) {
+              mapped.codigoBancoDestino = Number(p.codigoBancoDestino);
+            }
+
+            if (p.tipo === "CREDITO" || p.tipo === "DEBITO") {
+              mapped.datosTarjeta = {
+                tipoTarjeta: p.tipo === "CREDITO" ? "CREDITO" : "DEBITO",
+                marca: p.entidadId || "VISA",
+                cantidadCuotas: Number(p.cuotas) || 1,
+                recargo: Number(p.recargo) || 0,
+                cupon: p.cupon || "",
+                lote: p.lote || "",
+                autorizacion: p.autorizacion || "ACEPTADA",
+                fechaAcreditacion: p.vencimientoCheque || new Date().toISOString().split("T")[0],
+              };
+            }
+
+            if (p.tipo === "CHEQUE" && p.tipoCheque === "PROPIO") {
+              mapped.chequePropio = {
+                estado: "EMITIDO",
+                tipoCheque: p.tipoChequePropio || "CORRIENTE",
+                banco: p.bancoCheque || "",
+                numero: p.numeroCheque || "",
+                cuenta: p.cuentaCheque || "",
+                fechaEmision: p.fechaEmisionCheque || new Date().toISOString().split("T")[0],
+                fechaPago: p.vencimientoCheque || new Date().toISOString().split("T")[0],
+                importe: r2(p.monto),
+              };
+            }
+
+            if (p.tipo === "CHEQUE" && p.tipoCheque === "TERCERO") {
+              mapped.chequeTercero = {
+                estado: "RECIBIDO",
+                banco: p.bancoCheque || "",
+                numero: p.numeroCheque || "",
+                cuitEmisor: p.cuitEmisorCheque || "",
+                titular: p.titularCheque || "",
+                fechaEmision: p.fechaEmisionCheque || new Date().toISOString().split("T")[0],
+                fechaPago: p.vencimientoCheque || new Date().toISOString().split("T")[0],
+                importe: r2(p.monto),
+              };
+            }
+
+            return mapped;
+          });
+
+      // Vueltos mapping
+      const vueltosPayload = vuelto > 0
+        ? [
+            {
+              fechaEntregado: new Date().toISOString().split("T")[0],
+              tipoMetodoPago: vueltoMetodo || "EFECTIVO",
+              monto: r2(vuelto),
+              ...(vueltoMetodo === "TRANSFERENCIA" && vueltoBancoDestino ? { codigoBancoDestino: Number(vueltoBancoDestino) } : {})
+            }
+          ]
+        : [];
 
       const body = {
+        tipoDescripcionComprobante,
+        tipoOperacion: tipoOperacionFinal,
+        fechaEmision: new Date().toISOString().split("T")[0],
+        fechaVto: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
         puntoVenta: Number(
           fiscal.enBlanco === "si"
-            ? unidadSeleccionada?.configuracion?.puntoVenta ||
-                unidadActiva?.configuracion?.puntoVenta ||
-                1
-            : 99, // Internos siempre en PtoVta 99 (sin conflicto con AFIP)
+            ? 1
+            : 99,
         ),
-        codigoUsuario: Number(usuario?.codigoUsuario || usuario?.id || 1),
-        codigoCliente: clienteSeleccionado?.codigoSecuencial || null,
-        tipoDocumento: Number(fiscal.tipoDocumento),
-        letraComprobante:
-          fiscal.enBlanco === "si"
-            ? obtenerLetraPorTipo(fiscal.tipoDocumento)
-            : "X",
-        pagos:
-          opciones.manejoSaldoNC === "favor"
-            ? []
-            : pagos.listaPagos.map((p) => ({
-                metodo: p.tipo || p.metodo || "EFECTIVO",
-                monto: r2(p.monto),
-                referencia: p.referencia,
-                detalles: p.detalles || p.entidadId || "",
-              })),
-        condicionVenta: condicionVenta,
-        items: itemsProcesados,
-        totales: {
-          total: r2(cart.totales.total),
-          iva: r2(cart.totales.iva),
-          subtotal: r2(cart.totales.subtotal),
-        },
-        fiscal: fiscal.enBlanco === "si",
-        comprobantesAsociados: comprobanteAsociado
-          ? [
-              {
-                tipo: Number(
-                  facturaPrevia?.tipoDocumento ||
-                    facturas.find(
-                      (f) =>
-                        `${String(f.puntoVenta).padStart(5, "0")}-${String(f.numeroComprobante).padStart(8, "0")}` ===
-                          comprobanteAsociado ||
-                        f.numeroComprobante === Number(comprobanteAsociado),
-                    )?.tipoDocumento ||
-                    1,
-                ),
-                ptoVta: Number(comprobanteAsociado.split("-")[0]),
-                nro: Number(comprobanteAsociado.split("-")[1]),
-              },
-            ]
-          : [],
-        receptor: (() => {
-            const contacto = clienteSeleccionado || receptorVinculado;
-            const ente = contacto?.enteFacturacion;
-            const fuente = ente || contacto; // Si hay ente, los datos legales vienen del ente
-
-            return contacto
-              ? {
-                  razonSocial:
-                    fuente.razonSocial ||
-                    `${fuente.nombre || ""} ${fuente.apellido || ""}`.trim() ||
-                    "CONSUMIDOR FINAL",
-                  nombre: fuente.nombre || "",
-                  apellido: fuente.apellido || "",
-                  DocTipo: Number(
-                    fuente.tipoDocumento || fuente.DocTipo || fuente.tipoDocumentoId || 99,
-                  ),
-                  DocNro: Number(
-                    fuente.documento || fuente.DocNro || fuente.numeroDocumento || 0,
-                  ),
-                  CondicionIVAReceptorId: Number(
-                    fuente.CondicionIVAReceptorId ||
-                      fuente.condicionIvaId ||
-                      5,
-                  ),
-                  domicilio: fuente.domicilio || fuente.direccion || "",
-                  enteFacturacion: ente || null,
-                }
-              : {
-                  razonSocial: "CONSUMIDOR FINAL",
-                  DocTipo: 99,
-                  DocNro: 0,
-                  CondicionIVAReceptorId: 5,
-                };
-          })(),
-        observaciones:
-          `${observaciones || ""}${opciones.manejoSaldoNC ? ` [MODO NC: ${opciones.manejoSaldoNC === "favor" ? "SALDO A FAVOR" : "ANULACIÓN/REINTEGRO"}]` : ""}`.trim(),
-        periodo: periodo || null,
-        meta: {
-          manejoSaldoNC: opciones.manejoSaldoNC,
-          origen: location.state?.origen || null,
-          formaPagoGuia: location.state?.formaPagoGuia || null,
-          accion: location.state?.accion || "FACTURACION",
-        },
-        tipoEntidad: (clienteSeleccionado || receptorVinculado)?.tipoEntidad || (clienteSeleccionado || receptorVinculado)?.enteFacturacion?.tipoEntidad || null,
-        codigoDeposito: unidadSeleccionada?.configuracion?.codigoDeposito ? Number(unidadSeleccionada.configuracion.codigoDeposito) : undefined,
-        usaContabilidad: !!usuario?.usaContabilidad,
+        codigoReceptor: clienteSeleccionado?.codigoSecuencial || 1,
+        entidadReceptor: tipoOperacion === "EGRESO" ? "PROV" : "CLIE",
+        codigoTipoComprobante: Number(fiscal.tipoDocumento),
+        condicionComprobante: conditionFinal,
+        observaciones: observaciones || "nueva transacción",
+        subtotal: r2(cart.totales.subtotal),
+        iva: r2(cart.totales.iva),
+        total: r2(cart.totales.total),
+        detalle: itemsProcesados,
+        detallePagos,
+        vueltos: vueltosPayload,
+        comprobantesAsociados: comprobantesAsociados,
+        receptor: receptorObj,
       };
 
-      // --- VALIDACIÓN FISCAL DINÁMICA ---
-      const errorFiscal = validarOperacionFiscal(body);
-      if (errorFiscal) {
-        agregarAlerta({
-          title: "Error Fiscal",
-          message: errorFiscal,
-          type: "warning",
-        });
-        return;
+      if (tipoOperacion === "EGRESO") {
+        body.cae = cae || undefined;
+        body.vtoCae = vtoCae || undefined;
+        body.numeroComprobante = Number(numeroComprobante) || undefined;
       }
 
-      console.log("[POS] DTO Final a enviar:", JSON.stringify(body, null, 2));
-      console.log("[POS] Cliente Seleccionado:", clienteSeleccionado);
-      console.log(
-        "[POS] Ente Facturación:",
-        clienteSeleccionado?.enteFacturacion,
-      );
+      console.log("[POS CONFIRMATION MOCK SAVE] Payload DTO generated:", JSON.stringify(body, null, 2));
 
-      mutationGenerar.mutate(
-        {
-          dto: body,
-          codigoEmpresa: Number(usuario?.codigoEmpresa || 1),
-          codigoUnidadNegocio: Number(unidadLocal),
-        },
-        {
-          onSuccess: (res) => {
-            agregarAlerta({
-              title: "Venta Exitosa",
-              message: "Comprobante generado correctamente",
-              type: "success",
-            });
+      agregarAlerta({
+        title: `${tipoOperacion === "EGRESO" ? "Compra" : "Venta"} Guardada (Simulado)`,
+        message: "El payload fue generado y logueado en la consola. Todo listo para la fase de integración.",
+        type: "success",
+      });
 
-            // Si viene de transporte de guías, marcar los envíos como facturados
-            if (location.state?.origen === "TRANSPORTE_GUIAS" && guiasIds.length > 0) {
-              const codigoComprobante = res?.comprobante?.codigoSecuencial || "";
-              mutationFacturarEnvios.mutate({
-                enviosIds: guiasIds,
-                codigoComprobante: String(codigoComprobante),
-              });
-            }
+      // Reset states
+      cart.setItems([]);
+      pagos.setListaPagos([]);
+      setClienteSeleccionado(null);
+      setBusquedaCliente("");
+      setComprobanteAsociado("");
+      setComprobantesAsociados([]);
+      setObservaciones("");
+      setMostrarPreview(false);
+      setCae("");
+      setVtoCae("");
+      setNumeroComprobante("");
+      setVueltoMetodo("EFECTIVO");
+      setVueltoBancoDestino("");
+      setPaso(1);
+      limpiarCaptura();
 
-            cart.setItems([]);
-            pagos.setListaPagos([]);
-            setClienteSeleccionado(null);
-            setBusquedaCliente("");
-            setComprobanteAsociado("");
-            setObservaciones("");
-            setMostrarPreview(false);
-            setGuiasIds([]);
-            setPaso(1);
-            limpiarCaptura();
-          },
-          onError: (err) => {
-            console.error("Error al generar venta:", err);
-            const msg = err?.response?.data?.message || "";
-            if (
-              msg.includes("configurar los asientos automáticos") || 
-              msg.includes("servicio de contabilidad") ||
-              msg.includes("error contable") ||
-              msg.includes("Configuración incompleta")
-            ) {
-              setModalContabilidad({ show: true, message: msg });
-            }
-          },
-        },
-      );
+      // TODO: conectar con mutación real
+      // mutationGenerar.mutate({ dto: body, ... })
     },
     [
       cart,
@@ -897,21 +1060,21 @@ export const useComprobantes = () => {
       clienteSeleccionado,
       condicionVenta,
       comprobanteAsociado,
+      comprobantesAsociados,
       observaciones,
-      periodo,
       unidadLocal,
-      entidades,
-      mutationGenerar,
+      tipoOperacion,
+      tipoOperacionFinal,
+      tipoDescripcionComprobante,
+      cae,
+      vtoCae,
+      numeroComprobante,
+      vueltoMetodo,
+      vueltoBancoDestino,
+      vuelto,
+      letraComprobante,
       agregarAlerta,
       limpiarCaptura,
-      usuario,
-      unidadActiva,
-      esNotaCreditoNav,
-      esNotaDebitoNav,
-      esEmisionPago,
-      location.state,
-      guiasIds,
-      mutationFacturarEnvios,
     ],
   );
 
@@ -999,5 +1162,49 @@ export const useComprobantes = () => {
     // Guías de Transporte
     guiasIds,
     setGuiasIds,
+
+    // TABS
+    tipoOperacion,
+    setTipoOperacion,
+
+    // NUEVOS CAMPOS COMPRAS
+    cae,
+    setCae,
+    vtoCae,
+    setVtoCae,
+    numeroComprobante,
+    setNumeroComprobante,
+    materiaPrimaCheck,
+    setMateriaPrimaCheck,
+
+    // CUENTA CONTABLE
+    tipoItemAgregar,
+    setTipoItemAgregar,
+    cuentaContableSeleccionada,
+    setCuentaContableSeleccionada,
+    precioCuentaContable,
+    setPrecioCuentaContable,
+    nombreCuentaContable,
+    setNombreCuentaContable,
+    ivaCuentaContable,
+    setIvaCuentaContable,
+    agregarCuentaContableItem,
+    cuentasContables,
+
+    // COMPROBANTES ASOCIADOS
+    comprobantesAsociados,
+    agregarComprobanteAsociado,
+    eliminarComprobanteAsociado,
+    actualizarImporteAsociado,
+
+    // VUELTOS
+    vueltoMetodo,
+    setVueltoMetodo,
+    vueltoBancoDestino,
+    setVueltoBancoDestino,
+    MOCK_BANCOS,
+    tiposComprobante,
+    letraComprobante,
+    facturas,
   };
 };

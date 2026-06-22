@@ -8,7 +8,7 @@ import { LayoutGrid, FileText, DollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { pdf } from "@react-pdf/renderer";
 import ComprobantePDF from "../../Ventas/Comprobantes/ComprobantePDF";
-import { ObtenerTiposComprobanteApi } from "../../../../Backend/Arca/api/arca.api";
+import SelectorTipoComprobante from "../../../UI/Select/SelectorTipoComprobante";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import DetalleComprobanteDrawer from "../../Ventas/Comprobantes/DetalleComprobanteDrawer";
 import React, { useEffect, useMemo, useState } from "react";
@@ -38,50 +38,7 @@ const TablaFacturasProveedor = () => {
     setUnidadNegocio,
   } = facturasData;
 
-  const [tiposComprobante, setTiposComprobante] = useState([]);
-  const [cargandoTipos, setCargandoTipos] = useState(false);
 
-  useEffect(() => {
-    const cargarTipos = async () => {
-      setCargandoTipos(true);
-      try {
-        const res = await ObtenerTiposComprobanteApi();
-        const raw = Array.isArray(res) ? res : res?.data || [];
-
-        const mapeados = raw.map((v) => ({
-          valor: v.Id,
-          texto: v.Desc,
-        }));
-
-        // Agregar Internos
-        const internos = [
-          { valor: 991, texto: "COMPROBANTE VENTA (I)" },
-          { valor: 992, texto: "RECIBO COBRO (I)" },
-          { valor: 993, texto: "NOTA CRÉDITO (I)" },
-          { valor: 994, texto: "NOTA DÉBITO (I)" },
-        ];
-
-        setTiposComprobante([
-          { valor: "TODAS", texto: "TODOS LOS COMP." },
-          ...mapeados,
-          ...internos,
-        ]);
-      } catch (error) {
-        console.error("Error cargando tipos comprobante:", error);
-        // Fallback solo internos
-        setTiposComprobante([
-          { valor: "TODAS", texto: "TODOS LOS COMP." },
-          { valor: 991, texto: "COMPROBANTE VENTA (I)" },
-          { valor: 992, texto: "RECIBO COBRO (I)" },
-          { valor: 993, texto: "NOTA CRÉDITO (I)" },
-          { valor: 994, texto: "NOTA DÉBITO (I)" },
-        ]);
-      } finally {
-        setCargandoTipos(false);
-      }
-    };
-    cargarTipos();
-  }, []);
 
   const opcionesUnidad = useMemo(() => {
     return (usuario?.unidadesNegocio || []).map((un) => ({
@@ -315,11 +272,12 @@ const TablaFacturasProveedor = () => {
 
             {/* TIPO DE COMPROBANTE */}
             <div className="w-[180px]">
-              <Select
-                valor={tipoFactura}
-                setValor={setTypeFactura}
-                options={tiposComprobante}
-                loading={cargandoTipos}
+              <SelectorTipoComprobante
+                value={tipoFactura}
+                onChange={setTypeFactura}
+                modo="COMPRA"
+                tipo={isBlanco === "FISCAL" ? "FISCAL" : "INTERNO"}
+                isFilter={true}
               />
             </div>
 

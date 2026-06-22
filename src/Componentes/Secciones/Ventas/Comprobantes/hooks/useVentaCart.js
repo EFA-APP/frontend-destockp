@@ -1,18 +1,18 @@
 import { useState, useCallback, useMemo } from "react";
 import { calcularNetoItem, calcularIVA, calcularTotalItem, getPrecio } from "../utils/fiscal.utils";
 
-export const useVentaCart = (agregarAlerta, columnaPrecioSeleccionada, aplicaIva) => {
+export const useVentaCart = (agregarAlerta, columnaPrecioSeleccionada, aplicaIva, letraComprobante = "X") => {
   const [items, setItems] = useState([]);
 
   const totales = useMemo(() => {
     let subtotal = 0, iva = 0, total = 0;
     items.forEach((item) => {
-      subtotal += calcularNetoItem(item, aplicaIva);
-      iva += calcularIVA(item, aplicaIva);
-      total += calcularTotalItem(item);
+      subtotal += calcularNetoItem(item, aplicaIva, letraComprobante);
+      iva += calcularIVA(item, aplicaIva, letraComprobante);
+      total += calcularTotalItem(item, aplicaIva, letraComprobante);
     });
     return { subtotal, iva, total };
-  }, [items, aplicaIva]);
+  }, [items, aplicaIva, letraComprobante]);
 
   const eliminarItem = useCallback((index) => {
     setItems((prev) => prev.filter((_, i) => i !== index));

@@ -1,13 +1,17 @@
 import { memo, useState } from "react";
+import { createPortal } from "react-dom";
 import {
-  CerrarIcono,
-  CarritoIcono,
-  CheckIcono,
-  DineroIcono,
-} from "../../../../assets/Icons";
+  X,
+  ShoppingCart,
+  User,
+  Wallet,
+  Coins,
+  Check,
+  FileText,
+  ArrowRightLeft,
+  Receipt,
+} from "lucide-react";
 import { formatPrice } from "../../../../utils/formatters";
-import { ArrowRightLeft, Receipt, FileText } from "lucide-react";
-
 import { esNotaCredito } from "./reglas/reglasFiscales";
 
 const ModalConfirmacionCobro = ({
@@ -33,34 +37,37 @@ const ModalConfirmacionCobro = ({
   );
   const esNC = esNotaCredito(tipoDocumento);
 
-  return (
-    <div className="fixed inset-0 z-[1000] flex justify-end">
-      {/* Backdrop */}
+  return createPortal(
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 overflow-y-auto">
+      {/* Backdrop click to close (only if not loading) */}
       <div
-        className="absolute inset-0 bg-black/20 backdrop-blur-sm"
-        onClick={() => setMostrarPreview(false)}
+        className="absolute inset-0 bg-gray-950/60 backdrop-blur-sm"
+        onClick={() => !cargandoCobro && setMostrarPreview(false)}
       />
 
-      {/* Drawer Content */}
-      <div className="relative w-full md:w-[500px] bg-[var(--surface)] h-screen shadow-[-30px_0_60px_rgba(0,0,0,0.15)] border-l border-black/5 flex flex-col animate-in slide-in-from-right-full duration-500">
+      {/* Modal Content Card */}
+      <div className="relative w-full max-w-4xl bg-white rounded-md shadow-2xl border border-gray-100 flex flex-col my-8 max-h-[90vh] md:max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-300">
         {/* OVERLAY DE CARGA */}
         {cargandoCobro && (
-          <div className="absolute inset-0 z-[1100] bg-white/95 backdrop-blur-xl flex flex-col items-center justify-center">
-            <div className="flex flex-col items-center gap-8">
+          <div className="absolute inset-0 z-[1100] bg-white/95 backdrop-blur-md flex flex-col items-center justify-center animate-in fade-in duration-200">
+            <div className="flex flex-col items-center gap-6">
               <div className="relative">
-                <div className="w-24 h-24 rounded-full border-[6px] border-rose-50 border-t-rose-500 animate-spin" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <CheckIcono size={32} className="text-rose-500" />
+                <div className="w-20 h-20 rounded-full border-[6px] border-[var(--primary)]/10 border-t-[var(--primary)] animate-spin" />
+                <div className="absolute inset-0 flex items-center justify-center text-[var(--primary)]">
+                  <Check size={28} />
                 </div>
               </div>
               <div className="text-center">
-                <p className="text-xl font-black text-[var(--primary)] uppercase tracking-[0.2em]">
+                <p className="text-base font-black text-gray-900 uppercase tracking-widest">
                   Procesando Venta
                 </p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">
+                  Por favor espere un momento...
+                </p>
                 <div className="flex items-center justify-center gap-1.5 mt-3">
-                  <div className="w-2 h-2 rounded-full bg-rose-500 animate-bounce [animation-delay:-0.3s]" />
-                  <div className="w-2 h-2 rounded-full bg-rose-500 animate-bounce [animation-delay:-0.15s]" />
-                  <div className="w-2 h-2 rounded-full bg-rose-500 animate-bounce" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[var(--primary)] animate-bounce [animation-delay:-0.3s]" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[var(--primary)] animate-bounce [animation-delay:-0.15s]" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[var(--primary)] animate-bounce" />
                 </div>
               </div>
             </div>
@@ -68,229 +75,286 @@ const ModalConfirmacionCobro = ({
         )}
 
         {/* Header */}
-        <div className="p-4 md:p-5 bg-[var(--primary)]/10 border-b border-[var(--primary)]/10 flex justify-between items-center shrink-0">
-          <h2 className="text-xl font-black text-[var(--primary)] uppercase tracking-tighter leading-none">
-            Confirmar Venta
-          </h2>
+        <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-[#f8fafc] shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-md bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center font-black">
+              <Receipt size={18} />
+            </div>
+            <h2 className="text-lg font-black text-gray-900 uppercase tracking-tight">
+              Confirmación de Venta
+            </h2>
+          </div>
           <button
-            onClick={() => setMostrarPreview(false)}
-            className="w-8 h-8 flex items-center justify-center bg-[var(--primary)]/20 rounded-md text-[var(--primary)]/80 border border-[var(--primary)]/80 hover:text-[var(--primary)] transition-all group"
+            onClick={() => !cargandoCobro && setMostrarPreview(false)}
+            disabled={cargandoCobro}
+            className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-rose-50 text-gray-400 hover:text-rose-500 rounded-full transition-all group"
           >
-            <CerrarIcono
-              size={28}
+            <X
+              size={18}
               className="group-hover:rotate-90 transition-transform duration-300"
             />
           </button>
         </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 space-y-6 md:space-y-8">
-          {/* Items */}
-          <section className="space-y-5">
-            <div className="flex items-center gap-3 text-[var(--primary)]/80 px-2">
-              <CarritoIcono size={20} />
-              <span className="text-[14px] font-black uppercase tracking-[0.15em]">
-                Detalle del Carrito
-              </span>
-            </div>
-            <div className="bg-white border border-black/5 rounded-2xl p-4 md:p-6 shadow-sm space-y-4 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-rose-500/10" />
-              {items.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex justify-between items-start animate-in fade-in slide-in-from-bottom-3 duration-500"
-                  style={{ animationDelay: `${idx * 60}ms` }}
-                >
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[14px] font-medium text-[var(--secondary)] uppercase tracking-tight leading-tight">
-                      <span className="text-[var(--primary)]">
-                        {item.nombre}
-                      </span>
-                    </span>
-                    <span className="text-[11px] text-[var(--primary)]/50 font-black uppercase tracking-[0.1em]">
-                      {item.descripcion}
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[16px] font-black text-[var(--primary)] tabular-nums">
-                      {formatPrice(item.cantidad * item.precioUnitario)}
-                      <span className="text-red-500 font-black p-2 rounded-full ml-2">
-                        {item.cantidad}
-                      </span>
-                    </span>
-                  </div>
+        {/* Body (scrollable two columns grid) */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-8 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+            {/* COLUMNA IZQUIERDA: CARRITO Y CLIENTE */}
+            <div className="space-y-6">
+              {/* Resumen del Carrito */}
+              <section className="space-y-3">
+                <div className="flex items-center gap-2 text-gray-500 font-bold uppercase tracking-wider text-xs">
+                  <ShoppingCart size={16} className="text-[var(--primary)]" />
+                  <span>Detalle del Carrito</span>
                 </div>
-              ))}
-              <div className="pt-4 border-t border-dashed border-black/50 flex justify-between items-center">
-                <span className="text-[11px] font-black text-black/80 uppercase tracking-widest">
-                  Subtotal Items
-                </span>
-                <span className="text-[14px] font-bold text-green-700 tabular-nums">
-                  {formatPrice(
-                    items.reduce(
-                      (acc, i) => acc + i.cantidad * i.precioUnitario,
-                      0,
-                    ),
-                  )}
-                </span>
-              </div>
-            </div>
-          </section>
 
-          {/* Cliente */}
-          <section className="space-y-4">
-            <div className="flex items-center gap-3 text-[var(--primary)]/80 px-2">
-              <div className="w-2 h-2 rounded-full bg-rose-500/40" />
-              <span className="text-[13px] font-black uppercase tracking-[0.15em]">
-                Información del Cliente
-              </span>
-            </div>
-            <div className="bg-rose-50/30 border border-rose-100 rounded-2xl p-6 flex flex-col gap-2 shadow-sm">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-md bg-rose-500 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-rose-500/20">
-                  {(clienteSeleccionado?.razonSocial ||
-                    clienteSeleccionado?.nombre ||
-                    "C")[0].toUpperCase()}
-                </div>
-                <div>
-                  <span className="text-[18px] font-black text-[var(--primary)] uppercase block leading-none mb-1">
-                    {clienteSeleccionado
-                      ? clienteSeleccionado.razonSocial ||
-                        `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}`
-                      : "Consumidor Final"}
-                  </span>
-                  <span className="text-[11px] font-bold text-rose-500/40 uppercase tracking-widest">
-                    {clienteSeleccionado?.documento ||
-                      "Sin identificación fiscal"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Pagos */}
-          <section className="space-y-4">
-            <div className="flex items-center gap-3 text-[var(--primary)]/80 px-2">
-              <div className="w-2 h-2 rounded-full bg-rose-500/40" />
-              <span className="text-[13px] font-black uppercase tracking-[0.15em]">
-                Formas de Pago
-              </span>
-            </div>
-            <div className="bg-white border border-black/5 rounded-2xl p-6 shadow-sm space-y-4">
-              {listaPagos.length === 0 ? (
-                <div className="text-center py-4 text-black/20 font-bold uppercase text-[10px] tracking-widest italic">
-                  No hay pagos registrados
-                </div>
-              ) : (
-                listaPagos.map((p, i) => (
-                  <div
-                    key={i}
-                    className="flex justify-between items-center p-3 bg-[var(--border-subtle)] rounded-md border border-black/[0.03]"
-                  >
-                    <div className="flex flex-col gap-1">
-                      <span className="flex items-center gap-2 text-[13px] font-black text-[var(--primary)] uppercase tracking-tight">
-                        <div className="bg-[var(--border-subtle)] p-2 rounded-md text-[var(--primary)]">
-                          <DineroIcono size={20} />
-                        </div>
-                        {p.tipo}
-                      </span>
-                      {p.detalles && (
-                        <span className="text-[10px] text-[var(--primary)]/40 font-bold uppercase tracking-[0.05em]">
-                          {p.detalles}
-                        </span>
-                      )}
-                    </div>
-                    <span
-                      className={`text-[15px] font-black tabular-nums ${p.monto >= 0 ? "text-emerald-600" : "text-rose-600"}`}
+                <div className="bg-gray-50/50 border border-gray-200/60 rounded-md p-4 space-y-3 max-h-[280px] overflow-y-auto custom-scrollbar">
+                  {items.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex justify-between items-start py-2 border-b border-gray-100 last:border-0"
                     >
-                      {formatPrice(p.monto)}
-                    </span>
+                      <div className="flex flex-col min-w-0 pr-2">
+                        <span className="text-xs font-black text-gray-800 uppercase truncate">
+                          {item.nombre}
+                        </span>
+                        {item.descripcion && (
+                          <span className="text-[10px] text-gray-400 font-bold uppercase truncate">
+                            {item.descripcion}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="text-xs font-black text-gray-900 tabular-nums">
+                          {formatPrice(item.cantidad * item.precioUnitario)}
+                        </span>
+                        <span className="text-[10px] bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/20 font-black px-1.5 py-0.5 rounded ml-2">
+                          x{item.cantidad}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pt-2 flex justify-between items-center text-xs font-bold text-gray-500">
+                  <span>Subtotal de Items</span>
+                  <span className="text-[var(--primary)] font-black text-sm">
+                    {formatPrice(
+                      items.reduce(
+                        (acc, i) => acc + i.cantidad * i.precioUnitario,
+                        0,
+                      ),
+                    )}
+                  </span>
+                </div>
+              </section>
+
+              {/* Información del Cliente */}
+              <section className="space-y-3">
+                <div className="flex items-center gap-2 text-gray-500 font-bold uppercase tracking-wider text-xs">
+                  <User size={16} className="text-[var(--primary)]" />
+                  <span>Información del Cliente</span>
+                </div>
+
+                {clienteSeleccionado ? (
+                  <div className="bg-[var(--primary)]/10 border border-[var(--primary)]/20 rounded-md p-4 flex items-center justify-between shadow-sm animate-in zoom-in-95">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-md bg-[var(--primary)] text-white flex items-center justify-center font-black shadow-md shadow-[var(--primary)]/20">
+                        <User size={20} />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-wider text-[var(--primary)] block leading-none mb-1">
+                          Cliente Registrado
+                        </span>
+                        <span className="text-sm font-extrabold text-gray-900 uppercase block">
+                          {clienteSeleccionado.razonSocial ||
+                            `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}`}
+                        </span>
+                        <span className="text-[9px] font-bold text-[var(--primary)]/60 uppercase">
+                          {clienteSeleccionado.documento || "DNI/CUIT S/D"}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                ))
+                ) : (
+                  <div className="bg-gray-50 border border-gray-200/60 rounded-md p-4 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-md bg-gray-200 text-gray-500 flex items-center justify-center font-black">
+                      <User size={20} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block leading-none mb-1">
+                        Cliente
+                      </span>
+                      <span className="text-sm font-extrabold text-gray-800 uppercase block">
+                        Consumidor Final
+                      </span>
+                      <span className="text-[9px] font-bold text-gray-400 uppercase">
+                        Sin identificación fiscal
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </section>
+            </div>
+
+            {/* COLUMNA DERECHA: FORMAS DE PAGO Y SALDO NC */}
+            <div className="space-y-6">
+              {/* Formas de Pago */}
+              <section className="space-y-3">
+                <div className="flex items-center gap-2 text-gray-500 font-bold uppercase tracking-wider text-xs">
+                  <Wallet size={16} className="text-[var(--primary)]" />
+                  <span>Formas de Pago</span>
+                </div>
+
+                <div className="bg-gray-50/50 border border-gray-200/60 rounded-md p-4 space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar">
+                  {listaPagos.length === 0 ? (
+                    <div className="text-center py-6 text-gray-400 font-bold uppercase text-[10px] tracking-widest italic">
+                      No hay pagos registrados
+                    </div>
+                  ) : (
+                    listaPagos.map((p, i) => (
+                      <div
+                        key={i}
+                        className="flex justify-between items-center p-2.5 bg-white border border-gray-200/50 rounded-md shadow-sm"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="bg-[var(--primary)]/10 p-2 rounded-md text-[var(--primary)]">
+                            <Coins size={16} />
+                          </div>
+                          <span className="text-xs font-black text-gray-800 uppercase tracking-tight">
+                            {p.tipo}
+                          </span>
+                        </div>
+                        <span className="text-xs font-black text-[var(--primary)] tabular-nums">
+                          {formatPrice(p.monto)}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </section>
+
+              {/* Manejo Saldo NC (Si es Nota de Crédito) */}
+              {esNC && (
+                <section className="space-y-3 animate-in zoom-in-95 duration-500">
+                  <div className="flex items-center gap-2 text-rose-500 font-bold uppercase tracking-wider text-xs">
+                    <ArrowRightLeft size={16} />
+                    <span>Manejo de Saldo (Nota de Crédito)</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setManejoSaldoNC("favor")}
+                      className={`p-3 rounded-md border-2 transition-all flex flex-col items-center gap-2 text-center active:scale-98 ${
+                        manejoSaldoNC === "favor"
+                          ? "bg-[var(--primary)]/5 border-[var(--primary)] text-[var(--primary)] shadow-sm"
+                          : "bg-white border-gray-200 text-gray-400 hover:border-gray-300"
+                      }`}
+                    >
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                          manejoSaldoNC === "favor"
+                            ? "bg-[var(--primary)] text-white"
+                            : "bg-gray-100"
+                        }`}
+                      >
+                        <Check size={16} />
+                      </div>
+                      <span className="text-[10px] font-black uppercase">
+                        Saldo a Favor
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setManejoSaldoNC("reintegro")}
+                      className={`p-3 rounded-md border-2 transition-all flex flex-col items-center gap-2 text-center active:scale-98 ${
+                        manejoSaldoNC === "reintegro"
+                          ? "bg-rose-50 border-rose-500 text-rose-700 shadow-sm"
+                          : "bg-white border-gray-200 text-gray-400 hover:border-gray-300"
+                      }`}
+                    >
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                          manejoSaldoNC === "reintegro"
+                            ? "bg-rose-500 text-white"
+                            : "bg-gray-100"
+                        }`}
+                      >
+                        <X size={16} />
+                      </div>
+                      <span className="text-[10px] font-black uppercase">
+                        Reintegro
+                      </span>
+                    </button>
+                  </div>
+                </section>
               )}
             </div>
-          </section>
-
-          {/* Manejo Saldo NC */}
-          {esNC && (
-            <section className="space-y-4 animate-in zoom-in-95 duration-500">
-              <div className="flex items-center gap-3 text-rose-600 px-2">
-                <ArrowRightLeft size={20} />
-                <span className="text-[13px] font-black uppercase tracking-[0.15em]">
-                  Manejo de Saldo (NC)
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setManejoSaldoNC("favor")}
-                  className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 text-center ${manejoSaldoNC === "favor" ? "bg-emerald-50 border-emerald-500 text-emerald-700" : "bg-white border-black/5 text-black/40"}`}
-                >
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center ${manejoSaldoNC === "favor" ? "bg-emerald-500 text-white" : "bg-black/5"}`}
-                  >
-                    <CheckIcono size={20} />
-                  </div>
-                  <span className="text-[12px] font-black uppercase">
-                    Saldo a Favor
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setManejoSaldoNC("reintegro")}
-                  className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 text-center ${manejoSaldoNC === "reintegro" ? "bg-rose-50 border-rose-500 text-rose-700" : "bg-white border-black/5 text-black/40"}`}
-                >
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center ${manejoSaldoNC === "reintegro" ? "bg-rose-500 text-white" : "bg-black/5"}`}
-                  >
-                    <CerrarIcono size={20} />
-                  </div>
-                  <span className="text-[12px] font-black uppercase">
-                    Reintegro
-                  </span>
-                </button>
-              </div>
-            </section>
-          )}
+          </div>
         </div>
 
         {/* Footer */}
-        <div className="p-4 md:p-6 pb-6 md:pb-8 bg-white border-t border-black/5 space-y-4 shrink-0">
-          <div className="space-y-3">
-            {esTipoA && (
-              <div className="space-y-2 bg-gray-50/50 p-4 rounded-xl border border-black/5">
-                <div className="flex justify-between text-[var(--primary)]/40 text-[11px] font-black uppercase tracking-[0.15em]">
-                  <span>Neto Gravado</span>
-                  <span className="tabular-nums">
-                    {formatPrice(totales.subtotal)}
-                  </span>
-                </div>
-                {enBlanco === "si" && aplicaIva && (
-                  <div className="flex justify-between text-[var(--primary)]/40 text-[11px] font-black uppercase tracking-[0.15em]">
-                    <span>IVA (21%)</span>
-                    <span className="tabular-nums">
-                      {formatPrice(totales.iva)}
+        <div className="p-5 md:p-6 bg-[#f8fafc] border-t border-gray-100 space-y-4 shrink-0">
+          <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
+            {/* Detalle Fiscal si aplica Tipo A */}
+            <div className="flex flex-wrap gap-4 items-center">
+              {esTipoA && (
+                <div className="flex gap-4 text-xs font-black uppercase tracking-wider text-gray-500">
+                  <div>
+                    Neto Gravado:{" "}
+                    <span className="text-gray-900 font-extrabold">
+                      {formatPrice(totales.subtotal)}
                     </span>
                   </div>
-                )}
+                  {enBlanco === "si" && aplicaIva && (
+                    <div>
+                      IVA (21%):{" "}
+                      <span className="text-gray-900 font-extrabold">
+                        {formatPrice(totales.iva)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Total Final */}
+              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                Total a Cobrar:{" "}
+                <span className="text-gray-900 font-black text-xl ml-1">
+                  {formatPrice(totales.total)}
+                </span>
               </div>
-            )}
+            </div>
+
+            {/* Vuelto / Cambio */}
             {vuelto > 0 && (
-              <div className="flex justify-between items-center bg-emerald-500 p-4 rounded-2xl shadow-xl shadow-emerald-500/20">
+              <div className="flex items-center gap-3 bg-[var(--primary)]/10 border border-[var(--primary)]/20 px-4 py-2 rounded-md shadow-sm animate-in zoom-in-95 shrink-0 self-start md:self-auto">
                 <div className="flex flex-col">
-                  <span className="text-[11px] font-black text-white/70 uppercase mb-1">
-                    Vuelto
+                  <span className="text-[9px] font-black text-[var(--primary)] uppercase tracking-wider leading-none">
+                    Vuelto / Cambio
                   </span>
-                  <span className="text-4xl font-black text-white tabular-nums">
+                  <span className="text-lg font-black text-gray-900 tabular-nums">
                     {formatPrice(vuelto)}
                   </span>
                 </div>
-                <CheckIcono size={32} className="text-white" />
+                <div className="w-7 h-7 rounded-full bg-[var(--primary)] text-white flex items-center justify-center">
+                  <Check size={14} />
+                </div>
               </div>
             )}
           </div>
 
-          <div className="flex flex-col gap-4">
+          {/* Acciones */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <button
+              onClick={() => !cargandoCobro && setMostrarPreview(false)}
+              disabled={cargandoCobro}
+              className="flex-1 h-12 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md font-black uppercase tracking-wider text-xs transition active:scale-98 disabled:opacity-50"
+            >
+              Volver / Modificar
+            </button>
             <button
               onClick={() =>
                 confirmarVentaFinal({
@@ -298,21 +362,29 @@ const ModalConfirmacionCobro = ({
                 })
               }
               disabled={cargandoCobro}
-              className={`w-full h-12 rounded-2xl font-black text-[12px] flex items-center justify-center gap-4 uppercase tracking-[0.15em] transition-all ${cargandoCobro ? "bg-gray-100 text-black/20" : "bg-black text-white hover:bg-rose-600 shadow-2xl"}`}
+              className={`flex-[2] h-12 rounded-md font-black text-xs flex items-center justify-center gap-2 uppercase tracking-wider transition active:scale-98 ${
+                cargandoCobro
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white shadow-lg shadow-[var(--primary)]/20"
+              }`}
             >
-              {cargandoCobro ? "Emitiendo..." : "generar Comprobante"}
-            </button>
-            <button
-              onClick={() => !cargandoCobro && setMostrarPreview(false)}
-              disabled={cargandoCobro}
-              className="w-full text-[var(--primary)]/30 hover:text-rose-500 py-2 text-[12px] font-black uppercase tracking-[0.2em]"
-            >
-              Volver
+              {cargandoCobro ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Procesando...</span>
+                </>
+              ) : (
+                <>
+                  <FileText size={16} />
+                  <span>Finalizar Venta y Generar Comprobante</span>
+                </>
+              )}
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
 

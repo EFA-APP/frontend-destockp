@@ -1,0 +1,14 @@
+import BuscadorDetalle from "../Componentes/BuscadorDetalle";
+import CabeceraComprobante from "../Componentes/CabeceraComprobante";
+
+const Ingresos = ({ tipoOperacion }) => {
+  return (
+    <div className="h-full w-full">
+      <CabeceraComprobante tipoOperacion={tipoOperacion} />
+
+      <BuscadorDetalle tipoOperacion={tipoOperacion} />
+    </div>
+  );
+};
+
+export default Ingresos;

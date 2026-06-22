@@ -3,22 +3,13 @@ import { createPortal } from "react-dom";
 import { useLocation } from "react-router-dom";
 import { useAlumnos } from "../../../Backend/Contactos/hooks/useAlumnos";
 import EncabezadoSeccion from "../../UI/EncabezadoSeccion/EncabezadoSeccion";
-import {
-  CuotasIcono,
-} from "../../../assets/Icons";
+import { CuotasIcono } from "../../../assets/Icons";
 import { accionesReutilizables } from "../../UI/AccionesReutilizables/accionesReutilizables";
 import {
   AlertCircle,
-  CheckCircle,
-  DollarSign,
-  Search,
   BookOpen,
   X,
-  CreditCard,
-  ChevronRight,
-  TrendingUp,
   Loader,
-  ArrowRight,
   Printer,
 } from "lucide-react";
 import ModalPagoCuota from "./Cuotas/ModalPagoCuota";
@@ -45,9 +36,7 @@ const AlumnosCtaCte = () => {
   const location = useLocation();
   const {
     alumnos: alumnosFiltrados,
-    alumnosCompletos,
     cargandoAlumnos,
-    obtenerEstadisticas,
     emitirCuotaIndividual,
     refetchAlumnos,
     refetchMovimientos,
@@ -58,15 +47,12 @@ const AlumnosCtaCte = () => {
     busqueda,
     setBusqueda,
     mesSeleccionado,
-    setMesSeleccionado,
     codigoCtaCte,
   } = useAlumnos();
 
   // Filtros rápidos locales
   const [filtroEstado, setFiltroEstado] = useState("TODOS"); // TODOS, AL_DIA, CON_DEUDA, EN_MORA
-  const [anioSeleccionado, setAnioSeleccionado] = useState(
-    new Date().getFullYear(),
-  );
+  const anioSeleccionado = new Date().getFullYear();
 
   const periodoSeleccionado = useMemo(() => {
     return `${anioSeleccionado}-${String(Number(mesSeleccionado) + 1).padStart(2, "0")}`;
@@ -82,8 +68,12 @@ const AlumnosCtaCte = () => {
   const [cargandoMayor, setCargandoMayor] = useState(false);
 
   // Filtros de fecha para el Libro Mayor
-  const [mesSeleccionadoMayor, setMesSeleccionadoMayor] = useState(new Date().getMonth());
-  const [anioSeleccionadoMayor, setAnioSeleccionadoMayor] = useState(new Date().getFullYear());
+  const [mesSeleccionadoMayor, setMesSeleccionadoMayor] = useState(
+    new Date().getMonth(),
+  );
+  const [anioSeleccionadoMayor, setAnioSeleccionadoMayor] = useState(
+    new Date().getFullYear(),
+  );
 
   // Recargar datos cuando cambia de vista
   useEffect(() => {
@@ -120,7 +110,11 @@ const AlumnosCtaCte = () => {
   const movimientosMayorFiltrados = useMemo(() => {
     return movimientosMayor.filter((mov) => {
       let m, y;
-      if (mov.periodo && typeof mov.periodo === "string" && mov.periodo.includes("-")) {
+      if (
+        mov.periodo &&
+        typeof mov.periodo === "string" &&
+        mov.periodo.includes("-")
+      ) {
         const parts = mov.periodo.split("-");
         y = Number(parts[0]);
         m = Number(parts[1]) - 1;
@@ -132,8 +126,7 @@ const AlumnosCtaCte = () => {
         return true;
       }
       return (
-        m === Number(mesSeleccionadoMayor) &&
-        y === Number(anioSeleccionadoMayor)
+        y === Number(anioSeleccionadoMayor) && m <= Number(mesSeleccionadoMayor)
       );
     });
   }, [movimientosMayor, mesSeleccionadoMayor, anioSeleccionadoMayor]);
@@ -212,51 +205,6 @@ const AlumnosCtaCte = () => {
     return alumnosProcesados.filter((a) => a.estado === filtroEstado);
   }, [alumnosProcesados, filtroEstado]);
 
-  // Métricas generales contables consolidadas
-  const metricas = useMemo(() => {
-    let totalSaldoBase = 0;
-    let totalMora = 0;
-    let alumnosMoraCount = 0;
-    let alumnosDeudaCount = 0;
-
-    alumnosCompletos.forEach((a) => {
-      const saldo = Object.values(a.cuotas || {})
-        .filter(
-          (c) => c.periodo <= periodoSeleccionado && c.estado !== "pagado",
-        )
-        .reduce((sum, c) => sum + (Number(c.monto) || 0), 0);
-
-      const mora = Object.values(a.cuotas || {})
-        .filter(
-          (c) => c.periodo <= periodoSeleccionado && c.estado !== "pagado",
-        )
-        .reduce((sum, c) => sum + (Number(c.interes) || 0), 0);
-
-      totalSaldoBase += saldo;
-      totalMora += mora;
-
-      const tieneVencidos = Object.values(a.cuotas || {})
-        .filter((c) => c.periodo <= periodoSeleccionado)
-        .some((c) => c.estado === "vencido" && c.monto > 0);
-
-      if (saldo > 0 || tieneVencidos) {
-        alumnosDeudaCount++;
-      }
-      if (tieneVencidos) {
-        alumnosMoraCount++;
-      }
-    });
-
-    return {
-      totalSaldoBase,
-      totalMora,
-      deudaTotalConsolidada: totalSaldoBase + totalMora,
-      alumnosMoraCount,
-      alumnosDeudaCount,
-      totalAlumnos: alumnosCompletos.length,
-    };
-  }, [alumnosCompletos, periodoSeleccionado]);
-
   const formatARS = (val) => {
     return new Intl.NumberFormat("es-AR", {
       style: "currency",
@@ -269,9 +217,7 @@ const AlumnosCtaCte = () => {
       key: "codigoSecuencial",
       etiqueta: "ID",
       renderizar: (val) => (
-        <span className="text-[10px] font-black text-black/30">
-          {val}
-        </span>
+        <span className="text-[10px] font-black text-black/30">{val}</span>
       ),
     },
     {
@@ -359,66 +305,6 @@ const AlumnosCtaCte = () => {
         ruta="CUENTAS CORRIENTES"
         icono={<CuotasIcono size={18} />}
       />
-
-      {/* METRICAS SUPERIORES */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {/* Total Alumnos */}
-        <div className="p-5 bg-white border border-[var(--border-subtle)] rounded-2xl shadow-sm flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest leading-none">
-              Mostrando
-            </span>
-            <span className="text-[26px] font-black text-black mt-2 leading-none">
-              {metricas.totalAlumnos}
-            </span>
-            <span className="text-[10px] text-black/30 font-bold mt-2 lowercase">
-              alumnos del sistema
-            </span>
-          </div>
-        </div>
-
-        {/* Saldo Base Contable */}
-        <div className="p-5 bg-white border border-[var(--border-subtle)] rounded-2xl shadow-sm flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest leading-none">
-              Saldo Contable ({codigoCtaCte})
-            </span>
-            <span className="text-[26px] font-black text-[var(--primary)] mt-2 leading-none">
-              {formatARS(metricas.totalSaldoBase)}
-            </span>
-          </div>
-        </div>
-
-        {/* Intereses por Mora Acumulados */}
-        <div className="p-5 bg-white border border-[var(--border-subtle)] rounded-2xl shadow-sm flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest leading-none">
-              Mora Diaria Acumulada
-            </span>
-            <span className="text-[26px] font-black text-rose-600 mt-2 leading-none animate-pulse">
-              {formatARS(metricas.totalMora)}
-            </span>
-            <span className="text-[10px] text-rose-500 font-black mt-2 uppercase tracking-wide">
-              {metricas.alumnosMoraCount} alumnos en mora
-            </span>
-          </div>
-        </div>
-
-        {/* Deuda Total Consolidada */}
-        <div className="p-5 bg-white border border-[var(--border-subtle)] rounded-2xl shadow-sm flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest leading-none">
-              Deuda Total Consolidada
-            </span>
-            <span className="text-[26px] font-black text-slate-800 mt-2 leading-none">
-              {formatARS(metricas.deudaTotalConsolidada)}
-            </span>
-            <span className="text-[10px] text-slate-400 font-bold mt-2 lowercase">
-              deuda base + mora calculada
-            </span>
-          </div>
-        </div>
-      </div>
 
       <DataTable
         id_tabla="tabla-alumnos-ctacte"
@@ -602,11 +488,13 @@ const AlumnosCtaCte = () => {
                     <div className="flex flex-col sm:flex-row items-center gap-3 bg-slate-50 p-4 rounded-xl border border-black/5">
                       <div className="flex items-center gap-2 bg-white border border-black/10 rounded-xl px-4 py-2 w-full sm:w-auto justify-center shadow-sm">
                         <span className="text-[10px] font-black text-slate-700 uppercase tracking-wider whitespace-nowrap">
-                          Filtrar Período:
+                          Hasta el Período:
                         </span>
                         <select
                           value={mesSeleccionadoMayor}
-                          onChange={(e) => setMesSeleccionadoMayor(Number(e.target.value))}
+                          onChange={(e) =>
+                            setMesSeleccionadoMayor(Number(e.target.value))
+                          }
                           className="bg-transparent border-none text-[12px] font-bold text-black/80 outline-none cursor-pointer focus:ring-0 py-0 pr-8 pl-1"
                         >
                           {meses.map((mes, idx) => (
@@ -617,7 +505,9 @@ const AlumnosCtaCte = () => {
                         </select>
                         <select
                           value={anioSeleccionadoMayor}
-                          onChange={(e) => setAnioSeleccionadoMayor(Number(e.target.value))}
+                          onChange={(e) =>
+                            setAnioSeleccionadoMayor(Number(e.target.value))
+                          }
                           className="bg-transparent border-none text-[12px] font-bold text-black/80 outline-none cursor-pointer focus:ring-0 py-0 pr-8 pl-1 border-l border-black/10"
                         >
                           {[-2, -1, 0, 1, 2].map((offset) => {

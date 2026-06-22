@@ -62,12 +62,19 @@ export const getPrecio = (prod, col) => {
 /**
  * Calculates the final subtotal for a single item (Quantity * Price) minus discount percentage.
  * @param {Object} item - Item object with cantidad, precioUnitario, and descuento.
+ * @param {boolean} aplicaIva - Fiscal context.
+ * @param {string} letraComprobante - Voucher letter (e.g., 'A', 'B', 'C', 'X').
  * @returns {number} Total amount for this line.
  */
-export const calcularTotalItem = (item) => {
+export const calcularTotalItem = (item, aplicaIva = false, letraComprobante = "X") => {
   const bruto = (item.cantidad || 0) * (item.precioUnitario || 0);
   const desc = bruto * ((item.descuento || 0) / 100);
-  return bruto - desc;
+  const base = bruto - desc;
+  if (letraComprobante === "A" && aplicaIva) {
+    const tasa = parseFloat(item.tasaIva) || 0;
+    return base * (1 + tasa / 100);
+  }
+  return base;
 };
 
 /**
@@ -75,26 +82,40 @@ export const calcularTotalItem = (item) => {
  * Only applies if 'aplicaIva' is true for the session.
  * @param {Object} item - Item with tasaIva.
  * @param {boolean} aplicaIva - Fiscal context.
+ * @param {string} letraComprobante - Voucher letter.
  * @returns {number} The VAT amount.
  */
-export const calcularIVA = (item, aplicaIva) => {
+export const calcularIVA = (item, aplicaIva = false, letraComprobante = "X") => {
+  const bruto = (item.cantidad || 0) * (item.precioUnitario || 0);
+  const desc = bruto * ((item.descuento || 0) / 100);
+  const base = bruto - desc;
+  
+  if (letraComprobante === "A" && aplicaIva) {
+    const tasa = parseFloat(item.tasaIva) || 0;
+    return base * (tasa / 100);
+  }
   if (!aplicaIva) return 0;
-  const totalConDescuento = calcularTotalItem(item);
   const tasa = parseFloat(item.tasaIva) || 0;
-  // Formula: Total - (Total / (1 + Tasa%))
-  const neto = totalConDescuento / (1 + tasa / 100);
-  return totalConDescuento - neto;
+  const neto = base / (1 + tasa / 100);
+  return base - neto;
 };
 
 /**
  * Calculates the Net price (subtotal without VAT) for a single item.
  * @param {Object} item - Item object.
  * @param {boolean} aplicaIva - Fiscal context.
+ * @param {string} letraComprobante - Voucher letter.
  * @returns {number} The Net amount.
  */
-export const calcularNetoItem = (item, aplicaIva) => {
-  const total = calcularTotalItem(item);
-  if (!aplicaIva) return total;
+export const calcularNetoItem = (item, aplicaIva = false, letraComprobante = "X") => {
+  const bruto = (item.cantidad || 0) * (item.precioUnitario || 0);
+  const desc = bruto * ((item.descuento || 0) / 100);
+  const base = bruto - desc;
+  
+  if (letraComprobante === "A") {
+    return base;
+  }
+  if (!aplicaIva) return base;
   const tasa = parseFloat(item.tasaIva) || 0;
-  return total / (1 + tasa / 100);
+  return base / (1 + tasa / 100);
 };

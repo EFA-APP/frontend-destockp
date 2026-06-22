@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import {
   BorrarIcono,
   CerrarIcono,
@@ -31,8 +32,9 @@ const FormularioContacto = ({
     apellido: contacto?.apellido || "",
     razonSocial: contacto?.razonSocial || "",
     documento: contacto?.documento || "",
+    tipoDocumento: contacto?.tipoDocumento === 99 ? "" : (contacto?.tipoDocumento || ""),
     condicionIva: contacto?.condicionIva || "CF",
-    atributos: contacto?.atributos || { saldo: 0 },
+    atributos: contacto?.atributos || {},
     relaciones: contacto?.relaciones || [],
     enteFacturacion: contacto?.enteFacturacion || null,
   });
@@ -124,12 +126,17 @@ const FormularioContacto = ({
       return;
     }
 
+    const payload = {
+      ...form,
+      tipoDocumento: form.tipoDocumento ? Number(form.tipoDocumento) : 99,
+    };
+
     try {
       if (contacto) {
-        await actualizarContacto({ id: contacto.codigoSecuencial, dto: form });
+        await actualizarContacto({ id: contacto.codigoSecuencial, dto: payload });
         onClose();
       } else {
-        const nuevo = await crearContacto(form);
+        const nuevo = await crearContacto(payload);
         if (onExito) onExito(nuevo);
         onClose();
       }
@@ -149,42 +156,31 @@ const FormularioContacto = ({
     }));
   };
 
-  const isLeft = posicion === "izquierda";
-  const isCenter = posicion === "centro";
-
-  return (
-    <div
-      className={`fixed inset-0 z-[100] flex ${
-        isCenter
-          ? "items-start justify-center p-4 md:p-6"
-          : isLeft
-            ? "items-stretch justify-start"
-            : "items-center justify-end"
-      } bg-black/50 backdrop-blur-sm transition-all`}
-      onClick={onClose}
-    >
+  return createPortal(
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 overflow-y-auto">
+      {/* Backdrop */}
       <div
-        className={`w-full bg-[var(--surface)] shadow-2xl flex flex-col ${
-          isCenter
-            ? "max-w-2xl max-h-[85vh] rounded-lg border border-[var(--border-subtle)] animate-in zoom-in duration-300"
-            : isLeft
-              ? "md:w-[500px] h-full border-r border-[var(--border-subtle)] slide-in-from-left animate-in duration-300"
-              : "md:w-[500px] h-screen border-l border-[var(--border-subtle)] slide-in-from-right animate-in duration-300"
-        }`}
+        className="absolute inset-0 bg-gray-950/60 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
+
+      {/* Modal Card */}
+      <div
+        className="relative w-full max-w-3xl bg-white rounded-md shadow-2xl border border-gray-100 flex flex-col my-8 max-h-[90vh] md:max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-300"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header Elegante */}
-        <div className="px-6 py-5 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--surface-hover)]">
+        {/* Header */}
+        <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-[#f8fafc] shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-md flex items-center justify-center bg-[var(--primary-subtle)] border border-[var(--primary)]/20 text-[var(--primary)] shadow-sm">
-              <CuentaIcono size={18} />
+            <div className="w-10 h-10 rounded-md bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center font-black">
+              <CuentaIcono size={20} />
             </div>
             <div>
-              <h2 className="text-[14px] font-black text-[var(--text-primary)] uppercase tracking-widest leading-none mb-1">
+              <h2 className="text-lg font-black text-gray-900 uppercase tracking-tight leading-none mb-1">
                 {contacto ? "EDITAR" : "NUEVO"}{" "}
                 {entidadActual?.nombre || "CONTACTO"}
               </h2>
-              <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">
                 {contacto
                   ? `ID: ${contacto.codigoSecuencial.toString().padStart(4, "0")}`
                   : "REGISTRO DE FICHA"}
@@ -193,9 +189,9 @@ const FormularioContacto = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2 cursor-pointer rounded-md text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all"
+            className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-rose-50 text-gray-400 hover:text-rose-500 rounded-full transition-all group cursor-pointer"
           >
-            <CerrarIcono size={20} />
+            <CerrarIcono size={18} className="group-hover:rotate-90 transition-transform duration-300" />
           </button>
         </div>
 
@@ -300,10 +296,44 @@ const FormularioContacto = ({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
-                    DNI / CUIT
+                    Tipo Doc.
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={form.tipoDocumento}
+                      onChange={(e) =>
+                        handleChange("tipoDocumento", e.target.value)
+                      }
+                      className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[12px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] appearance-none cursor-pointer transition-all uppercase"
+                    >
+                      <option value="">Seleccionar...</option>
+                      <option value={80}>CUIT</option>
+                      <option value={86}>CUIL</option>
+                      <option value={96}>DNI</option>
+                      <option value={94}>Pasaporte</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-[var(--text-muted)]">
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="m6 9 6 6 6-6" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                    Número Doc.
                   </label>
                   <input
                     type="text"
@@ -826,7 +856,8 @@ const FormularioContacto = ({
           </form>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

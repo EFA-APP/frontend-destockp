@@ -31,3 +31,21 @@ export const obtenerCuentasNoImputables = async () => {
   });
   return data;
 };
+
+export const obtenerDescendientesImputables = async (codigoPadre) => {
+  const { data } = await axiosInitial.get("/contabilidad/cuentas/descendientes", {
+    params: { codigoPadre },
+    showLoader: false,
+    sinEmpresa: true,
+  });
+  return data;
+};
+
+export const obtenerCuentasImputablesPorTipo = async ({ tipo, busqueda }) => {
+  const { data } = await axiosInitial.get("/contabilidad/cuentas/imputables", {
+    params: { tipo, busqueda },
+    showLoader: false,
+    sinEmpresa: true,
+  });
+  return data;
+};

@@ -64,12 +64,12 @@ body {
 :root {
   /* --- HSL Brand Palette --- */
   /* Primary (Magenta): #d11057 -> HSL(338, 86%, 44%) */
-  --p-h: 32;
-  --p-s: 89%;
-  --p-l: 54%;
+  --p-h: 219;
+  --p-s: 100%;
+  --p-l: 56%;
 
   --primary: hsl(var(--p-h), var(--p-s), var(--p-l));
-  --fucsia: #ff007f;
+  --fucsia: hsl(219, 100%, 56%);
   --primary-hover: hsl(var(--p-h), var(--p-s), calc(var(--p-l) - 5%));
   --primary-active: hsl(var(--p-h), var(--p-s), calc(var(--p-l) - 10%));
   --primary-light: hsl(var(--p-h), var(--p-s), 70%);
@@ -1080,4 +1080,3 @@ svg {
 .slide-in-from-right {
   animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
-

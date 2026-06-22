@@ -7,16 +7,10 @@ import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
 const Asientos = () => {
   return (
     <div className="w-full py-6 px-6">
-      <EncabezadoSeccion ruta="Asientos" icono={<CalculadoraIcono size={20} />}>
-        <TieneAccion accion={"CONFIGURAR_ASIENTO_AUTOMATICO"}>
-          <Link
-            to="/panel/contabilidad/configuracion"
-            className="flex items-center gap-2 px-4 py-2 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md text-[var(--text-secondary)] hover:text-[var(--primary)] hover:border-[var(--primary)] transition-all font-bold text-sm"
-          >
-            Configurar Automatización
-          </Link>
-        </TieneAccion>
-      </EncabezadoSeccion>
+      <EncabezadoSeccion
+        ruta="Asientos"
+        icono={<CalculadoraIcono size={20} />}
+      />
       <TablaAsientos />
     </div>
   );

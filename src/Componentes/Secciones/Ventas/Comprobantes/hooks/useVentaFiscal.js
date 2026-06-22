@@ -56,7 +56,7 @@ export const useVentaFiscal = (usuario, arcaConectado) => {
   // Sincronizar tipoDocumento cuando cambia la lista de permitidos
   useEffect(() => {
     if (enBlanco === "no") {
-      const IDsInternos = [991, 992, 993, 994];
+      const IDsInternos = [991, 995, 996];
       if (!IDsInternos.includes(Number(tipoDocumento))) {
         setTipoDocumento(991);
       }

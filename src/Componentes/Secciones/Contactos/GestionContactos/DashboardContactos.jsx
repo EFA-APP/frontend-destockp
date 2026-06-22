@@ -76,13 +76,13 @@ const DashboardContactos = () => {
       <div className="flex-1 flex flex-col gap-4 overflow-hidden">
         {/* SISTEMA DE TABS HORIZONTAL PREMIUM */}
         {!modoAdmin && (
-          <div className="flex items-center gap-2 p-1.5 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md shadow-sm overflow-x-auto no-scrollbar shrink-0">
+          <div className="flex items-center gap-1 p-1 bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-lg shadow-inner overflow-x-auto no-scrollbar shrink-0">
             {cargandoEntidades ? (
               <div className="flex gap-2">
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="w-32 h-9 bg-[var(--fill-secondary)] animate-pulse rounded-md"
+                    className="w-32 h-10 bg-black/5 animate-pulse rounded-md"
                   />
                 ))}
               </div>
@@ -97,25 +97,16 @@ const DashboardContactos = () => {
                       setFiltros((prev) => ({ ...prev, pagina: 1 }));
                     }}
                     className={`
-                      relative px-6 py-2 rounded-md text-[11px] font-black uppercase tracking-[0.15em] transition-all duration-300 flex items-center gap-3 cursor-pointer whitespace-nowrap
+                      relative px-5 py-2.5 rounded-md text-[11px] font-black uppercase tracking-[0.1em] transition-all duration-300 flex items-center gap-2.5 cursor-pointer whitespace-nowrap
                       ${
                         isActive
-                          ? "text-[var(--primary)]"
-                          : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--fill-secondary)]"
+                          ? "text-[var(--text-primary)] bg-[var(--surface)] shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-[var(--border-subtle)]"
+                          : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)]/50 border border-transparent"
                       }
                     `}
                   >
-                    {isActive && (
-                      <div
-                        className="absolute inset-0 bg-[var(--primary)]/5 rounded-md border border-[var(--primary)]/20"
-                        style={{
-                          backgroundColor: `${ent.color || "var(--primary)"}10`,
-                          borderColor: `${ent.color || "var(--primary)"}30`,
-                        }}
-                      />
-                    )}
                     <div
-                      className="w-1.5 h-1.5 rounded-full shadow-sm"
+                      className="w-2 h-2 rounded-full shadow-sm"
                       style={{ backgroundColor: ent.color || "var(--primary)" }}
                     />
                     <span className="relative z-10">{ent.nombre}</span>

@@ -685,7 +685,10 @@ const DataTable = ({
                       : "bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border-[var(--primary)]/20 text-[var(--primary)] shadow-amber-700/5"
                   }`}
                 >
-                  <FiltroIcono size={14} className={filtrosAbiertos ? "animate-pulse" : ""} />
+                  <FiltroIcono
+                    size={14}
+                    className={filtrosAbiertos ? "animate-pulse" : ""}
+                  />
                   Filtros
                 </button>
               )}
@@ -975,7 +978,7 @@ const DataTable = ({
                                 Mover al Final
                               </button>
                             </div>,
-                            document.body
+                            document.body,
                           )}
                         </>
                       )}

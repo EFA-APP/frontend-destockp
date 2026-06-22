@@ -131,3 +131,27 @@ export const CargarInteresMasivaApi = async (dto) => {
   );
   return data;
 };
+
+export const ObtenerMetricasCuentaApi = async (codigoEmpresa, codigoCuenta, periodo) => {
+  const { data } = await axiosInitial.get("/contabilidad/cuentas/metricas", {
+    params: {
+      codigoEmpresa,
+      codigoCuenta,
+      periodo,
+    },
+    showLoader: false,
+  });
+  return data;
+};
+
+export const ObtenerMetricasLoteApi = async (codigoEmpresa, periodo, codigoCuenta) => {
+  const { data } = await axiosInitial.get("/contactos/cuotas/metricas-lote", {
+    params: {
+      codigoEmpresa,
+      periodo,
+      codigoCuenta,
+    },
+    showLoader: false,
+  });
+  return data;
+};
