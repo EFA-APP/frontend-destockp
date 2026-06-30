@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-export const useTabsComprobante = () => {
-  const [tipoOperacion, setTipoOperacion] = useState("INGRESO");
+export const useTabsComprobante = (initialTipoOperacion = "INGRESO") => {
+  const [tipoOperacion, setTipoOperacion] = useState(initialTipoOperacion);
   const [tipoDetalle, setTipoDetalle] = useState("PRODUCTO"); // PRODUCTO / CUENTA_CONTABLE / MATERIA_PRIMA
 
   return {

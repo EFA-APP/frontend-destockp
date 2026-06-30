@@ -246,7 +246,7 @@ const ModalCargaMasivaContactos = ({ open, onClose, onExito }) => {
         <div className="flex flex-wrap gap-4    ">
           <button
             onClick={descargarPlantilla}
-            className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-emerald-700/10 hover:bg-emerald-700/20 border border-emerald-700/20 rounded-2xl text-emerald-400  group"
+            className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-emerald-700/10 hover:bg-emerald-700/20 border border-emerald-700/20 rounded-md text-emerald-400  group"
           >
             <Download size={20} className="group-hover:-translate-y-1 " />
             <div className="text-left">
@@ -259,7 +259,7 @@ const ModalCargaMasivaContactos = ({ open, onClose, onExito }) => {
             </div>
           </button>
 
-          <label className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border border-[var(--primary)]/20 rounded-2xl text-[var(--primary)]  cursor-pointer group">
+          <label className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border border-[var(--primary)]/20 rounded-md text-[var(--primary)]  cursor-pointer group">
             <FileSpreadsheet size={20} className=" " />
             <div className="text-left">
               <div className="text-xs font-black uppercase tracking-wider">
@@ -280,7 +280,7 @@ const ModalCargaMasivaContactos = ({ open, onClose, onExito }) => {
       )}
 
       {error && (
-        <div className="bg-rose-700/10 border border-rose-700/20 rounded-2xl p-4 flex items-center gap-3 text-rose-400 text-xs font-bold   ">
+        <div className="bg-rose-700/10 border border-rose-700/20 rounded-md p-4 flex items-center gap-3 text-rose-400 text-xs font-bold   ">
           <AlertCircle size={18} />
           {error}
         </div>

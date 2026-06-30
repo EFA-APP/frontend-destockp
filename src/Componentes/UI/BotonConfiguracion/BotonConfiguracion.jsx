@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { ConfiguracionIcono } from "../../../assets/Icons";
 import MenuConfiguracion from "./MenuConfiguracion";
-import ModalConfiguracionVisual from "../../Modales/Empresa/ModalConfiguracionVisual";
 
 const BotonConfiguracion = () => {
   const [menuAbierto, setMenuAbierto] = useState(false);
-  const [modalVisualAbierto, setModalVisualAbierto] = useState(false);
   const menuRef = useRef(null);
 
   // Cerrar al hacer clic afuera
@@ -55,15 +53,8 @@ const BotonConfiguracion = () => {
       {menuAbierto && (
         <MenuConfiguracion
           onClose={() => setMenuAbierto(false)}
-          onOpenVisual={() => setModalVisualAbierto(true)}
         />
       )}
-
-      {/* MODAL CONFIGURACION VISUAL */}
-      <ModalConfiguracionVisual
-        isOpen={modalVisualAbierto}
-        onClose={() => setModalVisualAbierto(false)}
-      />
     </div>
   );
 };

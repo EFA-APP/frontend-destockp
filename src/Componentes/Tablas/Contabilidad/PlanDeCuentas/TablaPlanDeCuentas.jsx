@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { usePlanDeCuentas } from "../../../../Backend/hooks/Contabilidad/PlanDeCuenta/usePlanDeCuentas";
 import Select from "../../../UI/Select/Select";
 import DataTable from "../../../UI/DataTable/DataTable";
-import { columnasPlanDeCuentas } from "./columnaPlanDeCuentas";
+import { getColumnasPlanDeCuentas } from "./columnaPlanDeCuentas";
 import ModalImportarPlan from "../../../Modales/Contabilidad/ModalImportarPlan";
 import { FileDown, Plus } from "lucide-react";
 import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
+import { useEmpresas } from "../../../../Backend/Autenticacion/queries/Empresa/useEmpresas.query";
 
 const TablaPlanDeCuentas = () => {
   const {
@@ -20,12 +21,26 @@ const TablaPlanDeCuentas = () => {
   } = usePlanDeCuentas();
 
   const [isModalImportarOpen, setIsModalImportarOpen] = useState(false);
+  const { data: empresas = [] } = useEmpresas();
+
+  const empresasMap = useMemo(() => {
+    const map = new Map();
+    (empresas || []).forEach((emp) => {
+      map.set(emp.codigo, emp.razonSocial || emp.nombre);
+    });
+    return map;
+  }, [empresas]);
+
+  const columnas = useMemo(
+    () => getColumnasPlanDeCuentas(empresasMap),
+    [empresasMap]
+  );
 
   return (
     <>
       <DataTable
         id_tabla="plandecuentas"
-        columnas={columnasPlanDeCuentas}
+        columnas={columnas}
         mostrarAcciones={false}
         datos={cuentas}
         loading={isLoading}

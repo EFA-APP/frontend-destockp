@@ -387,7 +387,7 @@ const TablaProductos = () => {
             <div className="flex justify-center items-center">
               <button
                 onClick={() => navigate("/panel")}
-                className="px-10 py-4 bg-[var(--primary)]/10 text-[var(--primary)]/90 font-bold uppercase tracking-[0.15em] text-xs rounded-2xl hover:bg-[var(--primary)]/20  border border-[var(--primary)]/80 hover:border-[var(--primary)]/10 w-full sm:w-max cursor-pointer"
+                className="px-10 py-4 bg-[var(--primary)]/10 text-[var(--primary)]/90 font-bold uppercase tracking-[0.15em] text-xs rounded-md hover:bg-[var(--primary)]/20  border border-[var(--primary)]/80 hover:border-[var(--primary)]/10 w-full sm:w-max cursor-pointer"
               >
                 Ir al Inicio
               </button>
@@ -602,7 +602,7 @@ const MobileProductoCard = memo(
     onAbrirDrawer,
   }) => (
     <div
-      className="bg-[var(--fill)]rounded-2xl border border-black/10 overflow-hidden shadow-2xl flex flex-col    "
+      className="bg-[var(--fill)]rounded-md border border-black/10 overflow-hidden shadow-2xl flex flex-col    "
       style={{ animationDelay: `${idx * 50}ms` }}
     >
       <div className="p-4 bg-gradient-to-br from-white/[0.06] to-transparent border-b border-black/5 relative">

@@ -1,12 +1,23 @@
 import { useState } from "react";
-import { useDetalleComprobante } from "../../../../Backend/Comprobantes/useDetalleComprobante";
 import { CajaIcono } from "../../../../assets/Icons";
-import { getPrecio } from "../../Ventas/Comprobantes/utils/fiscal.utils";
+import { getPrecio } from "../../../../Backend/Comprobantes/fiscal.utils";
 import SelectorArticuloModal from "./SelectorArticuloModal";
 import CarritoDetalle from "./CarritoDetalle";
 import DetallePago from "./DetallePago";
 
-const BuscadorDetalle = ({ tipoOperacion }) => {
+const BuscadorDetalle = ({
+  tipoOperacion,
+  detalle,
+  pagos,
+  setPagos,
+  vueltos,
+  setVueltos,
+  codigoTipoComprobante,
+  montoPreCargado = null,
+  montosSugeridos = [],
+  otrosTributos = 0,
+  setOtrosTributos,
+}) => {
   const {
     tipoDetalle,
     setTipoDetalle,
@@ -20,14 +31,21 @@ const BuscadorDetalle = ({ tipoOperacion }) => {
     actualizarCantidadItem,
     actualizarPrecioItem,
     actualizarTasaIvaItem,
+    actualizarTipoFiscalItem,
     quitarItem,
     subtotalSinIva,
     totalIva,
     totalGeneral,
-  } = useDetalleComprobante(tipoOperacion);
+  } = detalle;
 
-  // Estado local para controlar el modal
   const [isOpen, setIsOpen] = useState(false);
+  const precioUnitarioInicial = montoPreCargado > 0 ? montoPreCargado : '';
+
+  const totalRecargo = pagos.reduce((sum, p) => {
+    const r = parseFloat(p.datosTarjeta?.recargo) || 0;
+    if (r <= 0) return sum;
+    return sum + p.monto - p.monto / (1 + r / 100);
+  }, 0);
 
   return (
     <>
@@ -55,7 +73,7 @@ const BuscadorDetalle = ({ tipoOperacion }) => {
             onClick={() => setTipoDetalle("CUENTA_CONTABLE")}
             className={`flex-1 py-2 rounded-md text-md font-semibold uppercase tracking-wider transition-all ${tipoDetalle === "CUENTA_CONTABLE" ? "bg-white text-gray-900 shadow-sm border border-gray-200/50" : "text-gray-500 hover:text-gray-850 hover:bg-gray-105/50"}`}
           >
-            Cuenta Contable
+            Servicios
           </button>
         </div>
       </div>
@@ -73,22 +91,34 @@ const BuscadorDetalle = ({ tipoOperacion }) => {
         </button>
       </div>
 
-      {/* CARRITO: lo que ya se agregó, editable, con sus 3 totales */}
+      {/* CARRITO */}
       <CarritoDetalle
         items={items}
         actualizarCantidadItem={actualizarCantidadItem}
         actualizarPrecioItem={actualizarPrecioItem}
         actualizarTasaIvaItem={actualizarTasaIvaItem}
+        actualizarTipoFiscalItem={actualizarTipoFiscalItem}
         quitarItem={quitarItem}
         subtotalSinIva={subtotalSinIva}
         totalIva={totalIva}
         totalGeneral={totalGeneral}
+        totalRecargo={totalRecargo}
+        codigoTipoComprobante={codigoTipoComprobante}
+        otrosTributos={otrosTributos}
+        setOtrosTributos={setOtrosTributos}
       />
 
-      {/* PAGO: métodos de pago + vuelto */}
-      <DetallePago totalComprobante={totalGeneral} tipoOperacion={tipoOperacion} />
+      {/* PAGO */}
+      <DetallePago
+        totalComprobante={totalGeneral}
+        tipoOperacion={tipoOperacion}
+        pagos={pagos}
+        setPagos={setPagos}
+        vueltos={vueltos}
+        setVueltos={setVueltos}
+      />
 
-      {/* MODAL: uno solo, se adapta a Producto / Materia Prima / Cuenta Contable */}
+      {/* MODAL */}
       <SelectorArticuloModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
@@ -100,6 +130,8 @@ const BuscadorDetalle = ({ tipoOperacion }) => {
         agregarItem={agregarItem}
         getPrecio={getPrecio}
         columnaPrecioSeleccionada={columnaPrecioSeleccionada}
+        montoPreCargado={precioUnitarioInicial}
+        montosSugeridos={montosSugeridos}
       />
     </>
   );

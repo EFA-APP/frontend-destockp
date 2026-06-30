@@ -73,10 +73,12 @@ const DashboardContactos = () => {
         </div>
       </EncabezadoSeccion>
 
-      <div className="flex-1 flex flex-col gap-4 overflow-hidden">
-        {/* SISTEMA DE TABS HORIZONTAL PREMIUM */}
+      <div className="flex-1 flex flex-col md:flex-row gap-4 overflow-hidden">
+        {/* BARRA LATERAL (ENTIDADES Y BOTÓN AGREGAR) */}
         {!modoAdmin && (
-          <div className="flex items-center gap-1 p-1 bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-lg shadow-inner overflow-x-auto no-scrollbar shrink-0">
+          <div className="w-full md:w-64 flex flex-col gap-4 p-4 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md shadow-sm shrink-0 overflow-y-auto custom-scrollbar">
+            <h3 className="text-[10px] font-black uppercase text-[var(--text-muted)] tracking-widest mt-2 mb-1 px-2">Categorías</h3>
+            <div className="flex flex-col gap-1">
             {cargandoEntidades ? (
               <div className="flex gap-2">
                 {[1, 2, 3].map((i) => (
@@ -97,23 +99,20 @@ const DashboardContactos = () => {
                       setFiltros((prev) => ({ ...prev, pagina: 1 }));
                     }}
                     className={`
-                      relative px-5 py-2.5 rounded-md text-[11px] font-black uppercase tracking-[0.1em] transition-all duration-300 flex items-center gap-2.5 cursor-pointer whitespace-nowrap
+                      w-full px-4 py-3 rounded-md text-[13px] font-bold tracking-wide transition-all duration-200 flex items-center gap-3 cursor-pointer
                       ${
                         isActive
-                          ? "text-[var(--text-primary)] bg-[var(--surface)] shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-[var(--border-subtle)]"
-                          : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface)]/50 border border-transparent"
+                          ? "text-[var(--primary)] bg-[var(--primary)]/10"
+                          : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--fill-secondary)]"
                       }
                     `}
                   >
-                    <div
-                      className="w-2 h-2 rounded-full shadow-sm"
-                      style={{ backgroundColor: ent.color || "var(--primary)" }}
-                    />
-                    <span className="relative z-10">{ent.nombre}</span>
+                    <span className="truncate">{ent.nombre}</span>
                   </button>
                 );
               })
             )}
+            </div>
           </div>
         )}
 

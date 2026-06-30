@@ -12,9 +12,9 @@ const Bienvenida = () => {
       <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-[var(--primary)]/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-purple-700/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-2xl w-full bg-[var(--surface)] border border-[var(--border-subtle)] rounded-3xl p-8 md:p-12 flex flex-col items-center text-center shadow-xl relative overflow-hidden backdrop-blur-md">
+      <div className="max-w-2xl w-full bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md p-8 md:p-12 flex flex-col items-center text-center shadow-xl relative overflow-hidden backdrop-blur-md">
         {/* Icono Principal */}
-        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[var(--primary)]/20 to-[var(--primary)]/5 text-[var(--primary)] flex items-center justify-center border border-[var(--primary)]/20 mb-6 shadow-xl -slow">
+        <div className="w-20 h-20 rounded-md bg-gradient-to-br from-[var(--primary)]/20 to-[var(--primary)]/5 text-[var(--primary)] flex items-center justify-center border border-[var(--primary)]/20 mb-6 shadow-xl -slow">
           <ShieldCheck size={40} strokeWidth={1.5} />
         </div>
 

@@ -1,0 +1,1642 @@
+import {
+  c as re,
+  j as e,
+  r,
+  C as he,
+  X as W,
+  g as fe,
+  a as ve,
+  k as je,
+  h as ke,
+  f as Ne,
+  u as ye,
+} from "./index-B40chGZJ.js";
+import { I as J } from "./InventarioIcono-a1KTnwdi.js";
+import { E as we } from "./EncabezadoSeccion-Bn8hRrTt.js";
+import { u as te } from "./useConfiguracionProducto.query-DixtZxYw.js";
+import { u as Ce } from "./usePersistentState-CXYf17y7.js";
+import { D as Se } from "./DataTable-C99iIqn_.js";
+import { M as Pe } from "./ModalConfirmacion-BAB4e7Oa.js";
+import { a as V } from "./accionesReutilizables-DSUsHYXg.js";
+import { A as Ie } from "./AdvertenciaIcono-BuiXXujO.js";
+import { P as Ee } from "./ProduccionIcono-N3ikQ4th.js";
+import { H as Me } from "./HistorialIcono-CSQMYL0z.js";
+import { u as Oe } from "./useContactos-BAAEKb2P.js";
+import { F as H, u as Q, w as _e, r as Ae } from "./xlsx-Dm0bbtPq.js";
+import { I as De } from "./producto.api-CJIIAdP0.js";
+import { M as ze } from "./ModalDetalleBase-CFRCXR5X.js";
+import { M as Re } from "./ModalDetalle-CYlGfd_c.js";
+import { G as Te } from "./GuardarIcono-X0HqXi-a.js";
+import { M as Ue } from "./MovimientoIcono-DVK9yKEJ.js";
+import { D as Fe } from "./download-C2Gy6888.js";
+import { C as qe } from "./circle-alert-BIsr8Ajl.js";
+import { P as se } from "./package-BL8JrPA5.js";
+import { r as Le } from "./index-DUIPri7x.js";
+import Be from "./ImportadorPrecios-B1NuWF1x.js";
+import { u as $e } from "./useMutation-BCSmbTcT.js";
+import { T as He } from "./trash-2-CCH-A7SX.js";
+import { D as Ge } from "./ModalActualizarStock-CokOLk7T.js";
+import { u as Ve } from "./useDepositoUI-C_Zchswj.js";
+import { T as L } from "./TieneAccion-ve4VSAZe.js";
+import { f as Qe, a as Xe } from "./formatters-BXXpA9fF.js";
+import { U as Ke } from "./user-BLGBJKFT.js";
+import { T as We } from "./trending-up-XFr-Hg5e.js";
+import { C as Je } from "./chevron-right-wQdY6gVA.js";
+import { C as Ye } from "./ContenedorSeccion-m2l3PnEr.js";
+import "./InicioIcono-fTjPqS2l.js";
+import "./VolverIcono-DKK8Rnlx.js";
+import "./BuscadorIcono-B01USmuw.js";
+import "./AgregarIcono-Db-BdXov.js";
+import "./FiltroIcono-qxTG_L65.js";
+import "./CajaIcono-Cm7hK_gS.js";
+import "./chevron-down-BDic3tFv.js";
+import "./loader-circle-6lDZKHs1.js";
+import "./BorrarIcono-BP3NznrB.js";
+import "./TablaConfiguracionIcono-BEIEPiTY.js";
+import "./EditarIcono-B9KJZdZ8.js";
+import "./OjosIcono-DKyTnfze.js";
+import "./building-2-BD2l287K.js";
+import "./search-C04IKVS4.js";
+import "./chevron-left-4rdnZnmi.js";
+import "./arrow-right-Dfxcx4DJ.js";
+import "./database-BZ_VcApS.js";
+import "./useDepositos.query-Ct2IhdGp.js";
+import "./arrow-left-right-DznYs-08.js";
+import "./trending-down-CXeTA8_q.js";
+import "./useCrearProducto.mutation-CBmuPtfT.js";
+const Ze = [
+    ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
+    ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }],
+  ],
+  ea = re("circle-check-big", Ze);
+const aa = [
+    ["path", { d: "M12 3v12", key: "1x0j5s" }],
+    ["path", { d: "m17 8-5-5-5 5", key: "7q97r8" }],
+    ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
+  ],
+  ra = re("upload", aa),
+  ta = [
+    {
+      key: "nombre",
+      etiqueta: "Producto",
+      filtrable: !0,
+      renderizar: (a, s) =>
+        e.jsxs("div", {
+          className: "py-2",
+          children: [
+            e.jsxs("div", {
+              className: "flex items-center gap-2",
+              children: [
+                e.jsx(J, { size: 14, className: "text-amber-700/50  " }),
+                e.jsx("div", {
+                  className:
+                    "font-extrabold text-[15px] text-[var(--text-primary)] leading-tight uppercase tracking-tight",
+                  children: a,
+                }),
+              ],
+            }),
+            e.jsxs("div", {
+              className: "flex items-center gap-1.5 mt-1",
+              children: [
+                e.jsx("span", {
+                  className:
+                    "text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--text-muted)] bg-[var(--surface-hover)] px-1.5 py-0.5 rounded border border-[var(--border-subtle)]",
+                  children: s.unidadMedida || "UND",
+                }),
+                s.descripcion &&
+                  e.jsxs("span", {
+                    className:
+                      "text-[12px] text-[var(--primary)] truncate max-w-[150px] font-medium opacity-70",
+                    children: ["• ", s.descripcion],
+                  }),
+              ],
+            }),
+          ],
+        }),
+    },
+    {
+      key: "stock",
+      etiqueta: "Stock",
+      filtrable: !1,
+      renderizar: (a, s) => {
+        const n = ((o) =>
+          o > 50
+            ? {
+                color: "text-emerald-700",
+                bg: "bg-emerald-700/10",
+                border: "border-emerald-700/20",
+                glow: "shadow-[0_0_15px_rgba(16,185,129,0.1)]",
+              }
+            : o > 20
+              ? {
+                  color: "text-amber-700",
+                  bg: "bg-amber-700/10",
+                  border: "border-amber-700/20",
+                  glow: "shadow-[0_0_15px_rgba(245,158,11,0.1)]",
+                }
+              : {
+                  color: "text-rose-700",
+                  bg: "bg-rose-700/10",
+                  border: "border-rose-700/20",
+                  glow: "shadow-[0_0_15px_rgba(244,63,94,0.1)]",
+                })(a || 0);
+        return e.jsxs("div", {
+          className: "py-2",
+          children: [
+            e.jsxs("div", {
+              className: `inline-flex items-center gap-2 px-3 py-1 rounded-md border backdrop-blur-md ${n.bg} ${n.color} ${n.border} ${n.glow}  `,
+              children: [
+                e.jsx("span", {
+                  className: "text-[14px] font-black tracking-tight",
+                  children: a || 0,
+                }),
+                e.jsx("span", {
+                  className:
+                    "text-[11px] font-bold uppercase tracking-widest opacity-80",
+                  children: s.unidadMedida,
+                }),
+              ],
+            }),
+            s.cantidadPorPaquete > 0 &&
+              e.jsxs("div", {
+                className:
+                  "mt-2 pl-1 border-l-2 border-[var(--border-subtle)] space-y-1",
+                children: [
+                  e.jsxs("div", {
+                    className:
+                      "flex items-center gap-1.5 text-[12px] text-[var(--text-muted)] font-bold italic opacity-80",
+                    children: [
+                      e.jsx("div", {
+                        className: "w-1 h-1 rounded-full bg-amber-700/40",
+                      }),
+                      "Packs:",
+                      " ",
+                      e.jsxs("span", {
+                        className: "text-black",
+                        children: [
+                          e.jsx("span", {
+                            className: "text-amber-700",
+                            children: s.cantidadDePaquetesActuales,
+                          }),
+                          " ",
+                          "de",
+                          " ",
+                          e.jsx("span", {
+                            className: "text-amber-700",
+                            children: s.cantidadPorPaquete,
+                          }),
+                          " ",
+                          "und.",
+                        ],
+                      }),
+                    ],
+                  }),
+                  s.cantidadSobrante > 0 &&
+                    e.jsxs("div", {
+                      className:
+                        "flex items-center gap-1.5 text-[12px] text-amber-700/70 font-bold italic",
+                      children: [
+                        e.jsx("div", {
+                          className: "w-1 h-1 rounded-full bg-amber-700/60 ",
+                        }),
+                        e.jsx("span", {
+                          className: "text-[var(--text-muted)] ",
+                          children: "Sobrante:",
+                        }),
+                        " ",
+                        e.jsxs("span", {
+                          children: [s.cantidadSobrante, " und."],
+                        }),
+                      ],
+                    }),
+                ],
+              }),
+          ],
+        });
+      },
+    },
+  ],
+  sa = ({
+    handleEditarClick: a,
+    handleEliminarClick: s,
+    handleDuplicarClick: c,
+    handleAgregarImagen: n,
+    tieneAccion: o,
+  }) => [
+    ...(o("EDITAR_PRODUCTO") ? [{ ...V.editar, onClick: (p) => a(p) }] : []),
+    ...(o("CARGAR_IMAGEN_PRODUCTO")
+      ? [{ ...V.agregarImagen, onClick: (p) => n(p) }]
+      : []),
+    ...(o("DUPLICAR_PRODUCTO")
+      ? [{ ...V.duplicar, onClick: (p) => c(p) }]
+      : []),
+    ...(o("ELIMINAR_PRODUCTO")
+      ? [{ ...V.eliminar, onClick: (p) => s(p.codigoSecuencial, p.nombre) }]
+      : []),
+  ],
+  oa = ({ open: a, onClose: s, onExito: c }) => {
+    const [n, o] = r.useState([]),
+      [p, i] = r.useState(!1),
+      [x, v] = r.useState(null),
+      { data: f } = te({ enabled: a }),
+      S = r.useMemo(() => (Array.isArray(f) ? f : []), [f]),
+      D = () => {
+        let u = [];
+        (S.length > 0
+          ? (u = ["Nombre (Obligatorio)", "Descripción", "Stock Total"])
+          : (u = [
+              "Nombre (Obligatorio)",
+              "Descripción",
+              "Unidad Medida (PAQUETE/FRASCO)",
+              "Cant. Paquetes",
+              "Cant. x Paquete",
+              "Sobran",
+              "Stock Total",
+            ]),
+          S.forEach((g) => {
+            u.push(g.nombreCampo + (g.requerido ? " (Obligatorio)" : ""));
+          }));
+        const I = Q.aoa_to_sheet([u]),
+          l = Q.book_new();
+        (Q.book_append_sheet(l, I, "Plantilla"),
+          _e(l, "plantilla_carga_masiva_productos.xlsx"));
+      },
+      M = (u) => {
+        const I = u.target.files[0];
+        if (!I) return;
+        const l = new FileReader();
+        ((l.onload = (g) => {
+          const j = g.target.result,
+            q = Ae(j, { type: "binary" }),
+            N = q.SheetNames[0],
+            T = q.Sheets[N],
+            k = Q.sheet_to_json(T, { header: 1 });
+          if (k.length <= 1) {
+            v("El archivo está vacío o no tiene encabezados.");
+            return;
+          }
+          const y = k.slice(1),
+            w = S.length > 0,
+            z = y
+              .map((b) => {
+                const d = {};
+                return (
+                  w
+                    ? ((d.nombre = b[0]),
+                      (d.descripcion = b[1]),
+                      (d.stock = parseFloat(b[2]) || 0),
+                      (d.unidadMedida = "PAQUETE"),
+                      (d.cantidadDepaquetesActuales = 0),
+                      (d.cantidadPorPaquete = 0),
+                      (d.cantidadSobrante = 0),
+                      (d.atributos = {}),
+                      S.forEach((R, _) => {
+                        const U = 3 + _;
+                        b[U] !== void 0 && (d.atributos[R.claveCampo] = b[U]);
+                      }))
+                    : ((d.nombre = b[0]),
+                      (d.descripcion = b[1]),
+                      (d.unidadMedida =
+                        b[2] === "FRASCO" ? "FRASCO" : "PAQUETE"),
+                      (d.cantidadDepaquetesActuales = parseFloat(b[3]) || 0),
+                      (d.cantidadPorPaquete = parseFloat(b[4]) || 0),
+                      (d.cantidadSobrante = parseFloat(b[5]) || 0),
+                      (d.stock = parseFloat(b[6]) || 0),
+                      (d.atributos = {}),
+                      S.forEach((R, _) => {
+                        const U = 7 + _;
+                        b[U] !== void 0 && (d.atributos[R.claveCampo] = b[U]);
+                      })),
+                  d
+                );
+              })
+              .filter((b) => b.nombre);
+          (o(z), v(null));
+        }),
+          l.readAsBinaryString(I));
+      },
+      P = async () => {
+        if (!(n.length === 0 || p)) {
+          i(!0);
+          try {
+            (await De(n), c && c(), O());
+          } catch (u) {
+            (console.error("Error en carga masiva:", u),
+              v(
+                u.response?.data?.message ||
+                  "Error al procesar la carga masiva.",
+              ));
+          } finally {
+            i(!1);
+          }
+        }
+      },
+      O = () => {
+        (o([]), v(null), s());
+      },
+      B = e.jsxs("div", {
+        className: "space-y-6 py-2",
+        children: [
+          e.jsxs("div", {
+            className: "flex flex-wrap gap-4",
+            children: [
+              e.jsxs("button", {
+                onClick: D,
+                className:
+                  "flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-md text-emerald-400  group",
+                children: [
+                  e.jsx(Fe, {
+                    size: 20,
+                    className: "group-hover:-translate-y-1 ",
+                  }),
+                  e.jsxs("div", {
+                    className: "text-left",
+                    children: [
+                      e.jsx("div", {
+                        className:
+                          "text-xs font-black uppercase tracking-wider",
+                        children: "Descargar Plantilla",
+                      }),
+                      e.jsx("div", {
+                        className: "text-[12px] opacity-60",
+                        children: "Formato Excel (.xlsx)",
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              e.jsxs("label", {
+                className:
+                  "flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-md text-blue-400  cursor-pointer group",
+                children: [
+                  e.jsx(H, { size: 20, className: " " }),
+                  e.jsxs("div", {
+                    className: "text-left",
+                    children: [
+                      e.jsx("div", {
+                        className:
+                          "text-xs font-black uppercase tracking-wider",
+                        children: "Subir Archivo",
+                      }),
+                      e.jsx("div", {
+                        className: "text-[12px] opacity-60",
+                        children: "Seleccionar Excel completado",
+                      }),
+                    ],
+                  }),
+                  e.jsx("input", {
+                    type: "file",
+                    accept: ".xlsx, .xls",
+                    className: "hidden",
+                    onChange: M,
+                  }),
+                ],
+              }),
+            ],
+          }),
+          x &&
+            e.jsxs("div", {
+              className:
+                "bg-rose-500/10 border border-rose-500/20 rounded-md p-4 flex items-center gap-3 text-rose-400 text-xs font-bold   ",
+              children: [e.jsx(qe, { size: 18 }), x],
+            }),
+          e.jsxs("div", {
+            className: "space-y-3",
+            children: [
+              e.jsxs("div", {
+                className: "flex items-center justify-between px-1",
+                children: [
+                  e.jsx("label", {
+                    className:
+                      "text-[13px] font-bold text-black/50 uppercase tracking-widest",
+                    children: "Previsualización de Datos",
+                  }),
+                  e.jsxs("span", {
+                    className:
+                      "text-[12px] font-black text-amber-500 uppercase",
+                    children: [n.length, " productos detectados"],
+                  }),
+                ],
+              }),
+              e.jsx("div", {
+                className:
+                  "space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar",
+                children:
+                  n.length === 0
+                    ? e.jsxs("div", {
+                        className:
+                          "flex flex-col items-center justify-center py-12 text-black/10 border-2 border-dashed border-black/5 rounded-md",
+                        children: [
+                          e.jsx(H, {
+                            size: 48,
+                            strokeWidth: 1,
+                            className: "mb-4 opacity-10",
+                          }),
+                          e.jsx("p", {
+                            className:
+                              "text-sm font-bold uppercase tracking-widest",
+                            children: "No hay datos para mostrar",
+                          }),
+                          e.jsx("p", {
+                            className:
+                              "text-[12px] uppercase tracking-[0.2em] mt-1",
+                            children: "Sube un archivo para comenzar",
+                          }),
+                        ],
+                      })
+                    : n.map((u, I) =>
+                        e.jsxs(
+                          "div",
+                          {
+                            className:
+                              "flex items-center gap-4 bg-black/5 p-4 rounded-md border border-black/10 hover:bg-white/[0.08]   ",
+                            children: [
+                              e.jsx("div", {
+                                className:
+                                  "w-10 h-10 rounded-md bg-amber-500/10 flex items-center justify-center border border-amber-500/20 shrink-0",
+                                children: e.jsx(se, {
+                                  size: 20,
+                                  className: "text-amber-500",
+                                }),
+                              }),
+                              e.jsxs("div", {
+                                className: "flex-1 min-w-0",
+                                children: [
+                                  e.jsx("div", {
+                                    className:
+                                      "text-sm font-bold text-black truncate",
+                                    children: u.nombre,
+                                  }),
+                                  e.jsxs("div", {
+                                    className:
+                                      "flex items-center gap-2 mt-0.5 overflow-hidden",
+                                    children: [
+                                      e.jsx("span", {
+                                        className:
+                                          "text-[12px] text-black/40 uppercase font-black",
+                                        children: u.unidadMedida,
+                                      }),
+                                      e.jsx("span", {
+                                        className: "text-[12px] text-black/20",
+                                        children: "•",
+                                      }),
+                                      e.jsxs("span", {
+                                        className:
+                                          "text-[12px] text-amber-500/70 font-bold whitespace-nowrap",
+                                        children: ["Stock: ", u.stock],
+                                      }),
+                                      Object.keys(u.atributos).length > 0 &&
+                                        e.jsxs(e.Fragment, {
+                                          children: [
+                                            e.jsx("span", {
+                                              className:
+                                                "text-[12px] text-black/20",
+                                              children: "•",
+                                            }),
+                                            e.jsxs("span", {
+                                              className:
+                                                "text-[12px] text-emerald-500/70 font-bold truncate",
+                                              children: [
+                                                "+",
+                                                Object.keys(u.atributos).length,
+                                                " campos",
+                                              ],
+                                            }),
+                                          ],
+                                        }),
+                                    ],
+                                  }),
+                                ],
+                              }),
+                              e.jsx(he, {
+                                size: 18,
+                                className: "text-emerald-500/40",
+                              }),
+                            ],
+                          },
+                          I,
+                        ),
+                      ),
+              }),
+            ],
+          }),
+        ],
+      }),
+      $ = e.jsxs("div", {
+        className: "flex items-center justify-between w-full",
+        children: [
+          e.jsx("button", {
+            onClick: O,
+            className:
+              "px-6 py-2.5 text-xs font-black text-black/60 hover:text-black uppercase tracking-widest ",
+            children: "Cancelar",
+          }),
+          e.jsxs("button", {
+            onClick: P,
+            disabled: n.length === 0 || p,
+            className:
+              "flex items-center gap-3 px-8 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed text-black rounded-md font-black text-[13px] uppercase tracking-widest  shadow-xl shadow-amber-500/20 active:scale-95",
+            children: [
+              p
+                ? e.jsx("div", {
+                    className:
+                      "w-4 h-4 border-2 border-white/30 border-t-white rounded-full ",
+                  })
+                : e.jsx(Te, { size: 16 }),
+              p ? "Importando..." : "Realizar Carga Masiva",
+            ],
+          }),
+        ],
+      });
+    return e.jsx(ze, {
+      open: a,
+      onClose: O,
+      width: "max-w-2xl",
+      children: e.jsx(Re, {
+        title: "Carga Masiva de Productos",
+        icon: e.jsx(Ue, { size: 20 }),
+        onClose: O,
+        footer: $,
+        children: B,
+      }),
+    });
+  },
+  na = ({ open: a, onClose: s, onExito: c }) =>
+    a
+      ? Le.createPortal(
+          e.jsxs("div", {
+            className:
+              "fixed inset-0 z-[1000] flex items-center justify-center p-4 overflow-y-auto",
+            children: [
+              e.jsx("div", {
+                className: "absolute inset-0 bg-gray-950/60 backdrop-blur-sm",
+                onClick: s,
+              }),
+              e.jsxs("div", {
+                className:
+                  "relative w-full max-w-4xl bg-white rounded-md shadow-2xl border border-gray-100 flex flex-col my-8 max-h-[90vh] md:max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-300",
+                children: [
+                  e.jsxs("div", {
+                    className:
+                      "p-5 border-b border-gray-100 flex justify-between items-center bg-[#f8fafc] shrink-0",
+                    children: [
+                      e.jsxs("div", {
+                        className: "flex items-center gap-2.5",
+                        children: [
+                          e.jsx("div", {
+                            className:
+                              "w-8 h-8 rounded-md bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center font-black",
+                            children: e.jsx(H, { size: 18 }),
+                          }),
+                          e.jsx("h2", {
+                            className:
+                              "text-lg font-black text-gray-900 uppercase tracking-tight",
+                            children: "Importador de Precios",
+                          }),
+                          e.jsx("span", {
+                            className:
+                              "text-[10px] font-black bg-[var(--primary)]/20 text-[var(--primary)] px-2 py-0.5 rounded uppercase tracking-widest border border-[var(--primary)]/30",
+                            children: "PRO",
+                          }),
+                        ],
+                      }),
+                      e.jsx("button", {
+                        onClick: s,
+                        className:
+                          "w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-rose-50 text-gray-400 hover:text-rose-500 rounded-full transition-all group",
+                        children: e.jsx(W, {
+                          size: 18,
+                          className:
+                            "group-hover:rotate-90 transition-transform duration-300",
+                        }),
+                      }),
+                    ],
+                  }),
+                  e.jsx("div", {
+                    className: "flex-1 overflow-y-auto custom-scrollbar p-6",
+                    children: e.jsx(Be, { onExito: c, onClose: s }),
+                  }),
+                ],
+              }),
+            ],
+          }),
+          document.body,
+        )
+      : null,
+  ia = async ({ codigoSecuencial: a, imagen: s }) => {
+    const { data: c } = await ve.patch(
+      `/producto/cargar-imagen?codigoSecuencial=${a}`,
+      { imagen: s },
+    );
+    return c;
+  },
+  ca = () => {
+    const a = fe();
+    return $e({
+      mutationFn: ia,
+      onSuccess: () => {
+        a.invalidateQueries({ queryKey: ["depositosConStock"] });
+      },
+    });
+  },
+  la = ({ isOpen: a, onClose: s, producto: c }) => {
+    const [n, o] = r.useState(null),
+      [p, i] = r.useState(c?.imagen || null),
+      [x, v] = r.useState(null),
+      f = r.useRef(null),
+      { mutate: S, isPending: D } = ca(),
+      { agregarAlerta: M } = je(),
+      P = 5 * 1024 * 1024;
+    if (!a) return null;
+    const O = (l) =>
+        new Promise((g) => {
+          const j = new FileReader();
+          (j.readAsDataURL(l),
+            (j.onload = (q) => {
+              const N = new Image();
+              ((N.src = q.target.result),
+                (N.onload = () => {
+                  const T = document.createElement("canvas");
+                  let k = N.width,
+                    y = N.height;
+                  const w = 1200,
+                    z = 1200;
+                  (k > y
+                    ? k > w && ((y *= w / k), (k = w))
+                    : y > z && ((k *= z / y), (y = z)),
+                    (T.width = k),
+                    (T.height = y),
+                    T.getContext("2d").drawImage(N, 0, 0, k, y));
+                  const d = T.toDataURL("image/jpeg", 0.7);
+                  g(d);
+                }));
+            }));
+        }),
+      B = async (l) => {
+        const g = l.target.files[0];
+        if (g) {
+          v(g.size);
+          const j = await O(g);
+          (o(j), i(j));
+        }
+      },
+      $ = (l) =>
+        l < 1024
+          ? l + " bytes"
+          : l < 1024 * 1024
+            ? (l / 1024).toFixed(2) + " KB"
+            : (l / (1024 * 1024)).toFixed(2) + " MB",
+      u = () => {
+        if (!n) {
+          M({ message: "Selecciona una imagen primero", type: "warning" });
+          return;
+        }
+        if (x > P) {
+          M({
+            message: "La imagen supera el límite permitido de 5MB",
+            type: "error",
+          });
+          return;
+        }
+        S(
+          {
+            codigoEmpresa: c.codigoEmpresa,
+            codigoSecuencial: c.codigoSecuencial,
+            imagen: n,
+          },
+          {
+            onSuccess: () => {
+              (M({
+                message: "Imagen actualizada correctamente",
+                type: "success",
+              }),
+                s());
+            },
+            onError: (l) => {
+              const g = l.response?.data,
+                j =
+                  typeof g?.message == "object"
+                    ? g.message.message
+                    : g?.message || l.message;
+              j?.includes("MAX_PAYLOAD_EXCEEDED") || j?.includes("too large")
+                ? M({
+                    message:
+                      "La imagen es demasiado pesada para el servidor. Por favor, intenta con una imagen de menor resolución o más comprimida.",
+                    type: "error",
+                  })
+                : M({
+                    message: "Error al cargar la imagen: " + j,
+                    type: "error",
+                  });
+            },
+          },
+        );
+      },
+      I = () => {
+        (o(null), i(null), f.current && (f.current.value = ""));
+      };
+    return e.jsx("div", {
+      className:
+        "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300",
+      children: e.jsxs("div", {
+        className:
+          "bg-white w-full max-w-md rounded-md shadow-2xl overflow-hidden border border-black/5 animate-in zoom-in-95 duration-300",
+        children: [
+          e.jsxs("div", {
+            className:
+              "bg-indigo-700 p-6 text-white flex justify-between items-center",
+            children: [
+              e.jsxs("div", {
+                children: [
+                  e.jsx("h2", {
+                    className:
+                      "text-xl font-black uppercase tracking-tighter leading-none mb-1",
+                    children: "Imagen del Producto",
+                  }),
+                  e.jsx("p", {
+                    className:
+                      "text-[10px] font-bold opacity-60 uppercase tracking-widest",
+                    children: c?.nombre,
+                  }),
+                ],
+              }),
+              e.jsx("button", {
+                onClick: s,
+                className:
+                  "w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors",
+                children: e.jsx(W, { size: 18 }),
+              }),
+            ],
+          }),
+          e.jsxs("div", {
+            className: "p-8",
+            children: [
+              e.jsx("div", {
+                onClick: () => f.current?.click(),
+                className: `relative w-full aspect-square rounded-md border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all overflow-hidden
+              ${p ? "border-indigo-500 bg-indigo-50" : "border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-indigo-300"}`,
+                children: p
+                  ? e.jsxs(e.Fragment, {
+                      children: [
+                        e.jsx("img", {
+                          src: p,
+                          alt: "Preview",
+                          className: "w-full h-full object-cover",
+                        }),
+                        e.jsx("div", {
+                          className:
+                            "absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity",
+                          children: e.jsx("p", {
+                            className:
+                              "text-white font-black text-xs uppercase",
+                            children: "Cambiar Imagen",
+                          }),
+                        }),
+                      ],
+                    })
+                  : e.jsxs(e.Fragment, {
+                      children: [
+                        e.jsx("div", {
+                          className:
+                            "w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4",
+                          children: e.jsx(ra, { size: 32 }),
+                        }),
+                        e.jsx("p", {
+                          className:
+                            "text-sm font-bold text-gray-500 uppercase tracking-tighter",
+                          children: "Haz clic para subir",
+                        }),
+                        e.jsx("p", {
+                          className: "text-[10px] text-gray-400 mt-2",
+                          children: "JPG, PNG o WEBP (Máx 5MB)",
+                        }),
+                      ],
+                    }),
+              }),
+              e.jsx("input", {
+                type: "file",
+                ref: f,
+                onChange: B,
+                accept: "image/*",
+                className: "hidden",
+              }),
+              p &&
+                e.jsxs("div", {
+                  className: "mt-4 space-y-2",
+                  children: [
+                    e.jsxs("div", {
+                      className: `flex items-center justify-between px-3 py-2 rounded-md border ${x > P ? "bg-red-50 border-red-200 text-red-600" : "bg-gray-50 border-gray-100 text-gray-500"}`,
+                      children: [
+                        e.jsx("span", {
+                          className:
+                            "text-[10px] font-bold uppercase tracking-tight",
+                          children: "Tamaño del archivo:",
+                        }),
+                        e.jsx("span", {
+                          className: `text-xs font-black ${x > P ? "text-red-600" : "text-indigo-600"}`,
+                          children: $(x),
+                        }),
+                      ],
+                    }),
+                    x > P &&
+                      e.jsx("p", {
+                        className:
+                          "text-[10px] font-bold text-red-500 uppercase tracking-tighter text-center animate-pulse",
+                        children: "⚠️ El archivo es demasiado pesado (Máx 5MB)",
+                      }),
+                    e.jsxs("button", {
+                      onClick: I,
+                      className:
+                        "w-full py-2 flex items-center justify-center gap-2 text-red-400 text-[10px] font-black uppercase tracking-widest hover:text-red-600 transition-colors",
+                      children: [e.jsx(He, { size: 14 }), " Quitar Imagen"],
+                    }),
+                  ],
+                }),
+            ],
+          }),
+          e.jsxs("div", {
+            className: "p-6 bg-gray-50 border-t border-gray-100 flex gap-3",
+            children: [
+              e.jsx("button", {
+                onClick: s,
+                className:
+                  "flex-1 h-12 rounded-md font-black uppercase text-xs tracking-widest text-gray-400 hover:bg-gray-200 transition-colors",
+                children: "Cancelar",
+              }),
+              e.jsx("button", {
+                onClick: u,
+                disabled: D || !n || x > P,
+                className: `flex-1 h-12 rounded-md font-black uppercase text-xs tracking-widest flex items-center justify-center gap-2 transition-all
+              ${D || !n || x > P ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 hover:scale-[1.02] active:scale-95"}`,
+                children: D
+                  ? e.jsx("div", {
+                      className:
+                        "w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin",
+                    })
+                  : e.jsxs(e.Fragment, {
+                      children: [e.jsx(ea, { size: 18 }), " Guardar"],
+                    }),
+              }),
+            ],
+          }),
+        ],
+      }),
+    });
+  },
+  da = () => {
+    const a = ke(),
+      { tieneAccion: s } = Ne();
+    ye((t) => t.unidadActiva);
+    const [c, n] = r.useState({
+        pagina: 1,
+        limite: 10,
+        tipoArticulo: "PRODUCTO",
+      }),
+      [o, p] = Ce("productos_busqueda_input", ""),
+      [i, x] = r.useState(null),
+      [v, f] = r.useState(""),
+      [S, D] = r.useState(!1);
+    r.useEffect(() => {
+      const t = setTimeout(() => {
+        n((h) => {
+          const m = { ...h, pagina: 1 };
+          return (
+            delete m.buscarPorNombre,
+            delete m.buscarPorCodigo,
+            delete m.buscarPorGeneral,
+            delete m.filtrosAtributos,
+            o && (m.buscarPorGeneral = o),
+            i &&
+              (m.filtrosAtributos = JSON.stringify({
+                codigoProveedor: Number(i.codigoSecuencial),
+              })),
+            m
+          );
+        });
+      }, 500);
+      return () => clearTimeout(t);
+    }, [o, i]);
+    const {
+        matrizStock: M,
+        meta: P,
+        eliminarProducto: O,
+        cargandoStock: B,
+        estaEliminandoProducto: $,
+        refetch: u,
+        dataDepositosRaw: I,
+      } = Ve(c),
+      l = M,
+      [g, j] = r.useState({ isOpen: !1, fila: null }),
+      q = r.useRef(null),
+      [N, T] = r.useState(0),
+      [k, y] = r.useState(0),
+      w = 380,
+      z = 3,
+      b = r.useCallback((t) => {
+        j({ isOpen: !0, fila: t });
+      }, []),
+      d = r.useCallback(() => {
+        j({ isOpen: !1, fila: null });
+      }, []),
+      { data: R } = te(),
+      _ = r.useMemo(() => (Array.isArray(R) ? R : []), [R]),
+      U = !!R,
+      oe = r.useMemo(() => {
+        const t = ta.map((m) =>
+            m.key === "nombre" && _.length > 0
+              ? {
+                  ...m,
+                  renderizar: (E, C) =>
+                    e.jsx("div", {
+                      className: "py-2",
+                      children: e.jsxs("div", {
+                        className: "flex items-center gap-3",
+                        children: [
+                          C.imagen
+                            ? e.jsx("div", {
+                                className:
+                                  "w-10 h-10 rounded-md overflow-hidden border border-black/5 shadow-sm shrink-0",
+                                children: e.jsx("img", {
+                                  src: C.imagen,
+                                  alt: E,
+                                  className: "w-full h-full object-cover",
+                                }),
+                              })
+                            : e.jsx("div", {
+                                className:
+                                  "w-10 h-10 rounded-md bg-amber-700/5 border border-amber-700/10 flex items-center justify-center shrink-0",
+                                children: e.jsx(J, {
+                                  size: 18,
+                                  className: "text-amber-700/30",
+                                }),
+                              }),
+                          e.jsxs("div", {
+                            children: [
+                              e.jsx("div", {
+                                className:
+                                  "font-extrabold text-[15px] text-[var(--text-primary)] leading-tight uppercase tracking-tight ",
+                                children: E,
+                              }),
+                              C.descripcion &&
+                                e.jsx("div", {
+                                  className: "flex items-center gap-1.5 mt-1",
+                                  children: e.jsxs("span", {
+                                    className:
+                                      "text-[12px] text-[var(--primary)] truncate font-medium opacity-70",
+                                    children: ["• ", C.descripcion],
+                                  }),
+                                }),
+                            ],
+                          }),
+                        ],
+                      }),
+                    }),
+                }
+              : m.key === "stock"
+                ? {
+                    ...m,
+                    renderizar: (E, C) => {
+                      const F = ((ae) =>
+                        ae > 50
+                          ? {
+                              color: "text-emerald-700",
+                              bg: "bg-emerald-700/10",
+                              border: "border-emerald-700/20",
+                              glow: "shadow-[0_0_15px_rgba(16,185,129,0.1)]",
+                            }
+                          : ae > 20
+                            ? {
+                                color: "text-amber-700",
+                                bg: "bg-amber-700/10",
+                                border: "border-amber-700/20",
+                                glow: "shadow-[0_0_15px_rgba(245,158,11,0.1)]",
+                              }
+                            : {
+                                color: "text-rose-700",
+                                bg: "bg-rose-700/10",
+                                border: "border-rose-700/20",
+                                glow: "shadow-[0_0_15px_rgba(244,63,94,0.1)]",
+                              })(E || 0);
+                      return e.jsx("div", {
+                        className: "py-2",
+                        children: e.jsx("div", {
+                          onClick: () => b(C),
+                          className: `inline-flex items-center gap-2 px-3 py-1 rounded-md border backdrop-blur-md cursor-pointer hover:scale-105 active:scale-95 ${F.bg} ${F.color} ${F.border} ${F.glow}  `,
+                          children: e.jsx("span", {
+                            className: "text-[14px] font-black tracking-tight",
+                            children: E,
+                          }),
+                        }),
+                      });
+                    },
+                  }
+                : m,
+          ),
+          h = _.map((m) => ({
+            key: m.claveCampo,
+            etiqueta: m.nombreCampo,
+            filtrable: !0,
+            renderizar: (E, C) => {
+              const A = C.atributos?.[m.claveCampo] ?? C[m.claveCampo];
+              return m.claveCampo?.toLowerCase().includes("precioventa") &&
+                A !== null &&
+                A !== void 0
+                ? e.jsx("div", {
+                    className:
+                      "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-700/10 border border-emerald-700/20 text-emerald-700 font-black text-[14px] shadow-sm",
+                    children: Qe(A),
+                  })
+                : e.jsx("div", {
+                    className:
+                      "text-[14px] text-[var(--text-secondary)] font-bold tracking-tight",
+                    children: A === !0 ? "SÍ" : A === !1 ? "NO" : Xe(A) || "-",
+                  });
+            },
+          }));
+        return [...t, ...h];
+      }, [_]),
+      [G, X] = r.useState({ open: !1, codigo: null, nombre: "" }),
+      [ne, Y] = r.useState(!1),
+      [ie, K] = r.useState(!1),
+      [Z, ee] = r.useState({ open: !1, producto: null });
+    (r.useEffect(() => {
+      const t = q.current;
+      if (!t) return;
+      const h = () => y(t.clientHeight || 0);
+      return (
+        h(),
+        window.addEventListener("resize", h),
+        () => window.removeEventListener("resize", h)
+      );
+    }, []),
+      r.useMemo(() => {
+        const t = l.length;
+        if (t === 0)
+          return {
+            startIndex: 0,
+            endIndex: 0,
+            topSpacer: 0,
+            bottomSpacer: 0,
+            visible: [],
+          };
+        const h = k || w * 2,
+          m = Math.max(0, Math.floor(N / w) - z),
+          E = Math.min(t, Math.ceil((N + h) / w) + z),
+          C = m * w,
+          A = Math.max(0, (t - E) * w),
+          F = l.slice(m, E);
+        return {
+          startIndex: m,
+          endIndex: E,
+          topSpacer: C,
+          bottomSpacer: A,
+          visible: F,
+        };
+      }, [l, N, k]));
+    const ce = r.useCallback((t, h) => {
+        X({ open: !0, codigo: t, nombre: h });
+      }, []),
+      le = r.useCallback(
+        (t) => {
+          const { codigoSecuencial: h } = t;
+          a(`/panel/inventario/productos/${h}/editar`, {
+            state: { producto: t },
+          });
+        },
+        [a],
+      ),
+      de = r.useCallback((t) => {
+        ee({ open: !0, producto: t });
+      }, []),
+      me = r.useCallback(
+        (t) => {
+          a("/panel/inventario/productos/nuevo", { state: { producto: t } });
+        },
+        [a],
+      ),
+      pe = r.useCallback(async () => {
+        try {
+          (await O(G.codigo), X({ open: !1, codigo: null, nombre: "" }));
+        } catch (t) {
+          console.error("Error al eliminar:", t);
+        }
+      }, [O, G.codigo]),
+      xe = r.useCallback(() => {
+        a("/panel/inventario/historial-stock/PRODUCTO");
+      }, [a]),
+      ue = r.useCallback(() => {
+        a("/panel/inventario/produccion/nueva");
+      }, [a]),
+      be = r.useCallback(() => {
+        K(!0);
+      }, []),
+      ge = r.useCallback(() => {
+        Y(!0);
+      }, []);
+    return U && (!Array.isArray(_) || _.length === 0)
+      ? e.jsx("div", {
+          className:
+            "flex flex-col items-center justify-center min-h-[60vh] w-full ",
+          children: e.jsxs("div", {
+            className:
+              "max-w-lg w-full bg-[var(--fill)] border border-black/5 rounded-md p-10 text-center shadow-2xl relative overflow-hidden group",
+            children: [
+              e.jsx("div", {
+                className:
+                  "absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-[var(--primary)]/5 rounded-full blur-3xl group-hover:bg-[var(--primary)]/10  ",
+              }),
+              e.jsxs("div", {
+                className: "relative z-10",
+                children: [
+                  e.jsx("div", {
+                    className:
+                      "w-20 h-20 bg-yellow-500/10 rounded-md flex items-center justify-center mx-auto mb-6 border border-yellow-500/50 rotate-3 group-hover:rotate-6  ",
+                    children: e.jsx("div", {
+                      className: "text-yellow-600",
+                      children: e.jsx(Ie, { size: 35 }),
+                    }),
+                  }),
+                  e.jsxs("h2", {
+                    className:
+                      "text-3xl font-black text-black mb-4 tracking-tight leading-tight",
+                    children: [
+                      "¡Catálogo ",
+                      e.jsx("br", {}),
+                      " ",
+                      e.jsx("span", {
+                        className: "text-[var(--primary)] italic font-medium",
+                        children: "Requerido",
+                      }),
+                      "!",
+                    ],
+                  }),
+                  e.jsx("p", {
+                    className:
+                      "text-[var(--text-theme)]/80 text-sm leading-relaxed mb-10 max-w-[280px] mx-auto font-medium",
+                    children:
+                      "Es necesario que hables con el administrador del sistema para configurar los campos del producto.",
+                  }),
+                  e.jsx("div", {
+                    className: "flex justify-center items-center",
+                    children: e.jsx("button", {
+                      onClick: () => a("/panel"),
+                      className:
+                        "px-10 py-4 bg-[var(--primary)]/10 text-[var(--primary)]/90 font-bold uppercase tracking-[0.15em] text-xs rounded-md hover:bg-[var(--primary)]/20  border border-[var(--primary)]/80 hover:border-[var(--primary)]/10 w-full sm:w-max cursor-pointer",
+                      children: "Ir al Inicio",
+                    }),
+                  }),
+                ],
+              }),
+              e.jsx("div", {
+                className:
+                  "absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--primary)]/20 to-transparent",
+              }),
+            ],
+          }),
+        })
+      : e.jsxs("div", {
+          className: "space-y-6 ",
+          children: [
+            e.jsx(Pe, {
+              open: G.open,
+              onClose: () => X({ open: !1, codigo: null, nombre: "" }),
+              onConfirm: pe,
+              titulo: "Eliminar Producto",
+              mensaje: `¿Estás seguro de que deseas eliminar "${G.nombre}"? No aparecerá en el listado activo.`,
+              textoConfirmar: $ ? "Eliminando..." : "Eliminar",
+              textoCancelar: "Cancelar",
+              colorConfirmar: "bg-red-600!",
+            }),
+            e.jsx("div", {
+              className: "block",
+              children: e.jsx(Se, {
+                id_tabla: "productos",
+                llaveTituloMobile: "nombre",
+                columnas: oe,
+                datos: l,
+                loading: B,
+                meta: P,
+                onPageChange: (t) => n((h) => ({ ...h, pagina: t })),
+                onLimitChange: (t) =>
+                  n((h) => ({ ...h, limite: t, pagina: 1 })),
+                mostrarAcciones: !0,
+                acciones: sa({
+                  handleEditarClick: le,
+                  handleEliminarClick: ce,
+                  handleDuplicarClick: me,
+                  handleAgregarImagen: de,
+                  tieneAccion: s,
+                }),
+                botonAgregar: {
+                  texto: "Crear",
+                  ruta: "/panel/inventario/productos/nuevo",
+                  tieneAccion: "CREAR_PRODUCTO",
+                },
+                elementosSuperior: e.jsxs("div", {
+                  className:
+                    "flex flex-wrap items-center gap-2 w-full md:w-auto",
+                  children: [
+                    e.jsx(L, {
+                      accion: "HISTORIAL_PRODUCTO",
+                      children: e.jsxs("button", {
+                        onClick: xe,
+                        className:
+                          "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border border-[var(--primary)]/20 rounded-md text-[13px] font-bold text-[var(--primary)] uppercase tracking-wider  cursor-pointer shadow-lg shadow-amber-700/5 group",
+                        children: [
+                          e.jsx(Me, { size: 14, className: " " }),
+                          "Historial",
+                        ],
+                      }),
+                    }),
+                    e.jsx(L, {
+                      accion: "IMPORTAR_LISTA_PRODUCTO",
+                      children: e.jsxs("button", {
+                        onClick: be,
+                        className:
+                          "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-700/20 rounded-md text-[13px] font-bold text-blue-400 uppercase tracking-wider  cursor-pointer shadow-lg shadow-blue-700/5 group",
+                        children: [
+                          e.jsx(H, { size: 14, className: " " }),
+                          "Importar Lista",
+                        ],
+                      }),
+                    }),
+                    e.jsx(L, {
+                      accion: "PRODUCCION_PRODUCTO",
+                      children: e.jsxs("button", {
+                        onClick: ue,
+                        className:
+                          "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-purple-600/10 hover:bg-purple-600/20 border border-purple-700/20 rounded-md text-[13px] font-bold text-purple-400 uppercase tracking-wider  cursor-pointer shadow-lg shadow-purple-700/5 group",
+                        children: [
+                          e.jsx(Ee, {
+                            size: 14,
+                            className: "group-hover:rotate-12 ",
+                          }),
+                          "Producción",
+                        ],
+                      }),
+                    }),
+                    e.jsx(L, {
+                      accion: "CARGA_MASIVA_PRODUCTO",
+                      children: e.jsxs("button", {
+                        onClick: ge,
+                        className:
+                          "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-700/20 rounded-md text-[13px] font-bold text-emerald-400 uppercase tracking-wider  cursor-pointer shadow-lg shadow-emerald-700/5 group",
+                        children: [
+                          e.jsx(H, { size: 14, className: " " }),
+                          "Carga Masiva",
+                        ],
+                      }),
+                    }),
+                    e.jsx(L, {
+                      accion: "FILTRAR_POR_PROVEEDOR_PRODUCTO",
+                      children: e.jsx("div", {
+                        className: "relative",
+                        children: i
+                          ? e.jsxs("div", {
+                              className:
+                                "flex items-center gap-2 px-3 py-2 bg-amber-700/10 border border-amber-700/30 rounded-md shadow-lg shadow-amber-700/5  ",
+                              children: [
+                                e.jsx("div", {
+                                  className:
+                                    "w-5 h-5 rounded-full bg-amber-700 flex items-center justify-center text-[12px] font-black text-black",
+                                  children:
+                                    i.razonSocial?.[0]?.toUpperCase() || "P",
+                                }),
+                                e.jsx("span", {
+                                  className:
+                                    "text-[13px] font-black text-amber-700 uppercase max-w-[120px] truncate",
+                                  children:
+                                    i.razonSocial.toUpperCase() ||
+                                    i.nombre.toUpperCase() ||
+                                    i.apellido.toUpperCase() +
+                                      " " +
+                                      i.nombre.toUpperCase(),
+                                }),
+                                e.jsx("button", {
+                                  onClick: () => x(null),
+                                  className:
+                                    "p-1 hover:bg-amber-700/20 rounded-md text-amber-700  cursor-pointer",
+                                  children: e.jsx(W, { size: 12 }),
+                                }),
+                              ],
+                            })
+                          : e.jsxs("div", {
+                              className: "flex items-center gap-2",
+                              children: [
+                                e.jsxs("button", {
+                                  onClick: () => D(!S),
+                                  className:
+                                    "flex items-center gap-2 px-4 py-2 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold text-black/60 hover:bg-black/10  cursor-pointer group",
+                                  children: [
+                                    e.jsx(Ke, { size: 14, className: "" }),
+                                    "Filtrar Proveedor",
+                                  ],
+                                }),
+                                S &&
+                                  e.jsxs("div", {
+                                    className:
+                                      "absolute top-full left-0 mt-2 w-72 z-50 bg-[var(--fill)] border border-[var(--text-theme)] rounded-md shadow-2xl p-4   ",
+                                    children: [
+                                      e.jsx("input", {
+                                        autoFocus: !0,
+                                        type: "text",
+                                        placeholder: "Buscar proveedor...",
+                                        value: v,
+                                        onChange: (t) => f(t.target.value),
+                                        className:
+                                          "w-full bg-[var(--surface-hover)] border border-[var(--text-theme)] rounded-md px-3 py-2 text-xs text-black focus:outline-none focus:border-[var(--primary)]/50 placeholder:text-[var(--text-theme)]/70",
+                                      }),
+                                      e.jsx("div", {
+                                        className:
+                                          "mt-3 max-h-48 overflow-y-auto space-y-1 custom-scrollbar",
+                                        children: e.jsx(ma, {
+                                          busqueda: v,
+                                          onSeleccion: (t) => {
+                                            (x(t), D(!1), f(""));
+                                          },
+                                        }),
+                                      }),
+                                    ],
+                                  }),
+                              ],
+                            }),
+                      }),
+                    }),
+                  ],
+                }),
+                mostrarBuscador: !0,
+                busqueda: o,
+                setBusqueda: p,
+                placeholderBuscador: "Escribe para buscar...",
+              }),
+            }),
+            e.jsx(oa, {
+              open: ne,
+              onClose: () => Y(!1),
+              onExito: () => {
+                u();
+              },
+            }),
+            e.jsx(na, {
+              open: ie,
+              onClose: () => K(!1),
+              onExito: () => {
+                (u(), K(!1));
+              },
+            }),
+            e.jsx(L, {
+              accion: "EDITAR_STOCK_MANUAL",
+              children: e.jsx(Ge, {
+                isOpen: g.isOpen,
+                onClose: d,
+                fila: g.fila,
+                depositosRaw: I,
+                tipoArticulo: "PRODUCTO",
+              }),
+            }),
+            e.jsx(la, {
+              isOpen: Z.open,
+              onClose: () => ee({ open: !1, producto: null }),
+              producto: Z.producto,
+            }),
+          ],
+        });
+  };
+r.memo(
+  ({
+    prod: a,
+    idx: s,
+    camposDinamicos: c,
+    dataDepositosRaw: n,
+    onEditar: o,
+    onAbrirDrawer: p,
+  }) =>
+    e.jsxs("div", {
+      className:
+        "bg-[var(--fill)]rounded-md border border-black/10 overflow-hidden shadow-2xl flex flex-col    ",
+      style: { animationDelay: `${s * 50}ms` },
+      children: [
+        e.jsxs("div", {
+          className:
+            "p-4 bg-gradient-to-br from-white/[0.06] to-transparent border-b border-black/5 relative",
+          children: [
+            e.jsxs("div", {
+              className: "flex items-start justify-between gap-4 mb-2",
+              children: [
+                e.jsxs("div", {
+                  className: "flex flex-col gap-1 min-w-0",
+                  children: [
+                    e.jsxs("div", {
+                      className: "flex items-center gap-2",
+                      children: [
+                        e.jsxs("span", {
+                          className:
+                            "text-[11px] font-mono font-black text-[var(--primary)] px-1.5 py-0.5 bg-[var(--primary)]/10 rounded border border-[var(--primary)]/30 shadow-sm uppercase tracking-tighter",
+                          children: [
+                            "COD: ",
+                            a.codigoSecuencial?.toString().padStart(4, "0"),
+                          ],
+                        }),
+                        e.jsx("span", {
+                          className:
+                            "text-[11px] font-black text-black/60 uppercase tracking-widest bg-black/10 px-1.5 py-0.5 rounded border border-black/5",
+                          children: a.unidadMedida,
+                        }),
+                      ],
+                    }),
+                    e.jsx("h3", {
+                      onClick: () => o(a),
+                      className:
+                        "text-[17px] font-black text-black leading-[1.2] tracking-tight break-words cursor-pointer hover:text-[var(--primary)] ",
+                      children: a.nombre,
+                    }),
+                  ],
+                }),
+                e.jsx("div", {
+                  className: "shrink-0 flex gap-2",
+                  children: e.jsx("button", {
+                    onClick: (i) => {
+                      (i.stopPropagation(), o(a));
+                    },
+                    className:
+                      "w-10 h-10 rounded-md bg-black/5 flex items-center justify-center border border-black/10 shadow-inner text-[var(--primary)]/60 active:scale-90 ",
+                    children: e.jsx(se, { size: 20 }),
+                  }),
+                }),
+              ],
+            }),
+            c.length > 0 &&
+              e.jsx("div", {
+                className:
+                  "flex flex-wrap gap-x-3 gap-y-1.5 mt-3 pt-3 border-t border-black/5",
+                children: c.slice(0, 3).map((i) => {
+                  const x = a.atributos?.[i.claveCampo];
+                  return x
+                    ? e.jsxs(
+                        "div",
+                        {
+                          className: "flex items-center gap-1.5",
+                          children: [
+                            e.jsx("div", {
+                              className: "w-1 h-1 rounded-full bg-black/20",
+                            }),
+                            e.jsxs("span", {
+                              className:
+                                "text-[12px] font-bold text-black/40 uppercase tracking-tighter",
+                              children: [i.nombreCampo, ":"],
+                            }),
+                            e.jsx("span", {
+                              className:
+                                "text-[12px] font-black text-black/80 uppercase",
+                              children: x === !0 ? "SÍ" : x === !1 ? "NO" : x,
+                            }),
+                          ],
+                        },
+                        i.claveCampo,
+                      )
+                    : null;
+                }),
+              }),
+          ],
+        }),
+        e.jsxs("div", {
+          className: "p-3 bg-black/30 flex flex-col gap-1.5",
+          children: [
+            e.jsxs("div", {
+              className: "flex items-center justify-between px-1 mb-1",
+              children: [
+                e.jsxs("span", {
+                  className:
+                    "text-[11px] font-black text-black/30 uppercase tracking-[0.2em] flex items-center gap-2",
+                  children: [
+                    e.jsx(We, { size: 10, className: "text-emerald-700/50" }),
+                    "Existencias por Depósito",
+                  ],
+                }),
+                e.jsxs("span", {
+                  className: "text-[12px] font-black text-black/60",
+                  children: [
+                    "Total: ",
+                    e.jsx("span", {
+                      className: "text-emerald-400",
+                      children: a.stock || 0,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            (a.stockPorDeposito || []).map((i) => {
+              const x = i.stock || 0,
+                v = x > 0,
+                f = i.deposito || {};
+              return e.jsxs(
+                "div",
+                {
+                  onClick: () =>
+                    p({
+                      ...a,
+                      depositoInicial: f.codigoSecuencial?.toString(),
+                    }),
+                  className: `group flex items-center justify-between p-3 rounded-md cursor-pointer   active:scale-[0.98] ${v ? "bg-black/5 border border-black/10" : "bg-white/[0.02] border border-transparent opacity-50"}`,
+                  children: [
+                    e.jsxs("div", {
+                      className: "flex items-center gap-3 min-w-0 flex-1",
+                      children: [
+                        e.jsx("div", {
+                          className: `w-1.5 h-1.5 rounded-full shrink-0 ${v ? "bg-emerald-700 shadow-[0_0_10px_rgba(16,185,129,0.8)]" : "bg-black/10"}`,
+                        }),
+                        e.jsx("span", {
+                          className: `text-[13px] font-bold uppercase tracking-wider truncate  ${v ? "text-black" : "text-black/40"}`,
+                          children: f.nombre || "DEPÓSITO",
+                        }),
+                      ],
+                    }),
+                    e.jsxs("div", {
+                      className: "flex items-center gap-2",
+                      children: [
+                        e.jsx("span", {
+                          className: `text-[16px] font-black tabular-nums ${v ? "text-emerald-400" : "text-black/10"}`,
+                          children: x,
+                        }),
+                        e.jsx(Je, { size: 14, className: "text-black/10" }),
+                      ],
+                    }),
+                  ],
+                },
+                f.codigoSecuencial || Math.random(),
+              );
+            }),
+          ],
+        }),
+      ],
+    }),
+);
+const ma = r.memo(({ busqueda: a, onSeleccion: s }) => {
+    const { contactos: c, cargandoContactos: n } = Oe({
+      tipoEntidad: "PROV",
+      busqueda: a,
+      pagina: 1,
+      limite: 20,
+    });
+    return n
+      ? e.jsx("div", {
+          className:
+            "py-4 text-center text-[12px] text-black/30 uppercase font-black ",
+          children: "Buscando...",
+        })
+      : !c || c.length === 0
+        ? e.jsx("div", {
+            className:
+              "py-4 text-center text-[12px] text-black/20 uppercase font-black",
+            children: "No se encontraron proveedores",
+          })
+        : c.map((o) =>
+            e.jsxs(
+              "button",
+              {
+                onClick: () => s(o),
+                className:
+                  "w-full flex items-center gap-3 p-2 rounded-md hover:bg-black/5  text-left group",
+                children: [
+                  e.jsx("div", {
+                    className:
+                      "w-8 h-8 rounded-md bg-[var(--primary)]/10 flex items-center justify-center text-[12px] font-black text-[var(--primary)] group-hover:bg-[var(--primary)] group-hover:text-white",
+                    children: o.razonSocial?.[0]?.toUpperCase() || "P",
+                  }),
+                  e.jsxs("div", {
+                    className: "flex flex-col min-w-0",
+                    children: [
+                      e.jsx("span", {
+                        className:
+                          "text-[13px] font-bold text-black/80 truncate group-hover:text-black ",
+                        children:
+                          o.razonSocial.toUpperCase() ||
+                          o.nombre.toUpperCase() ||
+                          o.apellido.toUpperCase() +
+                            " " +
+                            o.nombre.toUpperCase(),
+                      }),
+                      e.jsxs("span", {
+                        className:
+                          "text-[11px] font-black text-[var(--primary)] uppercase mt-1 ",
+                        children: [
+                          "Código: ",
+                          o.codigoSecuencial.toString().padStart(4, "0"),
+                        ],
+                      }),
+                    ],
+                  }),
+                ],
+              },
+              o.codigoSecuencial,
+            ),
+          );
+  }),
+  pr = () =>
+    e.jsxs(Ye, {
+      children: [
+        e.jsx(we, { ruta: "Productos", icono: e.jsx(J, { size: 20 }) }),
+        e.jsx(da, {}),
+      ],
+    });
+export { pr as default };

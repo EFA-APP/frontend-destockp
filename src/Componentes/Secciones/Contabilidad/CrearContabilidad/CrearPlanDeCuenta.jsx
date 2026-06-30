@@ -4,6 +4,7 @@ import { usePlanDeCuentas } from "../../../../Backend/hooks/Contabilidad/PlanDeC
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import FormularioDinamico from "../../../UI/FormularioReutilizable/FormularioDinamico";
 import { useAlertas } from "../../../../store/useAlertas";
+import { useEmpresas } from "../../../../Backend/Autenticacion/queries/Empresa/useEmpresas.query";
 
 const CrearPlanDeCuenta = () => {
   const {
@@ -14,6 +15,15 @@ const CrearPlanDeCuenta = () => {
     isLoadingNoImputables,
   } = usePlanDeCuentas();
   const { agregarAlerta } = useAlertas();
+  const { data: empresas = [] } = useEmpresas();
+
+  const empresasOptions = useMemo(() => {
+    const options = (empresas || []).map((emp) => ({
+      value: emp.codigo,
+      label: emp.razonSocial || emp.nombre || `Empresa ${emp.codigo}`,
+    }));
+    return [{ value: "", label: "-- Global (Todas las empresas) --" }, ...options];
+  }, [empresas]);
 
   // Opciones para el selector de cuenta padre (solo no imputables)
   const cuentasPadreOptions = useMemo(() => {
@@ -94,6 +104,14 @@ const CrearPlanDeCuenta = () => {
       ],
     },
     {
+      name: "codigoEmpresa",
+      label: "Empresa Asociada (Opcional)",
+      type: "select",
+      section: "Clasificación",
+      options: empresasOptions,
+      helpText: "Deje vacío (Global) para que la cuenta esté disponible en todas las empresas",
+    },
+    {
       name: "codigoCuentaPadre",
       label: "Cuenta Padre",
       type: "search-select",
@@ -126,6 +144,9 @@ const CrearPlanDeCuenta = () => {
         imputable: data.imputable === "true" || data.imputable === true,
         codigoCuentaPadre: data.codigoCuentaPadre
           ? Number(data.codigoCuentaPadre)
+          : null,
+        codigoEmpresa: data.codigoEmpresa
+          ? Number(data.codigoEmpresa)
           : null,
       };
 

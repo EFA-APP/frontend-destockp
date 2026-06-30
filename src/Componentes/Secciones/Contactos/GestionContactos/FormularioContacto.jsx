@@ -19,6 +19,8 @@ const FormularioContacto = ({
   onClose,
   onExito,
   posicion = "derecha",
+  datosIniciales = {},
+  inline = false,
 }) => {
   const { entidades, cargandoEntidades } = useEntidades();
   const { configs, cargandoConfigs } = useConfiguracionContactos();
@@ -30,14 +32,23 @@ const FormularioContacto = ({
     tipoEntidad: entidadProp?.clave || contacto?.tipoEntidad || "",
     nombre: contacto?.nombre || "",
     apellido: contacto?.apellido || "",
-    razonSocial: contacto?.razonSocial || "",
-    documento: contacto?.documento || "",
+    razonSocial: datosIniciales.razonSocial ?? contacto?.razonSocial ?? "",
+    documento: datosIniciales.documento ?? contacto?.documento ?? "",
+    correoElectronico: contacto?.correoElectronico || "",
     tipoDocumento: contacto?.tipoDocumento === 99 ? "" : (contacto?.tipoDocumento || ""),
     condicionIva: contacto?.condicionIva || "CF",
     atributos: contacto?.atributos || {},
     relaciones: contacto?.relaciones || [],
     enteFacturacion: contacto?.enteFacturacion || null,
   });
+
+  const [emailError, setEmailError] = useState("");
+
+  const validarEmail = (email) => {
+    if (!email) return "";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email.trim()) ? "" : "Formato de correo electrónico inválido";
+  };
 
   const entidadActual = entidades.find((e) => e.clave === form.tipoEntidad);
   const configsEntidad = configs.filter(
@@ -126,6 +137,18 @@ const FormularioContacto = ({
       return;
     }
 
+    if (form.correoElectronico) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(form.correoElectronico.trim())) {
+        agregarAlerta({
+          title: "Correo Inválido",
+          message: "El correo electrónico ingresado no tiene un formato válido.",
+          type: "warning",
+        });
+        return;
+      }
+    }
+
     const payload = {
       ...form,
       tipoDocumento: form.tipoDocumento ? Number(form.tipoDocumento) : 99,
@@ -156,19 +179,8 @@ const FormularioContacto = ({
     }));
   };
 
-  return createPortal(
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 overflow-y-auto">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-gray-950/60 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-      />
-
-      {/* Modal Card */}
-      <div
-        className="relative w-full max-w-3xl bg-white rounded-md shadow-2xl border border-gray-100 flex flex-col my-8 max-h-[90vh] md:max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-300"
-        onClick={(e) => e.stopPropagation()}
-      >
+  const contenido = (
+    <>
         {/* Header */}
         <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-[#f8fafc] shrink-0">
           <div className="flex items-center gap-3">
@@ -375,6 +387,38 @@ const FormularioContacto = ({
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Correo Electrónico */}
+              <div className="space-y-1.5 mt-4">
+                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  Correo Electrónico
+                </label>
+                <input
+                  type="text"
+                  placeholder="ejemplo@correo.com"
+                  value={form.correoElectronico}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    handleChange("correoElectronico", val);
+                    if (emailError) {
+                      setEmailError(validarEmail(val));
+                    }
+                  }}
+                  onBlur={(e) => {
+                    setEmailError(validarEmail(e.target.value));
+                  }}
+                  className={`w-full bg-[var(--fill-secondary)] border rounded-md px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none transition-all ${
+                    emailError
+                      ? "border-rose-500 focus:border-rose-500"
+                      : "border-[var(--border-subtle)] focus:border-[var(--primary)]"
+                  }`}
+                />
+                {emailError && (
+                  <p className="text-[11px] text-rose-500 font-bold uppercase mt-1">
+                    {emailError}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -855,6 +899,31 @@ const FormularioContacto = ({
             </div>
           </form>
         )}
+    </>
+  );
+
+  if (inline) {
+    return (
+      <div className="flex flex-col h-full bg-[var(--surface)] overflow-hidden">
+        {contenido}
+      </div>
+    );
+  }
+
+  return createPortal(
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 overflow-y-auto">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-gray-950/60 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
+
+      {/* Modal Card */}
+      <div
+        className="relative w-full max-w-3xl bg-[var(--surface)] rounded-md shadow-2xl border border-[var(--border-subtle)] flex flex-col my-8 max-h-[90vh] md:max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-300"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {contenido}
       </div>
     </div>,
     document.body

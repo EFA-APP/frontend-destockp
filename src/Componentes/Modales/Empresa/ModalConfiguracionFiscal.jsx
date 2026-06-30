@@ -155,7 +155,7 @@ const ModalConfiguracionFiscal = ({ isOpen, onClose }) => {
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-2xl bg-[var(--surface)] border border-[var(--border-subtle)] rounded-2xl shadow-2xl overflow-hidden   ">
+      <div className="relative w-full max-w-2xl bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md shadow-2xl overflow-hidden   ">
         <div className="px-8 py-6 border-b border-[var(--border-subtle)] bg-[var(--primary-subtle)]/10 flex justify-between items-center">
           <div>
             <h2 className="text-[17px] font-bold text-black uppercase tracking-wider mb-1">

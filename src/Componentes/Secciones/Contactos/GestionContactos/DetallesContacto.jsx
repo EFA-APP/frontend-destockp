@@ -47,8 +47,8 @@ const DetallesContacto = ({ contacto, onClose }) => {
         <div className="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-10">
           {/* 1. Perfil Principal */}
           <div className="text-center space-y-4">
-            <div className="w-24 h-24 mx-auto rounded-3xl bg-[var(--fill-secondary)] border border-[var(--border-subtle)] flex items-center justify-center shadow-xl relative group">
-              <div className="absolute inset-0 bg-[var(--primary)]/5 rounded-3xl group-hover:bg-[var(--primary)]/10 transition-all" />
+            <div className="w-24 h-24 mx-auto rounded-md bg-[var(--fill-secondary)] border border-[var(--border-subtle)] flex items-center justify-center shadow-xl relative group">
+              <div className="absolute inset-0 bg-[var(--primary)]/5 rounded-md group-hover:bg-[var(--primary)]/10 transition-all" />
               <span className="text-4xl font-black text-[var(--primary-emphasis)] relative z-10">
                 {(
                   contacto.nombre?.[0] ||
@@ -102,6 +102,31 @@ const DetallesContacto = ({ contacto, onClose }) => {
                 </div>
               </div>
             </section>
+
+            {/* Información de Contacto */}
+            {contacto.correoElectronico && (
+              <section className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] whitespace-nowrap">
+                    Información de Contacto
+                  </span>
+                  <div className="h-px w-full bg-[var(--border-subtle)]" />
+                </div>
+                <div className="p-4 rounded-md bg-[var(--fill-secondary)] border border-[var(--border-subtle)] flex items-center gap-3 shadow-sm">
+                  <div className="text-[var(--primary)] shrink-0">
+                    <EmailIcono size={20} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-0.5">
+                      CORREO ELECTRÓNICO
+                    </p>
+                    <p className="text-[13px] font-bold text-[var(--text-primary)] lowercase select-all">
+                      {contacto.correoElectronico}
+                    </p>
+                  </div>
+                </div>
+              </section>
+            )}
 
             {/* 2.5 Responsable de Facturación */}
             <section className="space-y-4">

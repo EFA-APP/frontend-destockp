@@ -41,9 +41,9 @@ export const obtenerDescendientesImputables = async (codigoPadre) => {
   return data;
 };
 
-export const obtenerCuentasImputablesPorTipo = async ({ tipo, busqueda }) => {
+export const obtenerCuentasImputablesPorTipo = async ({ tipo, busqueda, codigoEmpresa }) => {
   const { data } = await axiosInitial.get("/contabilidad/cuentas/imputables", {
-    params: { tipo, busqueda },
+    params: { tipo, busqueda, codigoEmpresa },
     showLoader: false,
     sinEmpresa: true,
   });

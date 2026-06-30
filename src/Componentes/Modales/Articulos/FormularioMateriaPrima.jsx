@@ -95,7 +95,7 @@ const FormularioMateriaPrima = ({
       <div
         className={`w-full bg-[var(--surface)] shadow-2xl flex flex-col ${
           isCenter
-            ? "max-w-2xl max-h-[85vh] rounded-lg border border-[var(--border-subtle)] animate-in zoom-in duration-300"
+            ? "max-w-2xl max-h-[85vh] rounded-md border border-[var(--border-subtle)] animate-in zoom-in duration-300"
             : isLeft
               ? "md:w-[500px] h-full border-r border-[var(--border-subtle)] slide-in-from-left animate-in duration-300"
               : "md:w-[500px] h-screen border-l border-[var(--border-subtle)] slide-in-from-right animate-in duration-300"

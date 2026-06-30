@@ -2,7 +2,7 @@ import React from "react";
 
 const SkeletonFilaTabla = () => {
   return (
-    <div className="bg-[#181818] rounded-2xl border border-black/10 overflow-hidden shadow-2xl flex flex-col ">
+    <div className="bg-[#181818] rounded-md border border-black/10 overflow-hidden shadow-2xl flex flex-col ">
       {/* Product Identity Header Skeleton */}
       <div className="p-4 bg-gradient-to-br from-white/[0.06] to-transparent border-b border-black/5">
         <div className="flex items-start justify-between gap-4 mb-2">

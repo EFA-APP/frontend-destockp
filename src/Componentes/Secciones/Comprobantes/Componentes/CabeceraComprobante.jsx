@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "lucide-react";
+import { Link, Search, UserPlus } from "lucide-react";
 import {
   ArcaIcono,
   BorrarIcono,
@@ -8,12 +8,13 @@ import {
   PersonaIcono,
   VentasIcono,
 } from "../../../../assets/Icons";
-import { useCabeceraComprobante } from "../../../../Backend/Comprobantes/useCabeceraComprobante";
 import { useContactos } from "../../../../Backend/Contactos/hooks/useContactos";
+import { ListarContactosApi } from "../../../../Backend/Contactos/api/contactos.api.js";
 import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
+import SelectorComprobanteModal from "./SelectorComprobanteModal";
+import FormularioContacto from "../../Contactos/GestionContactos/FormularioContacto";
+import { formatPrice } from "../../../../utils/formatters";
 
-// Mapeos cortos solo para mostrar etiquetas más legibles en la UI.
-// Si llega un código que no está mapeado, se muestra el código tal cual.
 const LABELS_CONDICION_IVA = {
   CF: "Consumidor Final",
   RI: "Responsable Inscripto",
@@ -34,7 +35,7 @@ const getNombreCompleto = (contacto) => {
   return `${contacto.nombre || ""} ${contacto.apellido || ""}`.trim();
 };
 
-const CabeceraComprobante = ({ tipoOperacion }) => {
+const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
   const {
     fechaInicio,
     setFechaInicio,
@@ -45,6 +46,14 @@ const CabeceraComprobante = ({ tipoOperacion }) => {
     esPresupuesto,
     setEsPresupuesto,
     unidadesNegocio,
+    condicionComprobante,
+    setCondicionComprobante,
+    unidadNegocioSeleccionada,
+    setUnidadNegocioSeleccionada,
+    puntoVenta,
+    setPuntoVenta,
+    observaciones,
+    setObservaciones,
     busquedaCliente,
     setBusquedaCliente,
     clienteSeleccionado,
@@ -54,19 +63,63 @@ const CabeceraComprobante = ({ tipoOperacion }) => {
     comprobanteAsociado,
     setComprobanteAsociado,
     esNotaAsociada,
-  } = useCabeceraComprobante();
+    numeroComprobanteEgreso,
+    setNumeroComprobanteEgreso,
+    cae,
+    setCae,
+    vtoCae,
+    setVtoCae,
+  } = cabecera;
 
-  // Control local para mostrar/ocultar los resultados mientras se busca
+  const [modalComprobanteOpen, setModalComprobanteOpen] = useState(false);
+  const [modalPuntoVentaOpen, setModalPuntoVentaOpen] = useState(false);
+  const [modalCrearContacto, setModalCrearContacto] = useState(false);
+  const [tempPuntoVenta, setTempPuntoVenta] = useState("");
   const [mostrarResultados, setMostrarResultados] = useState(false);
-  // Índice del resultado resaltado por teclado (-1 = ninguno resaltado)
+
+  useEffect(() => {
+    if (puntoVenta === "" && unidadesNegocio.length > 0 && tipoOperacion !== "EGRESO") {
+      setModalPuntoVentaOpen(true);
+    } else {
+      setModalPuntoVentaOpen(false);
+    }
+  }, [puntoVenta, unidadesNegocio, tipoOperacion]);
   const [indiceActivo, setIndiceActivo] = useState(-1);
   const refsResultados = useRef([]);
 
-  const { contactos: clientesRaw } = useContactos({
+  const { contactos: contactosFetched } = useContactos({
     tipoEntidad: tipoOperacion === "EGRESO" ? "PROV" : "",
     busqueda: busquedaCliente,
     limite: 10,
   });
+  const clientesRaw = tipoOperacion !== "EGRESO"
+    ? contactosFetched.filter((c) => c.tipoEntidad !== "PROV")
+    : contactosFetched;
+
+  // Búsqueda por CUIT para pre-selección automática cuando viene de ARCA
+  useEffect(() => {
+    if (!arcaData?.cuit) return;
+    if (clienteSeleccionado) return;
+
+    const cuitNormalizado = String(arcaData.cuit).replace(/\D/g, "");
+
+    ListarContactosApi({
+      documento: cuitNormalizado,
+      tipoEntidad: "PROV",
+      limite: 5,
+    })
+      .then((resultado) => {
+        const encontrados = resultado?.items ?? resultado ?? [];
+        if (Array.isArray(encontrados) && encontrados.length > 0) {
+          seleccionarCliente(encontrados[0]);
+        } else {
+          setModalCrearContacto(true);
+        }
+      })
+      .catch(() => {
+        setModalCrearContacto(true);
+      });
+  }, [arcaData?.cuit, clienteSeleccionado]);
 
   const enteFacturacion = clienteSeleccionado?.enteFacturacion || null;
 
@@ -83,22 +136,17 @@ const CabeceraComprobante = ({ tipoOperacion }) => {
     setIndiceActivo(-1);
   };
 
-  // Cada vez que cambian los resultados, volvemos a empezar sin nada resaltado
   useEffect(() => {
     setIndiceActivo(-1);
   }, [clientesRaw]);
 
-  // Mantenemos visible el item resaltado cuando se navega con flechas
   useEffect(() => {
     if (indiceActivo < 0) return;
-    refsResultados.current[indiceActivo]?.scrollIntoView({
-      block: "nearest",
-    });
+    refsResultados.current[indiceActivo]?.scrollIntoView({ block: "nearest" });
   }, [indiceActivo]);
 
   const manejarTeclasBuscador = (e) => {
     if (!mostrarResultados || !clientesRaw || clientesRaw.length === 0) return;
-
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setIndiceActivo((prev) => (prev < clientesRaw.length - 1 ? prev + 1 : 0));
@@ -116,11 +164,22 @@ const CabeceraComprobante = ({ tipoOperacion }) => {
     }
   };
 
+  const handleEnterNext = (e) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    const allInputs = Array.from(
+      document.querySelectorAll('input:not([type="hidden"]):not([disabled]), select:not([disabled])')
+    );
+    const idx = allInputs.indexOf(e.target);
+    if (idx >= 0 && idx < allInputs.length - 1) {
+      allInputs[idx + 1].focus();
+    }
+  };
+
   return (
     <div className="flex flex-col gap-5 p-4 border border-gray-200 ">
       {/* SECCIÓN 1: FECHAS */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 pb-3 border-b border-gray-700/20 rounded-md w-full">
-        {/* FECHA INICIO */}
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="datepicker-range-start"
@@ -129,19 +188,17 @@ const CabeceraComprobante = ({ tipoOperacion }) => {
             <FechaIcono size={20} className="text-[var(--primary)]" />
             Fecha Inicio
           </label>
-          <div className="relative">
-            <input
-              id="datepicker-range-start"
-              name="start"
-              type="date"
-              className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md font-semibold shadow-sm transition-colors duration-200 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10"
-              value={fechaInicio}
-              onChange={(e) => setFechaInicio(e.target.value)}
-            />
-          </div>
+          <input
+            id="datepicker-range-start"
+            name="start"
+            type="date"
+            className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md font-semibold shadow-sm transition-colors duration-200 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10"
+            value={fechaInicio}
+            onChange={(e) => setFechaInicio(e.target.value)}
+            onKeyDown={handleEnterNext}
+          />
         </div>
 
-        {/* FECHA VENCIMIENTO */}
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="datepicker-range-end"
@@ -150,22 +207,20 @@ const CabeceraComprobante = ({ tipoOperacion }) => {
             <FechaIcono size={20} className="text-[var(--primary)]" />
             Fecha Vencimiento
           </label>
-          <div className="relative">
-            <input
-              id="datepicker-range-end"
-              name="end"
-              type="date"
-              className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md font-semibold shadow-sm transition-colors duration-200 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10"
-              value={fechaVencimiento}
-              onChange={(e) => setFechaVencimiento(e.target.value)}
-            />
-          </div>
+          <input
+            id="datepicker-range-end"
+            name="end"
+            type="date"
+            className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md font-semibold shadow-sm transition-colors duration-200 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10"
+            value={fechaVencimiento}
+            onChange={(e) => setFechaVencimiento(e.target.value)}
+            onKeyDown={handleEnterNext}
+          />
         </div>
       </div>
 
       {/* SECCIÓN 2: CONFIGURACIÓN Y TIPO */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end pb-3 border-b border-gray-700/20 rounded-md w-full">
-        {/* NATURALEZA */}
         <div className="flex flex-col gap-2">
           <span className="text-md font-semibold uppercase tracking-wider text-gray-900">
             Naturaleza
@@ -188,32 +243,32 @@ const CabeceraComprobante = ({ tipoOperacion }) => {
           </div>
         </div>
 
-        {/* PRESUPUESTO SWITCH */}
-        <div className="flex flex-col gap-2">
-          <span className="text-md font-semibold uppercase tracking-wider text-gray-900">
-            ¿Es Presupuesto?
-          </span>
-          <div className="flex items-center h-[46px]">
-            <button
-              type="button"
-              onClick={() => setEsPresupuesto(!esPresupuesto)}
-              className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                esPresupuesto ? "bg-[var(--primary)]" : "bg-gray-300"
-              }`}
-            >
-              <span
-                className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                  esPresupuesto ? "translate-x-7" : "translate-x-0"
-                }`}
-              />
-            </button>
-            <span className="ml-3 text-md font-semibold text-gray-700">
-              {esPresupuesto ? "Activo (Sin Validez)" : "Inactivo (Oficial)"}
+        {tipoOperacion === "INGRESO" && (
+          <div className="flex flex-col gap-2">
+            <span className="text-md font-semibold uppercase tracking-wider text-gray-900">
+              ¿Es Presupuesto?
             </span>
+            <div className="flex items-center h-[46px]">
+              <button
+                type="button"
+                onClick={() => setEsPresupuesto(!esPresupuesto)}
+                className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  esPresupuesto ? "bg-[var(--primary)]" : "bg-gray-300"
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    esPresupuesto ? "translate-x-7" : "translate-x-0"
+                  }`}
+                />
+              </button>
+              <span className="ml-3 text-md font-semibold text-gray-700">
+                {esPresupuesto ? "Activo (Sin Validez)" : "Inactivo (Oficial)"}
+              </span>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* TIPO COMPROBANTE */}
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="tipo-comprobante"
@@ -226,6 +281,7 @@ const CabeceraComprobante = ({ tipoOperacion }) => {
             id="tipo-comprobante"
             value={tipoComprobante}
             onChange={(e) => setTipoComprobante(e.target.value)}
+            onKeyDown={handleEnterNext}
             className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md font-semibold shadow-sm transition-colors duration-200 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10"
           >
             {esFiscal ? (
@@ -275,9 +331,8 @@ const CabeceraComprobante = ({ tipoOperacion }) => {
         </div>
       </div>
 
-      {/* SECCION 3: UNIDAD NEGOCIO y CONDICION COMPROBANTE */}
+      {/* SECCION 3: UNIDAD NEGOCIO y CONDICION */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end pb-3 border-b border-gray-700/20 rounded-md w-full">
-        {/* CONDICION COMPROBANTE */}
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="condicion-comprobante"
@@ -288,6 +343,9 @@ const CabeceraComprobante = ({ tipoOperacion }) => {
           </label>
           <select
             id="condicion-comprobante"
+            value={condicionComprobante}
+            onChange={(e) => setCondicionComprobante(e.target.value)}
+            onKeyDown={handleEnterNext}
             className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-md rounded-md font-semibold shadow-sm transition-colors duration-200 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10"
           >
             <option value="CONTADO">CONTADO</option>
@@ -295,7 +353,6 @@ const CabeceraComprobante = ({ tipoOperacion }) => {
           </select>
         </div>
 
-        {/* UNIDAD DE NEGOCIO */}
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="unidad-negocio"
@@ -306,34 +363,143 @@ const CabeceraComprobante = ({ tipoOperacion }) => {
           </label>
           <select
             id="unidad-negocio"
+            value={unidadNegocioSeleccionada}
+            onChange={(e) => setUnidadNegocioSeleccionada(e.target.value)}
+            onKeyDown={handleEnterNext}
             className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-md rounded-md font-semibold shadow-sm transition-colors duration-200 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10"
           >
-            {unidadesNegocio?.map((unidadNegocio) => (
-              <option
-                key={unidadNegocio.codigoSecuencial}
-                value={unidadNegocio.codigoSecuencial}
-              >
-                {unidadNegocio.nombre}
+            {unidadesNegocio?.map((u) => (
+              <option key={u.codigoSecuencial} value={u.codigoSecuencial}>
+                {u.nombre}
               </option>
             ))}
           </select>
         </div>
       </div>
 
-      {/* SECCION 4: SELECCION DE CLIENTES */}
+      {/* SECCION 4: OBSERVACIONES */}
+      <div className="grid grid-cols-1 gap-4 pb-3 border-b border-gray-700/20 rounded-md w-full">
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="observaciones"
+            className="text-md font-semibold uppercase tracking-wider text-gray-900"
+          >
+            Observaciones
+          </label>
+          <input
+            id="observaciones"
+            type="text"
+            value={observaciones}
+            onChange={(e) => setObservaciones(e.target.value)}
+            onKeyDown={handleEnterNext}
+            placeholder="Observaciones opcionales..."
+            className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md font-semibold shadow-sm focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-gray-400 placeholder:font-normal"
+          />
+        </div>
+      </div>
+
+      {/* SECCION 5 (solo EGRESO): Nro. Comprobante + CAE + Vto. CAE */}
+      {tipoOperacion === "EGRESO" && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pb-3 border-b border-gray-700/20 rounded-md w-full">
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="punto-venta-egreso"
+              className="text-md font-semibold uppercase tracking-wider text-gray-900"
+            >
+              Punto de Venta
+            </label>
+            <input
+              id="punto-venta-egreso"
+              type="number"
+              min="1"
+              value={puntoVenta}
+              onChange={(e) => setPuntoVenta(e.target.value)}
+              onKeyDown={handleEnterNext}
+              placeholder="Ej: 1"
+              className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md font-semibold shadow-sm focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-gray-400 placeholder:font-normal"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="nro-comprobante-egreso"
+              className="text-md font-semibold uppercase tracking-wider text-gray-900"
+            >
+              Nro. Comprobante
+            </label>
+            <input
+              id="nro-comprobante-egreso"
+              type="number"
+              min="0"
+              value={numeroComprobanteEgreso}
+              onChange={(e) => setNumeroComprobanteEgreso(e.target.value)}
+              onKeyDown={handleEnterNext}
+              placeholder="Número del proveedor"
+              className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md font-semibold shadow-sm focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-gray-400 placeholder:font-normal"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="cae"
+              className="text-md font-semibold uppercase tracking-wider text-gray-900"
+            >
+              CAE
+            </label>
+            <input
+              id="cae"
+              type="text"
+              value={cae}
+              onChange={(e) => setCae(e.target.value)}
+              onKeyDown={handleEnterNext}
+              placeholder="Código de autorización"
+              className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md font-semibold shadow-sm focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 placeholder:text-gray-400 placeholder:font-normal"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="vto-cae"
+              className="text-md font-semibold uppercase tracking-wider text-gray-900"
+            >
+              Vto. CAE
+            </label>
+            <input
+              id="vto-cae"
+              type="date"
+              value={vtoCae}
+              onChange={(e) => setVtoCae(e.target.value)}
+              onKeyDown={handleEnterNext}
+              className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md font-semibold shadow-sm focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* SECCION 6: SELECCION DE CLIENTES / PROVEEDORES */}
       <div className="flex flex-col gap-1.5 relative pb-3 border-b border-gray-700/20 rounded-md w-full">
-        <label
-          htmlFor="buscador-cliente"
-          className="flex items-center gap-2 text-md font-semibold uppercase tracking-wider text-gray-900"
-        >
-          <PersonaIcono size={20} className="text-[var(--primary)]" />
-          {tipoOperacion === "EGRESO" ? "Buscar Proveedor" : "Buscar Cliente"}
-        </label>
+        <div className="flex items-center justify-between">
+          <label
+            htmlFor="buscador-cliente"
+            className="flex items-center gap-2 text-md font-semibold uppercase tracking-wider text-gray-900"
+          >
+            <PersonaIcono size={20} className="text-[var(--primary)]" />
+            {tipoOperacion === "EGRESO" ? "Buscar Proveedor" : "Buscar Cliente"}
+          </label>
+          {!clienteSeleccionado && (
+            <button
+              type="button"
+              onClick={() => setModalCrearContacto(true)}
+              className="flex items-center gap-1.5 text-xs font-bold text-[var(--primary)] bg-[var(--primary)]/10 px-2.5 py-1 rounded-md hover:bg-[var(--primary)]/20 transition-colors cursor-pointer"
+            >
+              <UserPlus size={12} />
+              Crear nuevo
+            </button>
+          )}
+        </div>
 
         {clienteSeleccionado ? (
-          // ───────────────── TARJETA DE CONTACTO SELECCIONADO ─────────────────
           <div className="flex rounded-md border border-gray-200 overflow-hidden w-full justify-start gap-3 ">
-            {/* Bloque 1: la entidad encontrada en la búsqueda (alumno, proveedor, etc.) */}
             <div className="flex items-start justify-between gap-3 p-3 border-l-4 border-[var(--primary)] bg-white rounded-md">
               <div className="flex items-start gap-3 min-w-0">
                 <div className="flex items-center justify-center h-9 w-9 rounded-full bg-[var(--primary)]/10 shrink-0">
@@ -368,7 +534,6 @@ const CabeceraComprobante = ({ tipoOperacion }) => {
               </div>
             </div>
 
-            {/* Bloque 2: a quién se le factura realmente (si tiene ente facturación) */}
             {enteFacturacion && (
               <div className="flex items-start gap-3 p-3 pl-6 bg-blue-50/60 border-t border-dashed border-gray-200 rounded-md">
                 <div className="flex items-center justify-center h-9 w-9 rounded-full bg-blue-100 shrink-0">
@@ -414,7 +579,6 @@ const CabeceraComprobante = ({ tipoOperacion }) => {
             </button>
           </div>
         ) : (
-          // ───────────────── BUSCADOR (sin selección aún) ─────────────────
           <div className="relative w-full">
             <input
               id="buscador-cliente"
@@ -434,55 +598,81 @@ const CabeceraComprobante = ({ tipoOperacion }) => {
                 setMostrarResultados(true);
               }}
               onFocus={() => setMostrarResultados(true)}
-              onKeyDown={manejarTeclasBuscador}
-              onBlur={() => setTimeout(() => setMostrarResultados(false), 200)} // Delay pequeño para permitir clics en la lista
+              onKeyDown={(e) => {
+                manejarTeclasBuscador(e);
+                if (e.key === "Enter" && indiceActivo < 0) handleEnterNext(e);
+              }}
+              onBlur={() => setTimeout(() => setMostrarResultados(false), 200)}
             />
 
-            {/* Menú flotante predictivo con los resultados de clientesRaw */}
-            {mostrarResultados && clientesRaw && clientesRaw.length > 0 && (
+            {mostrarResultados && (clientesRaw?.length > 0 || busquedaCliente) && (
               <div className="absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                {clientesRaw.map((cliente, index) => (
-                  <button
-                    key={cliente.id || cliente.codigoSecuencial}
-                    ref={(el) => (refsResultados.current[index] = el)}
-                    type="button"
-                    onClick={() => seleccionarCliente(cliente)}
-                    onMouseEnter={() => setIndiceActivo(index)}
-                    className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-100 last:border-0 ${
-                      index === indiceActivo
-                        ? "bg-[var(--primary)]/10 text-gray-900"
-                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold">
-                        {getNombreCompleto(cliente)}
-                      </span>
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
-                        {LABELS_TIPO_ENTIDAD[cliente.tipoEntidad] ||
-                          cliente.tipoEntidad}
-                      </span>
-                    </div>
-                    {cliente.documento && (
-                      <span className="text-md text-gray-700">
-                        Doc: {cliente.documento}
-                      </span>
-                    )}
-                    {cliente.enteFacturacion && (
-                      <div className="text-[11px] text-blue-600 mt-0.5">
-                        Se factura a:{" "}
-                        {getNombreCompleto(cliente.enteFacturacion)}
-                      </div>
-                    )}
-                  </button>
-                ))}
+                {clientesRaw && clientesRaw.length > 0 ? (
+                  <>
+                    {clientesRaw.map((cliente, index) => (
+                      <button
+                        key={cliente.id || cliente.codigoSecuencial}
+                        ref={(el) => (refsResultados.current[index] = el)}
+                        type="button"
+                        onClick={() => seleccionarCliente(cliente)}
+                        onMouseEnter={() => setIndiceActivo(index)}
+                        className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-100 last:border-0 ${
+                          index === indiceActivo
+                            ? "bg-[var(--primary)]/10 text-gray-900"
+                            : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold">
+                            {getNombreCompleto(cliente)}
+                          </span>
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                            {LABELS_TIPO_ENTIDAD[cliente.tipoEntidad] ||
+                              cliente.tipoEntidad}
+                          </span>
+                        </div>
+                        {cliente.documento && (
+                          <span className="text-md text-gray-700">
+                            Doc: {cliente.documento}
+                          </span>
+                        )}
+                        {cliente.enteFacturacion && (
+                          <div className="text-[11px] text-blue-600 mt-0.5">
+                            Se factura a:{" "}
+                            {getNombreCompleto(cliente.enteFacturacion)}
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => { setMostrarResultados(false); setModalCrearContacto(true); }}
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-[var(--primary)] border-t border-gray-100 hover:bg-[var(--primary)]/5 transition-colors cursor-pointer"
+                    >
+                      <UserPlus size={14} />
+                      Crear nuevo {tipoOperacion === "EGRESO" ? "proveedor" : "contacto"}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p className="px-4 py-2.5 text-sm text-gray-500 italic">Sin resultados para &quot;{busquedaCliente}&quot;</p>
+                    <button
+                      type="button"
+                      onClick={() => { setMostrarResultados(false); setModalCrearContacto(true); }}
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-[var(--primary)] border-t border-gray-100 hover:bg-[var(--primary)]/5 transition-colors cursor-pointer"
+                    >
+                      <UserPlus size={14} />
+                      Crear &quot;{busquedaCliente}&quot; como nuevo {tipoOperacion === "EGRESO" ? "proveedor" : "contacto"}
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
         )}
       </div>
 
-      {/* SECCIÓN 5: COMPROBANTE ASOCIADO (solo para Nota de Crédito / Débito) */}
+      {/* SECCIÓN 7: COMPROBANTE ASOCIADO (Nota de Crédito / Débito) */}
       {esNotaAsociada && (
         <div className="flex flex-col gap-3 pb-3 border-b border-gray-700/20 rounded-md w-full">
           <label className="flex items-center gap-2 text-md font-semibold uppercase tracking-wider text-gray-900">
@@ -492,79 +682,128 @@ const CabeceraComprobante = ({ tipoOperacion }) => {
           <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide -mt-1">
             Vinculá el comprobante original que origina esta nota
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                Nro. Comprobante Origen
-              </span>
-              <input
-                type="number"
-                min="1"
-                value={comprobanteAsociado.numeroComprobanteOrigen}
-                onChange={(e) =>
-                  setComprobanteAsociado((p) => ({
-                    ...p,
-                    numeroComprobanteOrigen: e.target.value,
-                  }))
-                }
-                placeholder="00000001"
-                className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md font-semibold shadow-sm focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10"
-              />
+
+          {comprobanteAsociado ? (
+            <div className="flex items-center gap-3 border border-[var(--primary)]/30 bg-[var(--primary)]/5 rounded-md px-4 py-3">
+              <div className="flex items-center justify-center h-9 w-9 rounded-full bg-[var(--primary)]/10 shrink-0">
+                <Link size={16} className="text-[var(--primary)]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-100">
+                    {comprobanteAsociado.tipoDescripcionComprobante ||
+                      "COMPROBANTE"}{" "}
+                    {comprobanteAsociado.letraComprobante || ""}
+                  </span>
+                  <span className="text-sm font-black text-gray-900">
+                    {`${String(comprobanteAsociado.puntoVenta || 0).padStart(5, "0")}-${String(comprobanteAsociado.numeroComprobante || 0).padStart(8, "0")}`}
+                  </span>
+                </div>
+                {(comprobanteAsociado.nombreCliente ||
+                  comprobanteAsociado.razonSocial) && (
+                  <p className="text-[11px] font-semibold text-gray-500 mt-0.5 truncate">
+                    {comprobanteAsociado.nombreCliente ||
+                      comprobanteAsociado.razonSocial}
+                  </p>
+                )}
+                <p className="text-[11px] font-bold text-gray-700 mt-0.5">
+                  Total: {formatPrice(comprobanteAsociado.total || 0)}
+                  {comprobanteAsociado.saldoPendiente !== undefined && (
+                    <span className="text-amber-600 ml-2">
+                      · Saldo: {formatPrice(comprobanteAsociado.saldoPendiente)}
+                    </span>
+                  )}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setComprobanteAsociado(null)}
+                className="p-2 rounded-md text-red-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer shrink-0"
+              >
+                <BorrarIcono size={18} />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setModalComprobanteOpen(true)}
+              className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-gray-300 rounded-md text-sm font-bold text-gray-500 hover:border-[var(--primary)]/50 hover:text-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all cursor-pointer self-start"
+            >
+              <Search size={16} />
+              Buscar comprobante asociado
+            </button>
+          )}
+        </div>
+      )}
+
+      <SelectorComprobanteModal
+        isOpen={modalComprobanteOpen}
+        onClose={() => setModalComprobanteOpen(false)}
+        onSeleccionar={setComprobanteAsociado}
+        unidadesNegocio={unidadesNegocio}
+      />
+
+      {modalCrearContacto && (
+        <FormularioContacto
+          entidad={tipoOperacion === "EGRESO" ? { clave: "PROV", nombre: "Proveedor" } : null}
+          datosIniciales={
+            arcaData
+              ? { razonSocial: arcaData.denominacion, documento: arcaData.cuit }
+              : {}
+          }
+          onClose={() => setModalCrearContacto(false)}
+          onExito={(nuevo) => {
+            seleccionarCliente(nuevo);
+            setModalCrearContacto(false);
+          }}
+        />
+      )}
+
+      {/* MODAL CONFIGURACION PUNTO DE VENTA (Fallback si no tiene configuracion) */}
+      {modalPuntoVentaOpen && (
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-gray-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-md p-6 max-w-sm w-full shadow-2xl border border-gray-150 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 uppercase">
+                Asignar Punto de Venta
+              </h3>
+              <p className="text-xs text-gray-600 mt-1">
+                La unidad de negocio seleccionada no tiene configurado un Punto
+                de Venta en el sistema. Por favor, asigne uno temporal para este
+                comprobante:
+              </p>
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+              <label
+                htmlFor="temp-punto-venta"
+                className="text-xs font-bold text-gray-700 uppercase tracking-wider"
+              >
                 Punto de Venta
-              </span>
+              </label>
               <input
+                id="temp-punto-venta"
                 type="number"
                 min="1"
-                value={comprobanteAsociado.puntoVenta}
-                onChange={(e) =>
-                  setComprobanteAsociado((p) => ({
-                    ...p,
-                    puntoVenta: e.target.value,
-                  }))
-                }
-                placeholder="0001"
-                className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md font-semibold shadow-sm focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10"
+                placeholder="Ej: 1"
+                value={tempPuntoVenta}
+                onChange={(e) => setTempPuntoVenta(e.target.value)}
+                onKeyDown={handleEnterNext}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm font-bold text-gray-900 focus:outline-none focus:border-[var(--primary)]"
               />
             </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                Tipo Comp. Asociado
-              </span>
-              <input
-                type="number"
-                min="1"
-                value={comprobanteAsociado.codigoTipoComprobanteAsociado}
-                onChange={(e) =>
-                  setComprobanteAsociado((p) => ({
-                    ...p,
-                    codigoTipoComprobanteAsociado: e.target.value,
-                  }))
-                }
-                placeholder="Ej: 1, 6, 11..."
-                className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md font-semibold shadow-sm focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                Importe Aplicado
-              </span>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={comprobanteAsociado.importeAplicado}
-                onChange={(e) =>
-                  setComprobanteAsociado((p) => ({
-                    ...p,
-                    importeAplicado: e.target.value,
-                  }))
-                }
-                placeholder="0.00"
-                className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md font-semibold shadow-sm focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10"
-              />
+            <div className="flex justify-end gap-2 mt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const val = Number(tempPuntoVenta) || 1;
+                  setPuntoVenta(String(val));
+                  setModalPuntoVentaOpen(false);
+                }}
+                disabled={!tempPuntoVenta}
+                className="px-4 py-2 bg-[var(--primary)] text-white text-xs font-black uppercase tracking-wider rounded-md hover:bg-[var(--primary)]/90 transition active:scale-95 disabled:opacity-50"
+              >
+                Confirmar
+              </button>
             </div>
           </div>
         </div>

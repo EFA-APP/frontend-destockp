@@ -32,6 +32,7 @@ export const ListarContactosApi = async (filtros = {}) => {
 };
 
 export const ObtenerContactoApi = async (codigoSecuencial) => {
+  console.log(codigoSecuencial);
   const { data } = await axiosInitial.get(
     `/contactos/listar/${codigoSecuencial}`,
     {
@@ -94,64 +95,5 @@ export const EliminarConfiguracionCampoApi = async (codigoSecuencial) => {
   const { data } = await axiosInitial.delete(
     `/contactos/configuracion/${codigoSecuencial}`,
   );
-  return data;
-};
-export const ActualizarSaldoApi = async (codigoSecuencial, dto) => {
-  const { data } = await axiosInitial.patch(
-    `/contactos/actualizar-saldo/${codigoSecuencial}`,
-    dto,
-  );
-  return data;
-};
-
-export const ListarMovimientosApi = async (codigoSecuencial, filtros = {}) => {
-  const params = new URLSearchParams({ ...filtros }).toString();
-  const base = codigoSecuencial
-    ? `/contactos/movimientos/${codigoSecuencial}`
-    : `/contactos/movimientos`;
-  
-  const url = `${base}${params ? `?${params}` : ""}`;
-
-  const { data } = await axiosInitial.get(url, { showLoader: false });
-  return data;
-};
-
-export const EmitirCuotasMasivasApi = async (dto) => {
-  const { data } = await axiosInitial.post(
-    `/contactos/emitir-cuotas-masivas`,
-    dto,
-  );
-  return data;
-};
-
-export const CargarInteresMasivaApi = async (dto) => {
-  const { data } = await axiosInitial.post(
-    `/contactos/cargar-interes-masivo`,
-    dto,
-  );
-  return data;
-};
-
-export const ObtenerMetricasCuentaApi = async (codigoEmpresa, codigoCuenta, periodo) => {
-  const { data } = await axiosInitial.get("/contabilidad/cuentas/metricas", {
-    params: {
-      codigoEmpresa,
-      codigoCuenta,
-      periodo,
-    },
-    showLoader: false,
-  });
-  return data;
-};
-
-export const ObtenerMetricasLoteApi = async (codigoEmpresa, periodo, codigoCuenta) => {
-  const { data } = await axiosInitial.get("/contactos/cuotas/metricas-lote", {
-    params: {
-      codigoEmpresa,
-      periodo,
-      codigoCuenta,
-    },
-    showLoader: false,
-  });
   return data;
 };

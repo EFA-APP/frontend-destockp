@@ -1,0 +1,944 @@
+import { k as ge, r as s, j as e, h as ve, u as he } from "./index-B40chGZJ.js";
+import { u as fe } from "./useObtenerMateriasPrimas.query-DpKG2vvN.js";
+import { u as je } from "./useContactos-BAAEKb2P.js";
+import { u as Ne } from "./useDepositoUI-C_Zchswj.js";
+import { u as Se } from "./useCrearMovimiento.mutation-DJr239CW.js";
+import { G as Ce } from "./GuardarIcono-X0HqXi-a.js";
+import { M as Ee, N as ee } from "./MovimientosIcono-D-Sl1-Vk.js";
+import { F as ye } from "./FormularioContacto-CgTWMcnF.js";
+import { u as we } from "./useMateriaPrimaUI-BzyJVQrC.js";
+import { C as Ie } from "./CerrarIcono-D3kBRcyY.js";
+import { P as U } from "./package-BL8JrPA5.js";
+import { C as ke } from "./ContenedorSeccion-m2l3PnEr.js";
+import { E as Ae } from "./EncabezadoSeccion-Bn8hRrTt.js";
+import { S } from "./SearchableSelect-bgkoKC_d.js";
+import { A as Oe } from "./arrow-down-left-CHlcZFg9.js";
+import { C as Pe } from "./calendar-t-e3E7V5.js";
+import { F as ae } from "./file-text-CenuHrjT.js";
+import { U as Re } from "./user-BLGBJKFT.js";
+import { B as se } from "./building-2-BD2l287K.js";
+import { T as Me } from "./truck-XuAprJVH.js";
+import "./materiaprima.api-bw1S-oyo.js";
+import "./useMutation-BCSmbTcT.js";
+import "./usePersistentState-CXYf17y7.js";
+import "./useDepositos.query-Ct2IhdGp.js";
+import "./useCrearProducto.mutation-CBmuPtfT.js";
+import "./producto.api-CJIIAdP0.js";
+import "./movimientos.api-DzztfvQ1.js";
+import "./index-DUIPri7x.js";
+import "./CuentaIcono-DDdKUXiG.js";
+import "./BorrarIcono-BP3NznrB.js";
+import "./useEntidades-CuymRbYT.js";
+import "./TieneAccion-ve4VSAZe.js";
+import "./search-C04IKVS4.js";
+import "./InicioIcono-fTjPqS2l.js";
+import "./VolverIcono-DKK8Rnlx.js";
+import "./chevron-down-BDic3tFv.js";
+const Ge = ({
+    onClose: m,
+    onExito: i,
+    posicion: w = "izquierda",
+    esEspecie: p = !0,
+  }) => {
+    const { crearMateriaPrima: b, estaCreando: n } = we(),
+      { agregarAlerta: j } = ge(),
+      [r, A] = s.useState({
+        nombre: "",
+        tipo: "INSUMO",
+        unidadMedida: "KG",
+        stock: "",
+        cantidadPorPaquete: "",
+      }),
+      O = async (c) => {
+        if ((c.preventDefault(), !r.nombre.trim())) {
+          j({
+            title: "Nombre Requerido",
+            message: `Debe ingresar el nombre de la ${p ? "especie" : "materia prima"}.`,
+            type: "warning",
+          });
+          return;
+        }
+        try {
+          const d = {
+              nombre: r.nombre.trim(),
+              tipo: r.tipo,
+              unidadMedida: r.unidadMedida,
+              activo: !0,
+              stock: parseFloat(r.stock) || 0,
+              cantidadPorPaquete: r.cantidadPorPaquete
+                ? parseFloat(r.cantidadPorPaquete)
+                : null,
+            },
+            C = await b(d);
+          (j({
+            title: `${p ? "Especie" : "Insumo"} Creado`,
+            message: `Se ha registrado "${r.nombre.toUpperCase()}" con éxito.`,
+            type: "success",
+          }),
+            i && i(C),
+            m());
+        } catch (d) {
+          console.error("Error al registrar materia prima:", d);
+        }
+      },
+      P = (c, d) => {
+        A((C) => ({ ...C, [c]: d }));
+      },
+      x = w === "izquierda",
+      I = w === "centro";
+    return e.jsx("div", {
+      className: `fixed inset-0 z-[100] flex ${I ? "items-start justify-center p-4 md:p-6" : x ? "items-stretch justify-start" : "items-center justify-end"} bg-black/50 backdrop-blur-sm transition-all`,
+      onClick: m,
+      children: e.jsxs("div", {
+        className: `w-full bg-[var(--surface)] shadow-2xl flex flex-col ${I ? "max-w-2xl max-h-[85vh] rounded-md border border-[var(--border-subtle)] animate-in zoom-in duration-300" : x ? "md:w-[500px] h-full border-r border-[var(--border-subtle)] slide-in-from-left animate-in duration-300" : "md:w-[500px] h-screen border-l border-[var(--border-subtle)] slide-in-from-right animate-in duration-300"}`,
+        onClick: (c) => c.stopPropagation(),
+        children: [
+          e.jsxs("div", {
+            className:
+              "px-6 py-5 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--surface-hover)]",
+            children: [
+              e.jsxs("div", {
+                className: "flex items-center gap-3",
+                children: [
+                  e.jsx("div", {
+                    className:
+                      "w-10 h-10 rounded-md flex items-center justify-center bg-[var(--primary-subtle)] border border-[var(--primary)]/20 text-[var(--primary)] shadow-sm",
+                    children: e.jsx(U, { size: 18 }),
+                  }),
+                  e.jsxs("div", {
+                    children: [
+                      e.jsx("h2", {
+                        className:
+                          "text-[14px] font-black text-[var(--text-primary)] uppercase tracking-widest leading-none mb-1",
+                        children: p ? "NUEVA ESPECIE" : "NUEVO INSUMO",
+                      }),
+                      e.jsx("p", {
+                        className:
+                          "text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider",
+                        children: "REGISTRO RÁPIDO",
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              e.jsx("button", {
+                onClick: m,
+                className:
+                  "p-2 cursor-pointer rounded-md text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all",
+                children: e.jsx(Ie, { size: 20 }),
+              }),
+            ],
+          }),
+          e.jsxs("form", {
+            onSubmit: O,
+            className: "flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8",
+            children: [
+              e.jsxs("div", {
+                className: "space-y-4",
+                children: [
+                  e.jsxs("div", {
+                    className: "flex items-center gap-3 mb-2",
+                    children: [
+                      e.jsx("span", {
+                        className:
+                          "text-[12px] font-black text-[var(--primary)] uppercase tracking-[0.2em] whitespace-nowrap",
+                        children: "Identificación de Especie",
+                      }),
+                      e.jsx("div", {
+                        className: "h-px w-full bg-[var(--border-subtle)]",
+                      }),
+                    ],
+                  }),
+                  e.jsxs("div", {
+                    className: "space-y-1.5",
+                    children: [
+                      e.jsx("label", {
+                        className:
+                          "text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1",
+                        children: "Nombre de la Especie",
+                      }),
+                      e.jsx("input", {
+                        type: "text",
+                        placeholder: "EJ: TRIGO, MAIZ, SOJA...",
+                        value: r.nombre,
+                        onChange: (c) => P("nombre", c.target.value),
+                        className:
+                          "w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all uppercase",
+                        required: !0,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              e.jsxs("div", {
+                className: "pt-8 flex flex-col gap-3",
+                children: [
+                  e.jsxs("button", {
+                    type: "submit",
+                    disabled: n,
+                    className:
+                      "w-full py-4 bg-[var(--primary)] disabled:opacity-50 text-white rounded-md text-[12px] font-black uppercase tracking-[0.2em] hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-[var(--primary)]/20 cursor-pointer flex items-center justify-center gap-2",
+                    children: [
+                      n &&
+                        e.jsx("div", {
+                          className:
+                            "w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin",
+                        }),
+                      n ? "CREANDO ESPECIE..." : "REGISTRAR ESPECIE",
+                    ],
+                  }),
+                  e.jsx("button", {
+                    type: "button",
+                    onClick: m,
+                    className:
+                      "w-full py-3 bg-[var(--fill-secondary)] text-[var(--text-muted)] rounded-md text-[11px] font-black uppercase tracking-[0.2em] border border-transparent hover:border-[var(--border-subtle)] hover:text-[var(--text-primary)] transition-all cursor-pointer",
+                    children: "DESCARTAR CAMBIOS",
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+    });
+  },
+  Te = [
+    { value: "25", label: "25 kg" },
+    { value: "50", label: "50 kg" },
+    { value: "11.5", label: "11.5 kg" },
+    { value: "22.7", label: "22.7 kg" },
+    { value: "1000", label: "1000 kg" },
+    { value: "800", label: "800 kg" },
+    { value: "1250", label: "1250 kg" },
+    { value: "850", label: "850 kg" },
+    { value: "500", label: "500 kg" },
+    { value: "560", label: "560 kg" },
+    { value: "750", label: "750 kg" },
+    { value: "657", label: "657 kg" },
+    { value: "577", label: "577 kg" },
+    { value: "966", label: "966 kg" },
+    { value: "799", label: "799 kg" },
+    { value: "839", label: "839 kg" },
+    { value: "VARIOS", label: "VARIOS" },
+  ],
+  ze = [
+    { value: "AFUERA", label: "AFUERA" },
+    { value: "SILO 1", label: "SILO 1" },
+    { value: "SILO 2", label: "SILO 2" },
+    { value: "SILO 3", label: "SILO 3" },
+    { value: "D2", label: "D2" },
+    ...Array.from({ length: 60 }, (m, i) => ({
+      value: `PAÑO ${i + 1}`,
+      label: `PAÑO ${i + 1}`,
+    })),
+  ],
+  $e = [
+    { value: "INGRESO", label: "INGRESO" },
+    { value: "EN PROCESO", label: "EN PROCESO" },
+    { value: "TERMINADO", label: "TERMINADO" },
+    { value: "EGRESO", label: "EGRESO" },
+    { value: "TERMINADO MOV. STOCK", label: "TERMINADO MOV. STOCK" },
+  ],
+  ja = () => {
+    const m = ve(),
+      i = he((a) => a.usuario),
+      { mutateAsync: w, isPending: p } = Se(),
+      { data: b = [] } = fe({}),
+      { contactos: n = [] } = je({ limite: 1e3 }),
+      { depositos: j = [] } = Ne(),
+      r = s.useMemo(
+        () =>
+          Array.isArray(b)
+            ? b.filter((a) => a.activo)
+            : Array.isArray(b.data)
+              ? b.data.filter((a) => a.activo)
+              : [],
+        [b],
+      ),
+      A = s.useMemo(
+        () =>
+          (n || []).map((a) => {
+            const o =
+              a.razonSocial ||
+              `${a.nombre || ""} ${a.apellido || ""}`.trim() ||
+              "Sin Nombre";
+            return {
+              value: String(a.codigoSecuencial),
+              label: `${o.toUpperCase()} ${a.documento ? `(${a.documento})` : ""}`,
+            };
+          }),
+        [n],
+      ),
+      O = s.useMemo(
+        () =>
+          r.map((a) => ({
+            value: String(a.codigoSecuencial),
+            label: a.nombre?.toUpperCase(),
+          })),
+        [r],
+      ),
+      P = s.useMemo(
+        () =>
+          j.map((a) => ({
+            value: String(a.codigoSecuencial),
+            label: a.nombre?.toUpperCase(),
+          })),
+        [j],
+      ),
+      [x, I] = s.useState(() => new Date().toISOString().split("T")[0]),
+      [u, R] = s.useState(""),
+      [c, d] = s.useState(!1),
+      [C, M] = s.useState(!1),
+      [g, D] = s.useState(""),
+      [G, K] = s.useState(""),
+      [q, te] = s.useState("INGRESO");
+    s.useEffect(() => {
+      if (!g || !u) {
+        K("");
+        return;
+      }
+      const a = r.find((L) => String(L.codigoSecuencial) === g),
+        o = n.find((L) => String(L.codigoSecuencial) === String(u)),
+        y = (a?.nombre || "ESPECIE")
+          .toUpperCase()
+          .replace(/[^A-Z0-9]/g, "")
+          .substring(0, 6),
+        $ = (o?.razonSocial || o?.nombre || "CLIENTE")
+          .toUpperCase()
+          .replace(/[^A-Z0-9]/g, "")
+          .substring(0, 6),
+        F = x ? new Date(x).getFullYear() : new Date().getFullYear(),
+        f = Math.floor(1e3 + Math.random() * 9e3);
+      K(`${y}-${$}-${F}-${f}`);
+    }, [g, u, x, r, n]);
+    const [v, re] = s.useState(""),
+      [E, le] = s.useState(""),
+      [T, oe] = s.useState(""),
+      [N, ie] = s.useState("GRANEL"),
+      [h, B] = s.useState(""),
+      [k, V] = s.useState(""),
+      [J, ne] = s.useState(""),
+      [_, ce] = s.useState(""),
+      [Z, de] = s.useState(""),
+      [Y, me] = s.useState(""),
+      [H, ue] = s.useState(""),
+      [Q, pe] = s.useState(""),
+      [W, be] = s.useState(""),
+      X = s.useMemo(() => {
+        if (N === "GRANEL") return 1;
+        const a = parseFloat(v),
+          o = parseFloat(h === "VARIOS" ? k : h);
+        return !isNaN(a) && !isNaN(o) && o > 0 ? Math.ceil(a / o) : "";
+      }, [v, N, h, k]),
+      xe = async (a) => {
+        if ((a.preventDefault(), !u || !g || !v || !E)) return;
+        const o = n.find((f) => String(f.codigoSecuencial) === String(u)),
+          y = j.find((f) => String(f.codigoSecuencial) === E),
+          $ = {
+            lote: G,
+            cliente: o?.razonSocial || o?.nombre || "Sin Cliente",
+            clienteId: o?.codigoSecuencial,
+            etapa: q,
+            chofer: J,
+            transporte: _,
+            patente: Z,
+            ctg: Y,
+            cartaPorte: H,
+            ticketBalanza: Q,
+            tipoEnvase: N,
+            kgPorEnvase: parseFloat(
+              N === "GRANEL" ? v : h === "VARIOS" ? k || 0 : h,
+            ),
+            cantidadEnvases: parseInt(X || 1),
+            nombreDeposito: y?.nombre || "Sin Galpón",
+            depositoNombre: y?.nombre || "Sin Galpón",
+            pano: T,
+          },
+          F = {
+            codigoArticulo: parseInt(g),
+            tipoArticulo: "MATERIA_PRIMA",
+            tipoMovimiento: "INGRESO",
+            origenMovimiento: "INGRESO_FRUTA_MP",
+            cantidad: parseFloat(v),
+            codigoDeposito: parseInt(E),
+            lote: G,
+            observacion: `Galpón: ${y?.nombre || "Sin Galpón"} | Paño: ${T || "Sin Paño"} - ${W || "Sin notas"}`,
+            descripcion: JSON.stringify($),
+            codigoUsuario: i?.codigoUsuario || i?.id || 1,
+            nombreUsuario: i?.nombre || "Sistema",
+          };
+        try {
+          (await w(F), m("/panel/movimeintos/historial-movimeitnos"));
+        } catch (f) {
+          console.error("Error al registrar ingreso:", f);
+        }
+      },
+      t =
+        "text-sm font-semibold text-slate-700 uppercase mb-2 ml-0.5 flex items-center gap-2",
+      l =
+        "w-full bg-blue-100/50 focus:bg-white border border-slate-300 rounded-md px-4 py-3 text-[15px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all",
+      z =
+        "bg-[#fcfcfd] border border-slate-300/70 rounded-md p-7 shadow-sm hover:shadow-md transition-all duration-200";
+    return e.jsxs(e.Fragment, {
+      children: [
+        e.jsxs(ke, {
+          className: "px-6 py-5 bg-[#f3f6f9] min-h-screen",
+          children: [
+            e.jsx(Ae, {
+              ruta: "Nuevo Ingreso de Grano",
+              icono: e.jsx(Ee, { size: 22, className: "text-blue-700" }),
+              volver: !0,
+              redireccionAnterior: -1,
+            }),
+            e.jsxs("form", {
+              onSubmit: xe,
+              className: "w-full mt-6 space-y-7 pb-24",
+              children: [
+                e.jsxs("div", {
+                  className:
+                    "grid grid-cols-1 xl:grid-cols-12 gap-7 items-start",
+                  children: [
+                    e.jsxs("div", {
+                      className: `xl:col-span-8 ${z}`,
+                      children: [
+                        e.jsxs("div", {
+                          className:
+                            "flex items-center gap-3 pb-5 border-b border-slate-200 mb-6",
+                          children: [
+                            e.jsx("div", {
+                              className:
+                                "w-11 h-11 rounded-md bg-blue-50 border border-blue-100 text-blue-700 flex items-center justify-center",
+                              children: e.jsx(Oe, { size: 20 }),
+                            }),
+                            e.jsxs("div", {
+                              children: [
+                                e.jsx("h2", {
+                                  className:
+                                    "text-[22px] font-black text-slate-800",
+                                  children: "Información del Ingreso",
+                                }),
+                                e.jsx("p", {
+                                  className:
+                                    "text-[14px] text-slate-500 font-medium",
+                                  children:
+                                    "Datos generales del ingreso de mercadería",
+                                }),
+                              ],
+                            }),
+                          ],
+                        }),
+                        e.jsxs("div", {
+                          className: "grid grid-cols-1 lg:grid-cols-3 gap-6",
+                          children: [
+                            e.jsxs("div", {
+                              children: [
+                                e.jsxs("label", {
+                                  className: t,
+                                  children: [
+                                    e.jsx(Pe, {
+                                      size: 16,
+                                      className: "text-blue-600",
+                                    }),
+                                    "Fecha",
+                                  ],
+                                }),
+                                e.jsx("input", {
+                                  type: "date",
+                                  required: !0,
+                                  value: x,
+                                  onChange: (a) => I(a.target.value),
+                                  className: l,
+                                }),
+                              ],
+                            }),
+                            e.jsxs("div", {
+                              children: [
+                                e.jsxs("label", {
+                                  className: t,
+                                  children: [
+                                    e.jsx(ae, {
+                                      size: 16,
+                                      className: "text-blue-600",
+                                    }),
+                                    "Código de Lote",
+                                  ],
+                                }),
+                                e.jsx("input", {
+                                  type: "text",
+                                  disabled: !0,
+                                  value: G || "AUTOMÁTICO",
+                                  className: `${l} bg-slate-100 font-mono font-semibold`,
+                                }),
+                              ],
+                            }),
+                            e.jsxs("div", {
+                              children: [
+                                e.jsxs("label", {
+                                  className: t,
+                                  children: [
+                                    e.jsx(ae, {
+                                      size: 16,
+                                      className: "text-blue-600",
+                                    }),
+                                    "Etapa",
+                                  ],
+                                }),
+                                e.jsx(S, {
+                                  options: $e,
+                                  value: q,
+                                  onChange: (a) => te(a.target.value),
+                                }),
+                              ],
+                            }),
+                          ],
+                        }),
+                        e.jsxs("div", {
+                          className: "mt-6",
+                          children: [
+                            e.jsxs("label", {
+                              className: t,
+                              children: [
+                                e.jsx(Re, {
+                                  size: 16,
+                                  className: "text-blue-600",
+                                }),
+                                "Cliente / Remitente",
+                              ],
+                            }),
+                            e.jsxs("div", {
+                              className: "flex gap-2 items-center w-full",
+                              children: [
+                                e.jsx("div", {
+                                  className: "flex-grow min-w-0",
+                                  children: e.jsx(S, {
+                                    className: "w-full",
+                                    options: A,
+                                    value: u,
+                                    onChange: (a) => R(a.target.value),
+                                  }),
+                                }),
+                                e.jsxs("button", {
+                                  type: "button",
+                                  onClick: () => d(!0),
+                                  className:
+                                    "flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-600 rounded-md font-black text-[10px] border border-blue-500 uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all cursor-pointer whitespace-nowrap h-[42px]",
+                                  children: [
+                                    e.jsx(ee, { size: 16 }),
+                                    "+ Nuevo",
+                                  ],
+                                }),
+                              ],
+                            }),
+                          ],
+                        }),
+                        e.jsxs("div", {
+                          className: "mt-6",
+                          children: [
+                            e.jsxs("label", {
+                              className: t,
+                              children: [
+                                e.jsx(U, {
+                                  size: 16,
+                                  className: "text-blue-600",
+                                }),
+                                "Especie",
+                              ],
+                            }),
+                            e.jsxs("div", {
+                              className: "flex gap-2 items-center w-full",
+                              children: [
+                                e.jsx("div", {
+                                  className: "flex-grow min-w-0",
+                                  children: e.jsx(S, {
+                                    className: "w-full",
+                                    options: O,
+                                    value: g,
+                                    onChange: (a) => D(a.target.value),
+                                  }),
+                                }),
+                                e.jsxs("button", {
+                                  type: "button",
+                                  onClick: () => M(!0),
+                                  className:
+                                    "flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-600 rounded-md font-black text-[10px] border border-blue-500 uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all cursor-pointer whitespace-nowrap h-[42px]",
+                                  children: [
+                                    e.jsx(ee, { size: 16 }),
+                                    "+ Nuevo",
+                                  ],
+                                }),
+                              ],
+                            }),
+                          ],
+                        }),
+                        e.jsxs("div", {
+                          className:
+                            "grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6",
+                          children: [
+                            e.jsxs("div", {
+                              children: [
+                                e.jsxs("label", {
+                                  className: t,
+                                  children: [
+                                    e.jsx(se, {
+                                      size: 16,
+                                      className: "text-blue-600",
+                                    }),
+                                    "Paño / Sector",
+                                  ],
+                                }),
+                                e.jsx(S, {
+                                  options: ze,
+                                  value: T,
+                                  onChange: (a) => oe(a.target.value),
+                                }),
+                              ],
+                            }),
+                            e.jsxs("div", {
+                              children: [
+                                e.jsxs("label", {
+                                  className: t,
+                                  children: [
+                                    e.jsx(se, {
+                                      size: 16,
+                                      className: "text-blue-600",
+                                    }),
+                                    "Ubicación",
+                                  ],
+                                }),
+                                e.jsx(S, {
+                                  options: P,
+                                  value: E,
+                                  onChange: (a) => le(a.target.value),
+                                }),
+                              ],
+                            }),
+                          ],
+                        }),
+                      ],
+                    }),
+                    e.jsxs("div", {
+                      className: `xl:col-span-4 ${z}`,
+                      children: [
+                        e.jsxs("div", {
+                          className:
+                            "flex items-center gap-3 pb-5 border-b border-slate-200 mb-6",
+                          children: [
+                            e.jsx("div", {
+                              className:
+                                "w-11 h-11 rounded-md bg-blue-50 border border-blue-100 text-blue-700 flex items-center justify-center",
+                              children: e.jsx(U, { size: 20 }),
+                            }),
+                            e.jsxs("div", {
+                              children: [
+                                e.jsx("h2", {
+                                  className:
+                                    "text-[20px] font-black text-slate-800",
+                                  children: "Configuración de Carga",
+                                }),
+                                e.jsx("p", {
+                                  className:
+                                    "text-[14px] text-slate-500 font-medium",
+                                  children: "Peso y envases",
+                                }),
+                              ],
+                            }),
+                          ],
+                        }),
+                        e.jsxs("div", {
+                          children: [
+                            e.jsx("label", {
+                              className: t,
+                              children: "Kilos Netos",
+                            }),
+                            e.jsxs("div", {
+                              className: "relative",
+                              children: [
+                                e.jsx("input", {
+                                  type: "number",
+                                  step: "any",
+                                  required: !0,
+                                  placeholder: "0.00",
+                                  value: v,
+                                  onChange: (a) => re(a.target.value),
+                                  className: `${l} text-xl font-semibold pr-16`,
+                                }),
+                                e.jsx("div", {
+                                  className:
+                                    "absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400",
+                                  children: "KG",
+                                }),
+                              ],
+                            }),
+                          ],
+                        }),
+                        e.jsxs("div", {
+                          className: "mt-6",
+                          children: [
+                            e.jsx("label", {
+                              className: t,
+                              children: "Tipo de Envase",
+                            }),
+                            e.jsx("div", {
+                              className: "grid grid-cols-3 gap-2",
+                              children: ["GRANEL", "BIG BAGS", "BOLSAS"].map(
+                                (a) =>
+                                  e.jsx(
+                                    "button",
+                                    {
+                                      type: "button",
+                                      onClick: () => {
+                                        (ie(a), a === "GRANEL" && B(""));
+                                      },
+                                      className: `py-3 rounded-md border text-sm font-semibold transition-all ${N === a ? "bg-blue-600 text-white border-blue-600 shadow-sm" : "bg-white text-slate-600 border-slate-300 hover:border-blue-400"}`,
+                                      children: a,
+                                    },
+                                    a,
+                                  ),
+                              ),
+                            }),
+                          ],
+                        }),
+                        N !== "GRANEL" &&
+                          e.jsxs("div", {
+                            className: "grid grid-cols-1 gap-6 mt-6",
+                            children: [
+                              e.jsxs("div", {
+                                children: [
+                                  e.jsx("label", {
+                                    className: t,
+                                    children: "Kg por Envase",
+                                  }),
+                                  e.jsx(S, {
+                                    options: Te,
+                                    value: h,
+                                    onChange: (a) => {
+                                      (B(a.target.value),
+                                        a.target.value !== "VARIOS" && V(""));
+                                    },
+                                  }),
+                                  h === "VARIOS" &&
+                                    e.jsx("input", {
+                                      type: "number",
+                                      required: !0,
+                                      placeholder: "Ingrese KG...",
+                                      value: k,
+                                      onChange: (a) => V(a.target.value),
+                                      className: `${l} mt-3`,
+                                    }),
+                                ],
+                              }),
+                              e.jsxs("div", {
+                                children: [
+                                  e.jsx("label", {
+                                    className: t,
+                                    children: "Cantidad de Envases",
+                                  }),
+                                  e.jsx("input", {
+                                    type: "number",
+                                    disabled: !0,
+                                    value: X,
+                                    className: `${l} bg-slate-100 font-semibold text-center`,
+                                  }),
+                                ],
+                              }),
+                            ],
+                          }),
+                      ],
+                    }),
+                  ],
+                }),
+                e.jsxs("div", {
+                  className: z,
+                  children: [
+                    e.jsxs("div", {
+                      className:
+                        "flex items-center gap-3 pb-5 border-b border-slate-200 mb-6",
+                      children: [
+                        e.jsx("div", {
+                          className:
+                            "w-11 h-11 rounded-md bg-blue-50 border border-blue-100 text-blue-700 flex items-center justify-center",
+                          children: e.jsx(Me, { size: 20 }),
+                        }),
+                        e.jsxs("div", {
+                          children: [
+                            e.jsx("h2", {
+                              className:
+                                "text-[20px] font-black text-slate-800",
+                              children: "Logística y Transporte",
+                            }),
+                            e.jsx("p", {
+                              className:
+                                "text-[14px] text-slate-500 font-medium",
+                              children: "Información opcional de traslado",
+                            }),
+                          ],
+                        }),
+                      ],
+                    }),
+                    e.jsxs("div", {
+                      className: "grid grid-cols-1 lg:grid-cols-3 gap-6",
+                      children: [
+                        e.jsxs("div", {
+                          children: [
+                            e.jsx("label", {
+                              className: t,
+                              children: "Nombre Chofer",
+                            }),
+                            e.jsx("input", {
+                              type: "text",
+                              value: J,
+                              onChange: (a) => ne(a.target.value),
+                              placeholder: "Ej: Juan Pérez",
+                              className: l,
+                            }),
+                          ],
+                        }),
+                        e.jsxs("div", {
+                          children: [
+                            e.jsx("label", {
+                              className: t,
+                              children: "Empresa Transporte",
+                            }),
+                            e.jsx("input", {
+                              type: "text",
+                              value: _,
+                              onChange: (a) => ce(a.target.value),
+                              placeholder: "Ej: Transporte SRL",
+                              className: l,
+                            }),
+                          ],
+                        }),
+                        e.jsxs("div", {
+                          children: [
+                            e.jsx("label", {
+                              className: t,
+                              children: "Patente",
+                            }),
+                            e.jsx("input", {
+                              type: "text",
+                              value: Z,
+                              onChange: (a) => de(a.target.value),
+                              placeholder: "AA123BB",
+                              className: l,
+                            }),
+                          ],
+                        }),
+                      ],
+                    }),
+                    e.jsxs("div", {
+                      className: "grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6",
+                      children: [
+                        e.jsxs("div", {
+                          children: [
+                            e.jsx("label", {
+                              className: t,
+                              children: "Código CTG",
+                            }),
+                            e.jsx("input", {
+                              type: "text",
+                              value: Y,
+                              onChange: (a) => me(a.target.value),
+                              className: l,
+                            }),
+                          ],
+                        }),
+                        e.jsxs("div", {
+                          children: [
+                            e.jsx("label", {
+                              className: t,
+                              children: "Carta de Porte",
+                            }),
+                            e.jsx("input", {
+                              type: "text",
+                              value: H,
+                              onChange: (a) => ue(a.target.value),
+                              className: l,
+                            }),
+                          ],
+                        }),
+                        e.jsxs("div", {
+                          children: [
+                            e.jsx("label", {
+                              className: t,
+                              children: "Ticket Balanza",
+                            }),
+                            e.jsx("input", {
+                              type: "text",
+                              value: Q,
+                              onChange: (a) => pe(a.target.value),
+                              className: l,
+                            }),
+                          ],
+                        }),
+                      ],
+                    }),
+                    e.jsxs("div", {
+                      className: "mt-6",
+                      children: [
+                        e.jsx("label", {
+                          className: t,
+                          children: "Observaciones",
+                        }),
+                        e.jsx("textarea", {
+                          rows: 4,
+                          value: W,
+                          onChange: (a) => be(a.target.value),
+                          placeholder: "Escriba observaciones...",
+                          className: `${l} resize-none`,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                e.jsxs("div", {
+                  className: "flex items-center justify-end gap-4 pt-2",
+                  children: [
+                    e.jsx("button", {
+                      type: "button",
+                      onClick: () => m(-1),
+                      className:
+                        "px-6 py-3 rounded-md border border-slate-300 bg-white text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-all",
+                      children: "Cancelar",
+                    }),
+                    e.jsxs("button", {
+                      type: "submit",
+                      disabled: p || !u || !g || !v || !E,
+                      className:
+                        "px-7 py-3 rounded-md bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white text-sm font-semibold shadow-sm transition-all flex items-center gap-2",
+                      children: [
+                        p
+                          ? e.jsx("div", {
+                              className:
+                                "w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin",
+                            })
+                          : e.jsx(Ce, { size: 15 }),
+                        p ? "Registrando..." : "Confirmar Ingreso",
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        }),
+        c &&
+          e.jsx(ye, {
+            entidad: { clave: "CLIENTES", nombre: "CLIENTES" },
+            posicion: "centro",
+            onClose: () => d(!1),
+            onExito: (a) => {
+              (R(String(a.codigoSecuencial)), d(!1));
+            },
+          }),
+        C &&
+          e.jsx(Ge, {
+            posicion: "centro",
+            onClose: () => M(!1),
+            onExito: (a) => {
+              (D(String(a.codigoSecuencial)), M(!1));
+            },
+          }),
+      ],
+    });
+  };
+export { ja as default };

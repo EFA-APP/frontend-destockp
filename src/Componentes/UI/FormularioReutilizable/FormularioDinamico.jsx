@@ -689,7 +689,7 @@ const FormularioDinamico = ({
               {items.map((item, idx) => (
                 <div
                   key={item.id}
-                  className="relative p-5 rounded-2xl bg-black/5 border border-black/10 backdrop-blur-md shadow-xl    "
+                  className="relative p-5 rounded-md bg-black/5 border border-black/10 backdrop-blur-md shadow-xl    "
                 >
                   <div className="flex justify-between items-start mb-4">
                     <span className="px-3 py-1 rounded-full bg-[var(--primary-subtle)]/50 text-[var(--primary)] text-[11px] font-black uppercase tracking-widest">

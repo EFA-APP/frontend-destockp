@@ -1,12 +1,22 @@
 import { useState, useEffect, useMemo } from "react";
 import { useProductoUI } from "../Articulos/hooks/Producto/useProductoUI";
 import { useObtenerCuentasImputablesQuery } from "../Contabilidad/queries/useCuentas.query";
+import { useAuthStore } from "../Autenticacion/store/authenticacion.store";
 
 // Tasas de IVA habituales en Argentina. Ajustá esta lista si tu negocio
 // trabaja con otras alícuotas. Se usa tanto en el modal como en el carrito.
 export const TASAS_IVA = [0, 10.5, 21, 27];
 
+export const TIPO_FISCAL_OPTIONS = {
+  GRAVADO:    "Gravado 0%",
+  EXENTO:     "Exento",
+  NO_GRAVADO: "No Gravado",
+};
+
 export const useDetalleComprobante = (tipoOperacion = "INGRESO") => {
+  const { usuario } = useAuthStore();
+  const codigoEmpresa = usuario?.codigoEmpresa;
+
   const [tipoDetalle, setTipoDetalle] = useState("PRODUCTO"); // MATERIA_PRIMA / CUENTA_CONTABLE
 
   const tipoCuentaContable =
@@ -38,6 +48,7 @@ export const useDetalleComprobante = (tipoOperacion = "INGRESO") => {
     useObtenerCuentasImputablesQuery(
       tipoDetalle === "CUENTA_CONTABLE" ? tipoCuentaContable : null,
       busquedaCCDebounced || undefined,
+      codigoEmpresa,
     );
   const cuentasContables = Array.isArray(dataCuentas) ? dataCuentas : [];
 
@@ -111,6 +122,8 @@ export const useDetalleComprobante = (tipoOperacion = "INGRESO") => {
           precioUnitario,
           descuento: 0,
           tasaIva,
+          tipoFiscal: opciones.tipoFiscal || "GRAVADO",
+          codigoDeposito: opciones.codigoDeposito ?? 0,
         },
       ];
     });
@@ -130,6 +143,16 @@ export const useDetalleComprobante = (tipoOperacion = "INGRESO") => {
       prev.map((i) =>
         i.codigoSecuencial === codigoSecuencial
           ? { ...i, tasaIva: parseFloat(tasaIva) || 0 }
+          : i,
+      ),
+    );
+  };
+
+  const actualizarTipoFiscalItem = (codigoSecuencial, tipoFiscal) => {
+    setItems((prev) =>
+      prev.map((i) =>
+        i.codigoSecuencial === codigoSecuencial
+          ? { ...i, tipoFiscal }
           : i,
       ),
     );
@@ -195,9 +218,11 @@ export const useDetalleComprobante = (tipoOperacion = "INGRESO") => {
     actualizarCantidadItem,
     actualizarPrecioItem,
     actualizarTasaIvaItem,
+    actualizarTipoFiscalItem,
     quitarItem,
     subtotalSinIva,
     totalIva,
     totalGeneral,
+    TIPO_FISCAL_OPTIONS,
   };
 };

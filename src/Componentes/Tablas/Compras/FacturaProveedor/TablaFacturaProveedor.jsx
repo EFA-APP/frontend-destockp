@@ -38,8 +38,6 @@ const TablaFacturasProveedor = () => {
     setUnidadNegocio,
   } = facturasData;
 
-
-
   const opcionesUnidad = useMemo(() => {
     return (usuario?.unidadesNegocio || []).map((un) => ({
       valor: un.codigoSecuencial,
@@ -195,7 +193,7 @@ const TablaFacturasProveedor = () => {
             mostrarBuscador={false}
             todasExpandidas={true}
             elementosSuperior={
-              <div className="flex flex-wrap items-center gap-4 bg-zinc-950/40 backdrop-blur-md border border-black/5 p-2 rounded-2xl shadow-2xl">
+              <div className="flex flex-wrap items-center gap-4 bg-zinc-950/40 backdrop-blur-md border border-black/5 p-2 rounded-md shadow-2xl">
                 <div className="min-w-[220px]">
                   <Select
                     valor={unidadNegocio}
@@ -211,7 +209,7 @@ const TablaFacturasProveedor = () => {
           />
         </div>
 
-        <div className="flex flex-col items-center justify-center py-32 rounded-3xl bg-zinc-950/20 border border-black/5 border-dashed">
+        <div className="flex flex-col items-center justify-center py-32 rounded-md bg-zinc-950/20 border border-black/5 border-dashed">
           <div className="w-20 h-20 bg-[var(--primary)]/10 rounded-md flex items-center justify-center mb-6 border border-[var(--primary)]/20 rotate-3">
             <LayoutGrid size={40} className="text-[var(--primary)]" />
           </div>

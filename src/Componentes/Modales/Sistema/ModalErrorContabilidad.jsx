@@ -20,7 +20,7 @@ const ModalErrorContabilidad = ({
       />
 
       {/* Contenedor del Modal */}
-      <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-red-100">
+      <div className="relative w-full max-w-lg bg-white rounded-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-red-100">
         {/* Cabecera de Advertencia */}
         <div className="bg-red-500 p-6 flex flex-col items-center text-center gap-4">
           <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center animate-bounce">

@@ -6,10 +6,10 @@ import {
 } from "../../../assets/Icons";
 import { useAuthStore } from "../../../Backend/Autenticacion/store/authenticacion.store";
 
-const MenuConfiguracion = ({ onClose, onOpenVisual }) => {
+const MenuConfiguracion = ({ onClose }) => {
   const usuario = useAuthStore((state) => state.usuario);
   return (
-    <div className="absolute right-0 top-full mt-3 z-100 w-72 rounded-2xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-[0_12px_40px_rgba(0,0,0,0.08)] overflow-hidden">
+    <div className="absolute right-0 top-full mt-3 z-100 w-72 rounded-md bg-[var(--surface)] border border-[var(--border-subtle)] shadow-[0_12px_40px_rgba(0,0,0,0.08)] overflow-hidden">
       {/* Header */}
       <div className="px-5 py-5 border-b border-[var(--border-subtle)] bg-gradient-to-br from-[var(--surface-hover)] to-[var(--fill)]">
         <div className="flex items-center gap-3">
@@ -51,31 +51,6 @@ const MenuConfiguracion = ({ onClose, onOpenVisual }) => {
           </div>
         </Link>
 
-        {usuario?.roles?.some((r) => r.nombre === "ADMINISTRADOR") && (
-          <button
-            onClick={() => {
-              onClose();
-              onOpenVisual();
-            }}
-            className="flex items-center gap-4 px-3 py-3 rounded-md transition-all duration-200 hover:bg-[var(--primary-subtle)] group border border-transparent hover:border-[var(--primary)]/10 w-full text-left bg-transparent cursor-pointer"
-          >
-            <div className="p-2 rounded-md bg-[var(--fill-secondary)] border border-[var(--border-subtle)] group-hover:bg-[var(--primary)] group-hover:border-[var(--primary)] transition-colors">
-              <ConfiguracionIcono
-                size={16}
-                className="text-[var(--text-secondary)] group-hover:text-white transition-colors"
-                color="currentColor"
-              />
-            </div>
-            <div className="flex flex-col flex-1">
-              <span className="text-[12px] font-bold text-[var(--text-primary)] uppercase tracking-widest group-hover:text-[var(--primary)] transition-colors">
-                Diseño Empresa
-              </span>
-              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider pt-0.5">
-                Logo y Colores
-              </span>
-            </div>
-          </button>
-        )}
       </div>
 
       {/* Footer */}

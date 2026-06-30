@@ -19,7 +19,9 @@ const GestionarDeposito = () => {
   const esGalpon = location.pathname.includes("/inventario/galpones");
   const labelSingular = esGalpon ? "Galpón" : "Depósito";
   const labelPlural = esGalpon ? "Galpones" : "Depósitos";
-  const baseRoute = esGalpon ? "/panel/inventario/galpones" : "/panel/inventario/depositos";
+  const baseRoute = esGalpon
+    ? "/panel/inventario/galpones"
+    : "/panel/inventario/depositos";
 
   const {
     depositos,
@@ -69,7 +71,7 @@ const GestionarDeposito = () => {
   if (esEdicion && !depositoAEditar && cargando) {
     return (
       <ContenedorSeccion className="px-3 py-4">
-        <div className="flex flex-col items-center justify-center p-12 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-2xl ">
+        <div className="flex flex-col items-center justify-center p-12 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md ">
           <div className="w-12 h-12 bg-[var(--primary)]/20 rounded-full mb-4" />
           <div className="h-4 w-48 bg-black/5 rounded-full mb-2" />
           <div className="h-3 w-32 bg-black/5 rounded-full" />
@@ -81,7 +83,7 @@ const GestionarDeposito = () => {
   if (esEdicion && !depositoAEditar && !cargando) {
     return (
       <ContenedorSeccion className="px-3 py-4">
-        <div className="text-black text-center p-8 bg-rose-700/10 border border-rose-700/20 rounded-2xl shadow-xl backdrop-blur-sm">
+        <div className="text-black text-center p-8 bg-rose-700/10 border border-rose-700/20 rounded-md shadow-xl backdrop-blur-sm">
           <p className="text-rose-700 font-black uppercase tracking-widest mb-2">
             Error de Identificación
           </p>
@@ -111,7 +113,11 @@ const GestionarDeposito = () => {
     <ContenedorSeccion className="px-3 py-4">
       <div className="card no-inset no-ring bg-[var(--surface)] shadow-md rounded-md mb-6 overflow-hidden">
         <EncabezadoSeccion
-          ruta={esEdicion ? `Edición de ${labelSingular}` : `Gestión de ${labelPlural}`}
+          ruta={
+            esEdicion
+              ? `Edición de ${labelSingular}`
+              : `Gestión de ${labelPlural}`
+          }
           icono={<InventarioIcono size={18} />}
           volver={true}
           redireccionAnterior={baseRoute}
@@ -119,7 +125,11 @@ const GestionarDeposito = () => {
       </div>
 
       <FormularioDinamico
-        titulo={esEdicion ? `Configurar ${labelSingular}` : `Alta de Punto de ${labelSingular}`}
+        titulo={
+          esEdicion
+            ? `Configurar ${labelSingular}`
+            : `Alta de Punto de ${labelSingular}`
+        }
         subtitulo={
           esEdicion
             ? `Actualice la información de ${depositoAEditar?.nombre || `el ${labelSingular.toLowerCase()}`}.`

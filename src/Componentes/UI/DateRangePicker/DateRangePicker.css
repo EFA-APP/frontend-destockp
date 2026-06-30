@@ -1,0 +1,33 @@
+.rdp-custom {
+  --rdp-accent-color: var(--primary);
+  --rdp-background-color: var(--primary-subtle, rgba(0, 0, 0, 0.05));
+  --rdp-accent-color-dark: var(--primary);
+  --rdp-background-color-dark: var(--primary-subtle, rgba(255, 255, 255, 0.1));
+  --rdp-outline: 2px solid var(--primary);
+  --rdp-outline-selected: 2px solid var(--primary);
+  
+  font-family: inherit;
+  font-size: 11px;
+}
+
+/* Modificar bordes para ser mas redondeados si se desea */
+.rdp-custom .rdp-day {
+  border-radius: 6px; /* rounded-md */
+}
+
+/* Quitar padding extra y ajustar tipografias para que se vea moderno */
+.rdp-custom .rdp-caption_label {
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+}
+
+.rdp-custom .rdp-head_cell {
+  font-weight: 900;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}

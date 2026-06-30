@@ -831,7 +831,7 @@ const LandingPage = () => {
   if (error) {
     return (
       <div className="error-screen flex items-center justify-center min-h-screen">
-        <div className="text-center p-8 max-w-md landing-glass rounded-lg">
+        <div className="text-center p-8 max-w-md landing-glass rounded-md">
           <Globe className="w-16 h-16 mx-auto mb-4 text-rose-500 animate-pulse" />
           <h2 className="text-rose-500 text-2xl font-black mb-3">
             Servicio No Disponible
@@ -874,7 +874,7 @@ const LandingPage = () => {
         <nav className="landing-nav landing-glass">
           <div className="flex items-center gap-3">
             <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center text-white shadow-md cursor-pointer transition-all hover:scale-105"
+              className="w-10 h-10 rounded-md flex items-center justify-center text-white shadow-md cursor-pointer transition-all hover:scale-105"
               style={{ backgroundColor: tenant.primaryColor }}
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             >
@@ -1001,7 +1001,7 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="md:col-span-5 relative animate-in fade-in zoom-in-95 duration-1000">
-            <div className="hero-image-frame rounded-2xl overflow-hidden shadow-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-3">
+            <div className="hero-image-frame rounded-md overflow-hidden shadow-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-3">
               <img
                 src={tenant.bannerImage}
                 alt={tenant.name}
@@ -1010,7 +1010,7 @@ const LandingPage = () => {
             </div>
             {/* Styled accent floating tag */}
             <div className="absolute -bottom-4 -left-4 bg-white p-4 rounded-xl shadow-lg border border-slate-100 flex items-center gap-3">
-              <div className="p-2.5 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
+              <div className="p-2.5 rounded-md bg-[var(--primary)]/10 text-[var(--primary)]">
                 {tenant.icon}
               </div>
               <div className="flex flex-col text-left">
@@ -1084,7 +1084,7 @@ const LandingPage = () => {
                     className="feature-card-modern text-left flex gap-5 items-start"
                   >
                     <div
-                      className="p-4 rounded-2xl text-white shadow-lg flex-shrink-0"
+                      className="p-4 rounded-md text-white shadow-lg flex-shrink-0"
                       style={{
                         background: `linear-gradient(135deg, ${tenant.primaryColor}, ${tenant.secondaryColor})`,
                       }}
@@ -1379,7 +1379,7 @@ const LandingPage = () => {
       {/* 🛠️ MODAL: PRODUCT DETAILS (Technial Sheet View) */}
       {selectedProduct && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100 flex flex-col text-left">
+          <div className="bg-white rounded-md max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100 flex flex-col text-left">
             {/* Header image */}
             <div className="h-[240px] bg-slate-50 flex items-center justify-center border-b border-slate-100 relative overflow-hidden">
               <img
@@ -1455,13 +1455,13 @@ const LandingPage = () => {
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => handleProductWhatsAppInquiry(selectedProduct)}
-                  className="flex-grow py-3 bg-[var(--primary)] text-white font-black text-xs uppercase tracking-widest rounded-lg transition-all hover:brightness-110 active:scale-98 text-center"
+                  className="flex-grow py-3 bg-[var(--primary)] text-white font-black text-xs uppercase tracking-widest rounded-md transition-all hover:brightness-110 active:scale-98 text-center"
                 >
                   Consultar vía WhatsApp
                 </button>
                 <button
                   onClick={() => setSelectedProduct(null)}
-                  className="px-6 py-3 border border-slate-200 text-slate-600 font-black text-xs uppercase tracking-widest rounded-lg transition-all hover:bg-slate-50"
+                  className="px-6 py-3 border border-slate-200 text-slate-600 font-black text-xs uppercase tracking-widest rounded-md transition-all hover:bg-slate-50"
                 >
                   Cerrar
                 </button>
@@ -1487,7 +1487,7 @@ const LandingPage = () => {
           <img
             src={selectedImage}
             alt="Zoom Imagen"
-            className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl border border-white/5 animate-in zoom-in-95 duration-300"
+            className="max-w-full max-h-[85vh] object-contain rounded-md shadow-2xl border border-white/5 animate-in zoom-in-95 duration-300"
           />
         </div>
       )}

@@ -88,11 +88,11 @@ const Inicio = () => {
   if (!tienePermisos) {
     return (
       <div className="p-4 lg:p-8 flex items-center justify-center min-h-[80vh]   ">
-        <div className="max-w-md w-full bg-[var(--fill)] border border-black/5 rounded-3xl p-8 flex flex-col items-center text-center shadow-2xl relative overflow-hidden">
+        <div className="max-w-md w-full bg-[var(--fill)] border border-black/5 rounded-md p-8 flex flex-col items-center text-center shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-44 h-44 bg-amber-700/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-44 h-44 bg-[var(--primary)]/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none" />
 
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-700/20 to-amber-700/5 text-amber-700 flex items-center justify-center border border-amber-700/20 mb-6 shadow-xl">
+          <div className="w-16 h-16 rounded-md bg-gradient-to-br from-amber-700/20 to-amber-700/5 text-amber-700 flex items-center justify-center border border-amber-700/20 mb-6 shadow-xl">
             <Lock size={30} strokeWidth={2} />
           </div>
 
@@ -105,7 +105,7 @@ const Inicio = () => {
             actualmente no posees módulos habilitados.
           </p>
 
-          <div className="w-full mt-6 py-4 px-5 rounded-2xl bg-black/5 border border-black/5 text-left flex items-start gap-4">
+          <div className="w-full mt-6 py-4 px-5 rounded-md bg-black/5 border border-black/5 text-left flex items-start gap-4">
             <div className="w-8 h-8 rounded-md bg-[var(--primary)]/20 text-[var(--primary)] flex items-center justify-center border border-[var(--primary)] shrink-0 font-bold">
               ?
             </div>

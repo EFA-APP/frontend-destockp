@@ -1,6 +1,6 @@
 import { BorrarIcono } from "../../../../assets/Icons";
 import { formatPrice } from "../../../../utils/formatters";
-import { TASAS_IVA } from "../../../../Backend/Comprobantes/useDetalleComprobante";
+import { TASAS_IVA, TIPO_FISCAL_OPTIONS } from "../../../../Backend/Comprobantes/useDetalleComprobante";
 
 const ETIQUETAS_TIPO = {
   PRODUCTO: "Producto",
@@ -20,16 +20,24 @@ const FieldLabel = ({ children }) => (
   </span>
 );
 
+const TIPOS_CON_SELECTOR_FISCAL = [1, 6];
+
 const CarritoDetalle = ({
   items = [],
   actualizarCantidadItem,
   actualizarPrecioItem,
   actualizarTasaIvaItem,
+  actualizarTipoFiscalItem,
   quitarItem,
   subtotalSinIva,
   totalIva,
   totalGeneral,
+  totalRecargo = 0,
+  codigoTipoComprobante,
+  otrosTributos = 0,
+  setOtrosTributos,
 }) => {
+  const mostrarSelectorFiscal = TIPOS_CON_SELECTOR_FISCAL.includes(Number(codigoTipoComprobante));
   if (!items || items.length === 0) {
     return (
       <div className="mx-4 mb-3 py-10 text-center border-2 border-dashed border-gray-100 rounded-md">
@@ -127,25 +135,62 @@ const CarritoDetalle = ({
                 )}
 
                 {/* IVA */}
-                <div>
-                  <FieldLabel>IVA</FieldLabel>
-                  <select
-                    value={item.tasaIva || 0}
-                    onChange={(e) =>
-                      actualizarTasaIvaItem(
-                        item.codigoSecuencial,
-                        e.target.value,
-                      )
-                    }
-                    className="h-[30px] px-2 border border-gray-200 rounded-md text-md font-bold text-gray-700 bg-white focus:outline-none focus:border-[var(--primary)] cursor-pointer"
-                  >
-                    {TASAS_IVA.map((tasa) => (
-                      <option key={tasa} value={tasa}>
-                        {tasa === 0 ? "Sin IVA" : `${tasa}%`}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {(() => {
+                  const sinIvaGravado =
+                    mostrarSelectorFiscal &&
+                    (item.tasaIva || 0) === 0 &&
+                    (!item.tipoFiscal || item.tipoFiscal === "GRAVADO");
+                  return (
+                    <div>
+                      <FieldLabel>
+                        IVA{sinIvaGravado && (
+                          <span className="ml-1 text-amber-500 animate-pulse">
+                            ¡requerido!
+                          </span>
+                        )}
+                      </FieldLabel>
+                      <select
+                        value={item.tasaIva || 0}
+                        onChange={(e) => {
+                          const nuevaTasa = e.target.value;
+                          actualizarTasaIvaItem(item.codigoSecuencial, nuevaTasa);
+                          if (parseFloat(nuevaTasa) !== 0) {
+                            actualizarTipoFiscalItem(item.codigoSecuencial, "GRAVADO");
+                          }
+                        }}
+                        className={`h-[30px] px-2 rounded-md text-md font-bold bg-white focus:outline-none cursor-pointer transition-all ${
+                          sinIvaGravado
+                            ? "border-2 border-amber-400 animate-pulse text-amber-700 focus:border-amber-500"
+                            : "border border-gray-200 text-gray-700 focus:border-[var(--primary)]"
+                        }`}
+                      >
+                        {TASAS_IVA.map((tasa) => (
+                          <option key={tasa} value={tasa}>
+                            {tasa === 0 ? "Sin IVA" : `${tasa}%`}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  );
+                })()}
+
+                {/* Tipo Fiscal — solo para FA/FB cuando tasaIva === 0 */}
+                {mostrarSelectorFiscal && (item.tasaIva || 0) === 0 && (
+                  <div>
+                    <FieldLabel>Tipo Fiscal</FieldLabel>
+                    <select
+                      value={item.tipoFiscal || "GRAVADO"}
+                      onChange={(e) =>
+                        actualizarTipoFiscalItem(item.codigoSecuencial, e.target.value)
+                      }
+                      className="h-[30px] px-2 border border-gray-200 rounded-md text-md font-bold text-gray-700 bg-white focus:outline-none focus:border-[var(--primary)] cursor-pointer"
+                    >
+                      {Object.entries(TIPO_FISCAL_OPTIONS).map(([val, label]) => (
+                        <option key={val} value={val}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 {/* Total de línea */}
                 <div className="ml-auto text-right">
@@ -179,13 +224,36 @@ const CarritoDetalle = ({
               {formatPrice(totalIva)}
             </span>
           </div>
+          <div className="flex justify-between items-center">
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+              Otros Tributos
+            </span>
+            <input
+              type="number"
+              value={otrosTributos}
+              onChange={(e) => setOtrosTributos && setOtrosTributos(parseFloat(e.target.value) || 0)}
+              min={0}
+              step="0.01"
+              className="w-24 px-2 py-1 border border-gray-200 rounded-md text-sm font-bold text-gray-700 text-right focus:outline-none focus:border-[var(--primary)]"
+            />
+          </div>
+          {totalRecargo > 0 && (
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-bold text-orange-500 uppercase tracking-wider">
+                Recargo tarjeta
+              </span>
+              <span className="text-md font-bold text-orange-500">
+                +{formatPrice(totalRecargo)}
+              </span>
+            </div>
+          )}
           <div className="h-px bg-gray-100" />
           <div className="flex justify-between items-center">
             <span className="text-md font-black text-gray-900 uppercase tracking-wider">
               Total General
             </span>
             <span className="text-base font-black text-[var(--primary)]">
-              {formatPrice(totalGeneral)}
+              {formatPrice(subtotalSinIva + totalIva + (otrosTributos || 0) + totalRecargo)}
             </span>
           </div>
         </div>

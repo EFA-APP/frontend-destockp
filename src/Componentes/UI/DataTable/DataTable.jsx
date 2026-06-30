@@ -782,7 +782,7 @@ const DataTable = ({
       <div className="md:hidden grid grid-cols-1 gap-4">
         {mostrarSkeleton ? (
           Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-32 bg-black/5 rounded-2xl" />
+            <div key={i} className="h-32 bg-black/5 rounded-md" />
           ))
         ) : datos.length > 0 ? (
           datos.map((fila, index) => (

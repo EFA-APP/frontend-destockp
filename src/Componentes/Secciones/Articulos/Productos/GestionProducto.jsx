@@ -47,7 +47,7 @@ const GestionProducto = () => {
   if (!producto) {
     return (
       <ContenedorSeccion className="p-8">
-        <div className="bg-rose-700/10 border border-rose-700/20 rounded-2xl p-8 text-center">
+        <div className="bg-rose-700/10 border border-rose-700/20 rounded-md p-8 text-center">
           <p className="text-rose-700 font-black uppercase tracking-widest mb-2">
             Producto no encontrado
           </p>
@@ -133,10 +133,7 @@ const GestionProducto = () => {
                   // Force redirect or update
                   navigate("/panel/inventario/productos");
                 } catch (err) {
-                  console.error(
-                    "Error updating product:",
-                    err,
-                  );
+                  console.error("Error updating product:", err);
                 }
               }}
             >

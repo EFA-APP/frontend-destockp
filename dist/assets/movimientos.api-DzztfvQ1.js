@@ -1,0 +1,1 @@
+import{a as o}from"./index-B40chGZJ.js";const t=async e=>(await o.post("/movimientos/crear",e,{showLoader:!1})).data,n=async e=>(await o.get("/movimientos/obtener",{params:e,showLoader:!1})).data;export{t as C,n as O};

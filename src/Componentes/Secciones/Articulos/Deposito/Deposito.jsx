@@ -499,7 +499,7 @@ const Deposito = () => {
       {modalDescarga.isOpen &&
         createPortal(
           <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-[var(--surface)] border border-black/10 rounded-lg max-w-md w-full p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="bg-[var(--surface)] border border-black/10 rounded-md max-w-md w-full p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
               <div className="flex flex-col items-center text-center">
                 <div className="w-12 h-12 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 flex items-center justify-center mb-4 text-[var(--primary)] animate-pulse">
                   <DescargarIcono size={24} />
@@ -526,7 +526,7 @@ const Deposito = () => {
                     />
                     Arrastrar Sucursales para Reordenar Columnas
                   </label>
-                  <div className="flex flex-col gap-1.5 max-h-[170px] overflow-y-auto pr-1 select-none border border-black/5 p-2 rounded-lg bg-black/[0.01]">
+                  <div className="flex flex-col gap-1.5 max-h-[170px] overflow-y-auto pr-1 select-none border border-black/5 p-2 rounded-md bg-black/[0.01]">
                     {depositosOrdenadosCustom.length === 0 ? (
                       <div className="text-center text-xs text-black/40 py-4">
                         No hay sucursales disponibles
@@ -569,7 +569,7 @@ const Deposito = () => {
                   onClick={() =>
                     setIncluirCerosNegativos(!incluirCerosNegativos)
                   }
-                  className={`flex items-center gap-4 w-full p-4 rounded-lg border text-left cursor-pointer transition-all mb-6 select-none ${
+                  className={`flex items-center gap-4 w-full p-4 rounded-md border text-left cursor-pointer transition-all mb-6 select-none ${
                     incluirCerosNegativos
                       ? "bg-[var(--primary)]/[0.03] border-[var(--primary)]/40 shadow-sm"
                       : "bg-black/5 border-transparent hover:border-black/10"

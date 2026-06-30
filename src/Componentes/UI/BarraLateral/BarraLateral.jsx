@@ -100,11 +100,11 @@ const BarraLateral = () => {
               {usuario?.configuracionVisual?.logoUrl ? (
                 <img
                   alt="logo"
-                  className="w-12 h-12 min-w-[48px] rounded-2xl border border-[var(--border-subtle)] shadow-lg object-contain bg-[var(--surface)] p-1.5 group-hover/logo:scale-110 transition-all duration-500 ease-out"
+                  className="w-12 h-12 min-w-[48px] rounded-md border border-[var(--border-subtle)] shadow-lg object-contain bg-[var(--surface)] p-1.5 group-hover/logo:scale-110 transition-all duration-500 ease-out"
                   src={usuario?.configuracionVisual?.logoUrl}
                 />
               ) : (
-                <div className="flex items-center justify-center w-12 h-12 min-w-[48px] rounded-2xl border border-[var(--primary)]/20 shadow-xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary-emphasis)] text-white group-hover/logo:scale-110 transition-all duration-500 ease-out">
+                <div className="flex items-center justify-center w-12 h-12 min-w-[48px] rounded-md border border-[var(--primary)]/20 shadow-xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary-emphasis)] text-white group-hover/logo:scale-110 transition-all duration-500 ease-out">
                   <Icons.ConsolaIcono size={24} color="white" />
                 </div>
               )}
@@ -179,7 +179,7 @@ const BarraLateral = () => {
         >
           <button
             onClick={() => cerrarSesion()}
-            className="w-full bg-rose-500/20 border border-rose-500 hover:bg-rose-500 hover:text-white p-3.5 rounded-2xl flex justify-center items-center gap-3 cursor-pointer transition-all duration-300 group shadow-sm active:scale-95"
+            className="w-full bg-rose-500/20 border border-rose-500 hover:bg-rose-500 hover:text-white p-3.5 rounded-md flex justify-center items-center gap-3 cursor-pointer transition-all duration-300 group shadow-sm active:scale-95"
           >
             <span className="text-rose-500 group-hover:text-white font-black text-[12px] uppercase tracking-widest transition-colors">
               Salir

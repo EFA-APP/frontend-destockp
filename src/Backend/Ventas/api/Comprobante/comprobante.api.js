@@ -10,21 +10,38 @@ export const obtenerComprobantesPaginados = async (filtros) => {
   return data;
 };
 
-export const generarComprobante = async ({
-  dto,
-  codigoEmpresa,
-  codigoUnidadNegocio,
-}) => {
+export const obtenerComprobantePorCodigo = async (codigo) => {
+  const { data } = await axiosInitial.get(`/comprobantes/obtener/${codigo}`, {
+    showLoader: false,
+  });
+  return data;
+};
+
+export const generarComprobante = async ({ dto, codigoUnidadNegocio }) => {
   const { data } = await axiosInitial.post(
     "/comprobantes/generar-comprobante",
     dto,
     {
-      params: {
-        codigoEmpresa,
-        codigoUnidadNegocio,
-      },
+      params: { codigoUnidadNegocio },
       showLoader: false,
     },
+  );
+  return data;
+};
+
+export const enviarComprobanteEmailApi = async ({ emailDestino, pdfBase64, nombreComprobante, numeroComprobante }) => {
+  const { data } = await axiosInitial.post(
+    '/comprobantes/enviar-email',
+    { emailDestino, pdfBase64, nombreComprobante, numeroComprobante },
+    { showLoader: false },
+  );
+  return data;
+};
+
+export const ObtenerDeudasContactoApi = async (codigoReceptor) => {
+  const { data } = await axiosInitial.get(
+    `/comprobantes/deudas/${codigoReceptor}`,
+    { showLoader: false },
   );
   return data;
 };

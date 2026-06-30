@@ -3,16 +3,17 @@ import { useAuthStore } from "../../../Backend/Autenticacion/store/authenticacio
 import { useActualizarPerfil } from "../../../Backend/Autenticacion/queries/Usuario/useActualizarPerfil.mutation";
 import { useCambiarContrasena } from "../../../Backend/Autenticacion/queries/Usuario/useCambiarContrasena.mutation";
 import { useAlertas } from "../../../store/useAlertas";
+import { actualizarConfiguracionVisualApi } from "../../../Backend/Autenticacion/api/Usuario/authenticacion.api";
 import { ConfiguracionIcono, CuentaIcono } from "../../../assets/Icons";
 import Boton from "../../UI/Boton/Boton";
 import EncabezadoSeccion from "../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import InputReutilizable from "../../UI/InputReutilizable/InputReutilizable";
-import ModalConfiguracionVisual from "../../Modales/Empresa/ModalConfiguracionVisual";
 import ModalConfiguracionFiscal from "../../Modales/Empresa/ModalConfiguracionFiscal";
 import { TieneAccion } from "../../UI/TieneAccion/TieneAccion";
 
 const Configuracion = () => {
   const usuario = useAuthStore((state) => state.usuario);
+  const setUsuario = useAuthStore((state) => state.setUsuario);
   const { mutate: actualizarPerfil, isPending: estaActualizandoPerfil } =
     useActualizarPerfil();
   const { mutate: cambiarContrasena, isPending: estaCambiandoPass } =
@@ -25,8 +26,12 @@ const Configuracion = () => {
   const [email, setEmail] = useState("");
 
   // States Modales Empresa
-  const [modalVisualOpen, setModalVisualOpen] = useState(false);
   const [modalFiscalOpen, setModalFiscalOpen] = useState(false);
+
+  // States Logo
+  const [previewUrl, setPreviewUrl] = useState(usuario?.configuracionVisual?.logoUrl || "");
+  const [logoBase64, setLogoBase64] = useState("");
+  const [cargandoLogo, setCargandoLogo] = useState(false);
 
   // States Contraseña
   const [contrasenaActual, setContrasenaActual] = useState("");
@@ -79,6 +84,33 @@ const Configuracion = () => {
         },
       },
     );
+  };
+
+  const manejarArchivo = (e) => {
+    const archivo = e.target.files[0];
+    if (!archivo) return;
+    if (archivo.size > 1024 * 1024) {
+      agregarAlerta({ message: "La imagen no debe superar 1MB.", type: "error" });
+      return;
+    }
+    setPreviewUrl(URL.createObjectURL(archivo));
+    const reader = new FileReader();
+    reader.onload = (event) => setLogoBase64(event.target.result);
+    reader.readAsDataURL(archivo);
+  };
+
+  const manejarGuardarLogo = async () => {
+    try {
+      setCargandoLogo(true);
+      const payload = { logoUrl: logoBase64 || previewUrl };
+      await actualizarConfiguracionVisualApi(payload);
+      setUsuario({ ...usuario, configuracionVisual: payload });
+      agregarAlerta({ message: "Logo actualizado correctamente.", type: "success" });
+    } catch (error) {
+      agregarAlerta({ message: error.message || "Error al actualizar logo.", type: "error" });
+    } finally {
+      setCargandoLogo(false);
+    }
   };
 
   const iniciales = `${nombre.charAt(0)}${apellido.charAt(0)}`.toUpperCase();
@@ -342,21 +374,42 @@ const Configuracion = () => {
                   </button>
                 </div>
 
-                <div className="bg-[var(--surface-hover)] p-4 rounded-md border border-[var(--border-subtle)] flex flex-col justify-between items-start gap-4">
+                <div className="bg-[var(--surface-hover)] p-4 rounded-md border border-[var(--border-subtle)] flex flex-col gap-4">
                   <div>
                     <h5 className="text-[13px] font-bold text-black! uppercase tracking-tight">
-                      Diseño y White-Labeling
+                      Logo Corporativo
                     </h5>
                     <p className="text-[11px] text-[var(--text-muted)] mt-1">
-                      Logo corporativo y paleta de colores del sistema.
+                      Se muestra en la barra lateral y en los comprobantes de venta.
                     </p>
                   </div>
-                  <button
-                    onClick={() => setModalVisualOpen(true)}
-                    className="px-3 py-1.5 bg-black/5 border border-black/10 hover:bg-black/10 text-[12px] font-bold text-black rounded-md  uppercase tracking-wider"
-                  >
-                    Configuración Visual
-                  </button>
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-md border border-[var(--border-subtle)] bg-[var(--surface)] flex items-center justify-center overflow-hidden shrink-0">
+                      {previewUrl ? (
+                        <img src={previewUrl} alt="Logo" className="max-w-full max-h-full object-contain" />
+                      ) : (
+                        <span className="text-2xl opacity-20">🖼️</span>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <div>
+                        <input type="file" id="logo-upload-config" accept="image/*" onChange={manejarArchivo} className="hidden" />
+                        <label htmlFor="logo-upload-config" className="inline-block px-3 py-1.5 bg-black/5 border border-black/10 hover:bg-black/10 text-[12px] font-bold text-black rounded-md cursor-pointer uppercase tracking-wider">
+                          Subir Imagen
+                        </label>
+                        <p className="text-[10px] text-[var(--text-muted)] mt-1">PNG/SVG con fondo transparente · Max 1MB</p>
+                      </div>
+                      {logoBase64 && (
+                        <button
+                          onClick={manejarGuardarLogo}
+                          disabled={cargandoLogo}
+                          className="px-3 py-1.5 bg-[var(--primary)] text-white text-[12px] font-bold rounded-md uppercase tracking-wider disabled:opacity-50"
+                        >
+                          {cargandoLogo ? "Guardando..." : "Guardar Logo"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -365,11 +418,6 @@ const Configuracion = () => {
       </div>
 
       {/* MODALES DE EMPRESA */}
-      <ModalConfiguracionVisual
-        isOpen={modalVisualOpen}
-        onClose={() => setModalVisualOpen(false)}
-      />
-
       <ModalConfiguracionFiscal
         isOpen={modalFiscalOpen}
         onClose={() => setModalFiscalOpen(false)}

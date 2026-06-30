@@ -28,7 +28,7 @@ const Resaltar = ({ texto, busqueda }) => {
   );
 };
 
-export const columnasPlanDeCuentas = [
+export const getColumnasPlanDeCuentas = (empresasMap) => [
   {
     key: "codigo",
     etiqueta: "Código",
@@ -109,6 +109,24 @@ export const columnasPlanDeCuentas = [
         </span>
       </div>
     ),
+  },
+  {
+    key: "codigoEmpresa",
+    etiqueta: "Empresa",
+    renderizar: (valor) => {
+      const nombreEmpresa = empresasMap.get(valor);
+      return (
+        <span
+          className={`text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border ${
+            valor
+              ? "bg-indigo-500/10 text-indigo-600 border-indigo-500/20"
+              : "bg-gray-500/10 text-gray-500 border-gray-500/20"
+          }`}
+        >
+          {nombreEmpresa || "Global"}
+        </span>
+      );
+    },
   },
   {
     key: "activa",

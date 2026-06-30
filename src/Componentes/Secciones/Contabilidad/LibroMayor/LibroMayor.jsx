@@ -236,7 +236,7 @@ const LibroMayor = () => {
       />
 
       {/* FILTROS ELEGANTES */}
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm mb-8">
+      <div className="bg-white border border-slate-200 rounded-md shadow-sm mb-8">
         <div className="p-4 border-b border-slate-50 bg-slate-50/30 flex items-center gap-2">
           <FiltroIcono size={14} className="text-indigo-500" />
           <span className="text-[11px] font-black uppercase tracking-[0.2em] text-indigo-900/60">
@@ -326,7 +326,7 @@ const LibroMayor = () => {
       </div>
 
       {loading ? (
-        <div className="flex flex-col justify-center items-center py-32 bg-white rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex flex-col justify-center items-center py-32 bg-white rounded-md border border-slate-200 shadow-sm">
           <div className="relative">
             <div className="absolute inset-0 animate-ping rounded-full h-12 w-12 bg-indigo-500/20"></div>
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 relative"></div>
@@ -338,7 +338,7 @@ const LibroMayor = () => {
       ) : datosMayor && Array.isArray(datosMayor.movimientos) ? (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           {/* TOOLBAR DE ACCIONES */}
-          <div className="flex justify-end items-center gap-4 bg-white/50 p-4 rounded-2xl border border-slate-200/50 backdrop-blur-sm">
+          <div className="flex justify-end items-center gap-4 bg-white/50 p-4 rounded-md border border-slate-200/50 backdrop-blur-sm">
             <div className="flex-1">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
                 Reportes Disponibles
@@ -367,7 +367,7 @@ const LibroMayor = () => {
 
           {/* STAT CARDS PREMIUM */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm group hover:border-emerald-200 transition-all">
+            <div className="bg-white p-6 rounded-md border border-slate-200 shadow-sm group hover:border-emerald-200 transition-all">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-10 h-10 rounded-md bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
                   <ArrowDownLeft size={20} />
@@ -384,7 +384,7 @@ const LibroMayor = () => {
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm group hover:border-rose-200 transition-all">
+            <div className="bg-white p-6 rounded-md border border-slate-200 shadow-sm group hover:border-rose-200 transition-all">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-10 h-10 rounded-md bg-rose-50 flex items-center justify-center text-rose-600 group-hover:scale-110 transition-transform">
                   <ArrowUpRight size={20} />
@@ -402,7 +402,7 @@ const LibroMayor = () => {
             </div>
 
             <div
-              className={`p-6 rounded-2xl border shadow-sm group transition-all ${
+              className={`p-6 rounded-md border shadow-sm group transition-all ${
                 saldoFinal >= 0
                   ? "bg-emerald-600 border-emerald-500"
                   : "bg-rose-600 border-rose-500"
@@ -456,10 +456,10 @@ const LibroMayor = () => {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col justify-center items-center py-40 bg-white rounded-3xl border-2 border-slate-100 border-dashed animate-in fade-in duration-700">
+        <div className="flex flex-col justify-center items-center py-40 bg-white rounded-md border-2 border-slate-100 border-dashed animate-in fade-in duration-700">
           <div className="relative mb-8">
             <div className="absolute inset-0 bg-indigo-500/5 blur-3xl rounded-full" />
-            <div className="w-24 h-24 bg-slate-50 rounded-3xl flex items-center justify-center text-slate-300 border border-slate-100 relative z-10">
+            <div className="w-24 h-24 bg-slate-50 rounded-md flex items-center justify-center text-slate-300 border border-slate-100 relative z-10">
               <Search size={48} strokeWidth={1} />
             </div>
           </div>

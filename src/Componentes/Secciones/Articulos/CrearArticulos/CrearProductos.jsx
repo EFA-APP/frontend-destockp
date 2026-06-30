@@ -234,7 +234,7 @@ const CrearProductos = () => {
               <div className="flex justify-center items-center">
                 <button
                   onClick={() => navigate("/panel/inventario/productos")}
-                  className="px-10 py-4 bg-black/5 text-black/70 font-bold uppercase tracking-[0.15em] text-xs rounded-2xl hover:bg-black/10  border border-black/5 hover:border-black/10 w-full sm:w-auto"
+                  className="px-10 py-4 bg-black/5 text-black/70 font-bold uppercase tracking-[0.15em] text-xs rounded-md hover:bg-black/10  border border-black/5 hover:border-black/10 w-full sm:w-auto"
                 >
                   Volver Atrás
                 </button>

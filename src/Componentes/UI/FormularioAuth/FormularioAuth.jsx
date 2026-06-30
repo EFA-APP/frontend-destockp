@@ -14,7 +14,9 @@ const iconosPorCampo = {
   contrasena: <CandadoIcono color="var(--primary)" size={20} />,
   usuario: <PersonaIcono color="var(--primary)" size={20} />,
   cuit: <DocumentoIcono color="var(--primary)" size={20} />,
-  confirmarContrasena: <ConfirmarContrasenaIcono color="var(--primary)" size={20} />,
+  confirmarContrasena: (
+    <ConfirmarContrasenaIcono color="var(--primary)" size={20} />
+  ),
 };
 
 const FormularioAuth = ({
@@ -254,7 +256,7 @@ const FormularioAuth = ({
                   className="
               w-full h-14 mt-6
               flex items-center justify-center
-              rounded-2xl
+              rounded-md
               bg-[var(--fucsia)]/20
               border border-[var(--fucsia)]/50 
               text-[var(--fucsia)] text-[13px] font-bold tracking-[0.2em] uppercase

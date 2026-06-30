@@ -1,59 +1,90 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "../Autenticacion/store/authenticacion.store";
 
-export const useCabeceraComprobante = () => {
+export const useCabeceraComprobante = (initialValues = {}) => {
   const usuario = useAuthStore((state) => state.usuario);
   const conexionArca = usuario?.conexionArca || false;
   const unidadesNegocio = usuario?.unidadesNegocio || [];
 
-  // Estados para manejar las fechas de manera controlada
-  const [fechaInicio, setFechaInicio] = useState("");
+  const [fechaInicio, setFechaInicio] = useState(initialValues.fecha ?? "");
   const [fechaVencimiento, setFechaVencimiento] = useState("");
 
-  // Estados para las reglas de activación
-  const [esFiscal, setEsFiscal] = useState(conexionArca); // Inicializa según la config del usuario
-  const [esPresupuesto, setEsPresupuesto] = useState(false); // false = Oficial/Estándar, true = Presupuesto
+  const [esFiscal, setEsFiscal] = useState(initialValues.esFiscal ?? conexionArca);
+  const [esPresupuesto, setEsPresupuesto] = useState(false);
 
-  // Clientes / Proveedores
   const [busquedaCliente, setBusquedaCliente] = useState("");
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
 
-  // Tipo de comprobante (controlado para detectar notas de crédito/débito)
-  const [tipoComprobante, setTipoComprobante] = useState("");
+  const [tipoComprobante, setTipoComprobante] = useState(
+    initialValues.codigoTipo != null
+      ? String(initialValues.codigoTipo)
+      : conexionArca ? "11" : "991"
+  );
 
-  // Comprobante asociado (para notas de crédito/débito)
-  const [comprobanteAsociado, setComprobanteAsociado] = useState({
-    numeroComprobanteOrigen: "",
-    puntoVenta: "",
-    codigoTipoComprobanteAsociado: "",
-    importeAplicado: "",
-  });
+  const [comprobanteAsociado, setComprobanteAsociado] = useState(null);
 
-  // Codes que requieren vincular un comprobante origen
+  // Campos controlados para el payload
+  const [condicionComprobante, setCondicionComprobante] = useState("CONTADO");
+  const [unidadNegocioSeleccionada, setUnidadNegocioSeleccionada] = useState("");
+  const [puntoVenta, setPuntoVenta] = useState(
+    initialValues.puntoVenta != null ? String(initialValues.puntoVenta) : "1"
+  );
+  const [observaciones, setObservaciones] = useState("");
+
+  const [otrosTributos, setOtrosTributos] = useState(initialValues.otrosTributos ?? 0);
+
+  // Solo EGRESO
+  const [numeroComprobanteEgreso, setNumeroComprobanteEgreso] = useState(
+    initialValues.numeroComprobante != null ? String(initialValues.numeroComprobante) : ""
+  );
+  const [cae, setCae] = useState(initialValues.cae ?? "");
+  const [vtoCae, setVtoCae] = useState(initialValues.vtoCae ?? "");
+
+  // Refs para proteger valores inicializados via initialValues de ser
+  // sobreescritos por los useEffect existentes en el primer render.
+  const skipFechaInicioRef = useRef(!!initialValues.fecha);
+  const skipTipoComprobanteRef = useRef(initialValues.codigoTipo != null);
+  const skipPuntoVentaRef = useRef(initialValues.puntoVenta != null);
+
   const TIPOS_CON_ASOCIADO = [2, 3, 7, 8, 12, 13, 994, 995];
   const esNotaAsociada = TIPOS_CON_ASOCIADO.includes(Number(tipoComprobante));
 
   useEffect(() => {
-    // 1. Obtener la fecha actual (Hoy)
     const hoy = new Date();
-
-    // 2. Calcular la fecha de vencimiento (Hoy + 30 días)
     const vencimiento = new Date();
     vencimiento.setDate(hoy.getDate() + 30);
+    const fmt = (d) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    if (!skipFechaInicioRef.current) setFechaInicio(fmt(hoy));
+    setFechaVencimiento(fmt(vencimiento));
+  }, []);
 
-    // Función auxiliar para formatear la fecha a YYYY-MM-DD en la zona horaria del cliente
-    const formatearFecha = (date) => {
-      const year = date.getFullYear();
-      // Aseguramos dos dígitos para el mes y el día
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    };
+  useEffect(() => {
+    if (unidadesNegocio.length > 0 && !unidadNegocioSeleccionada) {
+      setUnidadNegocioSeleccionada(String(unidadesNegocio[0].codigoSecuencial));
+    }
+  }, [unidadesNegocio]);
 
-    // 3. Asignar los valores por defecto a los estados
-    setFechaInicio(formatearFecha(hoy));
-    setFechaVencimiento(formatearFecha(vencimiento));
-  }, []); // [] asegura que solo se ejecute una vez al cargar el componente
+  useEffect(() => {
+    if (!unidadNegocioSeleccionada) return;
+    if (skipPuntoVentaRef.current) {
+      skipPuntoVentaRef.current = false;
+      return;
+    }
+    const selected = unidadesNegocio.find(
+      (u) => String(u.codigoSecuencial) === String(unidadNegocioSeleccionada)
+    );
+    if (selected?.configuracion?.puntoVenta) {
+      setPuntoVenta(String(selected.configuracion.puntoVenta));
+    } else {
+      setPuntoVenta(""); // triggers modal in UI if empty
+    }
+  }, [unidadNegocioSeleccionada, unidadesNegocio]);
+
+  useEffect(() => {
+    if (skipTipoComprobanteRef.current) return;
+    setTipoComprobante(esFiscal ? "11" : "991");
+  }, [esFiscal]);
 
   return {
     fechaInicio,
@@ -65,7 +96,6 @@ export const useCabeceraComprobante = () => {
     esPresupuesto,
     setEsPresupuesto,
     unidadesNegocio,
-    // Retornamos las nuevas propiedades para que el componente las consuma sin errores
     busquedaCliente,
     setBusquedaCliente,
     clienteSeleccionado,
@@ -75,5 +105,21 @@ export const useCabeceraComprobante = () => {
     comprobanteAsociado,
     setComprobanteAsociado,
     esNotaAsociada,
+    condicionComprobante,
+    setCondicionComprobante,
+    unidadNegocioSeleccionada,
+    setUnidadNegocioSeleccionada,
+    puntoVenta,
+    setPuntoVenta,
+    observaciones,
+    setObservaciones,
+    numeroComprobanteEgreso,
+    setNumeroComprobanteEgreso,
+    cae,
+    setCae,
+    vtoCae,
+    setVtoCae,
+    otrosTributos,
+    setOtrosTributos,
   };
 };

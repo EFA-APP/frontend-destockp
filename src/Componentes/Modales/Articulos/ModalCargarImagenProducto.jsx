@@ -144,7 +144,7 @@ const ModalCargarImagenProducto = ({ isOpen, onClose, producto }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-black/5 animate-in zoom-in-95 duration-300">
+      <div className="bg-white w-full max-w-md rounded-md shadow-2xl overflow-hidden border border-black/5 animate-in zoom-in-95 duration-300">
         {/* Header */}
         <div className="bg-indigo-700 p-6 text-white flex justify-between items-center">
           <div>

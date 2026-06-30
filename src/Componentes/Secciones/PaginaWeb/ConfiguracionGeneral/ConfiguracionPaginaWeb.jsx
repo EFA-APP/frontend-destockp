@@ -32,53 +32,6 @@ import { useAlertas } from "../../../../store/useAlertas";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { axiosInitial } from "../../../../Backend/Config";
 
-// Curated premium color palettes
-const COLOR_PRESETS = [
-  {
-    name: "Ventryx Indigo",
-    primary: "#4f46e5",
-    secondary: "#06b6d4",
-  },
-  {
-    name: "Pampeana Teal",
-    primary: "#0f766e",
-    secondary: "#ca8a04",
-  },
-  {
-    name: "Royal Blue & Pink",
-    primary: "#1d4ed8",
-    secondary: "#db2777",
-  },
-  {
-    name: "Slate & Crimson",
-    primary: "#1e293b",
-    secondary: "#e11d48",
-  },
-  {
-    name: "Emerald Eco",
-    primary: "#059669",
-    secondary: "#10b981",
-  },
-  {
-    name: "Amber Sunset",
-    primary: "#d97706",
-    secondary: "#475569",
-  },
-];
-
-// Helper to convert hex to RGB components
-function hexToRgb(hex) {
-  if (!hex) return "99, 102, 241";
-  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-  const fullHex = hex.replace(
-    shorthandRegex,
-    (m, r, g, b) => r + r + g + g + b + b,
-  );
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
-  return result
-    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
-    : "99, 102, 241";
-}
 
 export default function ConfiguracionPaginaWeb() {
   const usuario = useAuthStore((state) => state.usuario);
@@ -422,12 +375,6 @@ export default function ConfiguracionPaginaWeb() {
     setGallery(nuevaLista);
   };
 
-  // Convert custom style variables
-  const previewColors = {
-    "--primary": colorPrimario,
-    "--secondary": colorSecundario,
-    "--primary-rgb": hexToRgb(colorPrimario),
-  };
 
   if (loading) {
     return (
@@ -445,7 +392,7 @@ export default function ConfiguracionPaginaWeb() {
   return (
     <div className="w-full min-h-[calc(100vh-80px)] flex flex-col lg:flex-row gap-6 p-4 md:p-6 bg-slate-50">
       {/* LEFT COLUMN: BUILDER SETTINGS (45% lg width) */}
-      <div className="w-full lg:w-[45%] xl:w-[40%] bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col overflow-hidden h-fit">
+      <div className="w-full lg:w-[45%] xl:w-[40%] bg-white rounded-md border border-slate-200 shadow-sm flex flex-col overflow-hidden h-fit">
         {/* Title Header */}
         <div className="p-5 border-b border-[var(--border-subtle)] flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -492,7 +439,7 @@ export default function ConfiguracionPaginaWeb() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-md font-black text-[10px] uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === tab.id
                   ? "bg-white border border-[var(--border-subtle)] text-[var(--primary)] shadow-sm"
                   : "text-[var(--text-muted)] hover:text-slate-700 hover:bg-slate-100"
@@ -597,40 +544,6 @@ export default function ConfiguracionPaginaWeb() {
               <h2 className="text-[14px] font-black text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2">
                 Branding & Paleta Visual
               </h2>
-
-              {/* Curated Presets */}
-              <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  Temas Premium Recomendados
-                </label>
-                <div className="grid grid-cols-2 gap-2.5">
-                  {COLOR_PRESETS.map((preset, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => {
-                        setColorPrimario(preset.primary);
-                        setColorSecundario(preset.secondary);
-                      }}
-                      className="p-2.5 rounded-xl border border-slate-100 bg-slate-50 hover:bg-white hover:border-slate-300 hover:shadow-sm transition-all flex items-center gap-3 cursor-pointer"
-                    >
-                      <div className="flex gap-1.5 flex-shrink-0">
-                        <div
-                          className="w-4 h-4 rounded-full border border-white"
-                          style={{ backgroundColor: preset.primary }}
-                        />
-                        <div
-                          className="w-4 h-4 rounded-full border border-white"
-                          style={{ backgroundColor: preset.secondary }}
-                        />
-                      </div>
-                      <span className="text-[11px] font-bold text-slate-700 leading-none truncate">
-                        {preset.name}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
 
               {/* Direct Color Selectors */}
               <div className="grid grid-cols-2 gap-4 pt-1">
@@ -752,7 +665,7 @@ export default function ConfiguracionPaginaWeb() {
                 <button
                   type="button"
                   onClick={agregarSeccion}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[11px] font-black uppercase text-[var(--primary)] tracking-wider transition-all cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-[11px] font-black uppercase text-[var(--primary)] tracking-wider transition-all cursor-pointer"
                 >
                   <Plus size={12} />
                   Añadir
@@ -821,7 +734,7 @@ export default function ConfiguracionPaginaWeb() {
                               e.target.value,
                             )
                           }
-                          className="px-3 py-2 border border-slate-200 rounded-lg text-[12px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] bg-white"
+                          className="px-3 py-2 border border-slate-200 rounded-md text-[12px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] bg-white"
                         />
                       </div>
 
@@ -839,7 +752,7 @@ export default function ConfiguracionPaginaWeb() {
                             )
                           }
                           rows={4}
-                          className="px-3 py-2 border border-slate-200 rounded-lg text-[12px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] bg-white resize-none leading-relaxed"
+                          className="px-3 py-2 border border-slate-200 rounded-md text-[12px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] bg-white resize-none leading-relaxed"
                         />
                       </div>
 
@@ -884,12 +797,12 @@ export default function ConfiguracionPaginaWeb() {
                   placeholder="Pega la URL de una imagen en Unsplash..."
                   value={nuevaImagenUrl}
                   onChange={(e) => setNuevaImagenUrl(e.target.value)}
-                  className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-[12px] font-semibold text-slate-700 focus:outline-none"
+                  className="flex-1 px-3 py-2 rounded-md border border-slate-200 text-[12px] font-semibold text-slate-700 focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={agregarGaleria}
-                  className="px-4 py-2 rounded-lg bg-[var(--primary)] text-white text-[11px] font-black uppercase tracking-wider shadow active:scale-95 transition-all flex items-center gap-1 cursor-pointer"
+                  className="px-4 py-2 rounded-md bg-[var(--primary)] text-white text-[11px] font-black uppercase tracking-wider shadow active:scale-95 transition-all flex items-center gap-1 cursor-pointer"
                 >
                   <Plus size={12} />
                   Añadir
@@ -1029,7 +942,7 @@ export default function ConfiguracionPaginaWeb() {
                       setSocials({ ...socials, facebook: e.target.value })
                     }
                     placeholder="https://facebook.com/mi-pagina"
-                    className="px-3.5 py-2.5 rounded-lg border border-slate-200 text-[12px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] bg-white"
+                    className="px-3.5 py-2.5 rounded-md border border-slate-200 text-[12px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] bg-white"
                   />
                 </div>
 
@@ -1044,7 +957,7 @@ export default function ConfiguracionPaginaWeb() {
                       setSocials({ ...socials, instagram: e.target.value })
                     }
                     placeholder="https://instagram.com/mi-perfil"
-                    className="px-3.5 py-2.5 rounded-lg border border-slate-200 text-[12px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] bg-white"
+                    className="px-3.5 py-2.5 rounded-md border border-slate-200 text-[12px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] bg-white"
                   />
                 </div>
 
@@ -1059,7 +972,7 @@ export default function ConfiguracionPaginaWeb() {
                       setSocials({ ...socials, linkedin: e.target.value })
                     }
                     placeholder="https://linkedin.com/company/mi-empresa"
-                    className="px-3.5 py-2.5 rounded-lg border border-slate-200 text-[12px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] bg-white"
+                    className="px-3.5 py-2.5 rounded-md border border-slate-200 text-[12px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] bg-white"
                   />
                 </div>
 
@@ -1074,7 +987,7 @@ export default function ConfiguracionPaginaWeb() {
                       setSocials({ ...socials, whatsapp: e.target.value })
                     }
                     placeholder="Ej: 5493415550199"
-                    className="px-3.5 py-2.5 rounded-lg border border-slate-200 text-[12px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] bg-white"
+                    className="px-3.5 py-2.5 rounded-md border border-slate-200 text-[12px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] bg-white"
                   />
                 </div>
               </div>
@@ -1084,7 +997,7 @@ export default function ConfiguracionPaginaWeb() {
       </div>
 
       {/* RIGHT COLUMN: REACTIVE SIMULATED PREVIEW (55% lg width, sticky) */}
-      <div className="w-full lg:w-[55%] xl:w-[60%] lg:sticky lg:top-[80px] lg:h-[calc(100vh-120px)] flex flex-col p-4 bg-slate-200/50 rounded-2xl border border-slate-200 select-none overflow-hidden">
+      <div className="w-full lg:w-[55%] xl:w-[60%] lg:sticky lg:top-[80px] lg:h-[calc(100vh-120px)] flex flex-col p-4 bg-slate-200/50 rounded-md border border-slate-200 select-none overflow-hidden">
         {/* Device Controls */}
         <div className="flex items-center justify-between mb-3 flex-shrink-0">
           <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
@@ -1105,7 +1018,7 @@ export default function ConfiguracionPaginaWeb() {
                 key={d.id}
                 type="button"
                 onClick={() => setViewport(d.id)}
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-black text-[9px] uppercase tracking-wider transition-all cursor-pointer ${
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md font-black text-[9px] uppercase tracking-wider transition-all cursor-pointer ${
                   viewport === d.id
                     ? "bg-[var(--primary)] text-white"
                     : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
@@ -1128,7 +1041,7 @@ export default function ConfiguracionPaginaWeb() {
         {/* Viewport Frame */}
         <div className="flex-1 flex justify-center items-start overflow-hidden">
           <div
-            className={`bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-full transition-all duration-500 ease-in-out ${
+            className={`bg-white rounded-md shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-full transition-all duration-500 ease-in-out ${
               viewport === "desktop"
                 ? "w-full"
                 : viewport === "tablet"
@@ -1143,7 +1056,7 @@ export default function ConfiguracionPaginaWeb() {
                 <div className="w-3 h-3 rounded-full bg-amber-400" />
                 <div className="w-3 h-3 rounded-full bg-emerald-400" />
               </div>
-              <div className="flex-1 max-w-lg mx-auto bg-slate-200/60 rounded-lg px-3 py-1 flex items-center justify-between text-[11px] font-bold text-slate-500">
+              <div className="flex-1 max-w-lg mx-auto bg-slate-200/60 rounded-md px-3 py-1 flex items-center justify-between text-[11px] font-bold text-slate-500">
                 <div className="flex items-center gap-1.5 truncate">
                   <ShieldCheck size={12} className="text-emerald-600" />
                   <span className="truncate">
@@ -1168,7 +1081,7 @@ export default function ConfiguracionPaginaWeb() {
             {/* MOCK LANDING PAGE VIEWPORT (Scrollable) */}
             <div
               className="flex-1 overflow-y-auto bg-white font-sans text-left relative scroll-smooth custom-scrollbar"
-              style={previewColors}
+              style={{ "--primary": colorPrimario, "--secondary": colorSecundario }}
             >
               {/* Dynamic Theme Color Stylesheet */}
               <style
@@ -1204,7 +1117,7 @@ export default function ConfiguracionPaginaWeb() {
                     />
                   ) : (
                     <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
+                      className="w-8 h-8 rounded-md flex items-center justify-center text-white"
                       style={{
                         background: `linear-gradient(135deg, ${colorPrimario}, ${colorSecundario})`,
                       }}
@@ -1240,7 +1153,7 @@ export default function ConfiguracionPaginaWeb() {
 
                 <button
                   type="button"
-                  className="px-3 py-1.5 rounded-lg border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-600"
+                  className="px-3 py-1.5 rounded-md border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-600"
                 >
                   Portal
                 </button>
@@ -1285,15 +1198,15 @@ export default function ConfiguracionPaginaWeb() {
                       <img
                         src={banner}
                         alt="Banner"
-                        className="w-full h-full object-cover rounded-lg"
+                        className="w-full h-full object-cover rounded-md"
                       />
                     ) : (
-                      <div className="w-full h-full rounded-lg bg-slate-300 flex items-center justify-center text-slate-500 font-bold text-[12px]">
+                      <div className="w-full h-full rounded-md bg-slate-300 flex items-center justify-center text-slate-500 font-bold text-[12px]">
                         Sin Imagen Banner
                       </div>
                     )}
                     {/* Simulated float card */}
-                    <div className="absolute -bottom-2 -left-2 bg-white p-2.5 rounded-lg shadow border border-slate-100 flex items-center gap-2">
+                    <div className="absolute -bottom-2 -left-2 bg-white p-2.5 rounded-md shadow border border-slate-100 flex items-center gap-2">
                       <div className="p-1.5 rounded bg-emerald-50 text-emerald-600">
                         <ShieldCheck size={14} />
                       </div>
@@ -1340,7 +1253,7 @@ export default function ConfiguracionPaginaWeb() {
                     </p>
 
                     <div className="grid grid-cols-2 gap-3 pt-2">
-                      <div className="p-3 rounded-lg border border-slate-100 bg-slate-50">
+                      <div className="p-3 rounded-md border border-slate-100 bg-slate-50">
                         <h4 className="text-[10px] font-black uppercase tracking-wider text-highlight mb-1">
                           Misión
                         </h4>
@@ -1350,7 +1263,7 @@ export default function ConfiguracionPaginaWeb() {
                         </p>
                       </div>
 
-                      <div className="p-3 rounded-lg border border-slate-100 bg-slate-50">
+                      <div className="p-3 rounded-md border border-slate-100 bg-slate-50">
                         <h4 className="text-[10px] font-black uppercase tracking-wider text-highlight mb-1">
                           Valores
                         </h4>
@@ -1378,10 +1291,10 @@ export default function ConfiguracionPaginaWeb() {
                     ].map((feat, idx) => (
                       <div
                         key={idx}
-                        className="flex gap-4 p-3 rounded-lg border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-all"
+                        className="flex gap-4 p-3 rounded-md border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-all"
                       >
                         <div
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-white flex-shrink-0"
+                          className="w-8 h-8 rounded-md flex items-center justify-center text-white flex-shrink-0"
                           style={{
                             background: `linear-gradient(135deg, ${colorPrimario}, ${colorSecundario})`,
                           }}

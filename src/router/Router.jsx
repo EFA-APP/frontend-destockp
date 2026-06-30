@@ -24,17 +24,15 @@ const Productos = lazy(
 const MateriaPrima = lazy(
   () => import("../Componentes/Secciones/Articulos/MateriaPrima/MateriaPrima"),
 );
-const Comprobantes = lazy(
-  () => import("../Componentes/Secciones/Ventas/Comprobantes/Comprobantes"),
-);
 
 const CrearComprobante = lazy(
   () =>
     import("../Componentes/Secciones/Comprobantes/CrearComprobante/CrearComprobante"),
 );
 
-const Listados = lazy(
-  () => import("../Componentes/Secciones/Ventas/Listados/Listados"),
+const ListadosComprobante = lazy(
+  () =>
+    import("../Componentes/Secciones/Comprobantes/Listados/ListadoComprobante"),
 );
 const PlanDeCuentas = lazy(
   () =>
@@ -64,12 +62,6 @@ const CrearProductos = lazy(
 const CrearMateriaPrima = lazy(
   () =>
     import("../Componentes/Secciones/Articulos/CrearArticulos/CrearMateriaPrima"),
-);
-const Cuotas = lazy(
-  () => import("../Componentes/Secciones/Escuela/Cuotas/Cuotas"),
-);
-const AlumnosCtaCte = lazy(
-  () => import("../Componentes/Secciones/Escuela/AlumnosCtaCte"),
 );
 
 const CrearAsientos = lazy(
@@ -122,6 +114,10 @@ const ImportadorPrecios = lazy(
 const Empresas = lazy(
   () => import("../Componentes/Secciones/Sistema/Empresas"),
 );
+const GestionCuotas = lazy(
+  () =>
+    import("../Componentes/Secciones/Escuela/GestionCuotas/GestionCuotas"),
+);
 const NuevoIngreso = lazy(
   () => import("../Componentes/Secciones/Articulos/Movimientos/NuevoIngreso"),
 );
@@ -145,6 +141,14 @@ const ReporteUbicacionProducto = lazy(
 const ReporteUbicacionGeneral = lazy(
   () =>
     import("../Componentes/Secciones/Articulos/Reportes/ReporteUbicacionGeneral"),
+);
+const MovimientosTesoreria = lazy(
+  () =>
+    import("../Componentes/Secciones/Tesoreria/Movimientos/MovimientosTesoreria"),
+);
+const LotesTarjeta = lazy(
+  () =>
+    import("../Componentes/Secciones/Tesoreria/LotesTarjeta/LotesTarjeta"),
 );
 
 export default function Router() {
@@ -306,19 +310,11 @@ export default function Router() {
 
             {/* VENTAS */}
             <Route element={<RutaProtegida />}>
-              <Route path="ventas/listados" element={<Listados />} />
               <Route
-                path="ventas/comprobantes"
-                element={<CrearComprobante />}
+                path="comprobantes/listados"
+                element={<ListadosComprobante />}
               />
-            </Route>
-
-            <Route element={<RutaProtegida />}>
-              <Route path="escuela/cuotas" element={<Cuotas />} />
-              <Route
-                path="escuela/alumnos-cta-cte"
-                element={<AlumnosCtaCte />}
-              />
+              <Route path="comprobantes/crear" element={<CrearComprobante />} />
             </Route>
 
             {/* CONTABILIDAD */}
@@ -345,6 +341,23 @@ export default function Router() {
               <Route
                 path="comprobantes-afip"
                 element={<MisComprobantesAFIP />}
+              />
+            </Route>
+
+            {/* ESCUELA */}
+            <Route element={<RutaProtegida />}>
+              <Route path="escuela/cuotas" element={<GestionCuotas />} />
+            </Route>
+
+            {/* TESORERÍA */}
+            <Route element={<RutaProtegida />}>
+              <Route
+                path="tesoreria/movimientos"
+                element={<MovimientosTesoreria />}
+              />
+              <Route
+                path="tesoreria/lotes-tarjeta"
+                element={<LotesTarjeta />}
               />
             </Route>
 

@@ -2,7 +2,12 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 
-const ModalDetalleBase = ({ open, onClose, children, width = "max-w-[400px]" }) => {
+const ModalDetalleBase = ({
+  open,
+  onClose,
+  children,
+  width = "max-w-[400px]",
+}) => {
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => (document.body.style.overflow = "");
@@ -24,13 +29,16 @@ const ModalDetalleBase = ({ open, onClose, children, width = "max-w-[400px]" }) 
           relative z-10 w-full ${width}
           max-h-[85vh] md:max-h-[90vh]
           bg-[var(--fill)] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-2xl
-          overflow-hidden rounded-t-[32px] md:rounded-3xl
+          overflow-hidden rounded-t-[32px] md:rounded-md
           border-t md:border border-black/10
           flex flex-col
         `}
       >
         {/* Barra de arrastre superior para Mobile */}
-        <div className="flex md:hidden justify-center pt-4 pb-2 w-full absolute top-0 left-0 right-0 z-30 bg-gradient-to-b from-[var(--fill)] to-transparent" onClick={onClose}>
+        <div
+          className="flex md:hidden justify-center pt-4 pb-2 w-full absolute top-0 left-0 right-0 z-30 bg-gradient-to-b from-[var(--fill)] to-transparent"
+          onClick={onClose}
+        >
           <div className="w-12 h-1.5 bg-black/20 rounded-full"></div>
         </div>
 

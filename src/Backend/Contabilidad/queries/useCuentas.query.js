@@ -33,10 +33,10 @@ export const useObtenerDescendientesImputablesQuery = (codigoPadre) => {
   });
 };
 
-export const useObtenerCuentasImputablesQuery = (tipo, busqueda) => {
+export const useObtenerCuentasImputablesQuery = (tipo, busqueda, codigoEmpresa) => {
   return useQuery({
-    queryKey: ["cuentas-imputables", tipo, busqueda],
-    queryFn: () => obtenerCuentasImputablesPorTipo({ tipo, busqueda }),
+    queryKey: ["cuentas-imputables", tipo, busqueda, codigoEmpresa],
+    queryFn: () => obtenerCuentasImputablesPorTipo({ tipo, busqueda, codigoEmpresa }),
     enabled: !!tipo,
     staleTime: 1000 * 60 * 5,
   });

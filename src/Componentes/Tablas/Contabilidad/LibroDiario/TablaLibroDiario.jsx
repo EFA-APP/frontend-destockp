@@ -121,7 +121,7 @@ const TablaLibroDiario = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* FILTROS ELEGANTES */}
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm">
+      <div className="bg-white border border-slate-200 rounded-md shadow-sm">
         <div className="p-4 border-b border-slate-50 bg-slate-50/30 flex items-center gap-2">
           <Filter size={14} className="text-[var(--primary)]" />
           <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[var(--primary)]/70">
@@ -204,7 +204,7 @@ const TablaLibroDiario = () => {
 
       {/* STAT CARDS TOTALES */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm group hover:border-emerald-200 transition-all">
+        <div className="bg-white p-6 rounded-md border border-slate-200 shadow-sm group hover:border-emerald-200 transition-all">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">
               Suma Total DEBE
@@ -216,7 +216,7 @@ const TablaLibroDiario = () => {
           </p>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm group hover:border-rose-200 transition-all">
+        <div className="bg-white p-6 rounded-md border border-slate-200 shadow-sm group hover:border-rose-200 transition-all">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">
               Suma Total HABER
@@ -230,7 +230,7 @@ const TablaLibroDiario = () => {
       </div>
 
       {/* TABLA DE ASIENTOS */}
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm">
+      <div className="bg-white border border-slate-200 rounded-md shadow-sm">
         <DataTable
           columnas={columnas}
           datos={asientos}

@@ -63,7 +63,6 @@ body {
 
 :root {
   /* --- HSL Brand Palette --- */
-  /* Primary (Magenta): #d11057 -> HSL(338, 86%, 44%) */
   --p-h: 219;
   --p-s: 100%;
   --p-l: 56%;

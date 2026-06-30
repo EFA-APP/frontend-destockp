@@ -15,13 +15,13 @@ const ModalConfirmacion = ({
 }) => {
   return (
     <ModalDetalleBase open={open} onClose={onClose}>
-      <div className="w-full max-w-[400px] mx-auto overflow-hidden rounded-3xl border border-black/10 bg-[var(--fill)]/90 backdrop-blur-xl shadow-2xl    ">
+      <div className="w-full max-w-[400px] mx-auto overflow-hidden rounded-md border border-black/10 bg-[var(--fill)]/90 backdrop-blur-xl shadow-2xl    ">
         {/* Decorative background blur */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-[var(--primary)]/10 blur-[60px] pointer-events-none" />
 
         <div className="relative px-8 pt-10 pb-8 flex flex-col items-center text-center">
           {icono && (
-            <div className="mb-6 p-4 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-black/10 shadow-inner text-[var(--text-theme)]!">
+            <div className="mb-6 p-4 rounded-md bg-gradient-to-br from-white/5 to-white/[0.02] border border-black/10 shadow-inner text-[var(--text-theme)]!">
               {icono}
             </div>
           )}

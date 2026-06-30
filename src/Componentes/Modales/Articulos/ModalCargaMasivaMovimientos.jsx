@@ -138,7 +138,7 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
   const content = (
     <div className="space-y-6 py-2">
       {/* Configuración Global */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-black/5 p-4 rounded-2xl border border-black/10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-black/5 p-4 rounded-md border border-black/10">
         <div className="space-y-1.5">
           <label className="text-[13px] font-bold text-black/50 uppercase ml-1">
             Tipo de Movimiento
@@ -221,12 +221,12 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder={`Buscar ${tipo === "PRODUCTO" ? "productos" : "materias primas"} por nombre o código...`}
-          className="w-full bg-black/5 border border-black/10 rounded-2xl pl-12 pr-4 py-4 text-sm text-black focus:outline-none focus:border-amber-500/50 focus:bg-white/[0.08] "
+          className="w-full bg-black/5 border border-black/10 rounded-md pl-12 pr-4 py-4 text-sm text-black focus:outline-none focus:border-amber-500/50 focus:bg-white/[0.08] "
         />
 
         {/* Sugerencias */}
         {filteredItems.length > 0 && (
-          <div className="absolute z-50 left-0 right-0 mt-2 bg-[#1a1c1e] border border-black/10 rounded-2xl shadow-2xl overflow-hidden    ">
+          <div className="absolute z-50 left-0 right-0 mt-2 bg-[#1a1c1e] border border-black/10 rounded-md shadow-2xl overflow-hidden    ">
             {filteredItems.map((item) => (
               <button
                 key={item.codigoSecuencial}
@@ -257,7 +257,7 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
       {/* Lista de Seleccionados */}
       <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
         {selectedItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-black/20 border-2 border-dashed border-black/5 rounded-3xl">
+          <div className="flex flex-col items-center justify-center py-12 text-black/20 border-2 border-dashed border-black/5 rounded-md">
             <Package size={48} strokeWidth={1} className="mb-4 opacity-20" />
             <p className="text-sm font-bold uppercase tracking-widest">
               No hay items seleccionados
@@ -270,7 +270,7 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
           selectedItems.map((item) => (
             <div
               key={item.codigoSecuencial}
-              className="group flex items-center gap-4 bg-black/5 hover:bg-white/[0.08] p-4 rounded-2xl border border-black/10    "
+              className="group flex items-center gap-4 bg-black/5 hover:bg-white/[0.08] p-4 rounded-md border border-black/10    "
             >
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-bold text-black truncate">
