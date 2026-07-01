@@ -72,18 +72,8 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
   } = cabecera;
 
   const [modalComprobanteOpen, setModalComprobanteOpen] = useState(false);
-  const [modalPuntoVentaOpen, setModalPuntoVentaOpen] = useState(false);
   const [modalCrearContacto, setModalCrearContacto] = useState(false);
-  const [tempPuntoVenta, setTempPuntoVenta] = useState("");
   const [mostrarResultados, setMostrarResultados] = useState(false);
-
-  useEffect(() => {
-    if (puntoVenta === "" && unidadesNegocio.length > 0 && tipoOperacion !== "EGRESO") {
-      setModalPuntoVentaOpen(true);
-    } else {
-      setModalPuntoVentaOpen(false);
-    }
-  }, [puntoVenta, unidadesNegocio, tipoOperacion]);
   const [indiceActivo, setIndiceActivo] = useState(-1);
   const refsResultados = useRef([]);
 
@@ -360,6 +350,11 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
           >
             <VentasIcono size={20} className="text-[var(--primary)]" />
             Unidad de Negocio
+            {puntoVenta && (
+              <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] bg-black/5 px-2 py-1 rounded">
+                PV: {puntoVenta}
+              </span>
+            )}
           </label>
           <select
             id="unidad-negocio"
@@ -757,56 +752,6 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
             setModalCrearContacto(false);
           }}
         />
-      )}
-
-      {/* MODAL CONFIGURACION PUNTO DE VENTA (Fallback si no tiene configuracion) */}
-      {modalPuntoVentaOpen && (
-        <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-gray-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-md p-6 max-w-sm w-full shadow-2xl border border-gray-150 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 uppercase">
-                Asignar Punto de Venta
-              </h3>
-              <p className="text-xs text-gray-600 mt-1">
-                La unidad de negocio seleccionada no tiene configurado un Punto
-                de Venta en el sistema. Por favor, asigne uno temporal para este
-                comprobante:
-              </p>
-            </div>
-            <div className="flex flex-col gap-1">
-              <label
-                htmlFor="temp-punto-venta"
-                className="text-xs font-bold text-gray-700 uppercase tracking-wider"
-              >
-                Punto de Venta
-              </label>
-              <input
-                id="temp-punto-venta"
-                type="number"
-                min="1"
-                placeholder="Ej: 1"
-                value={tempPuntoVenta}
-                onChange={(e) => setTempPuntoVenta(e.target.value)}
-                onKeyDown={handleEnterNext}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm font-bold text-gray-900 focus:outline-none focus:border-[var(--primary)]"
-              />
-            </div>
-            <div className="flex justify-end gap-2 mt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  const val = Number(tempPuntoVenta) || 1;
-                  setPuntoVenta(String(val));
-                  setModalPuntoVentaOpen(false);
-                }}
-                disabled={!tempPuntoVenta}
-                className="px-4 py-2 bg-[var(--primary)] text-white text-xs font-black uppercase tracking-wider rounded-md hover:bg-[var(--primary)]/90 transition active:scale-95 disabled:opacity-50"
-              >
-                Confirmar
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );

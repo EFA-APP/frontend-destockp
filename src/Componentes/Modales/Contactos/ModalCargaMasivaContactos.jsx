@@ -168,8 +168,15 @@ const ModalCargaMasivaContactos = ({ open, onClose, onExito }) => {
           })
           .filter((i) => i.nombre || i.razonSocial);
 
-        setFileData(parsedRows);
-        setError(null);
+        if (parsedRows.length === 0) {
+          setFileData([]);
+          setError(
+            "No se detectó ninguna fila válida. Verificá que las columnas 'Nombre' o 'Razón Social' tengan datos completos en el archivo.",
+          );
+        } else {
+          setFileData(parsedRows);
+          setError(null);
+        }
       } catch (err) {
         setError("Error al procesar el archivo Excel.");
       }

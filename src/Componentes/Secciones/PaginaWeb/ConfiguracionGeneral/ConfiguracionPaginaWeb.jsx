@@ -32,7 +32,6 @@ import { useAlertas } from "../../../../store/useAlertas";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { axiosInitial } from "../../../../Backend/Config";
 
-
 export default function ConfiguracionPaginaWeb() {
   const usuario = useAuthStore((state) => state.usuario);
   const agregarAlerta = useAlertas((state) => state.agregarAlerta);
@@ -375,7 +374,6 @@ export default function ConfiguracionPaginaWeb() {
     setGallery(nuevaLista);
   };
 
-
   if (loading) {
     return (
       <div className="w-full min-h-screen flex items-center justify-center bg-[var(--surface-hover)]">
@@ -396,7 +394,7 @@ export default function ConfiguracionPaginaWeb() {
         {/* Title Header */}
         <div className="p-5 border-b border-[var(--border-subtle)] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
+            <div className="p-2.5 rounded-md bg-[var(--primary)]/10 text-[var(--primary)]">
               <Globe size={20} />
             </div>
             <div className="text-left">
@@ -411,7 +409,7 @@ export default function ConfiguracionPaginaWeb() {
           <button
             onClick={handleSave}
             disabled={guardando}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90 transition-all font-black text-[11px] uppercase tracking-widest disabled:opacity-50 shadow-md active:scale-95 cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90 transition-all font-black text-[11px] uppercase tracking-widest disabled:opacity-50 shadow-md active:scale-95 cursor-pointer"
           >
             {guardando ? (
               <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -464,7 +462,7 @@ export default function ConfiguracionPaginaWeb() {
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                   Subdominio de la Empresa (Slug URL) *
                 </label>
-                <div className="flex items-center rounded-xl border border-slate-200 overflow-hidden focus-within:border-[var(--primary)] focus-within:ring-2 focus-within:ring-[var(--primary)]/10 transition-all">
+                <div className="flex items-center rounded-md border border-slate-200 overflow-hidden focus-within:border-[var(--primary)] focus-within:ring-2 focus-within:ring-[var(--primary)]/10 transition-all">
                   <span className="bg-slate-50 px-3.5 py-3 text-[13px] font-bold text-slate-400 border-r border-slate-200">
                     ventryx.fun/pagina/
                   </span>
@@ -491,7 +489,7 @@ export default function ConfiguracionPaginaWeb() {
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                   Dominio Personalizado (Opcional)
                 </label>
-                <div className="flex items-center rounded-xl border border-slate-200 overflow-hidden focus-within:border-[var(--primary)] focus-within:ring-2 focus-within:ring-[var(--primary)]/10 transition-all">
+                <div className="flex items-center rounded-md border border-slate-200 overflow-hidden focus-within:border-[var(--primary)] focus-within:ring-2 focus-within:ring-[var(--primary)]/10 transition-all">
                   <span className="bg-slate-50 px-3.5 py-3 text-[13px] font-bold text-slate-400 border-r border-slate-200">
                     https://
                   </span>
@@ -519,7 +517,7 @@ export default function ConfiguracionPaginaWeb() {
                   value={titulo}
                   onChange={(e) => setTitulo(e.target.value)}
                   placeholder="Ej: Pampeana Acopio Logístico"
-                  className="px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all"
+                  className="px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all"
                 />
               </div>
 
@@ -532,7 +530,7 @@ export default function ConfiguracionPaginaWeb() {
                   onChange={(e) => setDescripcion(e.target.value)}
                   placeholder="Escribe una breve frase corporativa atractiva para captar la atención de tus visitantes..."
                   rows={4}
-                  className="px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all resize-none"
+                  className="px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all resize-none"
                 />
               </div>
             </div>
@@ -556,13 +554,13 @@ export default function ConfiguracionPaginaWeb() {
                       type="color"
                       value={colorPrimario}
                       onChange={(e) => setColorPrimario(e.target.value)}
-                      className="w-10 h-10 rounded-xl cursor-pointer border border-slate-200 overflow-hidden"
+                      className="w-10 h-10 rounded-md cursor-pointer border border-slate-200 overflow-hidden"
                     />
                     <input
                       type="text"
                       value={colorPrimario}
                       onChange={(e) => setColorPrimario(e.target.value)}
-                      className="flex-1 min-w-0 px-3 py-2 border border-slate-200 rounded-xl text-[12px] font-mono text-slate-600 focus:outline-none"
+                      className="flex-1 min-w-0 px-3 py-2 border border-slate-200 rounded-md text-[12px] font-mono text-slate-600 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -576,13 +574,13 @@ export default function ConfiguracionPaginaWeb() {
                       type="color"
                       value={colorSecundario}
                       onChange={(e) => setColorSecundario(e.target.value)}
-                      className="w-10 h-10 rounded-xl cursor-pointer border border-slate-200 overflow-hidden"
+                      className="w-10 h-10 rounded-md cursor-pointer border border-slate-200 overflow-hidden"
                     />
                     <input
                       type="text"
                       value={colorSecundario}
                       onChange={(e) => setColorSecundario(e.target.value)}
-                      className="flex-1 min-w-0 px-3 py-2 border border-slate-200 rounded-xl text-[12px] font-mono text-slate-600 focus:outline-none"
+                      className="flex-1 min-w-0 px-3 py-2 border border-slate-200 rounded-md text-[12px] font-mono text-slate-600 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -601,7 +599,7 @@ export default function ConfiguracionPaginaWeb() {
                   value={logo}
                   onChange={(e) => setLogo(e.target.value)}
                   placeholder="https://ejemplo.com/logo.png"
-                  className="px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all"
+                  className="px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all"
                 />
               </div>
 
@@ -614,7 +612,7 @@ export default function ConfiguracionPaginaWeb() {
                   value={banner}
                   onChange={(e) => setBanner(e.target.value)}
                   placeholder="https://images.unsplash.com/photo-..."
-                  className="px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all"
+                  className="px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all"
                 />
               </div>
 
@@ -627,7 +625,7 @@ export default function ConfiguracionPaginaWeb() {
                   value={favicon}
                   onChange={(e) => setFavicon(e.target.value)}
                   placeholder="https://ejemplo.com/favicon.ico"
-                  className="px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all"
+                  className="px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all"
                 />
               </div>
             </div>
@@ -649,7 +647,7 @@ export default function ConfiguracionPaginaWeb() {
                   onChange={(e) => setHistoria(e.target.value)}
                   placeholder="Cuenta la historia de tu empresa, cuándo se fundó, su trayectoria y la pasión por el servicio..."
                   rows={10}
-                  className="px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all resize-none leading-relaxed"
+                  className="px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all resize-none leading-relaxed"
                 />
               </div>
             </div>
@@ -673,7 +671,7 @@ export default function ConfiguracionPaginaWeb() {
               </div>
 
               {customSections.length === 0 ? (
-                <div className="p-8 text-center border border-dashed border-slate-200 rounded-xl bg-slate-50">
+                <div className="p-8 text-center border border-dashed border-slate-200 rounded-md bg-slate-50">
                   <p className="text-[13px] text-slate-400 font-medium leading-normal">
                     No has creado ninguna sección dinámica.
                   </p>
@@ -687,7 +685,7 @@ export default function ConfiguracionPaginaWeb() {
                   {customSections.map((sec, idx) => (
                     <div
                       key={idx}
-                      className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 shadow-sm relative space-y-3"
+                      className="p-4 rounded-md border border-slate-200 bg-slate-50/50 shadow-sm relative space-y-3"
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-black text-[var(--primary)] uppercase tracking-wider">
@@ -810,7 +808,7 @@ export default function ConfiguracionPaginaWeb() {
               </div>
 
               {gallery.length === 0 ? (
-                <div className="p-8 text-center border border-dashed border-slate-200 rounded-xl bg-slate-50">
+                <div className="p-8 text-center border border-dashed border-slate-200 rounded-md bg-slate-50">
                   <p className="text-[13px] text-slate-400 font-medium">
                     Tu galería está vacía.
                   </p>
@@ -824,7 +822,7 @@ export default function ConfiguracionPaginaWeb() {
                   {gallery.map((g, idx) => (
                     <div
                       key={idx}
-                      className="group border border-slate-200 rounded-xl overflow-hidden bg-slate-50 relative aspect-video flex flex-col justify-end p-2 shadow-sm"
+                      className="group border border-slate-200 rounded-md overflow-hidden bg-slate-50 relative aspect-video flex flex-col justify-end p-2 shadow-sm"
                     >
                       <img
                         src={g.url}
@@ -892,7 +890,7 @@ export default function ConfiguracionPaginaWeb() {
                   value={direccion}
                   onChange={(e) => setDireccion(e.target.value)}
                   placeholder="Ej: Av. Córdoba 1420, Rosario"
-                  className="px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all"
+                  className="px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all"
                 />
               </div>
 
@@ -907,7 +905,7 @@ export default function ConfiguracionPaginaWeb() {
                     value={correoContacto}
                     onChange={(e) => setCorreoContacto(e.target.value)}
                     placeholder="info@empresa.com"
-                    className="px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all"
+                    className="px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all"
                   />
                 </div>
 
@@ -921,7 +919,7 @@ export default function ConfiguracionPaginaWeb() {
                     value={telefonoContacto}
                     onChange={(e) => setTelefonoContacto(e.target.value)}
                     placeholder="+54 9 341 555-0199"
-                    className="px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all"
+                    className="px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all"
                   />
                 </div>
               </div>
@@ -1000,7 +998,7 @@ export default function ConfiguracionPaginaWeb() {
       <div className="w-full lg:w-[55%] xl:w-[60%] lg:sticky lg:top-[80px] lg:h-[calc(100vh-120px)] flex flex-col p-4 bg-slate-200/50 rounded-md border border-slate-200 select-none overflow-hidden">
         {/* Device Controls */}
         <div className="flex items-center justify-between mb-3 flex-shrink-0">
-          <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+          <div className="flex items-center gap-1 bg-white p-1 rounded-md border border-slate-200 shadow-sm">
             {[
               {
                 id: "desktop",
@@ -1081,7 +1079,10 @@ export default function ConfiguracionPaginaWeb() {
             {/* MOCK LANDING PAGE VIEWPORT (Scrollable) */}
             <div
               className="flex-1 overflow-y-auto bg-white font-sans text-left relative scroll-smooth custom-scrollbar"
-              style={{ "--primary": colorPrimario, "--secondary": colorSecundario }}
+              style={{
+                "--primary": colorPrimario,
+                "--secondary": colorSecundario,
+              }}
             >
               {/* Dynamic Theme Color Stylesheet */}
               <style
@@ -1180,20 +1181,20 @@ export default function ConfiguracionPaginaWeb() {
                   <div className="flex items-center gap-3 pt-2">
                     <button
                       type="button"
-                      className="preview-btn-primary px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider flex items-center gap-2 shadow-sm transition-all"
+                      className="preview-btn-primary px-4 py-2 rounded-md text-[11px] font-black uppercase tracking-wider flex items-center gap-2 shadow-sm transition-all"
                     >
                       Catálogo <ArrowRight size={12} />
                     </button>
                     <button
                       type="button"
-                      className="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-[11px] font-black uppercase tracking-wider"
+                      className="px-4 py-2 rounded-md bg-white border border-slate-200 text-slate-600 text-[11px] font-black uppercase tracking-wider"
                     >
                       Nosotros
                     </button>
                   </div>
                 </div>
                 <div className="md:col-span-5">
-                  <div className="rounded-xl overflow-hidden shadow-xl border border-white bg-slate-200 p-2 relative aspect-video">
+                  <div className="rounded-md overflow-hidden shadow-xl border border-white bg-slate-200 p-2 relative aspect-video">
                     {banner ? (
                       <img
                         src={banner}
@@ -1368,7 +1369,7 @@ export default function ConfiguracionPaginaWeb() {
                 </div>
 
                 {gallery.length === 0 ? (
-                  <div className="p-6 border border-dashed border-slate-200 rounded-xl bg-slate-50 text-center text-[11px] text-slate-400 font-medium">
+                  <div className="p-6 border border-dashed border-slate-200 rounded-md bg-slate-50 text-center text-[11px] text-slate-400 font-medium">
                     No hay imágenes para mostrar en la galería.
                   </div>
                 ) : (
@@ -1376,7 +1377,7 @@ export default function ConfiguracionPaginaWeb() {
                     {gallery.map((g, idx) => (
                       <div
                         key={idx}
-                        className="rounded-xl overflow-hidden aspect-square relative shadow border border-slate-100 bg-slate-50"
+                        className="rounded-md overflow-hidden aspect-square relative shadow border border-slate-100 bg-slate-50"
                       >
                         <img
                           src={g.url}

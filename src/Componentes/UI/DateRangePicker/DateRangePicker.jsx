@@ -12,7 +12,7 @@ const DateRangePicker = ({ fechaDesde, fechaHasta, onChange }) => {
 
   // Inicializar el estado interno de DayPicker con objetos Date
   const parseDate = (dStr) => (dStr ? new Date(dStr + "T00:00:00") : undefined);
-  
+
   const [range, setRange] = useState({
     from: parseDate(fechaDesde),
     to: parseDate(fechaHasta),
@@ -39,7 +39,7 @@ const DateRangePicker = ({ fechaDesde, fechaHasta, onChange }) => {
 
   const handleSelect = (selectedRange) => {
     setRange(selectedRange);
-    
+
     // Si selecciona los dos, o borra ambos, podemos elegir cerrar
     // o simplemente avisar al padre para que dispare el fetch
   };
@@ -72,13 +72,20 @@ const DateRangePicker = ({ fechaDesde, fechaHasta, onChange }) => {
             : "border-[var(--border-subtle)] text-gray-700 hover:border-gray-300 bg-white"
         }`}
       >
-        <CalendarIcon size={14} className={hasSelection ? "text-[var(--primary)]" : "text-gray-400"} />
+        <CalendarIcon
+          size={14}
+          className={hasSelection ? "text-[var(--primary)]" : "text-gray-400"}
+        />
         <span>
           {hasSelection ? (
             <>
-              {fechaDesde ? format(parseDate(fechaDesde), "dd MMM, yyyy", { locale: es }) : "..."}
+              {fechaDesde
+                ? format(parseDate(fechaDesde), "dd MMM, yyyy", { locale: es })
+                : "..."}
               {" - "}
-              {fechaHasta ? format(parseDate(fechaHasta), "dd MMM, yyyy", { locale: es }) : "..."}
+              {fechaHasta
+                ? format(parseDate(fechaHasta), "dd MMM, yyyy", { locale: es })
+                : "..."}
             </>
           ) : (
             "Seleccionar fechas..."
@@ -95,7 +102,7 @@ const DateRangePicker = ({ fechaDesde, fechaHasta, onChange }) => {
 
       {/* Popover del Calendario */}
       {isOpen && (
-        <div className="absolute z-[1000] mt-2 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl shadow-2xl p-4 right-0 lg:left-0 lg:right-auto animate-in fade-in zoom-in-95 duration-200">
+        <div className="absolute z-[1000] mt-2 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md shadow-2xl p-4 right-0 lg:left-0 lg:right-auto animate-in fade-in zoom-in-95 duration-200">
           <DayPicker
             mode="range"
             selected={range}

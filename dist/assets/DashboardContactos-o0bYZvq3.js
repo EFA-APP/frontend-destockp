@@ -1350,7 +1350,7 @@ const Ae = [
               "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm",
             children: e.jsx("div", {
               className:
-                "bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200",
+                "bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200",
               children: e.jsxs("div", {
                 className: "flex flex-col items-center text-center gap-4",
                 children: [

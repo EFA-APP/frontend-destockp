@@ -30,3 +30,14 @@ export const ObtenerConfiguracionArcaApi = async () => {
   });
   return respuesta.data;
 };
+
+/**
+ * Obtiene los puntos de venta habilitados en AFIP para la empresa indicada.
+ */
+export const ObtenerPuntosVentaApi = async (params) => {
+  const respuesta = await axiosInitial.get(`/arca/puntosVenta`, {
+    params,
+    showLoader: false,
+  });
+  return respuesta.data;
+};

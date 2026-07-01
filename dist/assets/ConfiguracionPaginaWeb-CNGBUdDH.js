@@ -463,7 +463,7 @@ function na() {
                     children: [
                       e.jsx("div", {
                         className:
-                          "p-2.5 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]",
+                          "p-2.5 rounded-md bg-[var(--primary)]/10 text-[var(--primary)]",
                         children: e.jsx(we, { size: 20 }),
                       }),
                       e.jsxs("div", {
@@ -487,7 +487,7 @@ function na() {
                     onClick: se,
                     disabled: J,
                     className:
-                      "flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90 transition-all font-black text-[11px] uppercase tracking-widest disabled:opacity-50 shadow-md active:scale-95 cursor-pointer",
+                      "flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90 transition-all font-black text-[11px] uppercase tracking-widest disabled:opacity-50 shadow-md active:scale-95 cursor-pointer",
                     children: [
                       J
                         ? e.jsx("div", {
@@ -569,7 +569,7 @@ function na() {
                             }),
                             e.jsxs("div", {
                               className:
-                                "flex items-center rounded-xl border border-slate-200 overflow-hidden focus-within:border-[var(--primary)] focus-within:ring-2 focus-within:ring-[var(--primary)]/10 transition-all",
+                                "flex items-center rounded-md border border-slate-200 overflow-hidden focus-within:border-[var(--primary)] focus-within:ring-2 focus-within:ring-[var(--primary)]/10 transition-all",
                               children: [
                                 e.jsx("span", {
                                   className:
@@ -610,7 +610,7 @@ function na() {
                             }),
                             e.jsxs("div", {
                               className:
-                                "flex items-center rounded-xl border border-slate-200 overflow-hidden focus-within:border-[var(--primary)] focus-within:ring-2 focus-within:ring-[var(--primary)]/10 transition-all",
+                                "flex items-center rounded-md border border-slate-200 overflow-hidden focus-within:border-[var(--primary)] focus-within:ring-2 focus-within:ring-[var(--primary)]/10 transition-all",
                               children: [
                                 e.jsx("span", {
                                   className:
@@ -649,7 +649,7 @@ function na() {
                               onChange: (a) => P(a.target.value),
                               placeholder: "Ej: Pampeana Acopio Logístico",
                               className:
-                                "px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all",
+                                "px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all",
                             }),
                           ],
                         }),
@@ -668,7 +668,7 @@ function na() {
                                 "Escribe una breve frase corporativa atractiva para captar la atención de tus visitantes...",
                               rows: 4,
                               className:
-                                "px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all resize-none",
+                                "px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all resize-none",
                             }),
                           ],
                         }),
@@ -702,7 +702,7 @@ function na() {
                                       (R(a.primary), A(a.secondary));
                                     },
                                     className:
-                                      "p-2.5 rounded-xl border border-slate-100 bg-slate-50 hover:bg-white hover:border-slate-300 hover:shadow-sm transition-all flex items-center gap-3 cursor-pointer",
+                                      "p-2.5 rounded-md border border-slate-100 bg-slate-50 hover:bg-white hover:border-slate-300 hover:shadow-sm transition-all flex items-center gap-3 cursor-pointer",
                                     children: [
                                       e.jsxs("div", {
                                         className: "flex gap-1.5 flex-shrink-0",
@@ -755,14 +755,14 @@ function na() {
                                       value: n,
                                       onChange: (a) => R(a.target.value),
                                       className:
-                                        "w-10 h-10 rounded-xl cursor-pointer border border-slate-200 overflow-hidden",
+                                        "w-10 h-10 rounded-md cursor-pointer border border-slate-200 overflow-hidden",
                                     }),
                                     e.jsx("input", {
                                       type: "text",
                                       value: n,
                                       onChange: (a) => R(a.target.value),
                                       className:
-                                        "flex-1 min-w-0 px-3 py-2 border border-slate-200 rounded-xl text-[12px] font-mono text-slate-600 focus:outline-none",
+                                        "flex-1 min-w-0 px-3 py-2 border border-slate-200 rounded-md text-[12px] font-mono text-slate-600 focus:outline-none",
                                     }),
                                   ],
                                 }),
@@ -784,14 +784,14 @@ function na() {
                                       value: f,
                                       onChange: (a) => A(a.target.value),
                                       className:
-                                        "w-10 h-10 rounded-xl cursor-pointer border border-slate-200 overflow-hidden",
+                                        "w-10 h-10 rounded-md cursor-pointer border border-slate-200 overflow-hidden",
                                     }),
                                     e.jsx("input", {
                                       type: "text",
                                       value: f,
                                       onChange: (a) => A(a.target.value),
                                       className:
-                                        "flex-1 min-w-0 px-3 py-2 border border-slate-200 rounded-xl text-[12px] font-mono text-slate-600 focus:outline-none",
+                                        "flex-1 min-w-0 px-3 py-2 border border-slate-200 rounded-md text-[12px] font-mono text-slate-600 focus:outline-none",
                                     }),
                                   ],
                                 }),
@@ -818,7 +818,7 @@ function na() {
                               onChange: (a) => M(a.target.value),
                               placeholder: "https://ejemplo.com/logo.png",
                               className:
-                                "px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all",
+                                "px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all",
                             }),
                           ],
                         }),
@@ -837,7 +837,7 @@ function na() {
                               placeholder:
                                 "https://images.unsplash.com/photo-...",
                               className:
-                                "px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all",
+                                "px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all",
                             }),
                           ],
                         }),
@@ -855,7 +855,7 @@ function na() {
                               onChange: (a) => ae(a.target.value),
                               placeholder: "https://ejemplo.com/favicon.ico",
                               className:
-                                "px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all",
+                                "px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all",
                             }),
                           ],
                         }),
@@ -885,7 +885,7 @@ function na() {
                                 "Cuenta la historia de tu empresa, cuándo se fundó, su trayectoria y la pasión por el servicio...",
                               rows: 10,
                               className:
-                                "px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all resize-none leading-relaxed",
+                                "px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all resize-none leading-relaxed",
                             }),
                           ],
                         }),
@@ -916,7 +916,7 @@ function na() {
                         d.length === 0
                           ? e.jsxs("div", {
                               className:
-                                "p-8 text-center border border-dashed border-slate-200 rounded-xl bg-slate-50",
+                                "p-8 text-center border border-dashed border-slate-200 rounded-md bg-slate-50",
                               children: [
                                 e.jsx("p", {
                                   className:
@@ -939,7 +939,7 @@ function na() {
                                   "div",
                                   {
                                     className:
-                                      "p-4 rounded-xl border border-slate-200 bg-slate-50/50 shadow-sm relative space-y-3",
+                                      "p-4 rounded-md border border-slate-200 bg-slate-50/50 shadow-sm relative space-y-3",
                                     children: [
                                       e.jsxs("div", {
                                         className:
@@ -1086,7 +1086,7 @@ function na() {
                         x.length === 0
                           ? e.jsxs("div", {
                               className:
-                                "p-8 text-center border border-dashed border-slate-200 rounded-xl bg-slate-50",
+                                "p-8 text-center border border-dashed border-slate-200 rounded-md bg-slate-50",
                               children: [
                                 e.jsx("p", {
                                   className:
@@ -1108,7 +1108,7 @@ function na() {
                                   "div",
                                   {
                                     className:
-                                      "group border border-slate-200 rounded-xl overflow-hidden bg-slate-50 relative aspect-video flex flex-col justify-end p-2 shadow-sm",
+                                      "group border border-slate-200 rounded-md overflow-hidden bg-slate-50 relative aspect-video flex flex-col justify-end p-2 shadow-sm",
                                     children: [
                                       e.jsx("img", {
                                         src: a.url,
@@ -1202,7 +1202,7 @@ function na() {
                               onChange: (a) => F(a.target.value),
                               placeholder: "Ej: Av. Córdoba 1420, Rosario",
                               className:
-                                "px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all",
+                                "px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all",
                             }),
                           ],
                         }),
@@ -1226,7 +1226,7 @@ function na() {
                                   onChange: (a) => B(a.target.value),
                                   placeholder: "info@empresa.com",
                                   className:
-                                    "px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all",
+                                    "px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all",
                                 }),
                               ],
                             }),
@@ -1247,7 +1247,7 @@ function na() {
                                   onChange: (a) => H(a.target.value),
                                   placeholder: "+54 9 341 555-0199",
                                   className:
-                                    "px-4 py-3 rounded-xl border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all",
+                                    "px-4 py-3 rounded-md border border-slate-200 text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all",
                                 }),
                               ],
                             }),
@@ -1358,7 +1358,7 @@ function na() {
                 children: [
                   e.jsx("div", {
                     className:
-                      "flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 shadow-sm",
+                      "flex items-center gap-1 bg-white p-1 rounded-md border border-slate-200 shadow-sm",
                     children: [
                       {
                         id: "desktop",
@@ -1587,7 +1587,7 @@ function na() {
                                     e.jsxs("button", {
                                       type: "button",
                                       className:
-                                        "preview-btn-primary px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider flex items-center gap-2 shadow-sm transition-all",
+                                        "preview-btn-primary px-4 py-2 rounded-md text-[11px] font-black uppercase tracking-wider flex items-center gap-2 shadow-sm transition-all",
                                       children: [
                                         "Catálogo ",
                                         e.jsx(Ee, { size: 12 }),
@@ -1596,7 +1596,7 @@ function na() {
                                     e.jsx("button", {
                                       type: "button",
                                       className:
-                                        "px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-[11px] font-black uppercase tracking-wider",
+                                        "px-4 py-2 rounded-md bg-white border border-slate-200 text-slate-600 text-[11px] font-black uppercase tracking-wider",
                                       children: "Nosotros",
                                     }),
                                   ],
@@ -1607,7 +1607,7 @@ function na() {
                               className: "md:col-span-5",
                               children: e.jsxs("div", {
                                 className:
-                                  "rounded-xl overflow-hidden shadow-xl border border-white bg-slate-200 p-2 relative aspect-video",
+                                  "rounded-md overflow-hidden shadow-xl border border-white bg-slate-200 p-2 relative aspect-video",
                                 children: [
                                   L
                                     ? e.jsx("img", {
@@ -1855,7 +1855,7 @@ function na() {
                             x.length === 0
                               ? e.jsx("div", {
                                   className:
-                                    "p-6 border border-dashed border-slate-200 rounded-xl bg-slate-50 text-center text-[11px] text-slate-400 font-medium",
+                                    "p-6 border border-dashed border-slate-200 rounded-md bg-slate-50 text-center text-[11px] text-slate-400 font-medium",
                                   children:
                                     "No hay imágenes para mostrar en la galería.",
                                 })
@@ -1867,7 +1867,7 @@ function na() {
                                       "div",
                                       {
                                         className:
-                                          "rounded-xl overflow-hidden aspect-square relative shadow border border-slate-100 bg-slate-50",
+                                          "rounded-md overflow-hidden aspect-square relative shadow border border-slate-100 bg-slate-50",
                                         children: e.jsx("img", {
                                           src: a.url,
                                           alt: `Galeria ${t}`,

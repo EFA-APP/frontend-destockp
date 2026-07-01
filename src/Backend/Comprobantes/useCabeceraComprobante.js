@@ -74,8 +74,8 @@ export const useCabeceraComprobante = (initialValues = {}) => {
     const selected = unidadesNegocio.find(
       (u) => String(u.codigoSecuencial) === String(unidadNegocioSeleccionada)
     );
-    if (selected?.configuracion?.puntoVenta) {
-      setPuntoVenta(String(selected.configuracion.puntoVenta));
+    if (selected?.puntoVenta) {
+      setPuntoVenta(String(selected.puntoVenta));
     } else {
       setPuntoVenta(""); // triggers modal in UI if empty
     }

@@ -987,12 +987,12 @@ Muchas gracias.`,
                         src: s.bannerImage,
                         alt: s.name,
                         className:
-                          "w-full h-[320px] md:h-[400px] object-cover rounded-xl transition-all duration-700 hover:scale-105",
+                          "w-full h-[320px] md:h-[400px] object-cover rounded-md transition-all duration-700 hover:scale-105",
                       }),
                     }),
                     e.jsxs("div", {
                       className:
-                        "absolute -bottom-4 -left-4 bg-white p-4 rounded-xl shadow-lg border border-slate-100 flex items-center gap-3",
+                        "absolute -bottom-4 -left-4 bg-white p-4 rounded-md shadow-lg border border-slate-100 flex items-center gap-3",
                       children: [
                         e.jsx("div", {
                           className:

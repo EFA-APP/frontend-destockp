@@ -8,7 +8,6 @@ import { ConfiguracionIcono, CuentaIcono } from "../../../assets/Icons";
 import Boton from "../../UI/Boton/Boton";
 import EncabezadoSeccion from "../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import InputReutilizable from "../../UI/InputReutilizable/InputReutilizable";
-import ModalConfiguracionFiscal from "../../Modales/Empresa/ModalConfiguracionFiscal";
 import { TieneAccion } from "../../UI/TieneAccion/TieneAccion";
 
 const Configuracion = () => {
@@ -24,14 +23,6 @@ const Configuracion = () => {
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
   const [email, setEmail] = useState("");
-
-  // States Modales Empresa
-  const [modalFiscalOpen, setModalFiscalOpen] = useState(false);
-
-  // States Logo
-  const [previewUrl, setPreviewUrl] = useState(usuario?.configuracionVisual?.logoUrl || "");
-  const [logoBase64, setLogoBase64] = useState("");
-  const [cargandoLogo, setCargandoLogo] = useState(false);
 
   // States Contraseña
   const [contrasenaActual, setContrasenaActual] = useState("");
@@ -84,33 +75,6 @@ const Configuracion = () => {
         },
       },
     );
-  };
-
-  const manejarArchivo = (e) => {
-    const archivo = e.target.files[0];
-    if (!archivo) return;
-    if (archivo.size > 1024 * 1024) {
-      agregarAlerta({ message: "La imagen no debe superar 1MB.", type: "error" });
-      return;
-    }
-    setPreviewUrl(URL.createObjectURL(archivo));
-    const reader = new FileReader();
-    reader.onload = (event) => setLogoBase64(event.target.result);
-    reader.readAsDataURL(archivo);
-  };
-
-  const manejarGuardarLogo = async () => {
-    try {
-      setCargandoLogo(true);
-      const payload = { logoUrl: logoBase64 || previewUrl };
-      await actualizarConfiguracionVisualApi(payload);
-      setUsuario({ ...usuario, configuracionVisual: payload });
-      agregarAlerta({ message: "Logo actualizado correctamente.", type: "success" });
-    } catch (error) {
-      agregarAlerta({ message: error.message || "Error al actualizar logo.", type: "error" });
-    } finally {
-      setCargandoLogo(false);
-    }
   };
 
   const iniciales = `${nombre.charAt(0)}${apellido.charAt(0)}`.toUpperCase();
@@ -323,105 +287,8 @@ const Configuracion = () => {
             </div>
           </form>
 
-          {/* MI EMPRESA (ADMINS ONLY) */}
-          <TieneAccion accion="CONFIGURACION_EMPRESA_ARCA">
-            <div className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md p-5 shadow-md     delay-200">
-              <div className="flex items-center gap-2 mb-4 border-b border-[var(--border-subtle)] pb-3">
-                <div className="text-emerald-700">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <rect x="3" y="3" width="7" height="7"></rect>
-                    <rect x="14" y="3" width="7" height="7"></rect>
-                    <rect x="14" y="14" width="7" height="7"></rect>
-                    <rect x="3" y="14" width="7" height="7"></rect>
-                  </svg>
-                </div>
-                <div>
-                  <h4 className="text-[15px] font-bold text-black uppercase tracking-tight">
-                    Mi Empresa
-                  </h4>
-                  <p className="text-[11px] text-[var(--text-muted)] font-medium">
-                    Gestión administrativa y fiscal del negocio.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-[var(--surface-hover)] p-4 rounded-md border border-[var(--border-subtle)] flex flex-col justify-between items-start gap-4">
-                  <div>
-                    <h5 className="text-[13px] font-bold text-black! uppercase tracking-tight">
-                      Configuración Fiscal y AFIP
-                    </h5>
-                    <p className="text-[11px] text-[var(--text-muted)] mt-1">
-                      Suscripción certificados, ambientes, punto de venta y
-                      datos maestros.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setModalFiscalOpen(true)}
-                    className="px-3 py-1.5 bg-black/5 border border-black/10 hover:bg-black/10 text-[12px] font-bold text-black rounded-md  uppercase tracking-wider"
-                  >
-                    Gestionar AFIP
-                  </button>
-                </div>
-
-                <div className="bg-[var(--surface-hover)] p-4 rounded-md border border-[var(--border-subtle)] flex flex-col gap-4">
-                  <div>
-                    <h5 className="text-[13px] font-bold text-black! uppercase tracking-tight">
-                      Logo Corporativo
-                    </h5>
-                    <p className="text-[11px] text-[var(--text-muted)] mt-1">
-                      Se muestra en la barra lateral y en los comprobantes de venta.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-md border border-[var(--border-subtle)] bg-[var(--surface)] flex items-center justify-center overflow-hidden shrink-0">
-                      {previewUrl ? (
-                        <img src={previewUrl} alt="Logo" className="max-w-full max-h-full object-contain" />
-                      ) : (
-                        <span className="text-2xl opacity-20">🖼️</span>
-                      )}
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <div>
-                        <input type="file" id="logo-upload-config" accept="image/*" onChange={manejarArchivo} className="hidden" />
-                        <label htmlFor="logo-upload-config" className="inline-block px-3 py-1.5 bg-black/5 border border-black/10 hover:bg-black/10 text-[12px] font-bold text-black rounded-md cursor-pointer uppercase tracking-wider">
-                          Subir Imagen
-                        </label>
-                        <p className="text-[10px] text-[var(--text-muted)] mt-1">PNG/SVG con fondo transparente · Max 1MB</p>
-                      </div>
-                      {logoBase64 && (
-                        <button
-                          onClick={manejarGuardarLogo}
-                          disabled={cargandoLogo}
-                          className="px-3 py-1.5 bg-[var(--primary)] text-white text-[12px] font-bold rounded-md uppercase tracking-wider disabled:opacity-50"
-                        >
-                          {cargandoLogo ? "Guardando..." : "Guardar Logo"}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </TieneAccion>
         </div>
       </div>
-
-      {/* MODALES DE EMPRESA */}
-      <ModalConfiguracionFiscal
-        isOpen={modalFiscalOpen}
-        onClose={() => setModalFiscalOpen(false)}
-      />
     </div>
   );
 };

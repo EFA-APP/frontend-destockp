@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { CerrarIcono, ConfiguracionEmpresaIcono } from "../../../assets/Icons";
 import { useActualizarEmpresa } from "../../../Backend/Autenticacion/queries/Empresa/useActualizarEmpresa.mutation";
+import { useAlertas } from "../../../store/useAlertas";
+import ModalConfiguracionFiscal from "./ModalConfiguracionFiscal";
 
 const ModalEditarEmpresa = ({ isOpen, onClose, empresaAEditar }) => {
   const [formData, setFormData] = useState({
@@ -17,13 +19,18 @@ const ModalEditarEmpresa = ({ isOpen, onClose, empresaAEditar }) => {
     esProduccion: false,
     usaContabilidad: false,
     configuracion: "",
-    landingHabilitada: true,
-    landingSlug: "",
-    landingSlogan: "",
-    landingColorPrimario: "#6366f1",
   });
 
   const [jsonError, setJsonError] = useState(null);
+  
+  // States Modales Empresa
+  const [modalFiscalOpen, setModalFiscalOpen] = useState(false);
+
+  // States Logo
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [logoBase64, setLogoBase64] = useState("");
+  
+  const { agregarAlerta } = useAlertas();
 
   const { mutateAsync: actualizarEmpresa, isPending } = useActualizarEmpresa();
 
@@ -54,14 +61,9 @@ const ModalEditarEmpresa = ({ isOpen, onClose, empresaAEditar }) => {
         configuracion: empresaAEditar.configuracion
           ? JSON.stringify(empresaAEditar.configuracion, null, 2)
           : "",
-        landingHabilitada:
-          empresaAEditar.landingHabilitada !== undefined
-            ? empresaAEditar.landingHabilitada
-            : true,
-        landingSlug: empresaAEditar.landingSlug || empresaAEditar.nombre?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "",
-        landingSlogan: empresaAEditar.landingSlogan || "",
-        landingColorPrimario: empresaAEditar.landingColorPrimario || "#6366f1",
       });
+      setPreviewUrl(empresaAEditar.configuracionVisual?.logoUrl || "");
+      setLogoBase64("");
       setJsonError(null);
     }
   }, [empresaAEditar]);
@@ -72,6 +74,19 @@ const ModalEditarEmpresa = ({ isOpen, onClose, empresaAEditar }) => {
     const value =
       e.target.type === "checkbox" ? e.target.checked : e.target.value;
     setFormData((prev) => ({ ...prev, [e.target.name]: value }));
+  };
+
+  const manejarArchivo = (e) => {
+    const archivo = e.target.files[0];
+    if (!archivo) return;
+    if (archivo.size > 1024 * 1024) {
+      agregarAlerta({ message: "La imagen no debe superar 1MB.", type: "error" });
+      return;
+    }
+    setPreviewUrl(URL.createObjectURL(archivo));
+    const reader = new FileReader();
+    reader.onload = (event) => setLogoBase64(event.target.result);
+    reader.readAsDataURL(archivo);
   };
 
   const handleSubmit = async (e) => {
@@ -94,6 +109,13 @@ const ModalEditarEmpresa = ({ isOpen, onClose, empresaAEditar }) => {
         ...restFormData,
         configuracion: parsedConfig,
       };
+
+      if (logoBase64) {
+        payload.configuracionVisual = {
+          ...(empresaAEditar.configuracionVisual || {}),
+          logoUrl: logoBase64
+        };
+      }
 
       // Convertir fecha a ISO si existe, o eliminarla si está vacía
       if (payload.inicioActividades) {
@@ -366,92 +388,63 @@ const ModalEditarEmpresa = ({ isOpen, onClose, empresaAEditar }) => {
               />
             </div>
 
-            {/* SECCIÓN LANDING PAGE */}
+            {/* SECCIÓN FISCAL Y LOGO (MOVIDOS DE CONFIGURACIÓN) */}
             <div className="md:col-span-2 mt-4">
               <h3 className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] border-b border-black/10 pb-1 mb-3">
-                Personalización de Landing Page Pública
+                Identidad Visual y Configuración AFIP
               </h3>
             </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:col-span-2">
+                <div className="bg-black/5 p-4 rounded-md border border-black/10 flex flex-col justify-between items-start gap-4 shadow-sm hover:border-black/20 transition-all">
+                  <div>
+                    <h5 className="text-[13px] font-bold text-black! uppercase tracking-tight">
+                      Configuración Fiscal y AFIP
+                    </h5>
+                    <p className="text-[11px] text-[var(--text-muted)] mt-1">
+                      Suscripción certificados, ambientes, punto de venta y
+                      datos maestros.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setModalFiscalOpen(true)}
+                    className="px-3 py-1.5 bg-white border border-black/10 hover:bg-black/5 text-[12px] font-bold text-black rounded-md uppercase tracking-wider transition-all"
+                  >
+                    Gestionar AFIP
+                  </button>
+                </div>
 
-            {/* HABILITADA */}
-            <div className="flex flex-col items-center justify-center p-3 bg-black/5 rounded-md border border-black/10 gap-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-black/70">
-                Página Pública Activa
-              </span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="landingHabilitada"
-                  checked={formData.landingHabilitada}
-                  onChange={handleChange}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-black/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500"></div>
-                <span className="ml-3 text-[11px] font-black uppercase tracking-widest text-black">
-                  {formData.landingHabilitada ? "Habilitada" : "Deshabilitada"}
-                </span>
-              </label>
-            </div>
-
-            {/* COLOR PRIMARIO HEX */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-black uppercase tracking-widest text-black/70 ml-1">
-                Color Primario Corporativo
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="color"
-                  name="landingColorPrimario"
-                  value={formData.landingColorPrimario}
-                  onChange={handleChange}
-                  className="w-10 h-10 border border-black/10 rounded-md cursor-pointer bg-transparent"
-                />
-                <input
-                  type="text"
-                  name="landingColorPrimario"
-                  value={formData.landingColorPrimario}
-                  onChange={handleChange}
-                  placeholder="#6366f1"
-                  className="flex-grow px-4 py-2.5 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:border-black/30 focus:bg-white transition-all font-mono"
-                />
+                <div className="bg-black/5 p-4 rounded-md border border-black/10 flex flex-col gap-4 shadow-sm hover:border-black/20 transition-all">
+                  <div>
+                    <h5 className="text-[13px] font-bold text-black! uppercase tracking-tight">
+                      Logo Corporativo
+                    </h5>
+                    <p className="text-[11px] text-[var(--text-muted)] mt-1">
+                      Se muestra en la barra lateral y en los comprobantes de venta.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-md border border-black/10 bg-white flex items-center justify-center overflow-hidden shrink-0">
+                      {previewUrl ? (
+                        <img src={previewUrl} alt="Logo" className="max-w-full max-h-full object-contain" />
+                      ) : (
+                        <span className="text-2xl opacity-20">🖼️</span>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <div>
+                        <input type="file" id="logo-upload-empresa" accept="image/*" onChange={manejarArchivo} className="hidden" />
+                        <label htmlFor="logo-upload-empresa" className="inline-block px-3 py-1.5 bg-white border border-black/10 hover:bg-black/5 text-[12px] font-bold text-black rounded-md cursor-pointer uppercase tracking-wider transition-all">
+                          Subir Imagen
+                        </label>
+                        <p className="text-[10px] text-[var(--text-muted)] mt-1">PNG/SVG con fondo transparente · Max 1MB</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            {/* SLUG DE URL */}
-            <div className="flex flex-col gap-1.5 md:col-span-2">
-              <label className="text-[11px] font-black uppercase tracking-widest text-black/70 ml-1">
-                Enlace de la Página (URL Slug)
-              </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] font-bold text-black/40">/e/</span>
-                <input
-                  type="text"
-                  name="landingSlug"
-                  value={formData.landingSlug}
-                  onChange={(e) => {
-                    const cleanSlug = e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, "-");
-                    setFormData(prev => ({ ...prev, landingSlug: cleanSlug }));
-                  }}
-                  placeholder="ej-agro-cereales"
-                  className="w-full pl-8 pr-4 py-2.5 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:border-black/30 focus:bg-white transition-all font-mono"
-                />
-              </div>
-            </div>
-
-            {/* SLOGAN PUBLICO */}
-            <div className="flex flex-col gap-1.5 md:col-span-2">
-              <label className="text-[11px] font-black uppercase tracking-widest text-black/70 ml-1">
-                Eslogan de la Landing Page
-              </label>
-              <input
-                type="text"
-                name="landingSlogan"
-                value={formData.landingSlogan}
-                onChange={handleChange}
-                placeholder="Líderes en el sector con tecnología integrada..."
-                className="w-full px-4 py-2.5 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:border-black/30 focus:bg-white transition-all"
-              />
-            </div>
 
             {/* SECCIÓN CONFIGURACIÓN JSON */}
             <div className="md:col-span-2 mt-4">
@@ -556,6 +549,12 @@ const ModalEditarEmpresa = ({ isOpen, onClose, empresaAEditar }) => {
           </div>
         </form>
       </div>
+
+      <ModalConfiguracionFiscal
+        isOpen={modalFiscalOpen}
+        onClose={() => setModalFiscalOpen(false)}
+        empresaAEditar={empresaAEditar}
+      />
     </div>
   );
 };

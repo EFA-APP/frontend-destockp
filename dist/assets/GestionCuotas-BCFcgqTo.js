@@ -169,7 +169,7 @@ const K = async ({ codigoCtaCte: t, mes: s, anio: a, codigoContacto: r }) => {
         "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm",
       children: e.jsxs("div", {
         className:
-          "bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-5",
+          "bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md max-w-md w-full p-6 shadow-2xl flex flex-col gap-5",
         children: [
           e.jsx("h2", {
             className:
@@ -283,7 +283,7 @@ const K = async ({ codigoCtaCte: t, mes: s, anio: a, codigoContacto: r }) => {
         "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm",
       children: e.jsxs("div", {
         className:
-          "bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl max-w-2xl w-full p-6 shadow-2xl flex flex-col gap-5 max-h-[80vh]",
+          "bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md max-w-2xl w-full p-6 shadow-2xl flex flex-col gap-5 max-h-[80vh]",
         children: [
           e.jsxs("div", {
             className: "flex items-center justify-between",
@@ -500,7 +500,7 @@ const K = async ({ codigoCtaCte: t, mes: s, anio: a, codigoContacto: r }) => {
         "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm",
       children: e.jsxs("div", {
         className:
-          "bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-5",
+          "bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md max-w-md w-full p-6 shadow-2xl flex flex-col gap-5",
         children: [
           e.jsx("h2", {
             className:
@@ -988,7 +988,7 @@ const K = async ({ codigoCtaCte: t, mes: s, anio: a, codigoContacto: r }) => {
         "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm",
       children: e.jsxs("div", {
         className:
-          "bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl max-w-lg w-full p-6 shadow-2xl flex flex-col gap-5",
+          "bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md max-w-lg w-full p-6 shadow-2xl flex flex-col gap-5",
         children: [
           e.jsxs("h2", {
             className:
@@ -1225,7 +1225,7 @@ const fe = ({
         "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm",
       children: e.jsxs("div", {
         className:
-          "bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-5",
+          "bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md max-w-md w-full p-6 shadow-2xl flex flex-col gap-5",
         children: [
           e.jsx("h2", {
             className:

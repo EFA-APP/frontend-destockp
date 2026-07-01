@@ -102,30 +102,36 @@ const ModalEmitirLote = ({ alumnos, formula, mes, anio, onClose, onExito }) => {
   const nombreMes = MESES_ES[mes - 1];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
-      <div className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md max-w-lg w-full p-6 shadow-2xl flex flex-col gap-5">
-        <h2 className="text-lg font-black uppercase tracking-tight text-[var(--text-primary)]">
-          Generar cuotas — {nombreMes} {anio}
-        </h2>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+      <div className="bg-white border border-[var(--border-subtle)] rounded-md max-w-lg w-full p-7 shadow-2xl flex flex-col gap-6">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-xl font-black tracking-tight text-gray-800">
+            Generar cuotas — {nombreMes} {anio}
+          </h2>
+          <p className="text-xs font-semibold text-gray-500">
+            Verificá el estado de los alumnos antes de emitir masivamente.
+          </p>
+        </div>
 
         {!resultado ? (
           <>
-            <div className="flex flex-col gap-2 text-[12px] font-bold text-[var(--text-secondary)]">
-              <p>
-                Alumnos a emitir:{" "}
-                <span className="text-[var(--text-primary)] text-[14px]">
+            <div className="flex flex-col gap-2 text-xs font-bold text-gray-600">
+              <p className="flex items-center justify-between border-b border-gray-100 pb-2">
+                <span>Alumnos a emitir</span>
+                <span className="text-gray-900 font-black text-sm">
                   {pendientes.length}
                 </span>
               </p>
               {sinTutor.length > 0 && (
-                <p className="text-rose-600 font-bold text-[12px]">
-                  Sin tutor (no se emitirán): {sinTutor.length}
+                <p className="text-rose-600 font-bold flex items-center justify-between border-b border-rose-50 pb-2">
+                  <span>Sin tutor (no se emitirán)</span>
+                  <span>{sinTutor.length}</span>
                 </p>
               )}
               {yaEmitidos.length > 0 && (
-                <p className="text-amber-600">
-                  Alumnos con cuota ya emitida (serán omitidos):{" "}
-                  {yaEmitidos.length}
+                <p className="text-amber-600 font-bold flex items-center justify-between pb-1">
+                  <span>Con cuota ya emitida (omitidos)</span>
+                  <span>{yaEmitidos.length}</span>
                 </p>
               )}
             </div>
@@ -136,8 +142,12 @@ const ModalEmitirLote = ({ alumnos, formula, mes, anio, onClose, onExito }) => {
                   Sin tutor
                 </p>
                 {sinTutor.map((a) => (
-                  <p key={a.codigoSecuencial} className="text-[11px] text-rose-700 font-medium">
-                    {a.razonSocial || `${a.nombre ?? ""} ${a.apellido ?? ""}`.trim()}
+                  <p
+                    key={a.codigoSecuencial}
+                    className="text-[11px] text-rose-700 font-medium"
+                  >
+                    {a.razonSocial ||
+                      `${a.nombre ?? ""} ${a.apellido ?? ""}`.trim()}
                   </p>
                 ))}
               </div>
@@ -160,23 +170,23 @@ const ModalEmitirLote = ({ alumnos, formula, mes, anio, onClose, onExito }) => {
               </div>
             )}
 
-            <div className="flex gap-3 mt-2">
+            <div className="flex gap-3 pt-2">
               <button
                 onClick={onClose}
                 disabled={emitiendo}
-                className="flex-1 py-3 rounded-md bg-[var(--fill-secondary)] border border-[var(--border-subtle)] text-[11px] font-black uppercase tracking-widest hover:bg-[var(--surface-hover)] disabled:opacity-50 transition-colors cursor-pointer"
+                className="flex-1 py-3 rounded-md bg-white border border-[var(--border-subtle)] text-xs font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleConfirmar}
                 disabled={emitiendo || pendientes.length === 0}
-                className="flex-1 py-3 rounded-md bg-emerald-600 text-white text-[11px] font-black uppercase tracking-widest hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="flex-1 py-3 rounded-md bg-[var(--primary)] text-white text-xs font-bold hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-[var(--primary)]/20"
               >
                 {emitiendo ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
-                  "Confirmar"
+                  "Confirmar emisión"
                 )}
               </button>
             </div>
@@ -184,20 +194,20 @@ const ModalEmitirLote = ({ alumnos, formula, mes, anio, onClose, onExito }) => {
         ) : (
           <>
             {resultado.error ? (
-              <p className="text-rose-600 font-bold text-[13px]">
+              <p className="text-rose-600 font-bold text-sm bg-rose-50 p-4 rounded-md border border-rose-100">
                 {resultado.error}
               </p>
             ) : (
-              <div className="flex flex-col gap-3">
-                <p className="text-emerald-700 font-black text-[14px]">
+              <div className="flex flex-col gap-3 bg-emerald-50/50 p-4 rounded-md border border-emerald-100">
+                <p className="text-emerald-700 font-black text-sm">
                   Generados: {resultado.totalGenerados ?? 0}
                 </p>
                 {resultado.sinTutor?.length > 0 && (
                   <div>
-                    <p className="text-rose-600 font-bold text-[12px] mb-1">
+                    <p className="text-rose-600 font-bold text-xs mb-1">
                       Sin tutor (no emitidos): {resultado.sinTutor.length}
                     </p>
-                    <ul className="text-[11px] text-rose-700 list-disc list-inside max-h-24 overflow-y-auto">
+                    <ul className="text-[11px] text-rose-700 list-disc list-inside max-h-24 overflow-y-auto pl-1">
                       {resultado.sinTutor.map((o, i) => (
                         <li key={i}>{o.nombre || o.referencia}</li>
                       ))}
@@ -206,10 +216,10 @@ const ModalEmitirLote = ({ alumnos, formula, mes, anio, onClose, onExito }) => {
                 )}
                 {resultado.omitidos?.length > 0 && (
                   <div>
-                    <p className="text-amber-600 font-bold text-[12px] mb-1">
+                    <p className="text-amber-600 font-bold text-xs mb-1">
                       Omitidos (ya emitidos): {resultado.omitidos.length}
                     </p>
-                    <ul className="text-[11px] text-amber-700 list-disc list-inside max-h-24 overflow-y-auto">
+                    <ul className="text-[11px] text-amber-700 list-disc list-inside max-h-24 overflow-y-auto pl-1">
                       {resultado.omitidos.map((o, i) => (
                         <li key={i}>{o.referencia ?? o.codigoContacto}</li>
                       ))}
@@ -220,9 +230,9 @@ const ModalEmitirLote = ({ alumnos, formula, mes, anio, onClose, onExito }) => {
             )}
             <button
               onClick={onExito}
-              className="w-full py-3 rounded-md bg-[var(--primary)] text-white text-[11px] font-black uppercase tracking-widest hover:brightness-110 transition-all cursor-pointer"
+              className="w-full py-3 rounded-md bg-[var(--primary)] text-white text-xs font-bold hover:brightness-110 transition-all cursor-pointer shadow-md shadow-[var(--primary)]/20 mt-2"
             >
-              Cerrar
+              Entendido
             </button>
           </>
         )}

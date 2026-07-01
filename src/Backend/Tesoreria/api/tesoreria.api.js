@@ -27,3 +27,14 @@ export const listarMovimientosFinanciero = async (filtros = {}) => {
   const { data } = await axiosInitial.get("/tesoreria/movimientos", { params });
   return data;
 };
+
+export const listarChequesTercero = async (filtros = {}) => {
+  const params = {};
+  if (filtros.codigoEmpresa) params.codigoEmpresa = filtros.codigoEmpresa;
+  if (filtros.fechaDesde) params.fechaDesde = filtros.fechaDesde;
+  if (filtros.fechaHasta) params.fechaHasta = filtros.fechaHasta;
+  if (filtros.codigoTipoMovimiento) params.codigoTipoMovimiento = filtros.codigoTipoMovimiento;
+
+  const { data } = await axiosInitial.get("/tesoreria/cheques-tercero", { params });
+  return data;
+};

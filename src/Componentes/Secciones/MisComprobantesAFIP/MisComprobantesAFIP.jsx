@@ -23,7 +23,7 @@ const MisComprobantesAFIP = () => {
           type="text"
           placeholder="Buscar comprobante..."
           disabled
-          className="w-full pl-10 pr-4 py-2.5 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl text-sm text-black/50 placeholder:text-black/30 cursor-default focus:outline-none"
+          className="w-full pl-10 pr-4 py-2.5 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md text-sm text-black/50 placeholder:text-black/30 cursor-default focus:outline-none"
         />
       </div>
 

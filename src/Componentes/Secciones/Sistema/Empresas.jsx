@@ -7,6 +7,7 @@ import VistaUsuariosEmpresa from "./Vistas/VistaUsuariosEmpresa";
 import VistaRolesEmpresa from "./Vistas/VistaRolesEmpresa";
 import VistaUnidadesNegocio from "./Vistas/VistaUnidadesNegocio";
 import VistaConfiguracionCampos from "./Vistas/VistaConfiguracionCampos";
+import VistaAsignarPuntosVenta from "./Vistas/VistaAsignarPuntosVenta";
 import ModalCrearEmpresa from "../../Modales/Empresa/ModalCrearEmpresa";
 import ModalEditarEmpresa from "../../Modales/Empresa/ModalEditarEmpresa";
 import { useActualizarEmpresa } from "../../../Backend/Autenticacion/queries/Empresa/useActualizarEmpresa.mutation";
@@ -47,6 +48,11 @@ const Empresas = () => {
   const handleConfigurarCamposClick = (fila) => {
     setEmpresaActiva(fila);
     setVistaActiva("configuracion");
+  };
+
+  const handlePuntosVentaClick = (fila) => {
+    setEmpresaActiva(fila);
+    setVistaActiva("puntos-venta");
   };
 
   const handleEditarClick = (fila) => {
@@ -185,6 +191,7 @@ const Empresas = () => {
         handleDuplicarClick={handleDuplicarClick}
         handleEliminarClick={handleEliminarClick}
         handleConfigurarCamposClick={handleConfigurarCamposClick}
+        handlePuntosVentaClick={handlePuntosVentaClick}
       />
 
       {/* VISTAS DETALLE (SUBTABLAS) */}
@@ -211,6 +218,13 @@ const Empresas = () => {
 
       {empresaActiva && vistaActiva === "configuracion" && (
         <VistaConfiguracionCampos
+          empresa={empresaActiva}
+          onClose={cerrarVistaActiva}
+        />
+      )}
+
+      {empresaActiva && vistaActiva === "puntos-venta" && (
+        <VistaAsignarPuntosVenta
           empresa={empresaActiva}
           onClose={cerrarVistaActiva}
         />

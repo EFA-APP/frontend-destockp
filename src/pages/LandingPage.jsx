@@ -1005,11 +1005,11 @@ const LandingPage = () => {
               <img
                 src={tenant.bannerImage}
                 alt={tenant.name}
-                className="w-full h-[320px] md:h-[400px] object-cover rounded-xl transition-all duration-700 hover:scale-105"
+                className="w-full h-[320px] md:h-[400px] object-cover rounded-md transition-all duration-700 hover:scale-105"
               />
             </div>
             {/* Styled accent floating tag */}
-            <div className="absolute -bottom-4 -left-4 bg-white p-4 rounded-xl shadow-lg border border-slate-100 flex items-center gap-3">
+            <div className="absolute -bottom-4 -left-4 bg-white p-4 rounded-md shadow-lg border border-slate-100 flex items-center gap-3">
               <div className="p-2.5 rounded-md bg-[var(--primary)]/10 text-[var(--primary)]">
                 {tenant.icon}
               </div>

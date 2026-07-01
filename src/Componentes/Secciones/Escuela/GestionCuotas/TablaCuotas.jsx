@@ -11,6 +11,7 @@ import ModalEmitirIndividual from "./ModalEmitirIndividual";
 import ModalDeudaAlumno from "./ModalDeudaAlumno";
 import ModalCambioTipoAlumno from "./ModalCambioTipoAlumno";
 import ModalSeleccionarCobro from "./ModalSeleccionarCobro";
+import DashboardCuotas from "./DashboardCuotas";
 import { Package } from "lucide-react";
 
 const MESES_ES = [
@@ -246,14 +247,22 @@ const TablaCuotas = ({ alumnos, cargando, formula, mes, anio, refetch, tipoOpcio
 
   return (
     <>
+      {/* Dashboard */}
+      <DashboardCuotas 
+        filas={filas}
+        mes={mes}
+        anio={anio}
+        asientosRaw={asientosRaw}
+      />
+
       {/* Buscador */}
-      <div className="flex items-center gap-2 max-w-sm mb-3">
+      <div className="flex items-center gap-2 max-w-sm mb-4">
         <input
           type="text"
           placeholder="Buscar por alumno o tutor..."
           value={filtroBusqueda}
           onChange={(e) => setFiltroBusqueda(e.target.value)}
-          className="w-full text-[11px] px-3 py-2 border border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-primary)] rounded-md outline-none focus:border-[var(--primary)] transition-colors font-bold uppercase tracking-wider placeholder:text-[var(--text-muted)] placeholder:normal-case placeholder:font-normal"
+          className="w-full text-sm px-4 py-2.5 border border-[var(--border-subtle)] bg-white text-gray-800 rounded-md outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 transition-all font-semibold placeholder:text-gray-400 placeholder:font-medium shadow-sm"
         />
         {filtroBusqueda && (
           <button
@@ -265,38 +274,38 @@ const TablaCuotas = ({ alumnos, cargando, formula, mes, anio, refetch, tipoOpcio
         )}
       </div>
 
-      <div className="bg-[var(--surface)] rounded-md border border-[var(--border-subtle)] shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-[var(--border-subtle)] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse min-w-max">
-            <thead className="bg-[var(--fill-secondary)] sticky top-0 z-10">
+            <thead className="bg-gray-50/50 sticky top-0 z-10 border-b border-[var(--border-subtle)]">
               <tr>
-                <th className="px-4 py-3 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest border-b border-[var(--border-subtle)] text-left">
+                <th className="px-5 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-left">
                   Alumno
                 </th>
-                <th className="px-4 py-3 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest border-b border-[var(--border-subtle)] text-left">
+                <th className="px-5 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-left">
                   Tutor
                 </th>
-                <th className="px-4 py-3 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest border-b border-[var(--border-subtle)] text-left">
+                <th className="px-5 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-left">
                   Tipo
                 </th>
-                <th className="px-4 py-3 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest border-b border-[var(--border-subtle)] text-left">
+                <th className="px-5 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-left">
                   Curso
                 </th>
-                <th className="px-4 py-3 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest border-b border-[var(--border-subtle)] text-right">
+                <th className="px-5 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-right">
                   Monto Cuota
                 </th>
-                <th className="px-4 py-3 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest border-b border-[var(--border-subtle)] text-center">
+                <th className="px-5 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-center">
                   Estado
                 </th>
-                <th className="px-4 py-3 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest border-b border-[var(--border-subtle)] text-right">
+                <th className="px-5 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-right">
                   Total Deuda
                 </th>
-                <th className="px-4 py-3 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest border-b border-[var(--border-subtle)] text-right">
+                <th className="px-5 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-right">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-[var(--border-subtle)]">
               {filasFiltradas.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-4 py-12 text-center text-[var(--text-muted)] text-[12px] font-bold uppercase tracking-widest">
@@ -307,60 +316,60 @@ const TablaCuotas = ({ alumnos, cargando, formula, mes, anio, refetch, tipoOpcio
                 filasFiltradas.map((fila) => (
                   <tr
                     key={fila.codigoSecuencial}
-                    className={`border-b border-[var(--border-subtle)] transition-colors ${
+                    className={`transition-colors group ${
                       fila.estado === "VENCIDA"
                         ? "border-l-4 border-l-rose-500 bg-rose-50/30"
-                        : "hover:bg-[var(--fill-secondary)]/40"
+                        : "hover:bg-gray-50/80"
                     }`}
                     data-estado={fila.estado}
                   >
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-4">
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-[12px] font-bold text-[var(--text-primary)] uppercase">
+                        <span className="text-sm font-bold text-gray-800">
                           {fila.nombreCompleto ||
                             `Alumno #${fila.codigoSecuencial}`}
                         </span>
                         {fila.deudaAnterior > 0 && (
-                          <span className="text-[10px] font-bold text-rose-500 bg-rose-50 border border-rose-200/50 rounded px-1.5 py-0.5 w-fit uppercase tracking-widest animate-pulse">
+                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200/50 rounded px-1.5 py-0.5 w-fit uppercase tracking-widest">
                             Deuda anterior: {formatearARS(fila.deudaAnterior)}
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <span className="text-[11px] font-bold text-[var(--text-secondary)] uppercase">
+                    <td className="px-5 py-4">
+                      <span className="text-xs font-semibold text-gray-500">
                         {fila.tutorNombre || "—"}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
-                      <span className="text-[11px] font-bold text-[var(--text-secondary)] uppercase">
+                    <td className="px-5 py-4">
+                      <span className="text-xs font-semibold text-gray-500">
                         {fila.tipoAlumno || "—"}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
-                      <span className="text-[11px] font-bold text-[var(--text-secondary)] uppercase">
+                    <td className="px-5 py-4">
+                      <span className="text-xs font-semibold text-gray-500">
                         {fila.curso || "—"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <span className="text-[12px] font-bold text-[var(--text-primary)]">
+                    <td className="px-5 py-4 text-right">
+                      <span className="text-sm font-bold text-gray-700">
                         {formatearARS(fila.monto)}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-center">
+                    <td className="px-5 py-4 text-center">
                       <ChipEstado estado={fila.estado} />
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <span className="text-[12px] font-black text-[var(--text-primary)]">
+                    <td className="px-5 py-4 text-right">
+                      <span className="text-base font-black text-rose-600">
                         {formatearARS(fila.totalDeuda)}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex justify-end gap-2">
+                    <td className="px-5 py-4">
+                      <div className="flex justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
                         {fila.estado === "SIN_EMITIR" && (
                           <button
                             onClick={() => setAlumnoEmitirIndividual(fila)}
-                            className="px-3 py-1.5 bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 rounded text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500/20 transition-all cursor-pointer"
+                            className="px-3 py-1.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-100 transition-all cursor-pointer"
                           >
                             Emitir
                           </button>
@@ -368,20 +377,20 @@ const TablaCuotas = ({ alumnos, cargando, formula, mes, anio, refetch, tipoOpcio
                         {fila.totalDeuda > 0 && (
                           <button
                             onClick={() => setAlumnoCobrarComprobante(fila)}
-                            className="px-3 py-1.5 bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/20 rounded text-[10px] font-black uppercase tracking-widest hover:bg-[var(--primary)]/20 transition-all cursor-pointer"
+                            className="px-3 py-1.5 bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/20 rounded text-[10px] font-bold uppercase tracking-widest hover:bg-[var(--primary)]/20 transition-all cursor-pointer"
                           >
                             Cobrar
                           </button>
                         )}
                         <button
                           onClick={() => setAlumnoDeuda(fila)}
-                          className="px-3 py-1.5 bg-[var(--fill-secondary)] text-[var(--text-secondary)] border border-[var(--border-subtle)] rounded text-[10px] font-black uppercase tracking-widest hover:bg-[var(--surface-hover)] transition-all cursor-pointer"
+                          className="px-3 py-1.5 bg-white text-gray-600 border border-[var(--border-subtle)] rounded text-[10px] font-bold uppercase tracking-widest hover:bg-gray-50 transition-all cursor-pointer"
                         >
                           Ver deudas
                         </button>
                         <button
                           onClick={() => setAlumnoCambioTipo(fila)}
-                          className="px-3 py-1.5 bg-[var(--fill-secondary)] text-[var(--text-secondary)] border border-[var(--border-subtle)] rounded text-[10px] font-black uppercase tracking-widest hover:bg-[var(--surface-hover)] transition-all cursor-pointer"
+                          className="px-3 py-1.5 bg-white text-gray-600 border border-[var(--border-subtle)] rounded text-[10px] font-bold uppercase tracking-widest hover:bg-gray-50 transition-all cursor-pointer"
                         >
                           Cambiar tipo
                         </button>

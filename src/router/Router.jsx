@@ -150,6 +150,10 @@ const LotesTarjeta = lazy(
   () =>
     import("../Componentes/Secciones/Tesoreria/LotesTarjeta/LotesTarjeta"),
 );
+const ChequeTercero = lazy(
+  () =>
+    import("../Componentes/Secciones/Tesoreria/ChequeTercero/ChequeTercero"),
+);
 
 export default function Router() {
   return (
@@ -358,6 +362,10 @@ export default function Router() {
               <Route
                 path="tesoreria/lotes-tarjeta"
                 element={<LotesTarjeta />}
+              />
+              <Route
+                path="tesoreria/cheque-tercero"
+                element={<ChequeTercero />}
               />
             </Route>
 

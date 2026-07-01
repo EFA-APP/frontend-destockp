@@ -64,14 +64,38 @@ const METODOS_VUELTO = [
   { value: "TRANSFERENCIA", label: "Transferencia", Icon: ArrowLeftRight },
 ];
 
+const MARCAS_TARJETA = {
+  TARJETA_CREDITO: [
+    "Visa",
+    "Mastercard",
+    "American Express",
+    "Naranja",
+    "Naranja X",
+    "Cabal",
+    "Diners Club",
+    "Tarjeta Shopping",
+    "Tuya",
+    "Nativa (Banco Nación)",
+    "Nevada",
+    "Patagonia 365",
+    "Otra",
+  ],
+  TARJETA_DEBITO: [
+    "Visa Débito",
+    "Mastercard Débito",
+    "Maestro",
+    "Cabal Débito",
+    "Naranja X",
+    "Otra",
+  ],
+};
+
 const datosTarjetaInit = {
   marca: "",
   cantidadCuotas: 1,
   recargo: 0,
   cupon: "",
   lote: "",
-  autorizacion: "",
-  fechaAcreditacion: "",
 };
 const chequeTerceroInit = {
   banco: "",
@@ -218,6 +242,249 @@ const IconMetodo = ({ metodo, size = 14 }) => {
   return <Icon size={size} />;
 };
 
+// ── MODAL TARJETA DE CRÉDITO ──
+const ModalTarjeta = ({ onClose, onConfirm, tarjeta, setTarjeta, tipoPago }) => {
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white border border-[var(--border-subtle)] rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden flex flex-col relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-white/80 hover:text-white z-10 transition-colors"
+        >
+          <X size={20} />
+        </button>
+        
+        {/* Diseño visual de Tarjeta */}
+        <div className={`p-6 pb-8 relative overflow-hidden bg-gradient-to-br ${
+          tipoPago === "TARJETA_CREDITO" ? "from-orange-500 to-rose-600" : "from-violet-500 to-purple-700"
+        }`}>
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
+          <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-black/10 rounded-full blur-2xl" />
+          
+          <div className="flex justify-between items-start mb-8 relative z-10">
+            <div className="w-12 h-8 bg-gradient-to-r from-amber-200 to-yellow-400 rounded-md opacity-90 shadow-sm" />
+            <span className="text-white/90 font-black tracking-widest uppercase text-xs">
+              {tipoPago === "TARJETA_CREDITO" ? "Crédito" : "Débito"}
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-1 relative z-10">
+            <p className="text-white/60 text-[10px] uppercase font-black tracking-widest">
+              Marca / Entidad
+            </p>
+            <p className="text-2xl font-black text-white tracking-widest uppercase drop-shadow-md">
+              {tarjeta.marca || "SELECCIONAR..."}
+            </p>
+          </div>
+        </div>
+
+        {/* Formulario */}
+        <div className="p-6 flex flex-col gap-4 bg-gray-50/50">
+          <div>
+            <FieldLabel>Marca</FieldLabel>
+            <select
+              value={tarjeta.marca}
+              onChange={(e) => setTarjeta((p) => ({ ...p, marca: e.target.value }))}
+              className="w-full h-[38px] px-3 border border-gray-200 rounded-lg text-sm font-bold text-gray-700 bg-white focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 cursor-pointer shadow-sm transition-all"
+            >
+              <option value="">— Seleccioná —</option>
+              {(MARCAS_TARJETA[tipoPago] ?? []).map((m) => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <InputField
+              label="Cuotas"
+              type="number"
+              min="1"
+              value={tarjeta.cantidadCuotas}
+              onChange={(e) => setTarjeta((p) => ({ ...p, cantidadCuotas: e.target.value }))}
+            />
+            <InputField
+              label="Recargo %"
+              type="number"
+              min="0"
+              step="0.01"
+              value={tarjeta.recargo}
+              onChange={(e) => setTarjeta((p) => ({ ...p, recargo: e.target.value }))}
+            />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <InputField
+              label="Cupón"
+              type="text"
+              value={tarjeta.cupon}
+              onChange={(e) => setTarjeta((p) => ({ ...p, cupon: e.target.value }))}
+            />
+            <InputField
+              label="Lote"
+              type="text"
+              value={tarjeta.lote}
+              onChange={(e) => setTarjeta((p) => ({ ...p, lote: e.target.value }))}
+            />
+          </div>
+
+          <button
+            onClick={onConfirm}
+            className="w-full py-3 mt-2 rounded-lg bg-[var(--primary)] text-white text-xs font-black uppercase tracking-widest hover:brightness-110 transition-all cursor-pointer shadow-md shadow-[var(--primary)]/20"
+          >
+            Confirmar Datos
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── MODAL CHEQUE ──
+const ModalCheque = ({ onClose, onConfirm, cheque, setCheque, tipoPago }) => {
+  const esPropio = tipoPago === "CHEQUE_PROPIO";
+  
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white border border-[var(--border-subtle)] rounded-xl max-w-lg w-full shadow-2xl overflow-hidden flex flex-col relative">
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-400 hover:text-rose-500 z-10 transition-colors"
+        >
+          <X size={20} />
+        </button>
+        
+        {/* Diseño visual de Cheque */}
+        <div className="p-6 pb-6 relative overflow-hidden bg-[#faf8f0] border-b border-gray-200">
+          {/* Marcas de agua estilo cheque */}
+          <div className="absolute inset-0 opacity-[0.03] flex items-center justify-center pointer-events-none">
+            <div className="w-full h-full" style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 10px, #000 10px, #000 11px)" }} />
+          </div>
+          
+          <div className="flex justify-between items-start mb-6 relative z-10">
+            <div className="flex items-center gap-2">
+              <FileText className="text-amber-700" size={24} />
+              <span className="text-amber-900 font-black tracking-widest uppercase text-sm">
+                {esPropio ? "Cheque Propio" : "Cheque de Tercero"}
+              </span>
+            </div>
+            <div className="text-right">
+              <p className="text-amber-800/60 text-[10px] uppercase font-black tracking-widest mb-0.5">Nro. Cheque</p>
+              <p className="text-lg font-mono font-bold text-amber-900 tracking-wider">
+                {cheque.numero || "00000000"}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-between items-end relative z-10">
+            <div className="flex flex-col gap-1">
+              <p className="text-amber-800/60 text-[10px] uppercase font-black tracking-widest">
+                Banco / Entidad
+              </p>
+              <p className="text-xl font-black text-amber-900 uppercase drop-shadow-sm">
+                {cheque.banco || "___________"}
+              </p>
+            </div>
+            {cheque.fechaPago && (
+              <div className="text-right">
+                <p className="text-amber-800/60 text-[10px] uppercase font-black tracking-widest">Fecha de Pago</p>
+                <p className="text-sm font-bold text-amber-900">
+                  {new Date(cheque.fechaPago).toLocaleDateString('es-AR', { timeZone: 'UTC' })}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Formulario */}
+        <div className="p-6 flex flex-col gap-4 bg-white">
+          {esPropio && (
+            <div>
+              <FieldLabel>Tipo de Cheque</FieldLabel>
+              <select
+                value={cheque.tipoCheque}
+                onChange={(e) => setCheque((p) => ({ ...p, tipoCheque: e.target.value }))}
+                className="w-full h-[38px] px-3 border border-gray-200 rounded-lg text-sm font-bold text-gray-700 bg-white focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 cursor-pointer shadow-sm transition-all"
+              >
+                <option value="CORRIENTE">Corriente</option>
+                <option value="DIFERIDO">Diferido (Pago diferido)</option>
+              </select>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-4">
+            <InputField
+              label="Banco"
+              type="text"
+              value={cheque.banco}
+              onChange={(e) => setCheque((p) => ({ ...p, banco: e.target.value }))}
+            />
+            <InputField
+              label="Nro. cheque"
+              type="text"
+              value={cheque.numero}
+              onChange={(e) => setCheque((p) => ({ ...p, numero: e.target.value }))}
+            />
+          </div>
+
+          {!esPropio ? (
+            <div className="grid grid-cols-2 gap-4">
+              <InputField
+                label="CUIT emisor"
+                type="text"
+                value={cheque.cuitEmisor}
+                onChange={(e) => setCheque((p) => ({ ...p, cuitEmisor: e.target.value }))}
+              />
+              <InputField
+                label="Titular"
+                type="text"
+                value={cheque.titular}
+                onChange={(e) => setCheque((p) => ({ ...p, titular: e.target.value }))}
+              />
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              <InputField
+                label="Sucursal"
+                type="text"
+                value={cheque.sucursal}
+                onChange={(e) => setCheque((p) => ({ ...p, sucursal: e.target.value }))}
+              />
+              <InputField
+                label="Cuenta"
+                type="text"
+                value={cheque.cuenta}
+                onChange={(e) => setCheque((p) => ({ ...p, cuenta: e.target.value }))}
+              />
+            </div>
+          )}
+          
+          <div className="grid grid-cols-2 gap-4">
+            <InputField
+              label="Fecha emisión"
+              type="date"
+              value={cheque.fechaEmision}
+              onChange={(e) => setCheque((p) => ({ ...p, fechaEmision: e.target.value }))}
+            />
+            <InputField
+              label="Fecha pago"
+              type="date"
+              value={cheque.fechaPago}
+              onChange={(e) => setCheque((p) => ({ ...p, fechaPago: e.target.value }))}
+            />
+          </div>
+
+          <button
+            onClick={onConfirm}
+            className="w-full py-3 mt-2 rounded-lg bg-[var(--primary)] text-white text-xs font-black uppercase tracking-widest hover:brightness-110 transition-all cursor-pointer shadow-md shadow-[var(--primary)]/20"
+          >
+            Confirmar Datos del Cheque
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const DetallePago = ({
   totalComprobante = 0,
   tipoOperacion = "INGRESO",
@@ -233,6 +500,8 @@ export const DetallePago = ({
   const [referencia, setReferencia] = useState("");
   const [bancoSeleccionado, setBancoSeleccionado] = useState(null);
   const [tarjeta, setTarjeta] = useState(datosTarjetaInit);
+  const [modalTarjetaAbierto, setModalTarjetaAbierto] = useState(false);
+  const [modalChequeAbierto, setModalChequeAbierto] = useState(false);
   const [chequeTercero, setChequeTercero] = useState(chequeTerceroInit);
   const [chequePropio, setChequePropio] = useState(chequesPropioInit);
 
@@ -426,192 +695,57 @@ export const DetallePago = ({
 
         {/* TARJETA */}
         {isTarjeta && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-gray-100">
-            <InputField
-              label="Marca"
-              type="text"
-              value={tarjeta.marca}
-              onChange={(e) =>
-                setTarjeta((p) => ({ ...p, marca: e.target.value }))
-              }
-              placeholder="Visa, Master..."
-            />
-            <InputField
-              label="Cuotas"
-              type="number"
-              min="1"
-              value={tarjeta.cantidadCuotas}
-              onChange={(e) =>
-                setTarjeta((p) => ({ ...p, cantidadCuotas: e.target.value }))
-              }
-            />
-            <InputField
-              label="Recargo %"
-              type="number"
-              min="0"
-              step="0.01"
-              value={tarjeta.recargo}
-              onChange={(e) =>
-                setTarjeta((p) => ({ ...p, recargo: e.target.value }))
-              }
-            />
-            <InputField
-              label="Cupón"
-              type="text"
-              value={tarjeta.cupon}
-              onChange={(e) =>
-                setTarjeta((p) => ({ ...p, cupon: e.target.value }))
-              }
-            />
-            <InputField
-              label="Lote"
-              type="text"
-              value={tarjeta.lote}
-              onChange={(e) =>
-                setTarjeta((p) => ({ ...p, lote: e.target.value }))
-              }
-            />
-            <InputField
-              label="Autorización"
-              type="text"
-              value={tarjeta.autorizacion}
-              onChange={(e) =>
-                setTarjeta((p) => ({ ...p, autorizacion: e.target.value }))
-              }
-            />
-            <InputField
-              label="Fecha acreditación"
-              type="date"
-              value={tarjeta.fechaAcreditacion}
-              onChange={(e) =>
-                setTarjeta((p) => ({ ...p, fechaAcreditacion: e.target.value }))
-              }
-            />
+          <div className="flex items-center gap-3 pt-2 border-t border-gray-100">
+            <button
+              type="button"
+              onClick={() => setModalTarjetaAbierto(true)}
+              className="flex-1 py-2.5 rounded-md bg-white border border-[var(--border-subtle)] text-xs font-bold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-sm"
+            >
+              <CreditCard size={16} className={tipoPago === "TARJETA_CREDITO" ? "text-orange-500" : "text-violet-500"} />
+              {tarjeta.marca ? `Tarjeta: ${tarjeta.marca} (${tarjeta.cantidadCuotas} cuotas)` : "Completar Datos de Tarjeta"}
+            </button>
+            {tarjeta.recargo > 0 && (
+              <span className="text-xs font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded">
+                +{tarjeta.recargo}% Recargo
+              </span>
+            )}
           </div>
         )}
 
-        {/* CHEQUE TERCERO */}
-        {tipoPago === "CHEQUE_TERCERO" && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2 border-t border-gray-100">
-            <InputField
-              label="Banco"
-              type="text"
-              value={chequeTercero.banco}
-              onChange={(e) =>
-                setChequeTercero((p) => ({ ...p, banco: e.target.value }))
-              }
-            />
-            <InputField
-              label="Nro. cheque"
-              type="text"
-              value={chequeTercero.numero}
-              onChange={(e) =>
-                setChequeTercero((p) => ({ ...p, numero: e.target.value }))
-              }
-            />
-            <InputField
-              label="CUIT emisor"
-              type="text"
-              value={chequeTercero.cuitEmisor}
-              onChange={(e) =>
-                setChequeTercero((p) => ({ ...p, cuitEmisor: e.target.value }))
-              }
-            />
-            <InputField
-              label="Titular"
-              type="text"
-              value={chequeTercero.titular}
-              onChange={(e) =>
-                setChequeTercero((p) => ({ ...p, titular: e.target.value }))
-              }
-            />
-            <InputField
-              label="Fecha emisión"
-              type="date"
-              value={chequeTercero.fechaEmision}
-              onChange={(e) =>
-                setChequeTercero((p) => ({
-                  ...p,
-                  fechaEmision: e.target.value,
-                }))
-              }
-            />
-            <InputField
-              label="Fecha pago"
-              type="date"
-              value={chequeTercero.fechaPago}
-              onChange={(e) =>
-                setChequeTercero((p) => ({ ...p, fechaPago: e.target.value }))
-              }
-            />
+        {modalTarjetaAbierto && (
+          <ModalTarjeta
+            onClose={() => setModalTarjetaAbierto(false)}
+            onConfirm={() => setModalTarjetaAbierto(false)}
+            tarjeta={tarjeta}
+            setTarjeta={setTarjeta}
+            tipoPago={tipoPago}
+          />
+        )}
+
+        {/* CHEQUES (Tercero y Propio) */}
+        {(tipoPago === "CHEQUE_TERCERO" || tipoPago === "CHEQUE_PROPIO") && (
+          <div className="flex items-center gap-3 pt-2 border-t border-gray-100">
+            <button
+              type="button"
+              onClick={() => setModalChequeAbierto(true)}
+              className="flex-1 py-2.5 rounded-md bg-white border border-[var(--border-subtle)] text-xs font-bold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-sm"
+            >
+              <FileText size={16} className={tipoPago === "CHEQUE_PROPIO" ? "text-rose-500" : "text-amber-500"} />
+              {(tipoPago === "CHEQUE_TERCERO" && chequeTercero.numero) || (tipoPago === "CHEQUE_PROPIO" && chequePropio.numero) 
+                ? `Cheque: ${tipoPago === "CHEQUE_TERCERO" ? chequeTercero.banco : chequePropio.banco} #${tipoPago === "CHEQUE_TERCERO" ? chequeTercero.numero : chequePropio.numero}` 
+                : "Completar Datos del Cheque"}
+            </button>
           </div>
         )}
 
-        {/* CHEQUE PROPIO */}
-        {tipoPago === "CHEQUE_PROPIO" && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2 border-t border-gray-100">
-            <div>
-              <FieldLabel>Tipo</FieldLabel>
-              <select
-                value={chequePropio.tipoCheque}
-                onChange={(e) =>
-                  setChequePropio((p) => ({ ...p, tipoCheque: e.target.value }))
-                }
-                className="w-full h-[30px] px-2 border border-gray-200 rounded-md text-md font-bold text-gray-700 bg-white focus:outline-none focus:border-[var(--primary)] cursor-pointer"
-              >
-                <option value="CORRIENTE">Corriente</option>
-                <option value="DIFERIDO">Diferido (Pago diferido)</option>
-              </select>
-            </div>
-            <InputField
-              label="Banco"
-              type="text"
-              value={chequePropio.banco}
-              onChange={(e) =>
-                setChequePropio((p) => ({ ...p, banco: e.target.value }))
-              }
-            />
-            <InputField
-              label="Sucursal"
-              type="text"
-              value={chequePropio.sucursal}
-              onChange={(e) =>
-                setChequePropio((p) => ({ ...p, sucursal: e.target.value }))
-              }
-            />
-            <InputField
-              label="Nro. cheque"
-              type="text"
-              value={chequePropio.numero}
-              onChange={(e) =>
-                setChequePropio((p) => ({ ...p, numero: e.target.value }))
-              }
-            />
-            <InputField
-              label="Cuenta"
-              type="text"
-              value={chequePropio.cuenta}
-              onChange={(e) =>
-                setChequePropio((p) => ({ ...p, cuenta: e.target.value }))
-              }
-            />
-            <InputField
-              label="Fecha emisión"
-              type="date"
-              value={chequePropio.fechaEmision}
-              onChange={(e) =>
-                setChequePropio((p) => ({ ...p, fechaEmision: e.target.value }))
-              }
-            />
-            <InputField
-              label="Fecha pago"
-              type="date"
-              value={chequePropio.fechaPago}
-              onChange={(e) =>
-                setChequePropio((p) => ({ ...p, fechaPago: e.target.value }))
-              }
-            />
-          </div>
+        {modalChequeAbierto && (
+          <ModalCheque
+            onClose={() => setModalChequeAbierto(false)}
+            onConfirm={() => setModalChequeAbierto(false)}
+            cheque={tipoPago === "CHEQUE_PROPIO" ? chequePropio : chequeTercero}
+            setCheque={tipoPago === "CHEQUE_PROPIO" ? setChequePropio : setChequeTercero}
+            tipoPago={tipoPago}
+          />
         )}
       </div>
 

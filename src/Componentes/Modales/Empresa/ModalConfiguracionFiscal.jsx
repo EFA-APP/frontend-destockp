@@ -8,29 +8,46 @@ import {
 } from "../../../Backend/Autenticacion/api/Empresa/empresa.api";
 import InputReutilizable from "../../UI/InputReutilizable/InputReutilizable";
 
-const ModalConfiguracionFiscal = ({ isOpen, onClose }) => {
-  const usuario = useAuthStore((state) => state.usuario);
-  const setUsuario = useAuthStore((state) => state.setUsuario);
+const ModalConfiguracionFiscal = ({ isOpen, onClose, empresaAEditar }) => {
   const { agregarAlerta } = useAlertas();
 
   // Datos Fiscales Maestros
   const [datosFiscales, setDatosFiscales] = useState({
-    razonSocial: usuario?.datosFiscales?.razonSocial || "",
-    cuit: usuario?.datosFiscales?.cuit || "",
-    condicionIva: usuario?.datosFiscales?.condicionIva || "RI",
-    domicilioComercial: usuario?.datosFiscales?.domicilioComercial || "",
-    iibb: usuario?.datosFiscales?.iibb || "",
-    inicioActividades: usuario?.datosFiscales?.inicioActividades
-      ? usuario.datosFiscales.inicioActividades.split("T")[0]
-      : "",
-    esProduccion: usuario?.datosFiscales?.esProduccion || false,
+    razonSocial: "",
+    cuit: "",
+    condicionIva: "RI",
+    domicilioComercial: "",
+    iibb: "",
+    inicioActividades: "",
+    esProduccion: false,
   });
 
   // Configuración ARCA (AFIP)
   const [configArca, setConfigArca] = useState({
-    puntoVenta: usuario?.conexionArca?.puntoVenta || 1,
-    esProduccion: usuario?.datosFiscales?.esProduccion || false,
+    puntoVenta: 1,
+    esProduccion: false,
   });
+
+  useEffect(() => {
+    if (empresaAEditar) {
+      setDatosFiscales({
+        razonSocial: empresaAEditar.razonSocial || "",
+        cuit: empresaAEditar.cuit || "",
+        condicionIva: empresaAEditar.condicionIva || "RI",
+        domicilioComercial: empresaAEditar.domicilioComercial || "",
+        iibb: empresaAEditar.iibb || "",
+        inicioActividades: empresaAEditar.inicioActividades
+          ? empresaAEditar.inicioActividades.split("T")[0]
+          : "",
+        esProduccion: empresaAEditar.esProduccion || false,
+      });
+
+      setConfigArca({
+        puntoVenta: empresaAEditar.conexionArca?.puntoVenta || 1, // Assuming puntoVenta might be inside conexionArca or needs adjusting later. Actually wait, puntoVenta globally for empresa is not in schema but it might be saved in `conexionArca` json or just we use 1.
+        esProduccion: empresaAEditar.esProduccion || false,
+      });
+    }
+  }, [empresaAEditar]);
 
   // Archivos Certificados
   const [archivos, setArchivos] = useState({
@@ -65,10 +82,12 @@ const ModalConfiguracionFiscal = ({ isOpen, onClose }) => {
   const manejarGuardar = async () => {
     try {
       setCargando(true);
+      
+      const codigoEmpresa = empresaAEditar.codigo || empresaAEditar.codigoSecuencial;
 
       // 1. Guardar Datos Fiscales Maestros
       await actualizarDatosFiscalesApi({
-        codigoEmpresa: usuario.codigoEmpresa,
+        codigoEmpresa: codigoEmpresa,
         ...datosFiscales,
         inicioActividades: datosFiscales.inicioActividades
           ? new Date(datosFiscales.inicioActividades)
@@ -76,9 +95,9 @@ const ModalConfiguracionFiscal = ({ isOpen, onClose }) => {
       });
 
       // 2. Guardar Estado de Producción (Switch)
-      if (configArca.esProduccion !== usuario.datosFiscales.esProduccion) {
+      if (configArca.esProduccion !== empresaAEditar.esProduccion) {
         await actualizarEstadoProduccionApi({
-          codigoEmpresa: usuario.codigoEmpresa,
+          codigoEmpresa: codigoEmpresa,
           esProduccion: configArca.esProduccion,
         });
       }
@@ -86,7 +105,7 @@ const ModalConfiguracionFiscal = ({ isOpen, onClose }) => {
       // 3. Guardar Configuración de ARCA (Certificados y Punto Venta)
       // Solo enviamos certificados si fueron seleccionados
       const payloadArca = {
-        codigoEmpresa: usuario.codigoEmpresa,
+        codigoEmpresa: codigoEmpresa,
         cuit: datosFiscales.cuit,
         puntoVenta: Number(configArca.puntoVenta),
         esProduccion: configArca.esProduccion,
@@ -117,22 +136,8 @@ const ModalConfiguracionFiscal = ({ isOpen, onClose }) => {
         await guardarConfiguracionArcaApi(payloadArca);
       }
 
-      // Actualizar Store Local
-      setUsuario({
-        ...usuario,
-        datosFiscales: {
-          ...datosFiscales,
-          esProduccion: configArca.esProduccion,
-        },
-        conexionArca: {
-          ...usuario.conexionArca,
-          puntoVenta: configArca.puntoVenta,
-          activo: true, // Aseguramos que se marque como activo si se guardó certs
-        },
-      });
-
       agregarAlerta({
-        message: "Configuración fiscal actualizada correctamente.",
+        message: "Configuración fiscal actualizada correctamente. Refresque la tabla para ver los cambios.",
         type: "success",
       });
       onClose();

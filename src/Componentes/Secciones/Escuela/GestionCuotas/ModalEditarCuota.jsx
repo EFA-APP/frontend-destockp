@@ -124,45 +124,60 @@ const ModalEditarCuota = ({ formula, mes, anio, actualizarCuota, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
-      <div className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md max-w-md w-full p-6 shadow-2xl flex flex-col gap-5">
-        <h2 className="text-lg font-black uppercase tracking-tight text-[var(--text-primary)]">
-          Editar valor de cuota
-        </h2>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+      <div className="bg-white border border-[var(--border-subtle)] rounded-md max-w-md w-full p-7 shadow-2xl flex flex-col gap-6">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-xl font-black tracking-tight text-gray-800">
+            Editar valor de cuota
+          </h2>
+          <p className="text-xs font-semibold text-gray-500">
+            Configurá el monto base para alumnos internos y externos.
+          </p>
+        </div>
 
         {!guardado ? (
           <>
             <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
                   Valor Interno (alumnos INTERNO)
                 </label>
-                <input
-                  type="text"
-                  value={valorInterno}
-                  onChange={(e) => {
-                    setValorInterno(e.target.value);
-                    setErrorValidacion("");
-                  }}
-                  placeholder="Ej: 130000"
-                  className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2.5 text-[13px] font-bold outline-none focus:border-[var(--primary)] transition-colors text-[var(--text-primary)]"
-                />
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">
+                    $
+                  </span>
+                  <input
+                    type="text"
+                    value={valorInterno}
+                    onChange={(e) => {
+                      setValorInterno(e.target.value);
+                      setErrorValidacion("");
+                    }}
+                    placeholder="Ej: 130000"
+                    className="w-full bg-white border border-[var(--border-subtle)] rounded-md pl-8 pr-3 py-2.5 text-sm font-bold text-gray-700 outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 transition-all"
+                  />
+                </div>
               </div>
 
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
                   Valor Externo (otros tipos de alumno)
                 </label>
-                <input
-                  type="text"
-                  value={valorExterno}
-                  onChange={(e) => {
-                    setValorExterno(e.target.value);
-                    setErrorValidacion("");
-                  }}
-                  placeholder="Ej: 190000"
-                  className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2.5 text-[13px] font-bold outline-none focus:border-[var(--primary)] transition-colors text-[var(--text-primary)]"
-                />
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">
+                    $
+                  </span>
+                  <input
+                    type="text"
+                    value={valorExterno}
+                    onChange={(e) => {
+                      setValorExterno(e.target.value);
+                      setErrorValidacion("");
+                    }}
+                    placeholder="Ej: 190000"
+                    className="w-full bg-white border border-[var(--border-subtle)] rounded-md pl-8 pr-3 py-2.5 text-sm font-bold text-gray-700 outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 transition-all"
+                  />
+                </div>
               </div>
 
               {errorValidacion && (
@@ -172,37 +187,37 @@ const ModalEditarCuota = ({ formula, mes, anio, actualizarCuota, onClose }) => {
               )}
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-2">
               <button
                 onClick={onClose}
                 disabled={guardando}
-                className="flex-1 py-3 rounded-md bg-[var(--fill-secondary)] border border-[var(--border-subtle)] text-[11px] font-black uppercase tracking-widest hover:bg-[var(--surface-hover)] disabled:opacity-50 transition-colors cursor-pointer"
+                className="flex-1 py-3 rounded-md bg-white border border-[var(--border-subtle)] text-xs font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleGuardar}
                 disabled={guardando}
-                className="flex-1 py-3 rounded-md bg-[var(--primary)] text-white text-[11px] font-black uppercase tracking-widest hover:brightness-110 disabled:opacity-40 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                className="flex-1 py-3 rounded-md bg-[var(--primary)] text-white text-xs font-bold hover:brightness-110 disabled:opacity-40 flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-[var(--primary)]/20"
               >
                 {guardando ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
-                  "Guardar"
+                  "Guardar cambios"
                 )}
               </button>
             </div>
           </>
         ) : (
           <>
-            <div className="bg-emerald-50 border border-emerald-200 rounded-md p-3 text-[12px] font-bold text-emerald-700">
+            <div className="bg-emerald-50 border border-emerald-200 rounded-md p-4 text-sm font-semibold text-emerald-700">
               {mensajeAplicacion}
             </div>
             <button
               onClick={onClose}
-              className="w-full py-3 rounded-md bg-[var(--primary)] text-white text-[11px] font-black uppercase tracking-widest hover:brightness-110 transition-all cursor-pointer"
+              className="w-full py-3 rounded-md bg-[var(--primary)] text-white text-xs font-bold hover:brightness-110 transition-all cursor-pointer shadow-md shadow-[var(--primary)]/20 mt-2"
             >
-              Cerrar
+              Entendido
             </button>
           </>
         )}

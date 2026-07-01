@@ -75,7 +75,7 @@ const LotesTarjeta = () => {
 
       {/* Resumen rápido */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="flex items-center gap-4 p-4 rounded-xl border bg-violet-50 border-violet-200">
+        <div className="flex items-center gap-4 p-4 rounded-md border bg-violet-50 border-violet-200">
           <CreditCard size={18} className="text-violet-600" />
           <div>
             <p className="text-[11px] font-semibold text-black/50 uppercase tracking-wider">
@@ -86,7 +86,7 @@ const LotesTarjeta = () => {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-4 p-4 rounded-xl border bg-blue-50 border-blue-200">
+        <div className="flex items-center gap-4 p-4 rounded-md border bg-blue-50 border-blue-200">
           <Banknote size={18} className="text-blue-600" />
           <div>
             <p className="text-[11px] font-semibold text-black/50 uppercase tracking-wider">
@@ -97,7 +97,7 @@ const LotesTarjeta = () => {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-4 p-4 rounded-xl border bg-emerald-50 border-emerald-200">
+        <div className="flex items-center gap-4 p-4 rounded-md border bg-emerald-50 border-emerald-200">
           <CreditCard size={18} className="text-emerald-600" />
           <div>
             <p className="text-[11px] font-semibold text-black/50 uppercase tracking-wider">
@@ -111,7 +111,7 @@ const LotesTarjeta = () => {
       </div>
 
       {/* Filtros */}
-      <div className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl p-4">
+      <div className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md p-4">
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-black/40 uppercase tracking-wider mb-1">
             <Filter size={13} />
@@ -122,13 +122,17 @@ const LotesTarjeta = () => {
             <span className="text-[10px] font-semibold text-black/40 uppercase tracking-wider">
               Rango de fechas
             </span>
-            <DateRangePicker 
-               fechaDesde={filtros.fechaDesde} 
-               fechaHasta={filtros.fechaHasta} 
-               onChange={(desde, hasta) => {
-                  setFiltros(prev => ({ ...prev, fechaDesde: desde, fechaHasta: hasta }));
-                  setExpandido(null);
-               }}
+            <DateRangePicker
+              fechaDesde={filtros.fechaDesde}
+              fechaHasta={filtros.fechaHasta}
+              onChange={(desde, hasta) => {
+                setFiltros((prev) => ({
+                  ...prev,
+                  fechaDesde: desde,
+                  fechaHasta: hasta,
+                }));
+                setExpandido(null);
+              }}
             />
           </div>
 
@@ -162,11 +166,11 @@ const LotesTarjeta = () => {
       {/* Lista de lotes */}
       <div className="space-y-3">
         {isLoading ? (
-          <div className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl p-12 text-center text-sm text-black/40">
+          <div className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md p-12 text-center text-sm text-black/40">
             Cargando lotes…
           </div>
         ) : lotes.length === 0 ? (
-          <div className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl p-12 text-center text-sm text-black/40">
+          <div className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md p-12 text-center text-sm text-black/40">
             No se encontraron lotes de tarjeta
           </div>
         ) : (
@@ -176,7 +180,7 @@ const LotesTarjeta = () => {
             return (
               <div
                 key={key}
-                className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl overflow-hidden"
+                className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md overflow-hidden"
               >
                 {/* Cabecera del lote */}
                 <button
