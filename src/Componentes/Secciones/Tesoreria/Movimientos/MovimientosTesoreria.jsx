@@ -8,6 +8,7 @@ import {
   ArrowUpCircle,
   ArrowDownCircle,
   Filter,
+  Plus,
   X,
 } from "lucide-react";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
@@ -16,6 +17,7 @@ import { formatPrice } from "../../../../utils/formatters";
 import { BilleteraIcono } from "../../../../assets/Icons";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import DateRangePicker from "../../../UI/DateRangePicker/DateRangePicker";
+import ModalMovimientoManual from "../../../Modales/Tesoreria/ModalMovimientoManual";
 
 const TIPOS_MOVIMIENTO = [
   { value: "", label: "Todos los tipos" },
@@ -53,6 +55,7 @@ const TIPO_OPERACION_STYLE = {
 const MovimientosTesoreria = () => {
   const { usuario } = useAuthStore();
   const [pagina, setPagina] = useState(1);
+  const [modalAbierto, setModalAbierto] = useState(false);
   const [filtros, setFiltros] = useState({
     fechaDesde: "",
     fechaHasta: "",
@@ -105,7 +108,19 @@ const MovimientosTesoreria = () => {
       <EncabezadoSeccion
         ruta="Tesorería / Movimientos"
         icono={<BilleteraIcono size={20} />}
-      />
+      >
+        <button
+          onClick={() => setModalAbierto(true)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-[var(--primary)] text-white text-xs font-black uppercase tracking-wider shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
+        >
+          <Plus size={16} />
+          Nuevo Movimiento
+        </button>
+      </EncabezadoSeccion>
+
+      {modalAbierto && (
+        <ModalMovimientoManual onClose={() => setModalAbierto(false)} />
+      )}
 
       {/* Tarjetas de Resumen Horizontales */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -276,7 +291,7 @@ const MovimientosTesoreria = () => {
                         `Tipo ${mov.codigoTipoMovimiento}`}
                     </td>
                     <td className="px-5 py-4 text-xs font-semibold text-gray-600 max-w-[180px] truncate">
-                      {mov._comprobante?.razonSocial ?? "—"}
+                      {mov._comprobante?.razonSocial ?? mov.descripcion ?? "—"}
                     </td>
                     <td className="px-5 py-4 text-xs font-semibold text-gray-500 whitespace-nowrap">
                       {mov._comprobante ? (

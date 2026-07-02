@@ -17,6 +17,7 @@ const BuscadorDetalle = ({
   montosSugeridos = [],
   otrosTributos = 0,
   setOtrosTributos,
+  condicionComprobante = null,
 }) => {
   const {
     tipoDetalle,
@@ -39,7 +40,7 @@ const BuscadorDetalle = ({
   } = detalle;
 
   const [isOpen, setIsOpen] = useState(false);
-  const precioUnitarioInicial = montoPreCargado > 0 ? montoPreCargado : '';
+  const precioUnitarioInicial = montoPreCargado > 0 ? montoPreCargado : "";
 
   const totalRecargo = pagos.reduce((sum, p) => {
     const r = parseFloat(p.datosTarjeta?.recargo) || 0;
@@ -116,6 +117,7 @@ const BuscadorDetalle = ({
         setPagos={setPagos}
         vueltos={vueltos}
         setVueltos={setVueltos}
+        condicionComprobante={condicionComprobante}
       />
 
       {/* MODAL */}

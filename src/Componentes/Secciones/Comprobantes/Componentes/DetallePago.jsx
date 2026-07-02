@@ -19,6 +19,7 @@ import {
 import { BorrarIcono } from "../../../../assets/Icons";
 import { useObtenerCuentasImputablesQuery } from "../../../../Backend/Contabilidad/queries/useCuentas.query";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
+import { obtenerMetodosPermitidos } from "../utils/condicionMetodoPago.js";
 
 const METODOS = [
   {
@@ -243,7 +244,13 @@ const IconMetodo = ({ metodo, size = 14 }) => {
 };
 
 // ── MODAL TARJETA DE CRÉDITO ──
-const ModalTarjeta = ({ onClose, onConfirm, tarjeta, setTarjeta, tipoPago }) => {
+const ModalTarjeta = ({
+  onClose,
+  onConfirm,
+  tarjeta,
+  setTarjeta,
+  tipoPago,
+}) => {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="bg-white border border-[var(--border-subtle)] rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden flex flex-col relative">
@@ -253,14 +260,18 @@ const ModalTarjeta = ({ onClose, onConfirm, tarjeta, setTarjeta, tipoPago }) => 
         >
           <X size={20} />
         </button>
-        
+
         {/* Diseño visual de Tarjeta */}
-        <div className={`p-6 pb-8 relative overflow-hidden bg-gradient-to-br ${
-          tipoPago === "TARJETA_CREDITO" ? "from-orange-500 to-rose-600" : "from-violet-500 to-purple-700"
-        }`}>
+        <div
+          className={`p-6 pb-8 relative overflow-hidden bg-gradient-to-br ${
+            tipoPago === "TARJETA_CREDITO"
+              ? "from-orange-500 to-rose-600"
+              : "from-violet-500 to-purple-700"
+          }`}
+        >
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
           <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-black/10 rounded-full blur-2xl" />
-          
+
           <div className="flex justify-between items-start mb-8 relative z-10">
             <div className="w-12 h-8 bg-gradient-to-r from-amber-200 to-yellow-400 rounded-md opacity-90 shadow-sm" />
             <span className="text-white/90 font-black tracking-widest uppercase text-xs">
@@ -284,23 +295,29 @@ const ModalTarjeta = ({ onClose, onConfirm, tarjeta, setTarjeta, tipoPago }) => 
             <FieldLabel>Marca</FieldLabel>
             <select
               value={tarjeta.marca}
-              onChange={(e) => setTarjeta((p) => ({ ...p, marca: e.target.value }))}
+              onChange={(e) =>
+                setTarjeta((p) => ({ ...p, marca: e.target.value }))
+              }
               className="w-full h-[38px] px-3 border border-gray-200 rounded-lg text-sm font-bold text-gray-700 bg-white focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 cursor-pointer shadow-sm transition-all"
             >
               <option value="">— Seleccioná —</option>
               {(MARCAS_TARJETA[tipoPago] ?? []).map((m) => (
-                <option key={m} value={m}>{m}</option>
+                <option key={m} value={m}>
+                  {m}
+                </option>
               ))}
             </select>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <InputField
               label="Cuotas"
               type="number"
               min="1"
               value={tarjeta.cantidadCuotas}
-              onChange={(e) => setTarjeta((p) => ({ ...p, cantidadCuotas: e.target.value }))}
+              onChange={(e) =>
+                setTarjeta((p) => ({ ...p, cantidadCuotas: e.target.value }))
+              }
             />
             <InputField
               label="Recargo %"
@@ -308,22 +325,28 @@ const ModalTarjeta = ({ onClose, onConfirm, tarjeta, setTarjeta, tipoPago }) => 
               min="0"
               step="0.01"
               value={tarjeta.recargo}
-              onChange={(e) => setTarjeta((p) => ({ ...p, recargo: e.target.value }))}
+              onChange={(e) =>
+                setTarjeta((p) => ({ ...p, recargo: e.target.value }))
+              }
             />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <InputField
               label="Cupón"
               type="text"
               value={tarjeta.cupon}
-              onChange={(e) => setTarjeta((p) => ({ ...p, cupon: e.target.value }))}
+              onChange={(e) =>
+                setTarjeta((p) => ({ ...p, cupon: e.target.value }))
+              }
             />
             <InputField
               label="Lote"
               type="text"
               value={tarjeta.lote}
-              onChange={(e) => setTarjeta((p) => ({ ...p, lote: e.target.value }))}
+              onChange={(e) =>
+                setTarjeta((p) => ({ ...p, lote: e.target.value }))
+              }
             />
           </div>
 
@@ -342,7 +365,7 @@ const ModalTarjeta = ({ onClose, onConfirm, tarjeta, setTarjeta, tipoPago }) => 
 // ── MODAL CHEQUE ──
 const ModalCheque = ({ onClose, onConfirm, cheque, setCheque, tipoPago }) => {
   const esPropio = tipoPago === "CHEQUE_PROPIO";
-  
+
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="bg-white border border-[var(--border-subtle)] rounded-xl max-w-lg w-full shadow-2xl overflow-hidden flex flex-col relative">
@@ -352,14 +375,20 @@ const ModalCheque = ({ onClose, onConfirm, cheque, setCheque, tipoPago }) => {
         >
           <X size={20} />
         </button>
-        
+
         {/* Diseño visual de Cheque */}
         <div className="p-6 pb-6 relative overflow-hidden bg-[#faf8f0] border-b border-gray-200">
           {/* Marcas de agua estilo cheque */}
           <div className="absolute inset-0 opacity-[0.03] flex items-center justify-center pointer-events-none">
-            <div className="w-full h-full" style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 10px, #000 10px, #000 11px)" }} />
+            <div
+              className="w-full h-full"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(45deg, transparent, transparent 10px, #000 10px, #000 11px)",
+              }}
+            />
           </div>
-          
+
           <div className="flex justify-between items-start mb-6 relative z-10">
             <div className="flex items-center gap-2">
               <FileText className="text-amber-700" size={24} />
@@ -368,7 +397,9 @@ const ModalCheque = ({ onClose, onConfirm, cheque, setCheque, tipoPago }) => {
               </span>
             </div>
             <div className="text-right">
-              <p className="text-amber-800/60 text-[10px] uppercase font-black tracking-widest mb-0.5">Nro. Cheque</p>
+              <p className="text-amber-800/60 text-[10px] uppercase font-black tracking-widest mb-0.5">
+                Nro. Cheque
+              </p>
               <p className="text-lg font-mono font-bold text-amber-900 tracking-wider">
                 {cheque.numero || "00000000"}
               </p>
@@ -386,9 +417,13 @@ const ModalCheque = ({ onClose, onConfirm, cheque, setCheque, tipoPago }) => {
             </div>
             {cheque.fechaPago && (
               <div className="text-right">
-                <p className="text-amber-800/60 text-[10px] uppercase font-black tracking-widest">Fecha de Pago</p>
+                <p className="text-amber-800/60 text-[10px] uppercase font-black tracking-widest">
+                  Fecha de Pago
+                </p>
                 <p className="text-sm font-bold text-amber-900">
-                  {new Date(cheque.fechaPago).toLocaleDateString('es-AR', { timeZone: 'UTC' })}
+                  {new Date(cheque.fechaPago).toLocaleDateString("es-AR", {
+                    timeZone: "UTC",
+                  })}
                 </p>
               </div>
             )}
@@ -402,7 +437,9 @@ const ModalCheque = ({ onClose, onConfirm, cheque, setCheque, tipoPago }) => {
               <FieldLabel>Tipo de Cheque</FieldLabel>
               <select
                 value={cheque.tipoCheque}
-                onChange={(e) => setCheque((p) => ({ ...p, tipoCheque: e.target.value }))}
+                onChange={(e) =>
+                  setCheque((p) => ({ ...p, tipoCheque: e.target.value }))
+                }
                 className="w-full h-[38px] px-3 border border-gray-200 rounded-lg text-sm font-bold text-gray-700 bg-white focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 cursor-pointer shadow-sm transition-all"
               >
                 <option value="CORRIENTE">Corriente</option>
@@ -416,13 +453,17 @@ const ModalCheque = ({ onClose, onConfirm, cheque, setCheque, tipoPago }) => {
               label="Banco"
               type="text"
               value={cheque.banco}
-              onChange={(e) => setCheque((p) => ({ ...p, banco: e.target.value }))}
+              onChange={(e) =>
+                setCheque((p) => ({ ...p, banco: e.target.value }))
+              }
             />
             <InputField
               label="Nro. cheque"
               type="text"
               value={cheque.numero}
-              onChange={(e) => setCheque((p) => ({ ...p, numero: e.target.value }))}
+              onChange={(e) =>
+                setCheque((p) => ({ ...p, numero: e.target.value }))
+              }
             />
           </div>
 
@@ -432,13 +473,17 @@ const ModalCheque = ({ onClose, onConfirm, cheque, setCheque, tipoPago }) => {
                 label="CUIT emisor"
                 type="text"
                 value={cheque.cuitEmisor}
-                onChange={(e) => setCheque((p) => ({ ...p, cuitEmisor: e.target.value }))}
+                onChange={(e) =>
+                  setCheque((p) => ({ ...p, cuitEmisor: e.target.value }))
+                }
               />
               <InputField
                 label="Titular"
                 type="text"
                 value={cheque.titular}
-                onChange={(e) => setCheque((p) => ({ ...p, titular: e.target.value }))}
+                onChange={(e) =>
+                  setCheque((p) => ({ ...p, titular: e.target.value }))
+                }
               />
             </div>
           ) : (
@@ -447,29 +492,37 @@ const ModalCheque = ({ onClose, onConfirm, cheque, setCheque, tipoPago }) => {
                 label="Sucursal"
                 type="text"
                 value={cheque.sucursal}
-                onChange={(e) => setCheque((p) => ({ ...p, sucursal: e.target.value }))}
+                onChange={(e) =>
+                  setCheque((p) => ({ ...p, sucursal: e.target.value }))
+                }
               />
               <InputField
                 label="Cuenta"
                 type="text"
                 value={cheque.cuenta}
-                onChange={(e) => setCheque((p) => ({ ...p, cuenta: e.target.value }))}
+                onChange={(e) =>
+                  setCheque((p) => ({ ...p, cuenta: e.target.value }))
+                }
               />
             </div>
           )}
-          
+
           <div className="grid grid-cols-2 gap-4">
             <InputField
               label="Fecha emisión"
               type="date"
               value={cheque.fechaEmision}
-              onChange={(e) => setCheque((p) => ({ ...p, fechaEmision: e.target.value }))}
+              onChange={(e) =>
+                setCheque((p) => ({ ...p, fechaEmision: e.target.value }))
+              }
             />
             <InputField
               label="Fecha pago"
               type="date"
               value={cheque.fechaPago}
-              onChange={(e) => setCheque((p) => ({ ...p, fechaPago: e.target.value }))}
+              onChange={(e) =>
+                setCheque((p) => ({ ...p, fechaPago: e.target.value }))
+              }
             />
           </div>
 
@@ -492,7 +545,18 @@ export const DetallePago = ({
   setPagos = () => {},
   vueltos = [],
   setVueltos = () => {},
+  condicionComprobante = null,
 }) => {
+  // ── Restricción de método de pago según condición del comprobante ──
+  // null = sin restricción (Recibos.jsx / OrdenPago.jsx no pasan la prop, R18)
+  const metodosPermitidos = obtenerMetodosPermitidos(condicionComprobante);
+  const sinMetodoDisponible =
+    metodosPermitidos !== null && metodosPermitidos.length === 0;
+  const metodosDisponibles =
+    metodosPermitidos === null
+      ? METODOS
+      : METODOS.filter((m) => metodosPermitidos.includes(m.value));
+
   // ── Form nuevo pago ──
   const [tipoPago, setTipoPago] = useState("EFECTIVO");
   const [montoPago, setMontoPago] = useState("");
@@ -535,22 +599,55 @@ export const DetallePago = ({
       return sum + p.monto / (1 + r / 100);
     }, 0);
     const vueltoCubierto = vueltos.reduce((s, v) => s + v.monto, 0);
-    const pendienteFactura = Math.max(0, totalComprobante - cubierto + vueltoCubierto);
+    const pendienteFactura = Math.max(
+      0,
+      totalComprobante - cubierto + vueltoCubierto,
+    );
 
     const esTarjeta = ["TARJETA_DEBITO", "TARJETA_CREDITO"].includes(tipoPago);
     const recargo = esTarjeta ? parseFloat(tarjeta.recargo) || 0 : 0;
     const montoSugerido = pendienteFactura * (1 + recargo / 100);
-    setMontoPago(montoSugerido > 0 ? montoSugerido.toFixed(2).replace(".", ",") : "");
-  }, [totalComprobante, pagos, vueltos, montoPagoFocused, tipoPago, tarjeta.recargo]);
+    setMontoPago(
+      montoSugerido > 0 ? montoSugerido.toFixed(2).replace(".", ",") : "",
+    );
+  }, [
+    totalComprobante,
+    pagos,
+    vueltos,
+    montoPagoFocused,
+    tipoPago,
+    tarjeta.recargo,
+  ]);
 
   // Actualizar automáticamente el vuelto sugerido por defecto si hay excedente
   useEffect(() => {
     if (hayExcedente && !montoVueltoFocused) {
-      setMontoVuelto(excedente > 0 ? excedente.toFixed(2).replace(".", ",") : "");
+      setMontoVuelto(
+        excedente > 0 ? excedente.toFixed(2).replace(".", ",") : "",
+      );
     } else if (!hayExcedente) {
       setMontoVuelto("");
     }
   }, [hayExcedente, excedente, montoVueltoFocused]);
+
+  // Reasignar tipoPago cuando la condición cambia y el método actual dejó de
+  // estar permitido (R16)
+  useEffect(() => {
+    if (metodosPermitidos === null || metodosPermitidos.length === 0) return;
+    if (!metodosPermitidos.includes(tipoPago)) {
+      setTipoPago(metodosPermitidos[0]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [condicionComprobante]);
+
+  // Vaciar pagos/vueltos cuando la condición deja de admitir método de pago
+  // (R17)
+  useEffect(() => {
+    if (!sinMetodoDisponible) return;
+    if (pagos.length > 0) setPagos([]);
+    if (vueltos.length > 0) setVueltos([]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sinMetodoDisponible]);
 
   const resetForm = () => {
     // montoPago se actualizará automáticamente por el useEffect al cambiar pagos.length
@@ -620,134 +717,166 @@ export const DetallePago = ({
         </span>
       </div>
 
-      {/* ────────── SELECTOR DE MÉTODO ────────── */}
-      <div className="w-full">
-        <select
-          value={tipoPago}
-          onChange={(e) => setTipoPago(e.target.value)}
-          className="w-full px-2 py-3 border border-gray-200 uppercase rounded-md text-md font-bold text-gray-900 focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/20 bg-white cursor-pointer"
-        >
-          {METODOS.map(({ value, label }) => (
-            <option key={value} value={value} className="h-10 uppercase">
-              {label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* ────────── FORMULARIO CONTEXTUAL ────────── */}
-      <div className="bg-gray-50 border border-gray-100 rounded-md p-4 flex flex-col gap-3">
-        {/* Campos comunes: monto */}
-        <div className="flex flex-wrap gap-3 items-end">
-          <div className="w-28">
-            <FieldLabel>Monto</FieldLabel>
-            <input
-              type="text"
-              value={
-                montoPagoFocused
-                  ? typeof montoPago === "string"
-                    ? montoPago.replace(".", ",")
-                    : montoPago
-                  : montoPago
-                    ? formatNumber(montoPago)
-                    : ""
-              }
-              onFocus={() => setMontoPagoFocused(true)}
-              onBlur={() => setMontoPagoFocused(false)}
-              onChange={(e) => setMontoPago(e.target.value)}
-              placeholder="0,00"
-              className="w-full px-2 py-1.5 border border-gray-200 rounded-md text-md font-black text-gray-900 focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/20"
-            />
+      {sinMetodoDisponible ? (
+        /* ────────── SIN MÉTODO DE PAGO (R15) ────────── */
+        <div className="bg-amber-50 border border-amber-200 rounded-md p-4 text-md font-semibold text-amber-700">
+          Esta condición de comprobante no requiere método de pago.
+        </div>
+      ) : (
+        <>
+          {/* ────────── SELECTOR DE MÉTODO ────────── */}
+          <div className="w-full">
+            <select
+              value={tipoPago}
+              onChange={(e) => setTipoPago(e.target.value)}
+              className="w-full px-2 py-3 border border-gray-200 uppercase rounded-md text-md font-bold text-gray-900 focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/20 bg-white cursor-pointer"
+            >
+              {metodosDisponibles.map(({ value, label }) => (
+                <option key={value} value={value} className="h-10 uppercase">
+                  {label}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Banco destino: todos los métodos excepto EFECTIVO */}
-          {tipoPago !== "EFECTIVO" && (
-            <BancoAutocomplete
-              value={bancoSeleccionado}
-              onChange={setBancoSeleccionado}
-            />
-          )}
+          {/* ────────── FORMULARIO CONTEXTUAL ────────── */}
+          <div className="bg-gray-50 border border-gray-100 rounded-md p-4 flex flex-col gap-3">
+            {/* Campos comunes: monto */}
+            <div className="flex flex-wrap gap-3 items-end">
+              <div className="w-28">
+                <FieldLabel>Monto</FieldLabel>
+                <input
+                  type="text"
+                  value={
+                    montoPagoFocused
+                      ? typeof montoPago === "string"
+                        ? montoPago.replace(".", ",")
+                        : montoPago
+                      : montoPago
+                        ? formatNumber(montoPago)
+                        : ""
+                  }
+                  onFocus={() => setMontoPagoFocused(true)}
+                  onBlur={() => setMontoPagoFocused(false)}
+                  onChange={(e) => setMontoPago(e.target.value)}
+                  placeholder="0,00"
+                  className="w-full px-2 py-1.5 border border-gray-200 rounded-md text-md font-black text-gray-900 focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/20"
+                />
+              </div>
 
-          {/* Referencia: solo TRANSFERENCIA */}
-          {tipoPago === "TRANSFERENCIA" && (
-            <div className="w-36">
-              <FieldLabel>Nro. referencia</FieldLabel>
-              <input
-                type="text"
-                value={referencia}
-                onChange={(e) => setReferencia(e.target.value)}
-                placeholder="Nro. transferencia"
-                className="w-full px-2 py-1.5 border border-gray-200 rounded-md text-md font-bold text-gray-900 focus:outline-none focus:border-[var(--primary)]"
-              />
+              {/* Banco destino: todos los métodos excepto EFECTIVO */}
+              {tipoPago !== "EFECTIVO" && (
+                <BancoAutocomplete
+                  value={bancoSeleccionado}
+                  onChange={setBancoSeleccionado}
+                />
+              )}
+
+              {/* Referencia: solo TRANSFERENCIA */}
+              {tipoPago === "TRANSFERENCIA" && (
+                <div className="w-36">
+                  <FieldLabel>Nro. referencia</FieldLabel>
+                  <input
+                    type="text"
+                    value={referencia}
+                    onChange={(e) => setReferencia(e.target.value)}
+                    placeholder="Nro. transferencia"
+                    className="w-full px-2 py-1.5 border border-gray-200 rounded-md text-md font-bold text-gray-900 focus:outline-none focus:border-[var(--primary)]"
+                  />
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={handleAgregarPago}
+                disabled={!montoPago || parseCurrency(montoPago) <= 0}
+                className="h-[30px] px-4 rounded-md bg-[var(--primary)] text-white text-md font-black uppercase tracking-wider flex items-center gap-1.5 hover:bg-[var(--primary)]/90 transition active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Plus size={13} strokeWidth={3} />
+                Agregar
+              </button>
             </div>
-          )}
 
-          <button
-            type="button"
-            onClick={handleAgregarPago}
-            disabled={!montoPago || parseCurrency(montoPago) <= 0}
-            className="h-[30px] px-4 rounded-md bg-[var(--primary)] text-white text-md font-black uppercase tracking-wider flex items-center gap-1.5 hover:bg-[var(--primary)]/90 transition active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <Plus size={13} strokeWidth={3} />
-            Agregar
-          </button>
-        </div>
+            {/* TARJETA */}
+            {isTarjeta && (
+              <div className="flex items-center gap-3 pt-2 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setModalTarjetaAbierto(true)}
+                  className="flex-1 py-2.5 rounded-md bg-white border border-[var(--border-subtle)] text-xs font-bold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <CreditCard
+                    size={16}
+                    className={
+                      tipoPago === "TARJETA_CREDITO"
+                        ? "text-orange-500"
+                        : "text-violet-500"
+                    }
+                  />
+                  {tarjeta.marca
+                    ? `Tarjeta: ${tarjeta.marca} (${tarjeta.cantidadCuotas} cuotas)`
+                    : "Completar Datos de Tarjeta"}
+                </button>
+                {tarjeta.recargo > 0 && (
+                  <span className="text-xs font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded">
+                    +{tarjeta.recargo}% Recargo
+                  </span>
+                )}
+              </div>
+            )}
 
-        {/* TARJETA */}
-        {isTarjeta && (
-          <div className="flex items-center gap-3 pt-2 border-t border-gray-100">
-            <button
-              type="button"
-              onClick={() => setModalTarjetaAbierto(true)}
-              className="flex-1 py-2.5 rounded-md bg-white border border-[var(--border-subtle)] text-xs font-bold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-sm"
-            >
-              <CreditCard size={16} className={tipoPago === "TARJETA_CREDITO" ? "text-orange-500" : "text-violet-500"} />
-              {tarjeta.marca ? `Tarjeta: ${tarjeta.marca} (${tarjeta.cantidadCuotas} cuotas)` : "Completar Datos de Tarjeta"}
-            </button>
-            {tarjeta.recargo > 0 && (
-              <span className="text-xs font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded">
-                +{tarjeta.recargo}% Recargo
-              </span>
+            {modalTarjetaAbierto && (
+              <ModalTarjeta
+                onClose={() => setModalTarjetaAbierto(false)}
+                onConfirm={() => setModalTarjetaAbierto(false)}
+                tarjeta={tarjeta}
+                setTarjeta={setTarjeta}
+                tipoPago={tipoPago}
+              />
+            )}
+
+            {/* CHEQUES (Tercero y Propio) */}
+            {(tipoPago === "CHEQUE_TERCERO" || tipoPago === "CHEQUE_PROPIO") && (
+              <div className="flex items-center gap-3 pt-2 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setModalChequeAbierto(true)}
+                  className="flex-1 py-2.5 rounded-md bg-white border border-[var(--border-subtle)] text-xs font-bold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <FileText
+                    size={16}
+                    className={
+                      tipoPago === "CHEQUE_PROPIO"
+                        ? "text-rose-500"
+                        : "text-amber-500"
+                    }
+                  />
+                  {(tipoPago === "CHEQUE_TERCERO" && chequeTercero.numero) ||
+                  (tipoPago === "CHEQUE_PROPIO" && chequePropio.numero)
+                    ? `Cheque: ${tipoPago === "CHEQUE_TERCERO" ? chequeTercero.banco : chequePropio.banco} #${tipoPago === "CHEQUE_TERCERO" ? chequeTercero.numero : chequePropio.numero}`
+                    : "Completar Datos del Cheque"}
+                </button>
+              </div>
+            )}
+
+            {modalChequeAbierto && (
+              <ModalCheque
+                onClose={() => setModalChequeAbierto(false)}
+                onConfirm={() => setModalChequeAbierto(false)}
+                cheque={
+                  tipoPago === "CHEQUE_PROPIO" ? chequePropio : chequeTercero
+                }
+                setCheque={
+                  tipoPago === "CHEQUE_PROPIO"
+                    ? setChequePropio
+                    : setChequeTercero
+                }
+                tipoPago={tipoPago}
+              />
             )}
           </div>
-        )}
-
-        {modalTarjetaAbierto && (
-          <ModalTarjeta
-            onClose={() => setModalTarjetaAbierto(false)}
-            onConfirm={() => setModalTarjetaAbierto(false)}
-            tarjeta={tarjeta}
-            setTarjeta={setTarjeta}
-            tipoPago={tipoPago}
-          />
-        )}
-
-        {/* CHEQUES (Tercero y Propio) */}
-        {(tipoPago === "CHEQUE_TERCERO" || tipoPago === "CHEQUE_PROPIO") && (
-          <div className="flex items-center gap-3 pt-2 border-t border-gray-100">
-            <button
-              type="button"
-              onClick={() => setModalChequeAbierto(true)}
-              className="flex-1 py-2.5 rounded-md bg-white border border-[var(--border-subtle)] text-xs font-bold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-sm"
-            >
-              <FileText size={16} className={tipoPago === "CHEQUE_PROPIO" ? "text-rose-500" : "text-amber-500"} />
-              {(tipoPago === "CHEQUE_TERCERO" && chequeTercero.numero) || (tipoPago === "CHEQUE_PROPIO" && chequePropio.numero) 
-                ? `Cheque: ${tipoPago === "CHEQUE_TERCERO" ? chequeTercero.banco : chequePropio.banco} #${tipoPago === "CHEQUE_TERCERO" ? chequeTercero.numero : chequePropio.numero}` 
-                : "Completar Datos del Cheque"}
-            </button>
-          </div>
-        )}
-
-        {modalChequeAbierto && (
-          <ModalCheque
-            onClose={() => setModalChequeAbierto(false)}
-            onConfirm={() => setModalChequeAbierto(false)}
-            cheque={tipoPago === "CHEQUE_PROPIO" ? chequePropio : chequeTercero}
-            setCheque={tipoPago === "CHEQUE_PROPIO" ? setChequePropio : setChequeTercero}
-            tipoPago={tipoPago}
-          />
-        )}
-      </div>
+        </>
+      )}
 
       {/* ────────── LISTA DE PAGOS ────────── */}
       {pagos.length > 0 && (

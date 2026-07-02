@@ -38,3 +38,15 @@ export const listarChequesTercero = async (filtros = {}) => {
   const { data } = await axiosInitial.get("/tesoreria/cheques-tercero", { params });
   return data;
 };
+
+export const crearMovimientoManual = async (
+  payload,
+  { codigoEmpresa, codigoUnidadNegocio },
+) => {
+  const { data } = await axiosInitial.post(
+    "/tesoreria/movimientos-manuales",
+    payload,
+    { params: { codigoEmpresa, codigoUnidadNegocio } },
+  );
+  return data;
+};

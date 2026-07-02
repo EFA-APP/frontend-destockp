@@ -11,6 +11,7 @@ import { useDetalleComprobante } from "../../../../Backend/Comprobantes/useDetal
 import { useGenerarComprobante } from "../../../../Backend/Ventas/queries/Comprobante/useGenerarComprobante.mutation";
 import { obtenerComprobantePorCodigo } from "../../../../Backend/Ventas/api/Comprobante/comprobante.api";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
+import { requierePago } from "../utils/condicionMetodoPago.js";
 
 const TIPO_DESCRIPCION_MAP = {
   1: "FACTURA",
@@ -180,7 +181,8 @@ const Ingresos = ({ tipoOperacion }) => {
     if (state.cliente) {
       const a = state.cliente;
       cabecera.setClienteSeleccionado(a);
-      const razonSocial = a.razonSocial || `${a.nombre || ""} ${a.apellido || ""}`.trim();
+      const razonSocial =
+        a.razonSocial || `${a.nombre || ""} ${a.apellido || ""}`.trim();
       cabecera.setBusquedaCliente(razonSocial);
     }
 
@@ -257,21 +259,24 @@ const Ingresos = ({ tipoOperacion }) => {
 
   const codigoTipo = Number(cabecera.tipoComprobante);
   const itemsGravadoSinIva = detalle.items.filter(
-    (i) => (!i.tipoFiscal || i.tipoFiscal === "GRAVADO") && (i.tasaIva || 0) === 0,
+    (i) =>
+      (!i.tipoFiscal || i.tipoFiscal === "GRAVADO") && (i.tasaIva || 0) === 0,
   );
   const requiereIva = codigoTipo === 1 && itemsGravadoSinIva.length > 0;
 
   const handleGuardar = () => {
     const condicion = cabecera.condicionComprobante || "CONTADO";
-    if (condicion === "CONTADO" && pagos.length === 0) {
-      alert("⚠️ Para comprobantes de CONTADO, debe agregar al menos un método de pago.");
+    if (requierePago(condicion) && pagos.length === 0) {
+      alert(
+        "⚠️ Esta condición de comprobante requiere al menos un método de pago.",
+      );
       return;
     }
 
     if (requiereIva) {
       alert(
         `⚠️ Factura A requiere IVA en todos los ítems gravados.\n` +
-        `Completá la alícuota en: ${itemsGravadoSinIva.map((i) => i.nombre).join(", ")}`,
+          `Completá la alícuota en: ${itemsGravadoSinIva.map((i) => i.nombre).join(", ")}`,
       );
       return;
     }
@@ -295,10 +300,11 @@ const Ingresos = ({ tipoOperacion }) => {
       {
         onSuccess: (data) => {
           const tipo = payload.tipoDescripcionComprobante;
-          if (tipo === 'FACTURA' || tipo === 'RECIBO') {
+          if (tipo === "FACTURA" || tipo === "RECIBO") {
             setComprobanteExito({
               codigo: data?.comprobante?.codigo,
-              codigoReceptor: data?.comprobante?.codigoReceptor ?? payload.codigoReceptor,
+              codigoReceptor:
+                data?.comprobante?.codigoReceptor ?? payload.codigoReceptor,
               tipoDescripcion: tipo,
               puntoVenta: payload.puntoVenta,
               numeroComprobante: data?.comprobante?.numeroComprobante,
@@ -323,12 +329,12 @@ const Ingresos = ({ tipoOperacion }) => {
     const pagosDesc = pagos
       .map((p) => {
         const label = LABEL_METODO[p.tipoMetodoPago] || p.tipoMetodoPago;
-        const cuotas = p.datosTarjeta?.cantidadCuotas > 1
-          ? ` (${p.datosTarjeta.cantidadCuotas} cuotas)`
-          : "";
-        const recargoStr = p.datosTarjeta?.recargo > 0
-          ? ` +${p.datosTarjeta.recargo}%`
-          : "";
+        const cuotas =
+          p.datosTarjeta?.cantidadCuotas > 1
+            ? ` (${p.datosTarjeta.cantidadCuotas} cuotas)`
+            : "";
+        const recargoStr =
+          p.datosTarjeta?.recargo > 0 ? ` +${p.datosTarjeta.recargo}%` : "";
         return `${label}${cuotas}${recargoStr}: $${p.monto.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`;
       })
       .join(" | ");
@@ -371,7 +377,10 @@ const Ingresos = ({ tipoOperacion }) => {
     setGenerandoPDF(true);
     try {
       const blob = await pdf(
-        <ComprobantePDF comprobante={comprobantePresupuesto} usuario={usuario} />,
+        <ComprobantePDF
+          comprobante={comprobantePresupuesto}
+          usuario={usuario}
+        />,
       ).toBlob();
       const url = URL.createObjectURL(blob);
       const win = window.open(url, "_blank");
@@ -396,6 +405,7 @@ const Ingresos = ({ tipoOperacion }) => {
         codigoTipoComprobante={cabecera.tipoComprobante}
         otrosTributos={cabecera.otrosTributos}
         setOtrosTributos={cabecera.setOtrosTributos}
+        condicionComprobante={cabecera.condicionComprobante}
       />
 
       {/* BOTON GUARDAR / PRESUPUESTO */}

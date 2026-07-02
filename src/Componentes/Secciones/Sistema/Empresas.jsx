@@ -8,6 +8,7 @@ import VistaRolesEmpresa from "./Vistas/VistaRolesEmpresa";
 import VistaUnidadesNegocio from "./Vistas/VistaUnidadesNegocio";
 import VistaConfiguracionCampos from "./Vistas/VistaConfiguracionCampos";
 import VistaAsignarPuntosVenta from "./Vistas/VistaAsignarPuntosVenta";
+import VistaLogsArca from "./Vistas/VistaLogsArca";
 import ModalCrearEmpresa from "../../Modales/Empresa/ModalCrearEmpresa";
 import ModalEditarEmpresa from "../../Modales/Empresa/ModalEditarEmpresa";
 import { useActualizarEmpresa } from "../../../Backend/Autenticacion/queries/Empresa/useActualizarEmpresa.mutation";
@@ -53,6 +54,14 @@ const Empresas = () => {
   const handlePuntosVentaClick = (fila) => {
     setEmpresaActiva(fila);
     setVistaActiva("puntos-venta");
+  };
+
+  const handleLogsArcaClick = (fila) => {
+    setEmpresaActiva(fila);
+    setVistaActiva("logs-arca");
+    setTimeout(() => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }, 100);
   };
 
   const handleEditarClick = (fila) => {
@@ -192,6 +201,7 @@ const Empresas = () => {
         handleEliminarClick={handleEliminarClick}
         handleConfigurarCamposClick={handleConfigurarCamposClick}
         handlePuntosVentaClick={handlePuntosVentaClick}
+        handleLogsArcaClick={handleLogsArcaClick}
       />
 
       {/* VISTAS DETALLE (SUBTABLAS) */}
@@ -225,6 +235,13 @@ const Empresas = () => {
 
       {empresaActiva && vistaActiva === "puntos-venta" && (
         <VistaAsignarPuntosVenta
+          empresa={empresaActiva}
+          onClose={cerrarVistaActiva}
+        />
+      )}
+
+      {empresaActiva && vistaActiva === "logs-arca" && (
+        <VistaLogsArca
           empresa={empresaActiva}
           onClose={cerrarVistaActiva}
         />

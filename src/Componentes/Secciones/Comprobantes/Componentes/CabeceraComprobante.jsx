@@ -82,9 +82,10 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
     busqueda: busquedaCliente,
     limite: 10,
   });
-  const clientesRaw = tipoOperacion !== "EGRESO"
-    ? contactosFetched.filter((c) => c.tipoEntidad !== "PROV")
-    : contactosFetched;
+  const clientesRaw =
+    tipoOperacion !== "EGRESO"
+      ? contactosFetched.filter((c) => c.tipoEntidad !== "PROV")
+      : contactosFetched;
 
   // Búsqueda por CUIT para pre-selección automática cuando viene de ARCA
   useEffect(() => {
@@ -158,7 +159,9 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
     if (e.key !== "Enter") return;
     e.preventDefault();
     const allInputs = Array.from(
-      document.querySelectorAll('input:not([type="hidden"]):not([disabled]), select:not([disabled])')
+      document.querySelectorAll(
+        'input:not([type="hidden"]):not([disabled]), select:not([disabled])',
+      ),
     );
     const idx = allInputs.indexOf(e.target);
     if (idx >= 0 && idx < allInputs.length - 1) {
@@ -340,6 +343,13 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
           >
             <option value="CONTADO">CONTADO</option>
             <option value="CUENTA_CORRIENTE">CUENTA CORRIENTE</option>
+            <option value="CREDITO_30_DIAS">CRÉDITO 30 DÍAS</option>
+            <option value="CREDITO_60_DIAS">CRÉDITO 60 DÍAS</option>
+            <option value="CREDITO_90_DIAS">CRÉDITO 90 DÍAS</option>
+            <option value="TRANSFERENCIA_BANCARIA">TRANSFERENCIA BANCARIA</option>
+            <option value="TARJETA_DEBITO">TARJETA DÉBITO</option>
+            <option value="TARJETA_CREDITO">TARJETA CRÉDITO</option>
+            <option value="CHEQUE">CHEQUE</option>
           </select>
         </div>
 
@@ -600,69 +610,80 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
               onBlur={() => setTimeout(() => setMostrarResultados(false), 200)}
             />
 
-            {mostrarResultados && (clientesRaw?.length > 0 || busquedaCliente) && (
-              <div className="absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                {clientesRaw && clientesRaw.length > 0 ? (
-                  <>
-                    {clientesRaw.map((cliente, index) => (
-                      <button
-                        key={cliente.id || cliente.codigoSecuencial}
-                        ref={(el) => (refsResultados.current[index] = el)}
-                        type="button"
-                        onClick={() => seleccionarCliente(cliente)}
-                        onMouseEnter={() => setIndiceActivo(index)}
-                        className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-100 last:border-0 ${
-                          index === indiceActivo
-                            ? "bg-[var(--primary)]/10 text-gray-900"
-                            : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold">
-                            {getNombreCompleto(cliente)}
-                          </span>
-                          <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
-                            {LABELS_TIPO_ENTIDAD[cliente.tipoEntidad] ||
-                              cliente.tipoEntidad}
-                          </span>
-                        </div>
-                        {cliente.documento && (
-                          <span className="text-md text-gray-700">
-                            Doc: {cliente.documento}
-                          </span>
-                        )}
-                        {cliente.enteFacturacion && (
-                          <div className="text-[11px] text-blue-600 mt-0.5">
-                            Se factura a:{" "}
-                            {getNombreCompleto(cliente.enteFacturacion)}
+            {mostrarResultados &&
+              (clientesRaw?.length > 0 || busquedaCliente) && (
+                <div className="absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                  {clientesRaw && clientesRaw.length > 0 ? (
+                    <>
+                      {clientesRaw.map((cliente, index) => (
+                        <button
+                          key={cliente.id || cliente.codigoSecuencial}
+                          ref={(el) => (refsResultados.current[index] = el)}
+                          type="button"
+                          onClick={() => seleccionarCliente(cliente)}
+                          onMouseEnter={() => setIndiceActivo(index)}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors border-b border-gray-100 last:border-0 ${
+                            index === indiceActivo
+                              ? "bg-[var(--primary)]/10 text-gray-900"
+                              : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold">
+                              {getNombreCompleto(cliente)}
+                            </span>
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                              {LABELS_TIPO_ENTIDAD[cliente.tipoEntidad] ||
+                                cliente.tipoEntidad}
+                            </span>
                           </div>
-                        )}
+                          {cliente.documento && (
+                            <span className="text-md text-gray-700">
+                              Doc: {cliente.documento}
+                            </span>
+                          )}
+                          {cliente.enteFacturacion && (
+                            <div className="text-[11px] text-blue-600 mt-0.5">
+                              Se factura a:{" "}
+                              {getNombreCompleto(cliente.enteFacturacion)}
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMostrarResultados(false);
+                          setModalCrearContacto(true);
+                        }}
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-[var(--primary)] border-t border-gray-100 hover:bg-[var(--primary)]/5 transition-colors cursor-pointer"
+                      >
+                        <UserPlus size={14} />
+                        Crear nuevo{" "}
+                        {tipoOperacion === "EGRESO" ? "proveedor" : "contacto"}
                       </button>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => { setMostrarResultados(false); setModalCrearContacto(true); }}
-                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-[var(--primary)] border-t border-gray-100 hover:bg-[var(--primary)]/5 transition-colors cursor-pointer"
-                    >
-                      <UserPlus size={14} />
-                      Crear nuevo {tipoOperacion === "EGRESO" ? "proveedor" : "contacto"}
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <p className="px-4 py-2.5 text-sm text-gray-500 italic">Sin resultados para &quot;{busquedaCliente}&quot;</p>
-                    <button
-                      type="button"
-                      onClick={() => { setMostrarResultados(false); setModalCrearContacto(true); }}
-                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-[var(--primary)] border-t border-gray-100 hover:bg-[var(--primary)]/5 transition-colors cursor-pointer"
-                    >
-                      <UserPlus size={14} />
-                      Crear &quot;{busquedaCliente}&quot; como nuevo {tipoOperacion === "EGRESO" ? "proveedor" : "contacto"}
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
+                    </>
+                  ) : (
+                    <>
+                      <p className="px-4 py-2.5 text-sm text-gray-500 italic">
+                        Sin resultados para &quot;{busquedaCliente}&quot;
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMostrarResultados(false);
+                          setModalCrearContacto(true);
+                        }}
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-[var(--primary)] border-t border-gray-100 hover:bg-[var(--primary)]/5 transition-colors cursor-pointer"
+                      >
+                        <UserPlus size={14} />
+                        Crear &quot;{busquedaCliente}&quot; como nuevo{" "}
+                        {tipoOperacion === "EGRESO" ? "proveedor" : "contacto"}
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
           </div>
         )}
       </div>
@@ -740,7 +761,11 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
 
       {modalCrearContacto && (
         <FormularioContacto
-          entidad={tipoOperacion === "EGRESO" ? { clave: "PROV", nombre: "Proveedor" } : null}
+          entidad={
+            tipoOperacion === "EGRESO"
+              ? { clave: "PROV", nombre: "Proveedor" }
+              : null
+          }
           datosIniciales={
             arcaData
               ? { razonSocial: arcaData.denominacion, documento: arcaData.cuit }

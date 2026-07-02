@@ -9,6 +9,7 @@ export const accionesEmpresas = ({
   handleRolesClick,
   handleConfigurarCamposClick,
   handlePuntosVentaClick,
+  handleLogsArcaClick,
   tieneAccion,
 }) => [
   ...(tieneAccion("VER_USUARIOS_EMPRESA")
@@ -40,6 +41,23 @@ export const accionesEmpresas = ({
             </div>
           ),
           onClick: (fila) => handlePuntosVentaClick(fila),
+        },
+      ]
+    : []),
+  ...(handleLogsArcaClick
+    ? [
+        {
+          label: "Historial ARCA",
+          icono: (
+            <div className="p-1 rounded-md bg-blue-700/10 text-blue-700 hover:bg-blue-700/20">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2v20"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+          ),
+          mostrar: (fila) => fila.conexionArca === true,
+          onClick: (fila) => handleLogsArcaClick(fila),
         },
       ]
     : []),

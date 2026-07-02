@@ -1,1 +1,0 @@
-import{a as t}from"./index-B40chGZJ.js";const i=async a=>(await t.get("/materiaPrima/obtener",{params:a,showLoader:!1})).data,o=async a=>(await t.post("/materiaPrima/crear",a,{showLoader:!1})).data,n=async(a,r)=>(await t.patch(`/materiaPrima/actualizar/${a}`,r,{showLoader:!1})).data;export{n as A,o as C,i as O};

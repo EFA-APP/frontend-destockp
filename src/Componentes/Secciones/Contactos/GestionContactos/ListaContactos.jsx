@@ -440,6 +440,16 @@ const ListaContactos = ({
     return () => clearTimeout(timer);
   }, [busquedaLocal, setFiltros]);
 
+  // Sincronizar el detalle abierto con los datos frescos del servidor
+  React.useEffect(() => {
+    if (contactoDetalle && contactos.length > 0) {
+      const actualizado = contactos.find((c) => c.codigoSecuencial === contactoDetalle.codigoSecuencial);
+      if (actualizado && JSON.stringify(actualizado) !== JSON.stringify(contactoDetalle)) {
+        setContactoDetalle(actualizado);
+      }
+    }
+  }, [contactos, contactoDetalle]);
+
   const handleEditar = (contacto) => {
     setContactoEditar(contacto);
     setMostrarFormulario(true);

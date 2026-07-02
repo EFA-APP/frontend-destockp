@@ -7,30 +7,54 @@ import { useCabeceraComprobante } from "../../../../Backend/Comprobantes/useCabe
 import { useDetalleComprobante } from "../../../../Backend/Comprobantes/useDetalleComprobante";
 import { useGenerarComprobante } from "../../../../Backend/Ventas/queries/Comprobante/useGenerarComprobante.mutation";
 import { obtenerComprobantePorCodigo } from "../../../../Backend/Ventas/api/Comprobante/comprobante.api";
+import { requierePago } from "../utils/condicionMetodoPago.js";
 
 const TIPO_DESCRIPCION_MAP = {
-  1: "FACTURA", 2: "NOTA_DEBITO", 3: "NOTA_CREDITO",
-  6: "FACTURA", 7: "NOTA_DEBITO", 8: "NOTA_CREDITO",
-  11: "FACTURA", 12: "NOTA_DEBITO", 13: "NOTA_CREDITO",
-  991: "FACTURA", 992: "RECIBO", 993: "ORDEN_PAGO",
-  994: "NOTA_CREDITO", 995: "NOTA_DEBITO",
+  1: "FACTURA",
+  2: "NOTA_DEBITO",
+  3: "NOTA_CREDITO",
+  6: "FACTURA",
+  7: "NOTA_DEBITO",
+  8: "NOTA_CREDITO",
+  11: "FACTURA",
+  12: "NOTA_DEBITO",
+  13: "NOTA_CREDITO",
+  991: "FACTURA",
+  992: "RECIBO",
+  993: "ORDEN_PAGO",
+  994: "NOTA_CREDITO",
+  995: "NOTA_DEBITO",
 };
 
-const construirPayload = ({ cabecera, items, subtotalSinIva, totalIva, totalGeneral, otrosTributos, pagos, vueltos, tipoOperacion }) => {
+const construirPayload = ({
+  cabecera,
+  items,
+  subtotalSinIva,
+  totalIva,
+  totalGeneral,
+  otrosTributos,
+  pagos,
+  vueltos,
+  tipoOperacion,
+}) => {
   const codigoTipo = Number(cabecera.tipoComprobante);
   const tipoDescripcion = TIPO_DESCRIPCION_MAP[codigoTipo] || "FACTURA";
-  const esNota = tipoDescripcion === "NOTA_CREDITO" || tipoDescripcion === "NOTA_DEBITO";
+  const esNota =
+    tipoDescripcion === "NOTA_CREDITO" || tipoDescripcion === "NOTA_DEBITO";
   const tipoOpFinal = esNota ? "ANULACION_EGRESO" : tipoOperacion;
 
-  const receptor = cabecera.clienteSeleccionado?.enteFacturacion || cabecera.clienteSeleccionado;
+  const receptor =
+    cabecera.clienteSeleccionado?.enteFacturacion ||
+    cabecera.clienteSeleccionado;
 
   const detalle = items.map((item) => ({
     tipoDetalle: item.tipoDetalle,
     codigoDetalle: item.codigoSecuencial,
     descripcion: [item.nombre, item.descripcion].filter(Boolean).join(" - "),
-    ...(item.tipoDetalle !== "CUENTA_CONTABLE" && item.codigoDeposito != null && {
-      codigoDeposito: item.codigoDeposito,
-    }),
+    ...(item.tipoDetalle !== "CUENTA_CONTABLE" &&
+      item.codigoDeposito != null && {
+        codigoDeposito: item.codigoDeposito,
+      }),
     cantidad: item.cantidad,
     descuento: item.descuento || 0,
     precioUnitario: item.precioUnitario,
@@ -43,12 +67,14 @@ const construirPayload = ({ cabecera, items, subtotalSinIva, totalIva, totalGene
     metodoPago: p.tipoMetodoPago,
     monto: p.monto,
     fechaPago: cabecera.fechaInicio,
-    ...(p.tipoMetodoPago !== "EFECTIVO" && p.codigoBancoDestino && {
-      codigoBancoDestino: p.codigoBancoDestino,
-    }),
+    ...(p.tipoMetodoPago !== "EFECTIVO" &&
+      p.codigoBancoDestino && {
+        codigoBancoDestino: p.codigoBancoDestino,
+      }),
     ...(p.datosTarjeta && {
       datosTarjeta: {
-        tipoTarjeta: p.tipoMetodoPago === "TARJETA_CREDITO" ? "CREDITO" : "DEBITO",
+        tipoTarjeta:
+          p.tipoMetodoPago === "TARJETA_CREDITO" ? "CREDITO" : "DEBITO",
         marca: p.datosTarjeta.marca || "",
         cantidadCuotas: Number(p.datosTarjeta.cantidadCuotas) || 1,
         recargo: parseFloat(p.datosTarjeta.recargo) || 0,
@@ -85,10 +111,12 @@ const construirPayload = ({ cabecera, items, subtotalSinIva, totalIva, totalGene
       ? [
           {
             codigoComprobante: cabecera.comprobanteAsociado.codigoSecuencial,
-            tipoDescripcionComprobante: cabecera.comprobanteAsociado.tipoDescripcionComprobante,
+            tipoDescripcionComprobante:
+              cabecera.comprobanteAsociado.tipoDescripcionComprobante,
             tipoRelacion: tipoDescripcion,
             numeroComprobante: cabecera.comprobanteAsociado.numeroComprobante,
-            codigoTipoComprobante: cabecera.comprobanteAsociado.codigoTipoComprobante,
+            codigoTipoComprobante:
+              cabecera.comprobanteAsociado.codigoTipoComprobante,
             importeAplicado:
               cabecera.comprobanteAsociado.saldoPendiente ??
               cabecera.comprobanteAsociado.total,
@@ -126,14 +154,14 @@ const construirPayload = ({ cabecera, items, subtotalSinIva, totalIva, totalGene
 
 const Egresos = ({ tipoOperacion, arcaData = null }) => {
   const cabecera = useCabeceraComprobante({
-    esFiscal:          arcaData ? true : undefined,
-    codigoTipo:        arcaData?.codigoTipo,
-    puntoVenta:        arcaData?.puntoVenta,
+    esFiscal: arcaData ? true : undefined,
+    codigoTipo: arcaData?.codigoTipo,
+    puntoVenta: arcaData?.puntoVenta,
     numeroComprobante: arcaData?.numeroComprobante,
-    cae:               arcaData?.cae,
-    vtoCae:            arcaData?.vtoCae,
-    fecha:             arcaData?.fecha,
-    otrosTributos:     arcaData?.otrosTributos ?? 0,
+    cae: arcaData?.cae,
+    vtoCae: arcaData?.vtoCae,
+    fecha: arcaData?.fecha,
+    otrosTributos: arcaData?.otrosTributos ?? 0,
   });
   const detalle = useDetalleComprobante(tipoOperacion);
   const [pagos, setPagos] = useState([]);
@@ -193,21 +221,24 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
 
   const codigoTipo = Number(cabecera.tipoComprobante);
   const itemsGravadoSinIva = detalle.items.filter(
-    (i) => (!i.tipoFiscal || i.tipoFiscal === "GRAVADO") && (i.tasaIva || 0) === 0,
+    (i) =>
+      (!i.tipoFiscal || i.tipoFiscal === "GRAVADO") && (i.tasaIva || 0) === 0,
   );
   const requiereIva = codigoTipo === 1 && itemsGravadoSinIva.length > 0;
 
   const handleGuardar = () => {
     const condicion = cabecera.condicionComprobante || "CONTADO";
-    if (condicion === "CONTADO" && pagos.length === 0) {
-      alert("⚠️ Para comprobantes de CONTADO, debe agregar al menos un método de pago.");
+    if (requierePago(condicion) && pagos.length === 0) {
+      alert(
+        "⚠️ Esta condición de comprobante requiere al menos un método de pago.",
+      );
       return;
     }
 
     if (requiereIva) {
       alert(
         `⚠️ Factura A requiere IVA en todos los ítems gravados.\n` +
-        `Completá la alícuota en: ${itemsGravadoSinIva.map((i) => i.nombre).join(", ")}`,
+          `Completá la alícuota en: ${itemsGravadoSinIva.map((i) => i.nombre).join(", ")}`,
       );
       return;
     }
@@ -230,11 +261,12 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
       },
       {
         onSuccess: (data) => {
-          if (payload.tipoDescripcionComprobante === 'ORDEN_PAGO') {
+          if (payload.tipoDescripcionComprobante === "ORDEN_PAGO") {
             setComprobanteExito({
               codigo: data?.comprobante?.codigo,
-              codigoReceptor: data?.comprobante?.codigoReceptor ?? payload.codigoReceptor,
-              tipoDescripcion: 'ORDEN_PAGO',
+              codigoReceptor:
+                data?.comprobante?.codigoReceptor ?? payload.codigoReceptor,
+              tipoDescripcion: "ORDEN_PAGO",
               puntoVenta: payload.puntoVenta,
               numeroComprobante: data?.comprobante?.numeroComprobante,
             });
@@ -246,7 +278,11 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
 
   return (
     <div className="h-full w-full">
-      <CabeceraComprobante tipoOperacion={tipoOperacion} cabecera={cabecera} arcaData={arcaData} />
+      <CabeceraComprobante
+        tipoOperacion={tipoOperacion}
+        cabecera={cabecera}
+        arcaData={arcaData}
+      />
       <BuscadorDetalle
         tipoOperacion={tipoOperacion}
         detalle={detalle}
@@ -263,6 +299,7 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
         montosSugeridos={arcaData?.montosSugeridos ?? []}
         otrosTributos={cabecera.otrosTributos}
         setOtrosTributos={cabecera.setOtrosTributos}
+        condicionComprobante={cabecera.condicionComprobante}
       />
 
       {/* BOTON GUARDAR */}

@@ -41,3 +41,14 @@ export const ObtenerPuntosVentaApi = async (params) => {
   });
   return respuesta.data;
 };
+
+/**
+ * Consulta el historial de logs de ARCA (paginado y con filtros)
+ */
+export const ConsultarLogsArcaApi = async (params) => {
+  const respuesta = await axiosInitial.get(`/arca/logs`, {
+    params,
+    showLoader: false,
+  });
+  return respuesta.data;
+};
