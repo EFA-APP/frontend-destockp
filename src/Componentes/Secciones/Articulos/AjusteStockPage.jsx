@@ -118,30 +118,29 @@ const AjusteStockPage = () => {
   };
 
   const labelClasses =
-    "text-[12px] font-bold text-black/30 uppercase tracking-widest mb-1 ml-1";
+    "text-[12px] font-semibold text-[var(--color-neutral-text-muted)] uppercase mb-1 ml-1";
   const inputClasses =
-    "w-full bg-[var(--surface)] border border-black/10 rounded-md px-3 py-2 text-sm text-black focus:outline-none focus:border-amber-700/50  placeholder:text-black/20";
+    "w-full bg-white border border-[var(--color-neutral-border)] rounded-[8px] px-3 py-2 text-[13px] text-[var(--color-neutral-text-main)] focus:outline-none focus:border-[var(--color-brand-primary)] placeholder:text-[var(--color-neutral-text-muted)]";
 
   return (
     <ContenedorSeccion>
       <EncabezadoSeccion
-        ruta={`Ajuste de ${tipo === "PRODUCTO" ? "Productos" : "Materia Prima"}`}
-        icono={<MovimientoIcono size={20} />}
+        ruta={"AJUSTE DE STOCK"}
+        icono={<Package size={22} className="text-amber-600" />}
         volver={true}
         redireccionAnterior={-1}
+        subTitulo="Ajuste masivo o individual de stock"
       />
 
       {/* Main Content Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 items-start pb-20 lg:pb-10 relative">
+      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6 items-start mt-4 pb-20">
         {/* Left Panel: Configuration */}
         <aside className="space-y-4 lg:sticky lg:top-4 z-10">
-          <div className="bg-[var(--surface)] border border-black/10 rounded-md p-4 lg:p-5">
-            <div className="flex items-center gap-2 mb-4 border-b border-black/5 pb-3">
-              <Settings2 size={16} className="text-amber-700" />
-              <h2 className="text-[13px] font-bold uppercase tracking-widest text-black/60">
-                Configuración
-              </h2>
-            </div>
+          <div className="bg-white border border-[var(--color-neutral-border)] rounded-[16px] shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-5">
+            <h3 className="text-[14px] font-bold text-[var(--color-neutral-text-main)] mb-4 flex items-center gap-2 border-b border-[var(--color-neutral-border)] pb-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+              Configuración Global
+            </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
               <div className="flex flex-col">
@@ -214,16 +213,24 @@ const AjusteStockPage = () => {
           </div>
 
           {/* Desktop Summary / Button Area */}
-          <div className="hidden lg:flex flex-col gap-4">
+          <div className="hidden lg:block bg-white border border-[var(--color-neutral-border)] rounded-[16px] shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-5">
+            <div className="flex items-center justify-between mb-4">
+                <span className="text-[12px] font-semibold text-[var(--color-neutral-text-muted)] uppercase">
+                    Seleccionados
+                </span>
+                <span className="text-[14px] font-bold text-[var(--color-brand-primary)]">
+                    {selectedCount}
+                </span>
+            </div>
             <button
               onClick={handleSubmit}
               disabled={processing || selectedCount === 0}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-amber-700 hover:bg-amber-600 disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed text-black rounded-md font-bold text-[12px] uppercase tracking-widest  active:scale-95 shadow-lg shadow-amber-700/10"
+              className="w-full flex items-center justify-center gap-2 py-3 bg-[var(--color-brand-primary)] hover:bg-[var(--color-brand-primary-hover)] disabled:opacity-50 text-white rounded-[10px] font-semibold text-[13px] transition-colors shadow-sm"
             >
               {processing ? (
-                <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full " />
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
-                <GuardarIcono size={14} />
+                <GuardarIcono size={16} />
               )}
               {processing ? "Procesando..." : "Confirmar Ajustes"}
             </button>
@@ -234,45 +241,45 @@ const AjusteStockPage = () => {
         <section className="flex flex-col gap-4">
           {/* Search Bar */}
           <div className="relative group lg:sticky lg:top-4 z-20">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-black/20 group-focus-within:text-amber-700  z-[99]">
-              <BuscadorIcono size={16} color="white" />
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-neutral-text-muted)] group-focus-within:text-[var(--color-brand-primary)]">
+              <BuscadorIcono size={16} />
             </div>
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Filtrar por nombre o código..."
-              className="w-full bg-white/[0.03] backdrop-blur-md border border-black/10 rounded-md pl-11 pr-4 py-3 text-xs text-black placeholder:text-black/20 focus:outline-none focus:border-amber-700/30  shadow-xl"
+              className="w-full bg-white border border-[var(--color-neutral-border)] rounded-[12px] pl-11 pr-4 py-3 text-[13px] text-[var(--color-neutral-text-main)] placeholder:text-[var(--color-neutral-text-muted)] focus:outline-none focus:border-[var(--color-brand-primary)] shadow-sm"
             />
           </div>
 
           {/* List Area */}
-          <div className="space-y-4">
+          <div className="bg-white border border-[var(--color-neutral-border)] rounded-[16px] shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-hidden">
             {/* Desktop Table Header */}
-            <div className="hidden lg:grid lg:grid-cols-[70px_1fr_100px_120px] gap-4 px-6 py-3 border border-black/10 bg-black/5 items-center rounded-t-md">
-              <div className="text-[12px] font-bold text-black/30 uppercase tracking-widest">
+            <div className="hidden lg:grid lg:grid-cols-[70px_1fr_100px_120px] gap-4 px-6 py-4 border-b border-[var(--color-neutral-border)] bg-gray-50/50 items-center">
+              <div className="text-[12px] font-semibold text-[var(--color-neutral-text-muted)] uppercase tracking-wide">
                 Cód.
               </div>
-              <div className="text-[12px] font-bold text-black/30 uppercase tracking-widest">
+              <div className="text-[12px] font-semibold text-[var(--color-neutral-text-muted)] uppercase tracking-wide">
                 Artículo
               </div>
-              <div className="text-[12px] font-bold text-black/30 uppercase tracking-widest text-right">
+              <div className="text-[12px] font-semibold text-[var(--color-neutral-text-muted)] uppercase tracking-wide text-right">
                 Stock
               </div>
-              <div className="text-[12px] font-bold text-black/30 uppercase tracking-widest text-right">
+              <div className="text-[12px] font-semibold text-[var(--color-neutral-text-muted)] uppercase tracking-wide text-right">
                 Ajuste
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 max-h-[600px] lg:max-h-[500px] overflow-y-auto custom-scrollbar divide-y lg:divide-y divide-white/[0.03] lg:border-x lg:border-b lg:border-black/10 lg:bg-white/[0.02] lg:rounded-b-md ">
+            <div className="flex flex-col max-h-[600px] lg:max-h-[500px] overflow-y-auto custom-scrollbar divide-y divide-[var(--color-neutral-border)]">
               {filteredItems.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-black/10">
+                <div className="flex flex-col items-center justify-center py-20 text-[var(--color-neutral-text-muted)]">
                   <Package
                     size={40}
-                    strokeWidth={1}
-                    className="mb-2 opacity-10"
+                    strokeWidth={1.5}
+                    className="mb-3 opacity-40"
                   />
-                  <p className="text-[11px] font-bold uppercase tracking-widest opacity-30">
+                  <p className="text-[13px] font-semibold tracking-wide">
                     Sin resultados
                   </p>
                 </div>
@@ -286,21 +293,21 @@ const AjusteStockPage = () => {
                     <div key={item.codigoSecuencial}>
                       {/* Desktop View */}
                       <div
-                        className={`hidden lg:grid lg:grid-cols-[70px_1fr_100px_120px] gap-4 px-6 py-2.5 items-center  group ${hasValue ? "bg-amber-700/[0.03]" : "hover:bg-white/[0.01]"}`}
+                        className={`hidden lg:grid lg:grid-cols-[70px_1fr_100px_120px] gap-4 px-6 py-3 items-center hover:bg-gray-50/50 transition-colors ${hasValue ? "bg-[var(--color-brand-soft)]/20" : ""}`}
                       >
-                        <div className="text-[13px] font-mono text-black/20">
+                        <div className="text-[13px] font-semibold text-[var(--color-neutral-text-muted)]">
                           #{item.codigoSecuencial.toString().padStart(3, "0")}
                         </div>
                         <div className="min-w-0">
-                          <div className="text-xs font-semibold text-black/80 group-hover:text-amber-700  truncate">
+                          <div className="text-[14px] font-semibold text-[var(--color-neutral-text-main)] truncate">
                             {item.nombre.toUpperCase()}
                           </div>
                         </div>
                         <div className="text-right">
-                          <span className="text-sm font-medium text-black/40">
+                          <span className="text-[14px] font-medium text-[var(--color-neutral-text-main)]">
                             {item.stock}
                           </span>
-                          <span className="text-[11px] font-bold text-[var(--primary-light)] ml-1 uppercase">
+                          <span className="text-[11px] font-bold text-[var(--color-neutral-text-muted)] ml-1 uppercase">
                             {item.unidadMedida}
                           </span>
                         </div>
@@ -314,43 +321,40 @@ const AjusteStockPage = () => {
                                 e.target.value,
                               )
                             }
-                            placeholder="—"
-                            className={`w-24 bg-black/20 border rounded px-3 py-1 text-xs text-right font-bold  focus:outline-none ${hasValue ? (isNegative ? "border-rose-700/30 text-rose-700 ring-4 ring-rose-700/5" : "border-amber-700/30 text-amber-700 ring-4 ring-amber-700/5") : "border-black/5 text-black/30 group-hover:border-black/10"}`}
+                            placeholder="0"
+                            className={`w-[100px] bg-white border rounded-[8px] px-3 py-1.5 text-right text-[13px] font-semibold focus:outline-none transition-colors ${hasValue ? (isNegative ? "border-rose-300 text-rose-600 bg-rose-50" : "border-emerald-300 text-emerald-600 bg-emerald-50") : "border-[var(--color-neutral-border)] text-[var(--color-neutral-text-main)] focus:border-[var(--color-brand-primary)]"}`}
                           />
                         </div>
                       </div>
 
                       {/* Mobile Card View */}
                       <div
-                        className={`lg:hidden p-4 rounded-md border  ${hasValue ? "bg-amber-700/5 border-amber-700/20" : "bg-white/[0.02] border-black/5 active:bg-white/[0.04]"}`}
+                        className={`lg:hidden p-4 rounded-xl border m-2 ${hasValue ? "bg-[var(--color-brand-soft)]/20 border-[var(--color-brand-primary)]/20" : "bg-white border-[var(--color-neutral-border)]"}`}
                       >
                         <div className="flex justify-between items-start mb-3">
                           <div className="flex flex-col">
-                            <span className="text-[11px] font-mono text-black/20 mb-1">
-                              #
-                              {item.codigoSecuencial
-                                .toString()
-                                .padStart(3, "0")}
+                            <span className="text-[11px] font-semibold text-[var(--color-neutral-text-muted)] mb-1">
+                              #{item.codigoSecuencial.toString().padStart(3, "0")}
                             </span>
-                            <span className="text-[14px] font-bold text-black/90 leading-tight pr-2">
+                            <span className="text-[14px] font-bold text-[var(--color-neutral-text-main)] leading-tight">
                               {item.nombre.toUpperCase()}
                             </span>
                           </div>
                           <div className="text-right shrink-0">
-                            <div className="text-[11px] font-bold text-black/20 uppercase tracking-widest mb-0.5">
+                            <div className="text-[11px] font-bold text-[var(--color-neutral-text-muted)] uppercase mb-0.5">
                               Stock
                             </div>
-                            <div className="text-sm font-medium text-black/50">
+                            <div className="text-sm font-semibold text-[var(--color-neutral-text-main)]">
                               {item.stock}{" "}
-                              <span className="text-[11px] text-[var(--primary-light)]">
+                              <span className="text-[11px] text-[var(--color-neutral-text-muted)]">
                                 {item.unidadMedida}
                               </span>
                             </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <div className="flex-1 text-[12px] font-bold text-black/20 uppercase tracking-widest">
-                            Ingrese Ajuste:
+                          <div className="flex-1 text-[12px] font-semibold text-[var(--color-neutral-text-muted)] uppercase">
+                            Ajustar:
                           </div>
                           <input
                             type="number"
@@ -362,8 +366,8 @@ const AjusteStockPage = () => {
                                 e.target.value,
                               )
                             }
-                            placeholder="0.00"
-                            className={`w-32 bg-black/30 border rounded px-4 py-2 text-xs text-right font-black  focus:outline-none ${hasValue ? (isNegative ? "border-rose-700/50 text-rose-700 shadow-[0_0_10px_rgba(244,63,94,0.1)]" : "border-amber-700/50 text-amber-700 shadow-[0_0_10px_rgba(245,158,11,0.1)]") : "border-black/10 text-black/40"}`}
+                            placeholder="0"
+                            className={`w-32 bg-white border rounded-[8px] px-4 py-2 text-sm font-semibold text-right focus:outline-none ${hasValue ? (isNegative ? "border-rose-300 text-rose-600 bg-rose-50" : "border-emerald-300 text-emerald-600 bg-emerald-50") : "border-[var(--color-neutral-border)]"}`}
                           />
                         </div>
                       </div>
@@ -374,22 +378,30 @@ const AjusteStockPage = () => {
             </div>
           </div>
         </section>
+      </div>
 
-        {/* Mobile Sticky Confirmation Bar */}
-        <div className="lg:hidden bottom-20 left-4 right-4 p-1 bg-[#0a0a0c]/80 backdrop-blur-xl border border-black/10 flex items-center justify-between gap-4 z-50 rounded-md shadow-2xl">
-          <button
-            onClick={handleSubmit}
-            disabled={processing || selectedCount === 0}
-            className="flex-1 flex items-center justify-center gap-2 py-2 bg-amber-700 disabled:opacity-20 text-black rounded-md font-bold text-[12px] uppercase tracking-widest  active:scale-95 shadow-lg shadow-amber-700/20"
-          >
-            {processing ? (
-              <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full " />
-            ) : (
-              <GuardarIcono size={14} />
-            )}
-            {processing ? "Procesando" : "Confirmar"}
-          </button>
+      {/* Mobile Summary / Button Area */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[var(--color-neutral-border)] p-4 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[12px] font-semibold text-[var(--color-neutral-text-muted)] uppercase">
+            Artículos Modificados
+          </span>
+          <span className="text-[14px] font-bold text-[var(--color-brand-primary)]">
+            {selectedCount}
+          </span>
         </div>
+        <button
+          onClick={handleSubmit}
+          disabled={processing || selectedCount === 0}
+          className="w-full flex items-center justify-center gap-2 py-3 bg-[var(--color-brand-primary)] hover:bg-[var(--color-brand-primary-hover)] disabled:opacity-50 text-white rounded-[10px] font-semibold text-[13px] transition-colors shadow-sm"
+        >
+          {processing ? (
+            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          ) : (
+            <GuardarIcono size={16} />
+          )}
+          {processing ? "Procesando..." : "Confirmar Ajustes"}
+        </button>
       </div>
     </ContenedorSeccion>
   );

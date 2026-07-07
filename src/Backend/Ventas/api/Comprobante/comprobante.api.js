@@ -29,11 +29,20 @@ export const generarComprobante = async ({ dto, codigoUnidadNegocio }) => {
   return data;
 };
 
-export const enviarComprobanteEmailApi = async ({ emailDestino, pdfBase64, nombreComprobante, numeroComprobante }) => {
+export const enviarComprobanteEmailApi = async ({
+  emailDestino,
+  pdfBase64,
+  nombreComprobante,
+  numeroComprobante,
+  codigoUnidadNegocio,
+}) => {
   const { data } = await axiosInitial.post(
-    '/comprobantes/enviar-email',
+    "/comprobantes/enviar-email",
     { emailDestino, pdfBase64, nombreComprobante, numeroComprobante },
-    { showLoader: false },
+    {
+      params: { codigoUnidadNegocio },
+      showLoader: false,
+    },
   );
   return data;
 };

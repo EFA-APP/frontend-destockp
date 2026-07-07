@@ -11,7 +11,9 @@ const MateriaPrima = () => {
 
   return (
     <ContenedorSeccion>
-      <EncabezadoSeccion ruta={titulo} icono={<CanastaIcono />} />
+      <div className="bg-white border border-[var(--color-neutral-border)] shadow-sm rounded-[16px] mb-6 overflow-hidden">
+        <EncabezadoSeccion ruta={titulo} icono={<CanastaIcono />} />
+      </div>
 
       <TablaMateriaPrima />
     </ContenedorSeccion>

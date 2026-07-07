@@ -208,10 +208,11 @@ const getFullTitle = (tipo, letra) => {
   const t = Number(tipo);
   let base = "COMPROBANTE";
   if ([1, 6, 11, 51, 201, 206, 211, 991].includes(t)) base = "FACTURA";
-  if ([2, 7, 12, 52, 202, 207, 212, 994].includes(t)) base = "NOTA DE DÉBITO";
-  if ([3, 8, 13, 53, 203, 208, 213, 993].includes(t)) base = "NOTA DE CRÉDITO";
+  if ([2, 7, 12, 52, 202, 207, 212, 995].includes(t)) base = "NOTA DE DÉBITO";
+  if ([3, 8, 13, 53, 203, 208, 213, 994].includes(t)) base = "NOTA DE CRÉDITO";
   if ([4, 9, 15, 54, 992].includes(t)) base = "RECIBO";
-  const interno = [991, 992, 993, 994].includes(t);
+  if ([993].includes(t)) base = "ORDEN DE PAGO";
+  const interno = [991, 992, 993, 994, 995, 996].includes(t);
   return `${base}${letra ? ` ${letra}` : ""}${interno ? " (INTERNO)" : ""}`;
 };
 
@@ -503,6 +504,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
         pdfBase64,
         nombreComprobante: nombreTipo,
         numeroComprobante: nroFmtEmail,
+        codigoUnidadNegocio: data.codigoUnidadNegocio,
       });
       setStepEmail("enviado");
     } catch (e) {
@@ -601,7 +603,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
             <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-md p-1">
               <button
                 onClick={handleVerPDF}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] transition-all shadow-sm active:scale-95 cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wider bg-[var(--color-brand-primary)] text-white hover:brightness-110 transition-all shadow-sm active:scale-95 cursor-pointer"
               >
                 <Eye size={14} />
                 <span className="hidden md:inline">Ver PDF</span>
@@ -771,7 +773,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
               </div>
 
               {/* Ítems */}
-              <div className="bg-white rounded-md border border-slate-100 shadow-sm overflow-hidden">
+              <div className="bg-white rounded-[16px] border border-[var(--color-neutral-border)] shadow-sm overflow-hidden">
                 <div className="px-4 pt-4 pb-2">
                   <SecTitle icon={Tag}>Detalle de Ítems</SecTitle>
                 </div>
@@ -842,7 +844,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
 
               {/* Comprobantes asociados */}
               {Array.isArray(data.cbtesAsoc) && data.cbtesAsoc.length > 0 && (
-                <div className="bg-white rounded-md border border-slate-100 p-4 shadow-sm">
+                <div className="bg-white rounded-[16px] border border-[var(--color-neutral-border)] p-5 shadow-sm">
                   <SecTitle icon={Building2}>Comprobantes Asociados {cargandoAsoc && <span className="text-xs text-[var(--primary)] font-bold animate-pulse">(Preparando PDFs...)</span>}</SecTitle>
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-3">
                     Selecciona cuáles incluir en la descarga, impresión o envío:
@@ -895,7 +897,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
 
               {/* Ajustes */}
               {Array.isArray(data.ajustes) && data.ajustes.length > 0 && (
-                <div className="bg-white rounded-md border border-slate-100 p-4 shadow-sm">
+                <div className="bg-white rounded-[16px] border border-[var(--color-neutral-border)] p-5 shadow-sm">
                   <SecTitle icon={ArrowRightLeft}>Ajustes Aplicados</SecTitle>
                   <div className="space-y-2">
                     {data.ajustes.map((aj, i) => (
@@ -923,7 +925,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
             {/* ─── COLUMNA DERECHA (5/12) ─── */}
             <div className="lg:col-span-5 space-y-4">
               {/* Info general */}
-              <div className="bg-white rounded-md border border-slate-100 p-4 shadow-sm">
+              <div className="bg-white rounded-[16px] border border-[var(--color-neutral-border)] p-5 shadow-sm">
                 <SecTitle icon={Calendar}>Información</SecTitle>
                 <DataRow label="Fecha Emisión">
                   {fmtFecha(data.fechaEmision)}
@@ -945,7 +947,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
 
               {/* Pagos */}
               {Array.isArray(data.pagos) && data.pagos.length > 0 && (
-                <div className="bg-white rounded-md border border-slate-100 p-4 shadow-sm">
+                <div className="bg-white rounded-[16px] border border-[var(--color-neutral-border)] p-5 shadow-sm">
                   <SecTitle icon={DollarSign}>Pagos Registrados</SecTitle>
                   <div className="space-y-2.5">
                     {data.pagos.map((pago, i) => {
@@ -996,7 +998,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
               )}
 
               {/* Totales */}
-              <div className="bg-white rounded-md border border-slate-100 p-4 shadow-sm">
+              <div className="bg-white rounded-[16px] border border-[var(--color-neutral-border)] p-5 shadow-sm">
                 <SecTitle icon={ShieldCheck}>Totales</SecTitle>
                 <div className="space-y-0">
                   <DataRow label="Subtotal Neto">
@@ -1024,7 +1026,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
 
               {/* CAE / Fiscal */}
               {data.fiscal && data.cae && (
-                <div className="bg-white rounded-md border border-emerald-200/80 p-4 shadow-sm bg-emerald-50/10">
+                <div className="bg-white rounded-[16px] border border-emerald-200/80 p-5 shadow-sm bg-emerald-50/10">
                   <SecTitle icon={ShieldCheck}>AFIP / ARCA</SecTitle>
 
                   <div className="space-y-0 mb-4 bg-white border border-slate-100 rounded-md p-1">

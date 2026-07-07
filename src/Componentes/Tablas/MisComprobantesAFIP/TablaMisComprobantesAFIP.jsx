@@ -107,8 +107,8 @@ const TablaMisComprobantesAFIP = () => {
         onChange={manejarCambioRecibidos}
       />
       {archivoRecibidos && (
-        <p className="text-xs text-black/50 font-medium">
-          Archivo seleccionado: <span className="text-[var(--primary)] font-semibold">{archivoRecibidos.name}</span>
+        <p className="text-xs text-[var(--color-neutral-text-muted)] font-medium">
+          Archivo seleccionado: <span className="text-[var(--color-brand-primary)] font-semibold">{archivoRecibidos.name}</span>
         </p>
       )}
       {errorRecibidos && (
@@ -119,14 +119,14 @@ const TablaMisComprobantesAFIP = () => {
       {progreso > 0 && (
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-[var(--primary)]">
+            <span className="text-xs font-semibold text-[var(--color-brand-primary)]">
               {progreso < 100 ? "Procesando archivo..." : "¡Listo!"}
             </span>
             <span className="text-xs text-black/40">{Math.round(progreso)}%</span>
           </div>
-          <div className="h-1.5 bg-black/[0.06] rounded-full overflow-hidden">
+          <div className="h-1.5 bg-black/[0.06] rounded-[8px] overflow-hidden">
             <div
-              className="h-full bg-[var(--primary)] rounded-full transition-all duration-300 ease-out"
+              className="h-full bg-[var(--color-brand-primary)] rounded-[8px] transition-all duration-300 ease-out"
               style={{ width: `${progreso}%` }}
             />
           </div>
@@ -135,7 +135,7 @@ const TablaMisComprobantesAFIP = () => {
 
       {/* Error global */}
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+        <div className="p-3 bg-red-50 border border-red-200 rounded-[12px]">
           <p className="text-sm text-red-600 font-medium">{error}</p>
         </div>
       )}
@@ -161,13 +161,13 @@ const TablaMisComprobantesAFIP = () => {
 
           {/* Contadores resumen */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-green-50 border border-green-200 rounded-md text-center shadow-sm">
+            <div className="p-4 bg-green-50 border border-green-200 rounded-[16px] text-center shadow-sm">
               <p className="text-2xl font-bold text-green-700">{registrados}</p>
               <p className="text-xs text-green-600 uppercase tracking-wider mt-1 font-semibold">
                 REGISTRADO
               </p>
             </div>
-            <div className="p-4 bg-red-50 border border-red-200 rounded-md text-center shadow-sm">
+            <div className="p-4 bg-red-50 border border-red-200 rounded-[16px] text-center shadow-sm">
               <p className="text-2xl font-bold text-red-700">{noRegistrados}</p>
               <p className="text-xs text-red-600 uppercase tracking-wider mt-1 font-semibold">
                 NO REGISTRADO
@@ -176,9 +176,9 @@ const TablaMisComprobantesAFIP = () => {
           </div>
 
           {/* Tabla de detalle */}
-          <div className="overflow-x-auto rounded-md border border-gray-200 shadow-sm bg-white">
-            <table className="w-full text-sm text-gray-700">
-              <thead className="bg-gray-100 text-xs text-gray-600 uppercase tracking-wider border-b border-gray-200">
+          <div className="overflow-x-auto rounded-[16px] border border-[var(--color-neutral-border)] shadow-sm bg-white">
+            <table className="w-full text-sm text-[var(--color-neutral-text-main)]">
+              <thead className="bg-gray-50/50 text-[10px] text-gray-500 uppercase tracking-wider border-b border-[var(--color-neutral-border)]">
                 <tr>
                   <th className="px-3 py-3 text-left font-semibold">Tipo</th>
                   <th className="px-3 py-3 text-left font-semibold">
@@ -250,7 +250,7 @@ const TablaMisComprobantesAFIP = () => {
                           <button
                             type="button"
                             onClick={() => handleCrearEgreso(item)}
-                            className="px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded hover:bg-orange-600 transition-colors cursor-pointer"
+                            className="px-4 py-1.5 bg-orange-500 text-white text-[11px] font-bold rounded-[8px] hover:bg-orange-600 transition-colors cursor-pointer uppercase tracking-wider shadow-sm"
                           >
                             Crear EGRESO
                           </button>

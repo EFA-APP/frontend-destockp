@@ -23,7 +23,7 @@ const BarraNavegacion = () => {
 
   return (
     <header className="sticky top-0 z-[50]">
-      <nav className="px-5 bg-white border-b border-[var(--border-subtle)] h-14 flex items-center justify-between">
+      <nav className="px-5 bg-white border-b border-[var(--color-neutral-border)] h-14 flex items-center justify-between">
         <Link
           to="/"
           className=" flex relative group/logo flex items-center gap-3 md:hidden"
@@ -31,12 +31,12 @@ const BarraNavegacion = () => {
           {usuario?.configuracionVisual?.logoUrl ? (
             <img
               alt="logo"
-              className="w-10 h-10 rounded-full border border-[var(--border-subtle)] shadow-md object-contain bg-[var(--surface)] p-1 group-hover/logo:scale-105 transition-transform"
+              className="w-10 h-10 rounded-[10px] border border-[var(--color-neutral-border)] shadow-sm object-contain bg-white p-1 group-hover/logo:scale-105 transition-transform"
               src={usuario?.configuracionVisual?.logoUrl}
             />
           ) : (
-            <div className="flex items-center justify-center w-12 h-12 rounded-full border border-[var(--primary)]/20 shadow-lg bg-gradient-to-br from-[var(--primary)] to-[var(--primary-emphasis)] text-white group-hover/logo:scale-105 transition-transform">
-              <ConsolaIcono size={22} color="white" />
+            <div className="flex items-center justify-center w-10 h-10 rounded-[10px] bg-[var(--color-brand-primary)] text-white group-hover/logo:scale-105 transition-transform shadow-sm">
+              <ConsolaIcono size={20} color="white" />
             </div>
           )}
         </Link>
@@ -47,7 +47,7 @@ const BarraNavegacion = () => {
           {/* ARCA STATUS */}
           {(usuario?.conexionArca || usuario?.configuracionArca?.activo) && (
             <div
-              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md bg-[var(--surface-hover)] border border-[var(--border-subtle)] group"
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-[8px] bg-[var(--color-neutral-bg)] group"
               title={
                 conectado
                   ? "Sesión ARCA Activa"
@@ -57,47 +57,40 @@ const BarraNavegacion = () => {
               <button
                 onClick={() => verificarSesion(usuario)}
                 disabled={cargando}
-                className={`text-[var(--text-muted)] hover:text-[var(--primary)]   ${cargando ? "" : "group-hover:rotate-180"}`}
+                className={`text-[var(--color-neutral-text-muted)] hover:text-[var(--color-brand-primary)] transition-colors cursor-pointer ${cargando ? "" : "group-hover:rotate-180"}`}
               >
                 <RefrescarIcono size={14} />
               </button>
-              <span className="text-[12px] font-black text-[var(--text-muted)] uppercase tracking-widest hidden sm:inline">
+              <span className="text-[11px] font-bold text-[var(--color-neutral-text-muted)] uppercase tracking-wider hidden sm:inline">
                 ARCA{" "}
-                <span className="opacity-50 text-[10px]">
+                <span className="opacity-70 font-medium">
                   ({usuario?.datosFiscales?.esProduccion ? "PROD" : "HOMO"})
                 </span>
                 :
               </span>
               <div className="relative flex items-center">
                 {conectado && (
-                  <span className="absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75 "></span>
+                  <span className="absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
                 )}
                 <span
-                  className={`relative inline-flex h-2 w-2 rounded-full ${conectado ? "bg-emerald-700 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-red-700"}`}
+                  className={`relative inline-flex h-2 w-2 rounded-full ${conectado ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-red-500"}`}
                 ></span>
               </div>
             </div>
           )}
 
-          <div className="w-px h-6 bg-[var(--border-subtle)] mx-1" />
+          <div className="w-px h-5 bg-[var(--color-neutral-border)] mx-1" />
 
           {/* PERFIL */}
-          <div className="flex items-center gap-4 ml-2 ">
+          <div className="flex items-center gap-4 ml-1">
             <div className="flex-col items-end flex">
-              <span className="text-[13px] font-bold text-[var(--text-primary)] leading-none">
-                {`${usuario.nombre.toUpperCase()} ${usuario.apellido.toUpperCase()} `}{" "}
-                <span className="hidden sm:inline text-[13px] text-[var(--primary-light)] font-bold uppercase tracking-widest">
-                  {!usuario.conexionArca
-                    ? ""
-                    : "(" +
-                      usuario.datosFiscales?.condicionIva?.toUpperCase() +
-                      ")"}
-                </span>
+              <span className="text-[13px] font-bold text-[var(--color-neutral-text-main)] leading-none">
+                {`${usuario.nombre} ${usuario.apellido}`}
               </span>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-[11px] text-[var(--secondary)] font-bold uppercase tracking-widest">
+                <span className="text-[11px] text-[var(--color-neutral-text-muted)] font-medium tracking-wide">
                   {usuario.roles
-                    ?.map((rol) => rol.nombre.toUpperCase())
+                    ?.map((rol) => rol.nombre)
                     .join(", ")}
                 </span>
               </div>
@@ -105,18 +98,18 @@ const BarraNavegacion = () => {
           </div>
 
           {/* CONFIGURACION */}
-          <div className="flex items-center gap-4 ml-2">
+          <div className="flex items-center gap-2 ml-2">
             <BotonConfiguracion />
           </div>
 
-          {/* CERRAR SESION */}
+          {/* CERRAR SESION MOBILE */}
           <div
             onClick={async () => {
               await cerrarSesion();
             }}
-            className="flex items-center justify-center w-8 h-8 rounded-md bg-red-500/20 border border-red-500/50 group md:hidden "
+            className="flex items-center justify-center w-9 h-9 rounded-[8px] bg-red-50 text-red-500 hover:bg-red-100 transition-colors md:hidden cursor-pointer"
           >
-            <CerrarSesionIcono size={18} color="rgb(239 68 68)" />
+            <CerrarSesionIcono size={18} />
           </div>
         </div>
       </nav>

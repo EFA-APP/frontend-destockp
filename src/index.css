@@ -1,5 +1,53 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  
+  /* Paleta Primaria */
+  --color-brand-primary: #1FAE6D;
+  --color-brand-hover: #178F58;
+  --color-brand-soft: #E8F7EF;
+  --color-brand-light: #F1FAF5;
+
+  /* Paleta Neutra */
+  --color-neutral-bg: #F5F7F6;
+  --color-neutral-surface: #FFFFFF;
+  --color-neutral-border: #E9EDEC;
+  --color-neutral-text-main: #1A1D1C;
+  --color-neutral-text-muted: #6B7472;
+  --color-neutral-placeholder: #9CA5A2;
+
+  /* Paleta Secundaria / Estados */
+  --color-state-error: #EF5A5A;
+  --color-state-warning: #F5B944;
+  --color-state-info: #4E9AF5;
+  --color-state-accent: #8B7CF6;
+
+  /* Sombras y Bordes */
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.05);
+  --shadow-card-hover: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --radius-card: 16px;
+  --radius-base: 12px;
+}
+
+:root {
+  /* Exponer variables nativas para uso genérico en CSS puro si es necesario */
+  --brand-primary: #1FAE6D;
+  --neutral-bg: #F5F7F6;
+  --neutral-text-main: #1A1D1C;
+
+  /* Mapeo de variables legacy (Contactos y otros módulos) al nuevo sistema de diseño */
+  --primary: var(--color-brand-primary);
+  --surface: var(--color-neutral-surface);
+  --surface-hover: var(--color-brand-soft);
+  --text-primary: var(--color-neutral-text-main);
+  --text-secondary: var(--color-neutral-text-muted);
+  --text-muted: var(--color-neutral-text-muted);
+  --border-subtle: var(--color-neutral-border);
+  --fill: var(--color-neutral-bg);
+  --fill-secondary: #F8FAFA; /* Gris muy claro para inputs/fondos secundarios */
+}
+
 * {
   font-family: "Plus Jakarta Sans", sans-serif;
   font-optical-sizing: auto;
@@ -7,9 +55,16 @@
   box-sizing: border-box;
 }
 
+body {
+  background-color: var(--neutral-bg);
+  color: var(--neutral-text-main);
+  /* Text 14px for body */
+  font-size: 14px;
+}
+
 /* Scrollbar elegante adaptada a blanco */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 2px;
+  width: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -17,10 +72,10 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.1);
   border-radius: 4px;
 }
 
 .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.2);
 }

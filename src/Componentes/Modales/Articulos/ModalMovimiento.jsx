@@ -78,14 +78,14 @@ const ModalMovimiento = ({
       <button
         type="button"
         onClick={onClose}
-        className="px-4 py-2 text-sm font-medium text-black/60 hover:text-black "
+        className="px-5 py-2.5 text-[13px] font-bold text-[var(--color-neutral-text-main)] hover:bg-gray-100 rounded-[8px] transition-colors border border-transparent hover:border-[var(--color-neutral-border)]"
       >
         Cancelar
       </button>
       <button
         onClick={handleSubmit}
         disabled={isPending || !formData.cantidad}
-        className="flex items-center gap-2 px-5 py-2 bg-amber-700 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-black rounded-md font-bold  shadow-lg shadow-amber-700/20"
+        className="flex items-center gap-2 px-6 py-2.5 bg-[var(--color-brand-primary)] hover:bg-[var(--color-brand-primary-hover)] disabled:bg-gray-300 disabled:text-gray-500 text-white rounded-[8px] font-bold text-[13px] uppercase tracking-wide transition-colors active:scale-95 shadow-sm"
       >
         <GuardarIcono size={18} />
         {isPending ? "Registrando..." : "Registrar Movimiento"}
@@ -95,18 +95,18 @@ const ModalMovimiento = ({
 
   const content = (
     <div
-      className={`space-y-4 py-2 ${isStandalone ? "bg-[var(--surface)] border border-black/5 rounded-md p-6" : ""}`}
+      className={`space-y-4 py-2 ${isStandalone ? "bg-white border border-[var(--color-neutral-border)] rounded-[16px] p-6 shadow-sm" : ""}`}
     >
       {isStandalone && (
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-md bg-amber-700/10 flex items-center justify-center border border-amber-700/20 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
-            <MovimientoIcono size={20} color="var(--primary)" />
+          <div className="w-12 h-12 rounded-[12px] bg-[var(--color-brand-soft)] flex items-center justify-center border border-[var(--color-brand-primary)]/20 shadow-sm">
+            <MovimientoIcono size={22} className="text-[var(--color-brand-primary)]" />
           </div>
           <div>
-            <h3 className="text-lg font-black text-black uppercase tracking-wider">
+            <h3 className="text-[16px] font-bold text-[var(--color-neutral-text-main)] uppercase tracking-wide">
               Registrar Movimiento
             </h3>
-            <p className="text-[12px] text-black/40 font-bold uppercase tracking-widest">
+            <p className="text-[12px] text-[var(--color-neutral-text-muted)] font-semibold uppercase tracking-widest mt-0.5">
               Ajuste manual de stock para {articulo.nombre}
             </p>
           </div>
@@ -115,37 +115,37 @@ const ModalMovimiento = ({
 
       <div className="space-y-4 py-2">
         {/* Info del Producto */}
-        <div className="bg-black/5 rounded-md p-3 border border-black/10">
-          <div className="flex justify-between items-start mb-2">
+        <div className="bg-gray-50 rounded-[12px] p-4 border border-[var(--color-neutral-border)]">
+          <div className="flex justify-between items-start mb-3">
             <div>
-              <div className="text-[12px] text-black/40 uppercase font-bold tracking-widest">
+              <div className="text-[11px] text-[var(--color-neutral-text-muted)] uppercase font-bold tracking-wider">
                 Artículo
               </div>
-              <div className="text-sm font-bold text-black leading-tight">
+              <div className="text-[14px] font-bold text-[var(--color-neutral-text-main)] leading-tight mt-1">
                 {articulo.nombre}
               </div>
-              <div className="text-[13px] text-amber-700/80 font-bold mt-0.5">
+              <div className="inline-flex items-center px-2 py-0.5 mt-2 rounded-[6px] bg-white border border-[var(--color-neutral-border)] text-[11px] font-mono font-bold text-[var(--color-neutral-text-muted)] uppercase shadow-sm">
                 #{articulo.codigoSecuencial}
               </div>
             </div>
             <div className="text-right">
-              <div className="text-[12px] text-black/40 uppercase font-bold tracking-widest">
+              <div className="text-[11px] text-[var(--color-neutral-text-muted)] uppercase font-bold tracking-wider">
                 Stock Actual
               </div>
-              <div className="text-sm font-bold text-black">
+              <div className="text-[18px] font-bold text-[var(--color-neutral-text-main)] mt-1">
                 {articulo.stock || 0}{" "}
-                <span className="text-[12px] font-normal text-black/40">
+                <span className="text-[13px] font-medium text-[var(--color-neutral-text-muted)]">
                   {articulo.unidadMedida}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="pt-2 border-t border-black/5 flex justify-between items-center">
-            <div className="text-[12px] text-black/30 font-medium italic">
+          <div className="pt-3 border-t border-[var(--color-neutral-border)] flex justify-between items-center">
+            <div className="text-[12px] text-[var(--color-neutral-text-muted)] font-medium italic">
               Fecha: {new Date().toLocaleDateString("es-AR")}
             </div>
-            <div className="text-[12px] text-black/30 font-medium">
+            <div className="text-[12px] text-[var(--color-neutral-text-muted)] font-bold uppercase tracking-wider">
               {tipo.replace("_", " ")}
             </div>
           </div>
@@ -154,30 +154,24 @@ const ModalMovimiento = ({
         <div className="grid grid-cols-2 gap-4">
           {/* Tipo de Movimiento */}
           <div className="space-y-1.5">
-            <label className="text-[13px] font-bold text-black/50 uppercase ml-1">
+            <label className="text-[12px] font-bold text-[var(--color-neutral-text-main)] uppercase tracking-wide ml-1">
               Tipo
             </label>
             <select
               name="tipoMovimiento"
               value={formData.tipoMovimiento}
               onChange={handleChange}
-              className="w-full bg-[#1a1c1e] border border-black/10 rounded-md px-3 py-2 text-sm text-black focus:outline-none focus:border-amber-700/50  cursor-pointer"
+              className="w-full bg-white border border-[var(--color-neutral-border)] rounded-[8px] px-4 py-3 text-[14px] font-medium text-[var(--color-neutral-text-main)] focus:outline-none focus:border-[var(--color-brand-primary)] cursor-pointer shadow-sm transition-colors"
             >
-              <option value="INGRESO" className="bg-[#1a1c1e]">
-                Ingreso (+)
-              </option>
-              <option value="EGRESO" className="bg-[#1a1c1e]">
-                Egreso (-)
-              </option>
-              <option value="AJUSTE" className="bg-[#1a1c1e]">
-                Ajuste (Manual)
-              </option>
+              <option value="INGRESO">Ingreso (+)</option>
+              <option value="EGRESO">Egreso (-)</option>
+              <option value="AJUSTE">Ajuste (Manual)</option>
             </select>
           </div>
 
           {/* Cantidad */}
           <div className="space-y-1.5">
-            <label className="text-[13px] font-bold text-black/50 uppercase ml-1">
+            <label className="text-[12px] font-bold text-[var(--color-neutral-text-main)] uppercase tracking-wide ml-1">
               Cantidad
             </label>
             <input
@@ -186,56 +180,44 @@ const ModalMovimiento = ({
               value={formData.cantidad}
               onChange={handleChange}
               placeholder="0.00"
-              className="w-full bg-[#1a1c1e] border border-black/10 rounded-md px-3 py-2 text-sm text-black focus:outline-none focus:border-amber-700/50 "
+              className="w-full bg-white border border-[var(--color-neutral-border)] rounded-[8px] px-4 py-3 text-[15px] font-bold text-[var(--color-neutral-text-main)] focus:outline-none focus:border-[var(--color-brand-primary)] shadow-sm transition-colors"
             />
           </div>
         </div>
 
         {/* Origen */}
         <div className="space-y-1.5">
-          <label className="text-[13px] font-bold text-black/50 uppercase ml-1">
+          <label className="text-[12px] font-bold text-[var(--color-neutral-text-main)] uppercase tracking-wide ml-1">
             Origen / Destino
           </label>
           <select
             name="origenMovimiento"
             value={formData.origenMovimiento}
             onChange={handleChange}
-            className="w-full bg-[#1a1c1e] border border-black/10 rounded-md px-3 py-2 text-sm text-black focus:outline-none focus:border-amber-700/50  cursor-pointer"
+            className="w-full bg-white border border-[var(--color-neutral-border)] rounded-[8px] px-4 py-3 text-[14px] font-medium text-[var(--color-neutral-text-main)] focus:outline-none focus:border-[var(--color-brand-primary)] cursor-pointer shadow-sm transition-colors"
           >
             {formData.tipoMovimiento === "INGRESO" && (
               <>
-                <option value="PRODUCCION" className="bg-[#1a1c1e]">
-                  Producción
-                </option>
-                <option value="DEPOSITO" className="bg-[#1a1c1e]">
-                  Depósito
-                </option>
-                <option value="INGRESO_FRUTA_MP" className="bg-[#1a1c1e]">
-                  Ingreso Fruta (MP)
-                </option>
+                <option value="PRODUCCION">Producción</option>
+                <option value="DEPOSITO">Depósito</option>
+                <option value="INGRESO_FRUTA_MP">Ingreso Fruta (MP)</option>
               </>
             )}
             {formData.tipoMovimiento === "EGRESO" && (
               <>
-                <option value="VENTA" className="bg-[#1a1c1e]">
-                  Venta
-                </option>
-                <option value="DEPOSITO" className="bg-[#1a1c1e]">
-                  Depósito
-                </option>
+                <option value="VENTA">Venta</option>
+                <option value="DEPOSITO">Depósito</option>
               </>
             )}
             {formData.tipoMovimiento === "AJUSTE" && (
-              <option value="AJUSTE_MANUAL" className="bg-[#1a1c1e]">
-                Ajuste Manual
-              </option>
+              <option value="AJUSTE_MANUAL">Ajuste Manual</option>
             )}
           </select>
         </div>
 
         {/* Observación */}
         <div className="space-y-1.5">
-          <label className="text-[13px] font-bold text-black/50 uppercase ml-1">
+          <label className="text-[12px] font-bold text-[var(--color-neutral-text-main)] uppercase tracking-wide ml-1">
             Observación (Opcional)
           </label>
           <textarea
@@ -243,8 +225,8 @@ const ModalMovimiento = ({
             value={formData.observacion}
             onChange={handleChange}
             rows="2"
-            placeholder="Razon del movimiento..."
-            className="w-full bg-[#1a1c1e] border border-black/10 rounded-md px-3 py-2 text-sm text-black focus:outline-none focus:border-amber-700/50  resize-none"
+            placeholder="Razón del movimiento..."
+            className="w-full bg-white border border-[var(--color-neutral-border)] rounded-[8px] px-4 py-3 text-[14px] font-medium text-[var(--color-neutral-text-main)] focus:outline-none focus:border-[var(--color-brand-primary)] resize-none shadow-sm transition-colors"
           />
         </div>
 
@@ -253,9 +235,9 @@ const ModalMovimiento = ({
             <button
               onClick={handleSubmit}
               disabled={isPending || !formData.cantidad}
-              className="flex items-center gap-2 px-8 py-3 bg-amber-700 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-black rounded-md font-black text-[13px] uppercase tracking-widest  shadow-lg shadow-amber-700/20 active:scale-95"
+              className="flex items-center gap-2 px-8 py-3 bg-[var(--color-brand-primary)] hover:bg-[var(--color-brand-primary-hover)] disabled:bg-gray-300 disabled:text-gray-500 text-white rounded-[8px] font-bold text-[13px] uppercase tracking-wide shadow-sm active:scale-95 transition-colors"
             >
-              <GuardarIcono size={16} />
+              <GuardarIcono size={18} />
               {isPending ? "Registrando..." : "Registrar Movimiento"}
             </button>
           </div>

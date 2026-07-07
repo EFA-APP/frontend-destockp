@@ -18,6 +18,7 @@ const TablaEmpresas = ({
   handleConfigurarCamposClick,
   handlePuntosVentaClick,
   handleLogsArcaClick,
+  handleConfigurarCorreosClick,
 }) => {
   const { tieneAccion } = usePermisosDeUsuario();
 
@@ -35,6 +36,7 @@ const TablaEmpresas = ({
           handleEliminarClick,
           handlePuntosVentaClick,
           handleLogsArcaClick,
+          handleConfigurarCorreosClick,
           tieneAccion,
         })}
         datos={empresas || []}

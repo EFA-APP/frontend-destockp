@@ -38,12 +38,26 @@ test("obtenerMetodosPermitidos(undefined) => null (Recibos.jsx/OrdenPago.jsx, R1
   assert.equal(obtenerMetodosPermitidos(undefined), null);
 });
 
-test('obtenerMetodosPermitidos("CONTADO") => ["EFECTIVO"]', () => {
-  assert.deepEqual(obtenerMetodosPermitidos("CONTADO"), ["EFECTIVO"]);
+test('obtenerMetodosPermitidos("CONTADO") => todos los metodos', () => {
+  assert.deepEqual(obtenerMetodosPermitidos("CONTADO"), [
+    "EFECTIVO",
+    "TRANSFERENCIA",
+    "TARJETA_DEBITO",
+    "TARJETA_CREDITO",
+    "CHEQUE_PROPIO",
+    "CHEQUE_TERCERO",
+  ]);
 });
 
-test('obtenerMetodosPermitidos("CUENTA_CORRIENTE") => []', () => {
-  assert.deepEqual(obtenerMetodosPermitidos("CUENTA_CORRIENTE"), []);
+test('obtenerMetodosPermitidos("CUENTA_CORRIENTE") => todos los metodos', () => {
+  assert.deepEqual(obtenerMetodosPermitidos("CUENTA_CORRIENTE"), [
+    "EFECTIVO",
+    "TRANSFERENCIA",
+    "TARJETA_DEBITO",
+    "TARJETA_CREDITO",
+    "CHEQUE_PROPIO",
+    "CHEQUE_TERCERO",
+  ]);
 });
 
 for (const dias of ["CREDITO_30_DIAS", "CREDITO_60_DIAS", "CREDITO_90_DIAS"]) {
@@ -52,30 +66,6 @@ for (const dias of ["CREDITO_30_DIAS", "CREDITO_60_DIAS", "CREDITO_90_DIAS"]) {
   });
 }
 
-test('obtenerMetodosPermitidos("TRANSFERENCIA_BANCARIA") => ["TRANSFERENCIA"]', () => {
-  assert.deepEqual(obtenerMetodosPermitidos("TRANSFERENCIA_BANCARIA"), [
-    "TRANSFERENCIA",
-  ]);
-});
-
-test('obtenerMetodosPermitidos("TARJETA_DEBITO") => ["TARJETA_DEBITO"]', () => {
-  assert.deepEqual(obtenerMetodosPermitidos("TARJETA_DEBITO"), [
-    "TARJETA_DEBITO",
-  ]);
-});
-
-test('obtenerMetodosPermitidos("TARJETA_CREDITO") => ["TARJETA_CREDITO"]', () => {
-  assert.deepEqual(obtenerMetodosPermitidos("TARJETA_CREDITO"), [
-    "TARJETA_CREDITO",
-  ]);
-});
-
-test('obtenerMetodosPermitidos("CHEQUE") => ["CHEQUE_TERCERO", "CHEQUE_PROPIO"]', () => {
-  assert.deepEqual(obtenerMetodosPermitidos("CHEQUE"), [
-    "CHEQUE_TERCERO",
-    "CHEQUE_PROPIO",
-  ]);
-});
 
 console.log("\ncondicionMetodoPago.js — requierePago (R20)");
 
@@ -95,12 +85,10 @@ test('requierePago("CREDITO_30_DIAS") => false', () => {
   assert.equal(requierePago("CREDITO_30_DIAS"), false);
 });
 
-test('requierePago("TRANSFERENCIA_BANCARIA") => true', () => {
-  assert.equal(requierePago("TRANSFERENCIA_BANCARIA"), true);
-});
 
-test("METODOS_POR_CONDICION tiene exactamente 9 claves (los 9 valores del enum)", () => {
-  assert.equal(Object.keys(METODOS_POR_CONDICION).length, 9);
+
+test("METODOS_POR_CONDICION tiene exactamente 5 claves (los 5 valores del enum)", () => {
+  assert.equal(Object.keys(METODOS_POR_CONDICION).length, 5);
 });
 
 console.log(`\n${fallos === 0 ? "TODOS LOS TESTS PASARON" : `${fallos} TEST(S) FALLARON`}`);

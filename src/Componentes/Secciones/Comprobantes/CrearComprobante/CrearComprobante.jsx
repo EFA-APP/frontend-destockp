@@ -14,17 +14,17 @@ const CrearComprobante = () => {
   );
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f8fafc] w-full p-3 md:p-6 text-gray-800 font-sans overflow-x-hidden">
+    <div className="flex flex-col min-h-screen bg-[var(--color-neutral-bg)] w-full p-3 md:p-6 text-[var(--color-neutral-text-main)] overflow-x-hidden">
       {/* TABS */}
-      <div className="flex flex-wrap bg-gray-200/60 p-1.5 rounded-md border border-gray-200 w-full sm:w-fit mb-6 shadow-inner gap-1">
+      <div className="flex flex-wrap bg-white p-1.5 rounded-[12px] border border-[var(--color-neutral-border)] w-full sm:w-fit mb-6 shadow-sm gap-1">
         <button
           onClick={() => {
             setTipoOperacion("INGRESO");
           }}
-          className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-md text-xs font-black uppercase tracking-wider transition-all duration-200 ${
+          className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wide transition-colors duration-200 cursor-pointer ${
             tipoOperacion === "INGRESO"
-              ? "bg-white text-gray-900 shadow-sm border border-gray-200/50"
-              : "text-gray-500 hover:text-gray-850 hover:bg-gray-105/50"
+              ? "bg-[var(--color-brand-soft)] text-[var(--color-brand-primary)]"
+              : "text-[var(--color-neutral-text-muted)] hover:text-[var(--color-neutral-text-main)] hover:bg-gray-50"
           }`}
         >
           Ventas (Ingresos)
@@ -33,10 +33,10 @@ const CrearComprobante = () => {
           onClick={() => {
             setTipoOperacion("EGRESO");
           }}
-          className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-md text-xs font-black uppercase tracking-wider transition-all duration-200 ${
+          className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wide transition-colors duration-200 cursor-pointer ${
             tipoOperacion === "EGRESO"
-              ? "bg-white text-gray-900 shadow-sm border border-gray-200/50"
-              : "text-gray-500 hover:text-gray-850 hover:bg-gray-105/50"
+              ? "bg-[var(--color-brand-soft)] text-[var(--color-brand-primary)]"
+              : "text-[var(--color-neutral-text-muted)] hover:text-[var(--color-neutral-text-main)] hover:bg-gray-50"
           }`}
         >
           Compras (Egresos)
@@ -45,10 +45,10 @@ const CrearComprobante = () => {
           onClick={() => {
             setTipoOperacion("RECIBOS");
           }}
-          className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-md text-xs font-black uppercase tracking-wider transition-all duration-200 ${
+          className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wide transition-colors duration-200 cursor-pointer ${
             tipoOperacion === "RECIBOS"
-              ? "bg-white text-gray-900 shadow-sm border border-gray-200/50"
-              : "text-gray-500 hover:text-gray-850 hover:bg-gray-105/50"
+              ? "bg-[var(--color-brand-soft)] text-[var(--color-brand-primary)]"
+              : "text-[var(--color-neutral-text-muted)] hover:text-[var(--color-neutral-text-main)] hover:bg-gray-50"
           }`}
         >
           Recibos
@@ -57,10 +57,10 @@ const CrearComprobante = () => {
           onClick={() => {
             setTipoOperacion("ORDEN_PAGO");
           }}
-          className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-md text-xs font-black uppercase tracking-wider transition-all duration-200 ${
+          className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wide transition-colors duration-200 cursor-pointer ${
             tipoOperacion === "ORDEN_PAGO"
-              ? "bg-white text-gray-900 shadow-sm border border-gray-200/50"
-              : "text-gray-500 hover:text-gray-850 hover:bg-gray-105/50"
+              ? "bg-[var(--color-brand-soft)] text-[var(--color-brand-primary)]"
+              : "text-[var(--color-neutral-text-muted)] hover:text-[var(--color-neutral-text-main)] hover:bg-gray-50"
           }`}
         >
           Ordenes de Pago
@@ -69,7 +69,7 @@ const CrearComprobante = () => {
 
       {/* CONTENEDORES */}
       <div className="mb-30">
-        <div className=" md:bg-gray-200 md:rounded-md md:p-5 md:shadow-xl shadow-gray-100/50 flex flex-col gap-5 min-h-[500px]">
+        <div className="flex flex-col gap-5 min-h-[500px]">
           {tipoOperacion === "INGRESO" && <Ingresos tipoOperacion="INGRESO" />}
           {tipoOperacion === "EGRESO" && <Egresos tipoOperacion="EGRESO" arcaData={arcaData} />}
           {tipoOperacion === "RECIBOS" && <Recibos />}

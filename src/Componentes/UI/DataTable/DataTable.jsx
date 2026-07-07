@@ -219,12 +219,12 @@ const DataRow = ({
     <>
       <tr
         onContextMenu={(e) => onContextMenu && onContextMenu(e, fila)}
-        className={`border-b border-black/5 hover:bg-black/[0.01] transition-colors group text-[12px] font-bold text-[var(--primary)]/80 ${estaExpandida ? "bg-[var(--primary)]/[0.03]" : ""}`}
+        className={`border-b border-transparent hover:bg-[var(--color-neutral-bg)] transition-colors group text-[14px] text-[var(--color-neutral-text-main)] ${estaExpandida ? "bg-[var(--color-brand-soft)]" : "bg-white"}`}
       >
         {columnas.map((col, index) => (
           <td
             key={col.key}
-            className={`py-3.5 px-4 text-[12px] ${index === 0 ? "font-bold uppercase text-[var(--primary)]" : "font-bold text-[var(--primary)]/80"}`}
+            className={`py-3.5 px-4 text-[14px] ${index === 0 ? "font-medium text-[var(--color-neutral-text-main)]" : "font-normal text-[var(--color-neutral-text-muted)]"}`}
             onClick={manejarClick}
           >
             <div
@@ -821,18 +821,18 @@ const DataTable = ({
       {/* VISTA ESCRITORIO */}
       <div
         ref={tableRef}
-        className="hidden md:block w-full overflow-x-auto rounded-md border border-[var(--border-subtle)] bg-[var(--surface)] shadow-sm relative min-h-[200px]"
+        className="hidden md:block w-full overflow-x-auto rounded-[16px] bg-white shadow-[0_2px_12px_rgba(0,0,0,0.05)] relative min-h-[200px]"
       >
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-black/[0.02] border-b border-black/5 text-[9px] font-black text-slate-700 uppercase tracking-[0.15em] select-none">
+            <tr className="border-b border-[var(--color-neutral-border)] bg-[var(--color-neutral-bg)] text-[13px] font-medium text-[var(--color-neutral-text-muted)] select-none">
               {columnasVisibles
                 .filter((c) => c.visible !== false)
                 .map((col, idx) => (
                   <th
                     key={col.key}
                     onClick={(e) => handleHeaderClick(e, col)}
-                    className="px-4 py-4 text-[9px] font-black text-slate-700 uppercase tracking-[0.15em] cursor-pointer hover:bg-black/[0.03] group/th relative select-none"
+                    className="px-4 py-3.5 text-[13px] font-medium text-[var(--color-neutral-text-muted)] tracking-wide cursor-pointer hover:bg-black/[0.02] group/th relative select-none"
                   >
                     <div className="flex items-center gap-1.5 ">
                       {col.etiqueta}{" "}
@@ -986,7 +986,7 @@ const DataTable = ({
                 ))}
               {mostrarAcciones &&
                 (modoAcciones === "columna" || modoAcciones === "ambos") && (
-                  <th className="px-4 py-4 text-[9px] font-black text-slate-700 uppercase tracking-[0.15em] text-right select-none">
+                  <th className="px-4 py-3.5 text-[13px] font-medium text-[var(--color-neutral-text-muted)] tracking-wide text-right select-none">
                     Acciones
                   </th>
                 )}

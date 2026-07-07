@@ -143,7 +143,9 @@ const construirPayload = ({
     subtotal: subtotalSinIva,
     iva: totalIva,
     otrosTributos: otrosTributos ?? 0,
-    total: subtotalSinIva + totalIva + (otrosTributos || 0),
+    total: Number(
+      (subtotalSinIva + totalIva + (otrosTributos || 0)).toFixed(2),
+    ),
     detalle,
     ...(detallePagos.length > 0 && { detallePagos }),
     ...(vueltosPayload.length > 0 && { vueltos: vueltosPayload }),
@@ -416,7 +418,7 @@ const Ingresos = ({ tipoOperacion }) => {
               type="button"
               onClick={() => handlePresupuesto("ver")}
               disabled={generandoPDF || detalle.items.length === 0}
-              className="flex items-center gap-2 px-6 py-2.5 bg-amber-500 text-white text-sm font-black uppercase tracking-wider rounded-md hover:bg-amber-600 transition active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              className="flex items-center gap-2 px-6 py-2.5 bg-amber-500 text-white text-[13px] font-bold uppercase tracking-wider rounded-[8px] hover:bg-amber-600 transition active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
               <FileText size={16} />
               {generandoPDF ? "Generando..." : "Ver Presupuesto"}
@@ -425,7 +427,7 @@ const Ingresos = ({ tipoOperacion }) => {
               type="button"
               onClick={() => handlePresupuesto("imprimir")}
               disabled={generandoPDF || detalle.items.length === 0}
-              className="flex items-center gap-2 px-6 py-2.5 bg-white border border-amber-400 text-amber-700 text-sm font-black uppercase tracking-wider rounded-md hover:bg-amber-50 transition active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              className="flex items-center gap-2 px-6 py-2.5 bg-white border border-amber-400 text-amber-700 text-[13px] font-bold uppercase tracking-wider rounded-[8px] hover:bg-amber-50 transition active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
               <Printer size={16} />
               Imprimir
@@ -436,7 +438,7 @@ const Ingresos = ({ tipoOperacion }) => {
             type="button"
             onClick={handleGuardar}
             disabled={isPending || detalle.items.length === 0 || requiereIva}
-            className="flex items-center gap-2 px-6 py-2.5 bg-[var(--primary)] text-white text-sm font-black uppercase tracking-wider rounded-md hover:bg-[var(--primary)]/90 transition active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            className="flex items-center gap-2 px-6 py-2.5 bg-[var(--color-brand-primary)] text-white text-[13px] font-bold uppercase tracking-wider rounded-[8px] hover:brightness-110 transition active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
             <Save size={16} />
             {isPending ? "Guardando..." : "Guardar Comprobante"}

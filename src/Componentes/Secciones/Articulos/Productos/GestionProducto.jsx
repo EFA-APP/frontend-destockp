@@ -47,13 +47,13 @@ const GestionProducto = () => {
   if (!producto) {
     return (
       <ContenedorSeccion className="p-8">
-        <div className="bg-rose-700/10 border border-rose-700/20 rounded-md p-8 text-center">
-          <p className="text-rose-700 font-black uppercase tracking-widest mb-2">
+        <div className="bg-rose-50 border border-rose-200 rounded-[12px] p-8 text-center">
+          <p className="text-rose-700 font-semibold uppercase tracking-wide mb-2">
             Producto no encontrado
           </p>
           <button
             onClick={() => navigate("/panel/inventario/productos")}
-            className="text-black/60 hover:text-black underline font-bold mt-4"
+            className="text-[var(--color-neutral-text-main)] hover:text-[var(--color-brand-primary)] underline font-semibold mt-4 transition-colors"
           >
             Volver al listado
           </button>
@@ -64,7 +64,7 @@ const GestionProducto = () => {
 
   return (
     <ContenedorSeccion className="px-3 py-2">
-      <div className="card no-inset no-ring bg-[var(--surface)] shadow-md rounded-md! mb-4 overflow-hidden">
+      <div className="bg-white shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-[var(--color-neutral-border)] rounded-[16px] mb-4 overflow-hidden">
         <EncabezadoSeccion
           ruta={`Producto: ${producto.nombre}`}
           icono={<InventarioIcono size={18} />}
@@ -74,31 +74,31 @@ const GestionProducto = () => {
       </div>
 
       {/* Compact Formal Tab Navigation */}
-      <div className="flex flex-wrap items-center gap-1.5 p-1! bg-black/20! border! border-black/5! rounded-t-md! backdrop-blur-md! self-start shadow-inner!">
+      <div className="flex flex-wrap items-center gap-1.5 p-1 bg-gray-50 border border-[var(--color-neutral-border)] rounded-t-[12px] self-start shadow-sm">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`group relative flex items-center gap-2 px-4 py-2 rounded-md! text-[11px] font-black uppercase tracking-[0.1em] ! ! overflow-hidden! cursor-pointer! ${
+            className={`group relative flex items-center gap-2 px-5 py-2.5 rounded-[10px] text-[12px] font-semibold tracking-wide overflow-hidden cursor-pointer transition-colors ${
               activeTab === tab.id
-                ? "text-[var(--primary)]! bg-[var(--primary)]/10! border! border-[var(--primary)]/20! shadow-[0_0_15px_rgba(var(--primary-rgb),0.1)]!"
-                : "text-black/30! hover:text-black/70! hover:bg-white/[0.03]! border! border-transparent!"
+                ? "text-[var(--color-brand-primary)] bg-white shadow-sm border border-[var(--color-neutral-border)]"
+                : "text-[var(--color-neutral-text-muted)] hover:text-[var(--color-neutral-text-main)] hover:bg-gray-100 border border-transparent"
             }`}
           >
             <span
-              className={`! ! scale-75 ${activeTab === tab.id ? "scale-90! text-[var(--primary)]!" : "!"}`}
+              className={`scale-90 transition-transform ${activeTab === tab.id ? "scale-100 text-[var(--color-brand-primary)]" : ""}`}
             >
               {tab.icon}
             </span>
             {tab.label}
             {activeTab === tab.id && (
-              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[var(--primary)]! ! ! !" />
+              <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--color-brand-primary)]" />
             )}
           </button>
         ))}
       </div>
 
-      <div className="    bg-[var(--surface)] p-2 rounded-md">
+      <div className="bg-white border border-[var(--color-neutral-border)] border-t-0 p-4 rounded-b-[12px] shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
         {/* Tab Content: INFO & EDIT */}
         {(activeTab === "info" || activeTab === "editar") && (
           <div className="max-w-[720px] mx-auto">
@@ -148,16 +148,16 @@ const GestionProducto = () => {
         )}
 
         {activeTab === "historial" && (
-          <div className="max-w-[720px] mx-auto bg-transparent!">
-            <div className="flex items-center gap-2 mb-4 p-3 rounded-md! bg-zinc-900/30 border border-black/5 shadow-inner">
-              <div className="w-8 h-8 rounded-md! bg-amber-700/10 flex items-center justify-center border border-amber-700/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
-                <HistorialIcono size={16} color="var(--primary)" />
+          <div className="max-w-[720px] mx-auto bg-transparent">
+            <div className="flex items-center gap-3 mb-5 p-4 rounded-[12px] bg-gray-50 border border-[var(--color-neutral-border)] shadow-sm">
+              <div className="w-10 h-10 rounded-[10px] bg-amber-50 flex items-center justify-center border border-amber-100">
+                <HistorialIcono size={18} className="text-amber-600" />
               </div>
               <div>
-                <h3 className="text-sm font-black text-black uppercase tracking-wider">
+                <h3 className="text-[14px] font-semibold text-[var(--color-neutral-text-main)] uppercase tracking-wide">
                   Historial
                 </h3>
-                <p className="text-[10px] text-black/40 font-bold uppercase tracking-widest">
+                <p className="text-[12px] text-[var(--color-neutral-text-muted)] font-medium mt-0.5">
                   Traza de operaciones
                 </p>
               </div>

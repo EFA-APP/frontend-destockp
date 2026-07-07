@@ -50,7 +50,7 @@ const Highlight = ({ text, term }) => {
         part.toLowerCase() === term.toLowerCase() ? (
           <mark
             key={i}
-            className="bg-yellow-400/40 text-[var(--primary)] px-0.5 rounded font-black italic"
+            className="bg-[var(--color-brand-soft)] text-[var(--color-brand-primary)] px-1 rounded-[4px] font-bold"
           >
             {part}
           </mark>
@@ -70,10 +70,10 @@ export const ColumnasMovimientos = (busqueda) => [
       const parts = formatFecha(valor).split(",");
       return (
         <div className="flex flex-col">
-          <span className="text-[10px] text-[var(--primary)] font-black uppercase tracking-wider">
+          <span className="text-[12px] text-[var(--color-neutral-text-muted)] font-semibold">
             {parts[0]}
           </span>
-          <span className="text-[14px] font-black tracking-tighter">
+          <span className="text-[13px] font-bold text-[var(--color-neutral-text-main)]">
             {parts[1]}
           </span>
         </div>
@@ -85,11 +85,11 @@ export const ColumnasMovimientos = (busqueda) => [
     etiqueta: "Producto",
     renderizar: (valor, fila, busqueda) => (
       <div className="flex flex-col min-w-[220px]">
-        <span className="font-black text-[14px] uppercase tracking-tight text-black">
+        <span className="font-bold text-[14px] text-[var(--color-neutral-text-main)]">
           <Highlight text={valor} term={busqueda} />
         </span>
         {fila.descripcion && (
-          <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest pt-1">
+          <span className="text-[12px] text-[var(--color-neutral-text-muted)] pt-0.5">
             <Highlight
               text={fila.descripcion?.replace(/_/g, " ")}
               term={busqueda}
@@ -106,7 +106,7 @@ export const ColumnasMovimientos = (busqueda) => [
       const config = getTipoConfig(valor);
       return (
         <span
-          className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest border ${config.estilo}`}
+          className={`px-2.5 py-1 rounded-[6px] text-[11px] font-bold border ${config.estilo}`}
         >
           {valor}
         </span>
@@ -121,12 +121,12 @@ export const ColumnasMovimientos = (busqueda) => [
       return (
         <div className="flex flex-col items-start md:items-end pr-4">
           <span
-            className={`text-[16px] font-black tracking-tighter ${config.color}`}
+            className={`text-[15px] font-bold ${config.color}`}
           >
             {config.simbolo}
             {valor}
           </span>
-          <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
+          <span className="text-[11px] font-medium text-[var(--color-neutral-text-muted)]">
             {fila.unidadMedida || ""}
           </span>
         </div>
@@ -137,13 +137,13 @@ export const ColumnasMovimientos = (busqueda) => [
     key: "nombreUsuario",
     etiqueta: "Operador",
     renderizar: (valor) => (
-      <div className="flex items-center gap-2">
-        <div className="w-6 h-6 rounded-full bg-[var(--primary)]/10 flex items-center justify-center border border-[var(--primary)]/20">
-          <span className="text-[10px] font-black text-[var(--primary)] uppercase">
-            {valor?.charAt(0)}
+      <div className="flex items-center gap-2.5">
+        <div className="w-7 h-7 rounded-[8px] bg-[var(--color-brand-soft)] flex items-center justify-center border border-[var(--color-brand-primary)]/20">
+          <span className="text-[12px] font-bold text-[var(--color-brand-primary)]">
+            {valor?.charAt(0)?.toUpperCase()}
           </span>
         </div>
-        <span className="text-[11px] font-black uppercase tracking-wider text-[var(--text-muted)]">
+        <span className="text-[13px] font-medium text-[var(--color-neutral-text-main)]">
           <Highlight text={valor} term={busqueda} />
         </span>
       </div>

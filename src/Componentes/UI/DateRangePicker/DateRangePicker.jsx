@@ -66,15 +66,15 @@ const DateRangePicker = ({ fechaDesde, fechaHasta, onChange }) => {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-2 h-9 px-3 border rounded-md text-xs font-bold transition-colors cursor-pointer w-full md:w-auto ${
+        className={`flex items-center gap-2 h-9 px-3 border rounded-[8px] text-xs font-semibold transition-colors cursor-pointer w-full md:w-auto ${
           hasSelection
-            ? "border-[var(--primary)] text-[var(--primary)] bg-[var(--primary)]/5"
-            : "border-[var(--border-subtle)] text-gray-700 hover:border-gray-300 bg-white"
+            ? "border-[var(--color-brand-primary)] text-[var(--color-brand-primary)] bg-[var(--color-brand-soft)]"
+            : "border-[var(--color-neutral-border)] text-[var(--color-neutral-text-main)] hover:bg-gray-50 bg-white"
         }`}
       >
         <CalendarIcon
           size={14}
-          className={hasSelection ? "text-[var(--primary)]" : "text-gray-400"}
+          className={hasSelection ? "text-[var(--color-brand-primary)]" : "text-[var(--color-neutral-text-muted)]"}
         />
         <span>
           {hasSelection ? (
@@ -102,7 +102,7 @@ const DateRangePicker = ({ fechaDesde, fechaHasta, onChange }) => {
 
       {/* Popover del Calendario */}
       {isOpen && (
-        <div className="absolute z-[1000] mt-2 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md shadow-2xl p-4 right-0 lg:left-0 lg:right-auto animate-in fade-in zoom-in-95 duration-200">
+        <div className="absolute z-[1000] mt-2 bg-white border border-[var(--color-neutral-border)] rounded-[12px] shadow-[0_4px_24px_rgba(0,0,0,0.06)] p-4 right-0 lg:left-0 lg:right-auto animate-in fade-in zoom-in-95 duration-200">
           <DayPicker
             mode="range"
             selected={range}
@@ -112,16 +112,16 @@ const DateRangePicker = ({ fechaDesde, fechaHasta, onChange }) => {
             className="rdp-custom"
             // Se quitó disabled={{ after: new Date() }} a pedido del usuario (permite fechas futuras)
           />
-          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-[var(--border-subtle)]">
+          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-[var(--color-neutral-border)]">
             <button
               onClick={() => setIsOpen(false)}
-              className="px-4 py-2 text-xs font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--fill-secondary)] rounded-md transition-colors cursor-pointer"
+              className="px-4 py-2 text-xs font-semibold text-[var(--color-neutral-text-main)] hover:bg-gray-50 border border-[var(--color-neutral-border)] rounded-[8px] transition-colors cursor-pointer"
             >
               Cancelar
             </button>
             <button
               onClick={handleApply}
-              className="px-4 py-2 text-xs font-bold text-white bg-[var(--primary)] hover:brightness-110 rounded-md transition-all shadow-sm shadow-[var(--primary)]/20 cursor-pointer"
+              className="px-4 py-2 text-xs font-semibold text-white bg-[var(--color-brand-primary)] hover:bg-[var(--color-brand-primary-hover)] rounded-[8px] transition-colors cursor-pointer"
             >
               Aplicar Filtro
             </button>

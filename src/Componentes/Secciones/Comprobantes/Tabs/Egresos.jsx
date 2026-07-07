@@ -96,6 +96,7 @@ const construirPayload = ({
         estado: "RECIBIDO",
       },
     }),
+    ...(p.endosoChequeTercero && { endosoChequeTercero: p.endosoChequeTercero }),
     ...(p.chequePropio && { chequePropio: p.chequePropio }),
   }));
 
@@ -141,12 +142,20 @@ const construirPayload = ({
     ...(cabecera.cae && { cae: cabecera.cae }),
     ...(cabecera.vtoCae && { vtoCae: cabecera.vtoCae }),
     ...(cabecera.observaciones && { observaciones: cabecera.observaciones }),
-    subtotal: subtotalSinIva,
-    iva: totalIva,
-    otrosTributos: otrosTributos ?? 0,
-    total: subtotalSinIva + totalIva + (otrosTributos || 0),
+    subtotal: Number(subtotalSinIva.toFixed(2)),
+    iva: Number(totalIva.toFixed(2)),
+    otrosTributos: Number((otrosTributos ?? 0).toFixed(2)),
+    total: Number((subtotalSinIva + totalIva + (otrosTributos || 0)).toFixed(2)),
     detalle,
-    ...(detallePagos.length > 0 && { detallePagos }),
+    ...(detallePagos.length > 0 && {
+      detallePagos: detallePagos.map((dp) => {
+        if (dp.endosoChequeTercero) {
+          const { _chequeOriginal, ...endosoLimpio } = dp.endosoChequeTercero;
+          return { ...dp, endosoChequeTercero: endosoLimpio };
+        }
+        return dp;
+      }),
+    }),
     ...(vueltosPayload.length > 0 && { vueltos: vueltosPayload }),
     ...(comprobantesAsociados && { comprobantesAsociados }),
   };
@@ -308,7 +317,7 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
           type="button"
           onClick={handleGuardar}
           disabled={isPending || detalle.items.length === 0 || requiereIva}
-          className="flex items-center gap-2 px-6 py-2.5 bg-[var(--primary)] text-white text-sm font-black uppercase tracking-wider rounded-md hover:bg-[var(--primary)]/90 transition active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          className="flex items-center gap-2 px-6 py-2.5 bg-[var(--color-brand-primary)] text-white text-[13px] font-bold uppercase tracking-wider rounded-[8px] hover:brightness-110 transition active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
         >
           <Save size={16} />
           {isPending ? "Guardando..." : "Guardar Comprobante"}

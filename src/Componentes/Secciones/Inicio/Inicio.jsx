@@ -12,49 +12,51 @@ import {
 import EncabezadoSeccion from "../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import { Link } from "react-router-dom";
 import React from "react";
+import { usePermisosDeUsuario } from "../../../Backend/Autenticacion/hooks/usePermisosDeUsuario";
+import { Lock, LogOut } from "lucide-react";
 
 const DashboardCard = ({ children, className = "", title, icon }) => (
   <div
-    className={`rounded-md bg-[var(--surface)] border border-[var(--border-subtle)] shadow-sm overflow-hidden flex flex-col ${className}`}
+    className={`rounded-[16px] bg-white border border-[var(--color-neutral-border)] shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-hidden flex flex-col ${className}`}
   >
     {title && (
-      <div className="px-5 py-3 border-b border-[var(--border-subtle)] flex justify-between items-center bg-[var(--fill-secondary)]/30">
-        <h2 className="text-[12px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
+      <div className="px-6 py-4 border-b border-[var(--color-neutral-border)] flex justify-between items-center bg-white">
+        <h2 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--color-neutral-text-main)]">
           {title}
         </h2>
         {icon && (
-          <div className="text-[var(--text-muted)]">
+          <div className="text-[var(--color-neutral-text-muted)]">
             {React.isValidElement(icon)
-              ? React.cloneElement(icon, { size: 14 })
+              ? React.cloneElement(icon, { size: 16 })
               : icon}
           </div>
         )}
       </div>
     )}
-    <div className="p-5 flex-1">{children}</div>
+    <div className="p-6 flex-1 bg-[var(--color-neutral-bg)]/20">{children}</div>
   </div>
 );
 
 const Movimiento = ({ icon, concepto, monto, negativo }) => (
-  <div className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)] last:border-0 group hover:bg-[var(--surface-hover)]  rounded-md px-2 -mx-2">
-    <div className="flex items-center gap-3">
-      <div className="w-8 h-8 rounded-md bg-[var(--surface-hover)] flex items-center justify-center text-[12px] font-bold text-[var(--primary)] border border-[var(--border-subtle)] group-hover:border-[var(--primary)]/30 ">
+  <div className="flex items-center justify-between py-3 border-b border-[var(--color-neutral-border)] last:border-0 group hover:bg-gray-50 rounded-[8px] px-3 -mx-3 transition-colors">
+    <div className="flex items-center gap-4">
+      <div className="w-10 h-10 rounded-[10px] bg-[var(--color-brand-soft)] flex items-center justify-center text-[13px] font-bold text-[var(--color-brand-primary)] border border-transparent group-hover:border-[var(--color-brand-primary)]/20 transition-colors">
         {React.isValidElement(icon)
-          ? React.cloneElement(icon, { size: 14 })
+          ? React.cloneElement(icon, { size: 16 })
           : icon}
       </div>
       <div className="flex flex-col">
-        <span className="text-[15px] font-semibold text-[var(--text-primary)]">
+        <span className="text-[14px] font-medium text-[var(--color-neutral-text-main)]">
           {concepto}
         </span>
-        <span className="text-[11px] text-[var(--primary-light)] uppercase font-bold tracking-wider pt-0.5 opacity-80">
+        <span className="text-[12px] text-[var(--color-neutral-text-muted)] font-normal pt-0.5">
           Referencia de auditoría
         </span>
       </div>
     </div>
 
     <div
-      className={`text-[15px] font-bold tracking-tight ${negativo ? "text-red-700" : "text-[var(--secondary)]"}`}
+      className={`text-[15px] font-semibold tracking-tight ${negativo ? "text-red-600" : "text-[var(--color-neutral-text-main)]"}`}
     >
       {monto}
     </div>
@@ -64,21 +66,18 @@ const Movimiento = ({ icon, concepto, monto, negativo }) => (
 const QuickAction = ({ icon, label, redirigir }) => (
   <Link
     to={redirigir}
-    className="group flex flex-col items-center justify-center p-4 rounded-md hover:bg-[var(--surface)] border hover:border-[var(--border-subtle)] border-[var(--primary)]/40 bg-[var(--primary-subtle)]   gap-2.5 shadow-sm"
+    className="group flex flex-col items-center justify-center p-4 rounded-[12px] hover:bg-white border border-[var(--color-neutral-border)] hover:border-[var(--color-brand-primary)]/40 bg-gray-50 gap-3 shadow-sm transition-all"
   >
-    <div className="p-2.5 rounded-md bg-[var(--surface-hover)] group-hover:text-[var(--text-secondary)] text-[var(--primary)]    border border-[var(--border-subtle)]">
+    <div className="p-2.5 rounded-[10px] bg-white group-hover:bg-[var(--color-brand-soft)] text-[var(--color-neutral-text-muted)] group-hover:text-[var(--color-brand-primary)] border border-[var(--color-neutral-border)] group-hover:border-transparent transition-colors">
       {React.isValidElement(icon)
-        ? React.cloneElement(icon, { size: 18 })
+        ? React.cloneElement(icon, { size: 20 })
         : icon}
     </div>
-    <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] ">
+    <span className="text-[12px] font-medium text-[var(--color-neutral-text-muted)] group-hover:text-[var(--color-brand-primary)] transition-colors">
       {label}
     </span>
   </Link>
 );
-
-import { usePermisosDeUsuario } from "../../../Backend/Autenticacion/hooks/usePermisosDeUsuario";
-import { Lock, LogOut } from "lucide-react";
 
 const Inicio = () => {
   const { codigosSeccionPermitidos, usuario } = usePermisosDeUsuario();
@@ -87,33 +86,28 @@ const Inicio = () => {
 
   if (!tienePermisos) {
     return (
-      <div className="p-4 lg:p-8 flex items-center justify-center min-h-[80vh]   ">
-        <div className="max-w-md w-full bg-[var(--fill)] border border-black/5 rounded-md p-8 flex flex-col items-center text-center shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-44 h-44 bg-amber-700/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-44 h-44 bg-[var(--primary)]/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none" />
-
-          <div className="w-16 h-16 rounded-md bg-gradient-to-br from-amber-700/20 to-amber-700/5 text-amber-700 flex items-center justify-center border border-amber-700/20 mb-6 shadow-xl">
-            <Lock size={30} strokeWidth={2} />
+      <div className="p-4 lg:p-8 flex items-center justify-center min-h-[80vh] bg-[var(--color-neutral-bg)]">
+        <div className="max-w-md w-full bg-white border border-[var(--color-neutral-border)] rounded-[16px] p-8 flex flex-col items-center text-center shadow-[0_4px_24px_rgba(0,0,0,0.04)] relative overflow-hidden">
+          <div className="w-16 h-16 rounded-[16px] bg-amber-50 text-amber-600 flex items-center justify-center mb-6">
+            <Lock size={32} strokeWidth={2} />
           </div>
 
-          <h1 className="text-[22px] font-black text-black uppercase tracking-tight">
+          <h1 className="text-[22px] font-bold text-[var(--color-neutral-text-main)] tracking-tight">
             ¡Hola, {usuario?.nombre}!
           </h1>
-          <p className="text-[14px] text-black/40 font-medium mt-2 leading-relaxed">
-            Tu cuenta ha sido registrada con éxito en{" "}
-            <span className="text-amber-700 font-black">DeStockP</span>, pero
-            actualmente no posees módulos habilitados.
+          <p className="text-[15px] text-[var(--color-neutral-text-muted)] font-normal mt-3 leading-relaxed">
+            Tu cuenta ha sido registrada con éxito, pero actualmente no posees módulos habilitados.
           </p>
 
-          <div className="w-full mt-6 py-4 px-5 rounded-md bg-black/5 border border-black/5 text-left flex items-start gap-4">
-            <div className="w-8 h-8 rounded-md bg-[var(--primary)]/20 text-[var(--primary)] flex items-center justify-center border border-[var(--primary)] shrink-0 font-bold">
+          <div className="w-full mt-8 py-4 px-5 rounded-[12px] bg-gray-50 border border-gray-100 text-left flex items-start gap-4">
+            <div className="w-8 h-8 rounded-[8px] bg-[var(--color-brand-soft)] text-[var(--color-brand-primary)] flex items-center justify-center shrink-0 font-bold">
               ?
             </div>
             <div>
-              <h4 className="text-[13px] font-black text-black uppercase tracking-wider">
+              <h4 className="text-[13px] font-semibold text-[var(--color-neutral-text-main)] uppercase tracking-wide">
                 ¿Qué debes hacer?
               </h4>
-              <p className="text-[12px] text-black/40 font-medium mt-1">
+              <p className="text-[13px] text-[var(--color-neutral-text-muted)] font-normal mt-1.5 leading-relaxed">
                 Comunícate con los administradores de tu empresa para que
                 configuren los permisos de tu perfil en la Matriz de Accesos.
               </p>
@@ -125,9 +119,9 @@ const Inicio = () => {
               window.localStorage.clear();
               window.location.reload();
             }}
-            className="flex items-center gap-2 mt-8 px-5 py-2.5 bg-black/5 hover:bg-black/10 rounded-md text-[13px] font-bold text-black/60 hover:text-black uppercase tracking-wider  border border-black/5 cursor-pointer active:scale-95"
+            className="flex items-center gap-2 mt-8 px-6 py-2.5 bg-white hover:bg-gray-50 rounded-[10px] text-[13px] font-semibold text-[var(--color-neutral-text-main)] border border-[var(--color-neutral-border)] transition-colors"
           >
-            <LogOut size={14} /> Cerrar Sesión
+            <LogOut size={16} /> Cerrar Sesión
           </button>
         </div>
       </div>
@@ -135,7 +129,7 @@ const Inicio = () => {
   }
 
   return (
-    <div className="p-4 lg:p-8 space-y-6 min-h-screen text-[var(--text-primary)]">
+    <div className="p-4 lg:p-8 space-y-6 min-h-screen text-[var(--color-neutral-text-main)] bg-[var(--color-neutral-bg)]">
       {/* TÍTULO */}
       <EncabezadoSeccion ruta={"Inicio"} icono={<InicioIcono size={20} />} />
 
@@ -179,36 +173,36 @@ const Inicio = () => {
               />
             </div>
 
-            <div className="mt-4 flex justify-center">
-              <button className="cursor-pointer text-[14px]! font-bold! px-2.5 py-1.5 rounded-md! bg-[var(--primary-light)]/30! hover:bg-[var(--primary)]/30! text-[var(--primary)]!  border border-[var(--border-subtle)] uppercase tracking-wider">
-                ver historial completo
+            <div className="mt-5 flex justify-center">
+              <button className="cursor-pointer text-[13px] font-semibold px-4 py-2 rounded-[8px] bg-white hover:bg-gray-50 text-[var(--color-brand-primary)] border border-[var(--color-neutral-border)] transition-colors">
+                Ver historial completo
               </button>
             </div>
           </DashboardCard>
 
           <DashboardCard
             title="Rendimiento Mensual"
-            icon={<ListaIcono size={16} />}
+            icon={<ListaIcono size={18} />}
           >
-            <div className="h-56 mt-1 rounded-md bg-[var(--fill-secondary)]/20 flex items-center justify-center border border-[var(--border-subtle)] text-[var(--text-muted)] text-[11px] font-bold uppercase tracking-[0.2em] opacity-50">
+            <div className="h-56 mt-1 rounded-[12px] bg-gray-50 flex items-center justify-center border border-dashed border-[var(--color-neutral-border)] text-[var(--color-neutral-text-muted)] text-[12px] font-medium">
               Visualización de Datos (Ingresos v Egresos)
             </div>
 
-            <div className="flex gap-10 mt-6">
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[11px] text-[var(--text-muted)] uppercase font-bold tracking-wider">
+            <div className="flex gap-12 mt-8 px-4">
+              <div className="flex flex-col gap-2">
+                <span className="text-[12px] text-[var(--color-neutral-text-muted)] uppercase font-semibold tracking-wide">
                   Total Ingresos
                 </span>
-                <span className="text-xl font-bold text-[var(--secondary)] tracking-tight">
+                <span className="text-2xl font-bold text-[var(--color-neutral-text-main)] tracking-tight">
                   $39,100.00
                 </span>
               </div>
-              <div className="w-px bg-[var(--border-subtle)]" />
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[11px] text-[var(--text-muted)] uppercase font-bold tracking-wider">
+              <div className="w-px bg-[var(--color-neutral-border)]" />
+              <div className="flex flex-col gap-2">
+                <span className="text-[12px] text-[var(--color-neutral-text-muted)] uppercase font-semibold tracking-wide">
                   Total Egresos
                 </span>
-                <span className="text-xl font-bold text-red-700 tracking-tight">
+                <span className="text-2xl font-bold text-red-600 tracking-tight">
                   $25,900.00
                 </span>
               </div>
@@ -255,14 +249,14 @@ const Inicio = () => {
 
           <DashboardCard title="Notas de Auditoría">
             <div className="space-y-4">
-              <div className="p-3 rounded-md bg-emerald-700/10 border border-emerald-700/10">
-                <p className="text-xs text-[var(--text-theme)] leading-relaxed">
+              <div className="p-4 rounded-[12px] bg-emerald-50 border border-emerald-100">
+                <p className="text-[13px] text-emerald-800 leading-relaxed font-medium">
                   El sistema ha conciliado correctamente todas las transacciones
                   de las últimas 24 horas. No se requieren acciones manuales.
                 </p>
               </div>
-              <div className="p-3 rounded-md bg-amber-700/10 border border-amber-700/10">
-                <p className="text-xs text-[var(--text-theme)] leading-relaxed">
+              <div className="p-4 rounded-[12px] bg-amber-50 border border-amber-100">
+                <p className="text-[13px] text-amber-800 leading-relaxed font-medium">
                   Hay 3 facturas de proveedores próximas a vencer en los
                   próximos 2 días. Se recomienda revisión.
                 </p>

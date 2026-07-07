@@ -137,7 +137,7 @@ export const COMPROBANTES_METADATA = [
     modo: "AMBOS",
   },
   {
-    id: 995,
+    id: 994,
     label: "Nota de Crédito Interna",
     permission: "NOTA_CREDITO_INTERNA",
     icon: MinusCircle,
@@ -147,7 +147,7 @@ export const COMPROBANTES_METADATA = [
     modo: "AMBOS",
   },
   {
-    id: 996,
+    id: 995,
     label: "Nota de Débito Interna",
     permission: "NOTA_DEBITO_INTERNA",
     icon: PlusCircle,

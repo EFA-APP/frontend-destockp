@@ -516,7 +516,7 @@ const ListaContactos = ({
   return (
     <div className="flex h-full gap-4 overflow-hidden bg-transparent">
       {/* COLUMNA CENTRAL: Lista de Contactos */}
-      <div className="flex flex-col flex-1 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md shadow-sm overflow-hidden min-w-[320px]">
+      <div className="flex flex-col flex-1 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-[16px] shadow-sm overflow-hidden min-w-[320px]">
         {/* Encabezado y Búsqueda */}
         <div className="p-4 border-b border-[var(--border-subtle)] bg-[var(--fill-secondary)]/30 flex flex-col gap-4">
           <div className="flex justify-between items-center">
@@ -655,7 +655,7 @@ const ListaContactos = ({
 
       {/* COLUMNA DERECHA: Detalles del Contacto o Formulario */}
       {mostrarFormulario ? (
-        <div className="w-[450px] bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md shadow-sm flex flex-col overflow-hidden shrink-0 animate-in slide-in-from-right-4 duration-300">
+        <div className="w-[450px] bg-[var(--surface)] border border-[var(--border-subtle)] rounded-[16px] shadow-sm flex flex-col overflow-hidden shrink-0 animate-in slide-in-from-right-4 duration-300">
           <FormularioContacto
             inline={true}
             entidad={entidad}
@@ -667,7 +667,7 @@ const ListaContactos = ({
           />
         </div>
       ) : contactoDetalle ? (
-        <div className="w-[450px] bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md shadow-sm flex flex-col overflow-hidden shrink-0 animate-in slide-in-from-right-4 duration-300">
+        <div className="w-[450px] bg-[var(--surface)] border border-[var(--border-subtle)] rounded-[16px] shadow-sm flex flex-col overflow-hidden shrink-0 animate-in slide-in-from-right-4 duration-300">
           <div className="p-4 border-b border-[var(--border-subtle)] flex justify-between items-center bg-[var(--fill-secondary)]/30">
             <h3 className="text-[11px] font-black uppercase text-[var(--text-primary)] tracking-widest">
               Detalles del Contacto
@@ -778,12 +778,12 @@ const ListaContactos = ({
           </div>
         </div>
       ) : (
-        <div className="hidden lg:flex w-[450px] bg-[var(--fill-secondary)]/20 border border-dashed border-[var(--border-subtle)] rounded-md flex-col items-center justify-center shrink-0">
-          <CuentaIcono size={64} className="mb-4 opacity-10" />
-          <h3 className="text-[14px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+        <div className="hidden lg:flex w-[450px] bg-gray-50 border border-dashed border-[var(--color-neutral-border)] rounded-[16px] flex-col items-center justify-center shrink-0">
+          <CuentaIcono size={64} className="mb-4 text-[var(--color-neutral-text-muted)] opacity-20" />
+          <h3 className="text-[14px] font-bold uppercase tracking-widest text-[var(--color-neutral-text-muted)]">
             Seleccioná un Contacto
           </h3>
-          <p className="text-[12px] font-medium text-[var(--text-muted)] mt-2">
+          <p className="text-[12px] font-medium text-[var(--color-neutral-text-muted)] mt-2">
             Para ver sus detalles aquí
           </p>
         </div>
@@ -792,19 +792,19 @@ const ListaContactos = ({
       {/* MODALES EXTERNOS */}
 
       {contactoAEliminar && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
-          <div className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
+          <div className="bg-white border border-[var(--color-neutral-border)] rounded-[16px] max-w-md w-full p-8 shadow-xl animate-in zoom-in-95 duration-200">
             <div className="flex flex-col items-center text-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-rose-50 flex items-center justify-center text-rose-600 mb-2 border border-rose-100 shadow-sm">
+              <div className="w-16 h-16 rounded-[12px] bg-rose-50 flex items-center justify-center text-rose-600 mb-2 border border-rose-100 shadow-sm">
                 <AdvertenciaIcono size={32} />
               </div>
               <div className="space-y-2">
-                <h3 className="text-xl font-black uppercase tracking-tighter text-[var(--text-primary)]">
+                <h3 className="text-xl font-bold uppercase tracking-tighter text-[var(--color-neutral-text-main)]">
                   ¿Eliminar Contacto?
                 </h3>
-                <p className="text-[13px] text-[var(--text-muted)] font-bold leading-relaxed uppercase tracking-widest">
+                <p className="text-[13px] text-[var(--color-neutral-text-muted)] font-medium leading-relaxed tracking-wide">
                   Estás por desactivar a{" "}
-                  <span className="text-[var(--text-primary)]">
+                  <span className="text-[var(--color-neutral-text-main)] font-bold">
                     {contactoAEliminar.razonSocial ||
                       `${contactoAEliminar.nombre || ""} ${contactoAEliminar.apellido || ""}`}
                   </span>
@@ -812,18 +812,18 @@ const ListaContactos = ({
                   mantendrá su historial.
                 </p>
               </div>
-              <div className="flex gap-3 w-full mt-4">
+              <div className="flex gap-3 w-full mt-6">
                 <button
                   onClick={() => setContactoAEliminar(null)}
                   disabled={eliminando}
-                  className="flex-1 py-3.5 rounded-md bg-[var(--fill-secondary)] border border-[var(--border-subtle)] text-[12px] font-black uppercase tracking-widest hover:bg-[var(--surface-hover)] disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
+                  className="flex-1 py-3 rounded-[8px] bg-white border border-[var(--color-neutral-border)] text-[13px] font-bold text-[var(--color-neutral-text-main)] hover:bg-gray-50 disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleConfirmarEliminar}
                   disabled={eliminando}
-                  className="flex-1 py-3.5 rounded-md bg-rose-600 text-white text-[12px] border border-rose-700 font-black uppercase tracking-widest hover:bg-rose-700 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm"
+                  className="flex-1 py-3 rounded-[8px] bg-rose-600 text-white text-[13px] font-bold hover:bg-rose-700 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm"
                 >
                   {eliminando ? (
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

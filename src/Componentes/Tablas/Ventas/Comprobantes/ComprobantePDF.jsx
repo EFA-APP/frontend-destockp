@@ -252,8 +252,8 @@ const obtenerTituloComprobante = (tipo, fiscal) => {
   if (t === 991) return "FACTURA INTERNA";
   if (t === 992) return "RECIBO";
   if (t === 993) return "ORDEN DE PAGO";
-  if (t === 994) return "NOTA DE DÉBITO INTERNA";
-  if (t === 995) return "PRESUPUESTO";
+  if (t === 994) return "NOTA DE CRÉDITO";
+  if (t === 995) return "NOTA DE DÉBITO";
   if (t === 99) return "COMPROBANTE INTERNO";
 
   // 2. Si no es fiscal y no es interno conocido, por defecto es RECIBO o COMPROBANTE

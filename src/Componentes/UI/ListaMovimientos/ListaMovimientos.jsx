@@ -9,12 +9,12 @@ import {
 } from "../../../assets/Icons";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import ReporteMovimientosPDF from "./ReporteMovimientosPDF";
-import FechaInput from "../FechaInput/FechaInput";
+import DateRangePicker from "../DateRangePicker/DateRangePicker";
 import DataTable from "../DataTable/DataTable";
 import { ColumnasMovimientos } from "./ColumnasMovimientos";
 import { accionesMovimientos } from "./accionesMovimeintos";
 import { useDepositos } from "../../../Backend/Articulos/queries/Deposito/useDepositos.query";
-import { ChevronDown, RotateCcw, MapPin } from "lucide-react";
+import { ChevronDown, RotateCcw, MapPin, Calendar } from "lucide-react";
 import SearchableSelect from "../Select/SearchableSelect";
 
 const ListaMovimientos = ({
@@ -134,36 +134,27 @@ const ListaMovimientos = ({
   return (
     <div className="pt-2 flex flex-col gap-5">
       {/* Panel de Filtros Siempre Visible */}
-      <div className="relative bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md shadow-sm z-20">
-        <div className="flex items-center gap-3 px-5 py-3 border-b border-[var(--border-subtle)] bg-[var(--primary)]/5 rounded-t-md">
-          <MapPin size={14} className="text-[var(--primary)]" />
-          <h4 className="text-[11px] font-black uppercase tracking-widest text-[var(--primary)]">
+      <div className="relative bg-white border border-[var(--color-neutral-border)] rounded-[16px] shadow-[0_2px_12px_rgba(0,0,0,0.03)] z-20">
+        <div className="flex items-center gap-3 px-5 py-3 border-b border-[var(--color-neutral-border)] bg-gray-50/50 rounded-t-[16px]">
+          <MapPin size={16} className="text-[var(--color-neutral-text-main)]" />
+          <h4 className="text-[13px] font-semibold text-[var(--color-neutral-text-main)]">
             Filtros del Historial
           </h4>
         </div>
-        <div className="p-5 flex flex-wrap gap-4 items-end bg-white/40 backdrop-blur-xs">
-          <div className="w-[160px] flex-shrink-0">
-            <FechaInput
-              label="Desde la fecha"
-              value={fechaInicio}
-              onChange={(val) => {
-                setFechaInicio(val);
+        <div className="p-5 flex flex-wrap gap-4 items-end bg-white rounded-b-[16px]">
+          <div className="flex flex-col gap-1 min-w-[280px]">
+            <label className="text-[13px] font-semibold text-[var(--color-neutral-text-muted)] uppercase mb-1 ml-1 flex items-center gap-1.5">
+              <Calendar className="text-[var(--color-brand-primary)]" size={12} />
+              Periodo de Fechas
+            </label>
+            <DateRangePicker
+              fechaDesde={fechaInicio}
+              fechaHasta={fechaFin}
+              onChange={(desde, hasta) => {
+                setFechaInicio(desde);
+                setFechaFin(hasta);
                 setPagina(1);
               }}
-              className={inputClasses}
-              size="sm"
-            />
-          </div>
-          <div className="w-[160px] flex-shrink-0">
-            <FechaInput
-              label="Hasta la fecha"
-              value={fechaFin}
-              onChange={(val) => {
-                setFechaFin(val);
-                setPagina(1);
-              }}
-              className={inputClasses}
-              size="sm"
             />
           </div>
           <div className="flex flex-col gap-1 min-w-[250px] flex-1">
@@ -189,12 +180,12 @@ const ListaMovimientos = ({
           <button
             onClick={clearFilters}
             type="button"
-            className="flex items-center justify-center gap-2 h-[42px] px-5 py-2.5 bg-rose-50 hover:bg-rose-100/80 border border-rose-200/60 hover:border-rose-300 text-rose-700 rounded-md font-bold text-[11px] uppercase tracking-wider transition-all cursor-pointer select-none active:scale-95 flex-shrink-0 group shadow-sm hover:shadow-rose-100/50"
+            className="flex items-center justify-center gap-2 h-[42px] px-5 py-2.5 bg-white hover:bg-gray-50 border border-[var(--color-neutral-border)] text-[var(--color-neutral-text-main)] rounded-[8px] font-semibold text-[13px] transition-colors cursor-pointer select-none active:scale-95 flex-shrink-0 group shadow-sm"
             title="Restablecer todos los filtros"
           >
             <RotateCcw
-              size={13}
-              className="transition-transform group-hover:-rotate-90 duration-300"
+              size={16}
+              className="transition-transform group-hover:-rotate-90 duration-300 text-[var(--color-neutral-text-muted)] group-hover:text-[var(--color-neutral-text-main)]"
             />
             Limpiar Filtros
           </button>
@@ -214,10 +205,10 @@ const ListaMovimientos = ({
         renderDetalle={(mov) =>
           mov.observacion ? (
             <div className="flex flex-col gap-2 p-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[var(--primary)]/40">
+              <span className="text-[12px] font-semibold text-[var(--color-neutral-text-muted)]">
                 Observaciones del Movimiento
               </span>
-              <p className="text-[13px] text-[var(--text-theme)]/70 italic font-medium leading-relaxed">
+              <p className="text-[13px] text-[var(--color-neutral-text-main)] italic font-medium leading-relaxed">
                 {busqueda ? (
                   <span>
                     {String(mov.observacion)
@@ -226,7 +217,7 @@ const ListaMovimientos = ({
                         part.toLowerCase() === busqueda.toLowerCase() ? (
                           <mark
                             key={i}
-                            className="bg-yellow-400/40 text-[var(--primary)] px-0.5 rounded font-black italic"
+                            className="bg-[var(--color-brand-soft)] text-[var(--color-brand-primary)] px-1 rounded-[4px] font-bold"
                           >
                             {part}
                           </mark>
@@ -269,12 +260,12 @@ const ListaMovimientos = ({
               {({ loading }) => (
                 <button
                   disabled={loading}
-                  className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary-subtle)] border border-[var(--primary)]/20 rounded-md font-bold text-[11px] uppercase tracking-wider cursor-pointer text-[var(--primary)]"
+                  className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 border border-[var(--color-neutral-border)] rounded-[8px] font-semibold text-[13px] transition-colors cursor-pointer text-[var(--color-neutral-text-main)]"
                 >
                   {loading ? (
-                    <CargandoIcono size={14} className="animate-spin" />
+                    <CargandoIcono size={16} className="animate-spin text-[var(--color-neutral-text-muted)]" />
                   ) : (
-                    <DescargarIcono size={14} />
+                    <DescargarIcono size={16} className="text-[var(--color-neutral-text-muted)]" />
                   )}
                   {loading ? "Generando..." : "Descargar Reporte"}
                 </button>

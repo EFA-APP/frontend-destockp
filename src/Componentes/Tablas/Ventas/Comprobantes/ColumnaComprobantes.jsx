@@ -30,9 +30,10 @@ export const columnasComprobantes = [
 
       // Identificación amigable del tipo
       const tipo = Number(fila.tipoDocumento);
-      const esNC = [3, 8, 13, 53, 993].includes(tipo);
-      const esND = [2, 7, 12, 52, 994].includes(tipo);
+      const esNC = [3, 8, 13, 53, 994].includes(tipo);
+      const esND = [2, 7, 12, 52, 995].includes(tipo);
       const esRecibo = [4, 9, 15, 54, 992].includes(tipo);
+      const esOP = [993].includes(tipo);
 
       let label = "Factura";
       let badgeStyle =
@@ -47,6 +48,9 @@ export const columnasComprobantes = [
       } else if (esRecibo) {
         label = "Recibo";
         badgeStyle = "bg-blue-700/10 text-blue-400 border-blue-700/20";
+      } else if (esOP) {
+        label = "Orden de Pago";
+        badgeStyle = "bg-cyan-700/10 text-cyan-400 border-cyan-700/20";
       }
 
       return (

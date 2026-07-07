@@ -128,17 +128,17 @@ const TablaMateriaPrima = () => {
           tieneAccion: "CREAR_MATERIA_PRIMA",
         }}
         elementosSuperior={
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
             <TieneAccion accion="HISTORIAL_MATERIA_PRIMA">
               <button
                 onClick={() =>
                   navigate("/panel/inventario/historial-stock/MATERIA_PRIMA")
                 }
-                className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border border-[var(--primary)]/20 rounded-md text-[11px] font-bold text-[var(--primary)] uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-amber-700/5 group"
+                className="flex items-center justify-center gap-2 h-9 px-4 bg-white hover:bg-gray-50 border border-[var(--color-neutral-border)] rounded-[8px] text-[13px] font-semibold text-[var(--color-neutral-text-main)] transition-colors cursor-pointer shadow-sm group"
               >
                 <HistorialIcono
-                  size={14}
-                  className="group-hover:scale-110 transition-transform"
+                  size={16}
+                  className="text-[var(--color-neutral-text-muted)] group-hover:text-[var(--color-neutral-text-main)] transition-colors"
                 />
                 Historial
               </button>
@@ -147,11 +147,11 @@ const TablaMateriaPrima = () => {
             <TieneAccion accion="CARGA_MASIVA_MATERIA_PRIMA">
               <button
                 onClick={() => setModalMasivoOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-700/20 rounded-md text-[11px] font-bold text-emerald-600 uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-emerald-700/5 group"
+                className="flex items-center justify-center gap-2 h-9 px-4 bg-white hover:bg-gray-50 border border-[var(--color-neutral-border)] rounded-[8px] text-[13px] font-semibold text-[var(--color-neutral-text-main)] transition-colors cursor-pointer shadow-sm group"
               >
                 <FileSpreadsheet
-                  size={14}
-                  className="group-hover:scale-110 transition-transform"
+                  size={16}
+                  className="text-[var(--color-neutral-text-muted)] group-hover:text-[var(--color-neutral-text-main)] transition-colors"
                 />
                 Carga Masiva
               </button>

@@ -26,7 +26,7 @@ const ProduccionPage = () => {
   if (cargando && !producto) {
     return (
       <ContenedorSeccion className="flex items-center justify-center p-20">
-        <div className=" text-purple-700 font-black uppercase tracking-widest">
+        <div className="text-[var(--color-brand-primary)] font-bold tracking-wide">
           Sincronizando Datos de Producción...
         </div>
       </ContenedorSeccion>
@@ -36,13 +36,13 @@ const ProduccionPage = () => {
   if (!producto && !cargando) {
     return (
       <ContenedorSeccion className="p-8">
-        <div className="bg-rose-700/10 border border-rose-700/20 rounded-md p-8 text-center   ">
-          <p className="text-rose-700 font-black uppercase tracking-widest mb-2">
+        <div className="bg-rose-50 border border-rose-200 rounded-[12px] p-8 text-center shadow-sm">
+          <p className="text-rose-600 font-bold uppercase tracking-wide mb-2">
             Producto no identificado
           </p>
           <button
             onClick={() => navigate(-1)}
-            className="text-black/60 hover:text-black underline font-bold mt-4 cursor-pointer"
+            className="text-[var(--color-neutral-text-muted)] hover:text-[var(--color-neutral-text-main)] underline font-semibold mt-4 transition-colors"
           >
             Regresar
           </button>
@@ -54,58 +54,58 @@ const ProduccionPage = () => {
   return (
     <ContenedorSeccion className="px-3 py-2">
       {/* Elegant Header Card */}
-      <div className="card no-inset no-ring bg-[var(--surface)] shadow-md rounded-md! mb-6 overflow-hidden">
+      <div className="bg-white border border-[var(--color-neutral-border)] shadow-sm rounded-[16px] mb-6 overflow-hidden">
         <EncabezadoSeccion
           ruta={`Producción`}
-          icono={<ProduccionIcono size={18} />}
+          icono={<ProduccionIcono size={18} className="text-[var(--color-brand-primary)]" />}
           volver={true}
           redireccionAnterior={-1}
         />
       </div>
 
-      <div className="max-w-4xl mx-auto space-y-6     pb-20">
+      <div className="max-w-4xl mx-auto space-y-6 pb-20">
         {/* Hero Insight Section (Mini) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <div className="bg-purple-600/5 border border-purple-700/10 rounded-md p-4 flex items-center gap-4 group hover:bg-purple-600/10  ">
-            <div className="p-3 bg-purple-600/10 rounded-md text-purple-700  ">
+          <div className="bg-white border border-[var(--color-neutral-border)] shadow-[0_2px_12px_rgba(0,0,0,0.03)] rounded-[12px] p-4 flex items-center gap-4 hover:shadow-md transition-shadow">
+            <div className="p-3 bg-[var(--color-brand-soft)] rounded-[10px] text-[var(--color-brand-primary)]">
               <Hammer size={20} />
             </div>
             <div>
-              <p className="text-[12px] font-black text-black/85 uppercase tracking-widest">
+              <p className="text-[11px] font-semibold text-[var(--color-neutral-text-muted)] uppercase tracking-wide">
                 Operación
               </p>
-              <h3 className="text-sm font-bold text-black uppercase italic">
+              <h3 className="text-[14px] font-bold text-[var(--color-neutral-text-main)] uppercase">
                 Registro de Lote
               </h3>
             </div>
           </div>
 
-          <div className="bg-white/2[0.02] border border-black/5 rounded-md p-4 flex items-center gap-4">
-            <div className="p-3 bg-black/5 rounded-md text-black/40">
+          <div className="bg-white border border-[var(--color-neutral-border)] shadow-[0_2px_12px_rgba(0,0,0,0.03)] rounded-[12px] p-4 flex items-center gap-4 hover:shadow-md transition-shadow">
+            <div className="p-3 bg-gray-50 rounded-[10px] text-[var(--color-neutral-text-muted)]">
               <Package size={20} />
             </div>
             <div>
-              <p className="text-[12px] font-black text-black/85 uppercase tracking-widest">
+              <p className="text-[11px] font-semibold text-[var(--color-neutral-text-muted)] uppercase tracking-wide">
                 Existencia
               </p>
-              <h3 className="text-sm font-bold text-black uppercase">
+              <h3 className="text-[14px] font-bold text-[var(--color-neutral-text-main)] uppercase">
                 {producto?.stock || 0}{" "}
-                <span className="text-[12px] opacity-40">
+                <span className="text-[12px] text-[var(--color-neutral-text-muted)] font-medium">
                   {producto?.unidadMedida}
                 </span>
               </h3>
             </div>
           </div>
 
-          <div className="bg-white/2[0.02] border border-black/5 rounded-md p-4 flex items-center gap-4">
-            <div className="p-3 bg-black/5 rounded-md text-black/40">
+          <div className="bg-white border border-[var(--color-neutral-border)] shadow-[0_2px_12px_rgba(0,0,0,0.03)] rounded-[12px] p-4 flex items-center gap-4 hover:shadow-md transition-shadow">
+            <div className="p-3 bg-gray-50 rounded-[10px] text-[var(--color-neutral-text-muted)]">
               <Layers size={20} />
             </div>
             <div>
-              <p className="text-[12px] font-black text-black/85 uppercase tracking-widest">
+              <p className="text-[11px] font-semibold text-[var(--color-neutral-text-muted)] uppercase tracking-wide">
                 Referencia
               </p>
-              <h3 className="text-sm font-bold text-black uppercase">
+              <h3 className="text-[14px] font-bold text-[var(--color-neutral-text-main)] uppercase">
                 SKU: #{producto?.codigoSecuencial?.toString().padStart(3, "0")}
               </h3>
             </div>
@@ -113,8 +113,8 @@ const ProduccionPage = () => {
         </div>
 
         {/* Main Action Container */}
-        <div className="bg-[var(--surface)] border border-black/5 rounded-md shadow-2xl overflow-hidden">
-          <div className="p-2 md:p-4">
+        <div className="bg-white border border-[var(--color-neutral-border)] rounded-[16px] shadow-[0_4px_24px_rgba(0,0,0,0.04)] overflow-hidden">
+          <div className="p-4 md:p-6">
             <ModalProduccion
               open={true}
               onClose={() => navigate(-1)}

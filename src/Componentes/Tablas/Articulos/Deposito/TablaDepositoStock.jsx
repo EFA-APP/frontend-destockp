@@ -125,15 +125,15 @@ const TablaDepositoStock = ({ tipoArticulo = "PRODUCTO", titulo, selectedIds, se
 
   return (
     <React.Fragment>
-      <div className="bg-[var(--surface)] border border-black/5 rounded-md shadow-2xl overflow-hidden">
+      <div className="bg-white border border-[var(--color-neutral-border)] rounded-[16px] shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-hidden">
         {/* Table Header */}
-        <div className="px-4 pb-0 md:px-6 pt-5 border-b border-black/5 bg-white/[0.02] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="px-4 pb-0 md:px-6 pt-5 border-b border-[var(--color-neutral-border)] bg-gray-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="p-2.5 bg-[var(--primary)]/10 rounded-md border border-[var(--primary)]/10 text-[var(--primary)]">
+            <div className="p-2.5 bg-[var(--color-brand-soft)] rounded-[10px] border border-[var(--color-brand-primary)]/20 text-[var(--color-brand-primary)]">
               <Database size={18} />
             </div>
             <div>
-              <h2 className="text-[18px] font-black text-[var(--text-primary)] leading-tight uppercase tracking-tight">
+              <h2 className="text-[16px] font-bold text-[var(--color-neutral-text-main)] leading-tight uppercase tracking-wide">
                 {titulo ||
                   `${tipoArticulo === "MATERIA_PRIMA" ? "Materia Prima" : "Productos"}`}
               </h2>

@@ -8,6 +8,7 @@ const SearchableSelect = ({
   placeholder = "Seleccionar...",
   disabled = false,
   className = "",
+  onSearchChange,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,11 +17,19 @@ const SearchableSelect = ({
   const listRef = useRef(null);
 
   // Sincronizar searchTerm con el label del valor seleccionado cuando el menú está cerrado
-  const selectedOption = options.find((opt) => opt.value === value);
+  const selectedOption = options.find((opt) => String(opt.value) === String(value));
 
-  const filteredOptions = options.filter((opt) =>
-    opt.label.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const filteredOptions = onSearchChange 
+    ? options 
+    : options.filter((opt) =>
+        opt.label.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+
+  useEffect(() => {
+    if (onSearchChange) {
+      onSearchChange(searchTerm);
+    }
+  }, [searchTerm, onSearchChange]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

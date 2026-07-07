@@ -23,7 +23,7 @@ const MisComprobantesAFIP = () => {
           type="text"
           placeholder="Buscar comprobante..."
           disabled
-          className="w-full pl-10 pr-4 py-2.5 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md text-sm text-black/50 placeholder:text-black/30 cursor-default focus:outline-none"
+          className="w-full h-10 pl-10 pr-4 bg-white border border-[var(--color-neutral-border)] rounded-[12px] text-[13px] font-bold text-[var(--color-neutral-text-main)] placeholder:text-[var(--color-neutral-text-muted)] cursor-default focus:outline-none shadow-sm"
         />
       </div>
 
@@ -31,9 +31,9 @@ const MisComprobantesAFIP = () => {
         {/* Panel Superior: Herramientas y Pasos */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Card bienvenida */}
-          <div className="bg-white border border-[var(--border-subtle)] rounded-md p-5 flex flex-col justify-center shadow-sm hover:border-gray-300 transition-colors">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2.5 bg-[var(--primary)]/10 text-[var(--primary)] rounded-md">
+          <div className="bg-white border border-[var(--color-neutral-border)] rounded-[16px] p-6 flex flex-col justify-center shadow-sm hover:border-gray-300 transition-colors">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2.5 bg-[var(--color-brand-soft)] text-[var(--color-brand-primary)] rounded-[12px]">
                 <ArcaIcono size={20} />
               </div>
               <div>
@@ -52,8 +52,8 @@ const MisComprobantesAFIP = () => {
           </div>
 
           {/* Card Pasos */}
-          <div className="md:col-span-2 bg-[var(--primary)]/5 border border-[var(--primary)]/20 rounded-md p-5 shadow-sm">
-            <p className="text-[10px] font-black text-[var(--primary)] uppercase tracking-widest mb-4">
+          <div className="md:col-span-2 bg-[var(--color-brand-soft)] border border-[var(--color-brand-primary)]/20 rounded-[16px] p-6 shadow-sm">
+            <p className="text-[10px] font-black text-[var(--color-brand-primary)] uppercase tracking-widest mb-4">
               ¿Cómo validar tus comprobantes?
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -70,12 +70,12 @@ const MisComprobantesAFIP = () => {
               ].map(({ icon: Icon, text }, i) => (
                 <div
                   key={i}
-                  className="flex items-start gap-3 bg-white/60 p-3 rounded-md border border-[var(--primary)]/10"
+                  className="flex items-start gap-3 bg-white/80 p-3.5 rounded-[12px] border border-[var(--color-brand-primary)]/10 shadow-sm"
                 >
-                  <div className="min-w-[24px] h-[24px] rounded-md bg-[var(--primary)] text-white text-[11px] font-black flex items-center justify-center shrink-0 shadow-sm shadow-[var(--primary)]/20">
+                  <div className="min-w-[24px] h-[24px] rounded-[8px] bg-[var(--color-brand-primary)] text-white text-[11px] font-black flex items-center justify-center shrink-0 shadow-sm shadow-[var(--color-brand-primary)]/20">
                     {i + 1}
                   </div>
-                  <span className="text-xs font-semibold text-gray-700 leading-snug">
+                  <span className="text-[12px] font-bold text-[var(--color-neutral-text-main)] leading-snug">
                     {text}
                   </span>
                 </div>
@@ -89,16 +89,16 @@ const MisComprobantesAFIP = () => {
           htmlFor="input-recibidos"
           className="w-full relative group cursor-pointer"
         >
-          <div className="absolute inset-0 bg-[var(--primary)]/5 rounded-md transform scale-[0.98] group-hover:scale-100 transition-transform duration-200 ease-out" />
-          <div className="relative border-2 border-dashed border-[var(--primary)]/30 group-hover:border-[var(--primary)]/60 bg-white/50 backdrop-blur-sm rounded-md p-8 flex flex-col items-center justify-center gap-4 transition-colors duration-200">
-            <div className="p-4 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full group-hover:scale-110 transition-transform duration-200">
+          <div className="absolute inset-0 bg-[var(--color-brand-soft)] rounded-[16px] transform scale-[0.98] group-hover:scale-100 transition-transform duration-200 ease-out" />
+          <div className="relative border-2 border-dashed border-[var(--color-brand-primary)]/30 group-hover:border-[var(--color-brand-primary)]/60 bg-white/50 backdrop-blur-sm rounded-[16px] p-10 flex flex-col items-center justify-center gap-4 transition-colors duration-200">
+            <div className="p-4 bg-[var(--color-brand-primary)]/10 text-[var(--color-brand-primary)] rounded-full group-hover:scale-110 transition-transform duration-200">
               <Upload size={32} strokeWidth={1.5} />
             </div>
             <div className="text-center space-y-1">
-              <p className="text-sm font-bold text-gray-800">
+              <p className="text-[13px] font-bold text-[var(--color-neutral-text-main)]">
                 Arrastrá tu archivo{" "}
-                <span className="text-[var(--primary)]">RECIBIDOS</span> o{" "}
-                <span className="text-[var(--primary)] hover:underline">
+                <span className="text-[var(--color-brand-primary)]">RECIBIDOS</span> o{" "}
+                <span className="text-[var(--color-brand-primary)] hover:underline">
                   hacé clic para explorar
                 </span>
               </p>
@@ -110,8 +110,8 @@ const MisComprobantesAFIP = () => {
         </label>
 
         {/* Panel principal: Tabla */}
-        <div className="bg-white border border-[var(--border-subtle)] rounded-md shadow-sm overflow-hidden flex-1">
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-[var(--border-subtle)] bg-gray-50/50">
+        <div className="bg-white border border-[var(--color-neutral-border)] rounded-[16px] shadow-sm overflow-hidden flex-1 mt-2">
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-[var(--color-neutral-border)] bg-gray-50/50">
             <div className="flex-1">
               <EncabezadoSeccion
                 ruta={"Mis Comprobantes AFIP"}

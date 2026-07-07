@@ -191,7 +191,7 @@ const CrearProductos = () => {
   if (isEdit && cargando && !initialData) {
     return (
       <ContenedorSeccion className="flex items-center justify-center p-20">
-        <div className=" text-[var(--primary)] font-black uppercase tracking-[0.2em]">
+        <div className="text-[var(--color-brand-primary)] font-semibold uppercase tracking-wide">
           Cargando Datos del Producto...
         </div>
       </ContenedorSeccion>
@@ -206,26 +206,22 @@ const CrearProductos = () => {
     return (
       <ContenedorSeccion>
         <div className="flex flex-col items-center justify-center min-h-[60vh] w-full">
-          <div className="max-w-lg w-full bg-[#1a1a1a] border border-black/5 rounded-md p-10 text-center shadow-2xl relative overflow-hidden group">
-            {/* Decoración de fondo */}
-            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-[var(--primary)]/5 rounded-full blur-3xl group-hover:bg-[var(--primary)]/10  "></div>
+          <div className="max-w-lg w-full bg-white border border-[var(--color-neutral-border)] rounded-[16px] p-10 text-center shadow-[0_4px_24px_rgba(0,0,0,0.04)] relative overflow-hidden group">
+            {/* Decoración de fondo suave */}
+            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-amber-50 rounded-full blur-3xl transition-colors"></div>
 
             <div className="relative z-10">
               {/* Contenedor del Icono */}
-              <div className="w-20 h-20 bg-[var(--primary)]/10 rounded-md flex items-center justify-center mx-auto mb-6 border border-[var(--primary)]/20 rotate-3 group-hover:rotate-6  ">
-                <AdvertenciaIcono size={40} color="var(--primary)" />
+              <div className="w-20 h-20 bg-amber-50 rounded-[16px] flex items-center justify-center mx-auto mb-6 border border-amber-100 transition-transform">
+                <AdvertenciaIcono size={40} className="text-amber-600" />
               </div>
 
               {/* Texto Principal */}
-              <h2 className="text-3xl font-black text-black mb-4 tracking-tight leading-tight">
-                ¡Catálogo <br />{" "}
-                <span className="text-[var(--primary)] italic font-medium">
-                  Requerido
-                </span>
-                !
+              <h2 className="text-[26px] font-bold text-[var(--color-neutral-text-main)] mb-3 tracking-tight leading-tight">
+                ¡Catálogo <span className="text-amber-600">Requerido</span>!
               </h2>
 
-              <p className="text-black/40 text-sm leading-relaxed mb-10 max-w-[280px] mx-auto font-medium">
+              <p className="text-[14px] text-[var(--color-neutral-text-muted)] leading-relaxed mb-8 max-w-[280px] mx-auto font-medium">
                 Es necesario que hables con el administrador del sistema para
                 configurar los campos del producto.
               </p>
@@ -234,15 +230,12 @@ const CrearProductos = () => {
               <div className="flex justify-center items-center">
                 <button
                   onClick={() => navigate("/panel/inventario/productos")}
-                  className="px-10 py-4 bg-black/5 text-black/70 font-bold uppercase tracking-[0.15em] text-xs rounded-md hover:bg-black/10  border border-black/5 hover:border-black/10 w-full sm:w-auto"
+                  className="px-8 py-3 bg-white text-[var(--color-neutral-text-main)] font-semibold text-[13px] rounded-[10px] hover:bg-gray-50 border border-[var(--color-neutral-border)] transition-colors w-full sm:w-auto"
                 >
                   Volver Atrás
                 </button>
               </div>
             </div>
-
-            {/* Línea decorativa inferior */}
-            <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--primary)]/20 to-transparent"></div>
           </div>
         </div>
       </ContenedorSeccion>

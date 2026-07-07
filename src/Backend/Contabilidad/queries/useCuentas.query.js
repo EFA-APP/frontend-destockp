@@ -24,10 +24,10 @@ export const useObtenerCuentasNoImputablesQuery = () => {
   });
 };
 
-export const useObtenerDescendientesImputablesQuery = (codigoPadre) => {
+export const useObtenerDescendientesImputablesQuery = (codigoPadre, busqueda) => {
   return useQuery({
-    queryKey: ["cuentas-descendientes", codigoPadre],
-    queryFn: () => obtenerDescendientesImputables(codigoPadre),
+    queryKey: ["cuentas-descendientes", codigoPadre, busqueda],
+    queryFn: () => obtenerDescendientesImputables(codigoPadre, busqueda),
     enabled: !!codigoPadre,
     staleTime: 1000 * 60 * 10,
   });

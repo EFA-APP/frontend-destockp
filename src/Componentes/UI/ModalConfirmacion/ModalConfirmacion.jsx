@@ -1,5 +1,5 @@
 import ModalDetalleBase from "../ModalDetalleBase/ModalDetalleBase";
-import { AdvertenciaIcono, BorrarIcono } from "../../../assets/Icons";
+import { BorrarIcono } from "../../../assets/Icons";
 
 const ModalConfirmacion = ({
   open,
@@ -9,44 +9,40 @@ const ModalConfirmacion = ({
   mensaje = "¿Estás seguro de que deseas realizar esta acción?",
   textoConfirmar = "Confirmar",
   textoCancelar = "Cancelar",
-  colorConfirmar = "bg-red-600!",
   isPending = false,
-  icono = <BorrarIcono size={32} className="text-amber-700" />,
+  icono = <BorrarIcono size={32} className="text-red-500" />,
 }) => {
   return (
     <ModalDetalleBase open={open} onClose={onClose}>
-      <div className="w-full max-w-[400px] mx-auto overflow-hidden rounded-md border border-black/10 bg-[var(--fill)]/90 backdrop-blur-xl shadow-2xl    ">
-        {/* Decorative background blur */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-[var(--primary)]/10 blur-[60px] pointer-events-none" />
-
+      <div className="w-full max-w-[400px] mx-auto bg-white">
         <div className="relative px-8 pt-10 pb-8 flex flex-col items-center text-center">
           {icono && (
-            <div className="mb-6 p-4 rounded-md bg-gradient-to-br from-white/5 to-white/[0.02] border border-black/10 shadow-inner text-[var(--text-theme)]!">
+            <div className="mb-6 p-4 rounded-full bg-red-50 text-red-500">
               {icono}
             </div>
           )}
 
-          <h2 className="text-2xl font-black text-black mb-3 tracking-tight">
+          <h2 className="text-[20px] font-bold text-[var(--color-neutral-text-main)] mb-3 tracking-tight">
             {titulo}
           </h2>
 
-          <p className="text-[16px] text-gray-400 font-medium leading-relaxed max-w-[280px]">
+          <p className="text-[15px] text-[var(--color-neutral-text-muted)] font-normal leading-relaxed max-w-[280px]">
             {mensaje}
           </p>
         </div>
 
-        <div className="p-6 bg-white/[0.02] border-t border-black/5 flex gap-3">
+        <div className="p-6 bg-[var(--color-neutral-bg)] border-t border-[var(--color-neutral-border)] flex gap-3 rounded-b-[16px]">
           <button
             onClick={onClose}
             disabled={isPending}
-            className="flex-1 px-5 py-3 rounded-md! bg-black/5 hover:bg-black/10 text-black font-bold text-sm border border-black/70 active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-5 py-2.5 rounded-[10px] bg-white hover:bg-gray-50 text-[var(--color-neutral-text-main)] font-semibold text-[14px] border border-[var(--color-neutral-border)] shadow-sm transition-colors disabled:opacity-50"
           >
             {textoCancelar}
           </button>
           <button
             onClick={onConfirm}
             disabled={isPending}
-            className={`flex-1 px-5 py-3 rounded-md! bg-red-500/20!  hover:brightness-110 text-red-500 font-bold text-sm shadow-lg shadow-red-900/20 border border-red-500/70 active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
+            className={`flex-1 px-5 py-2.5 rounded-[10px] bg-red-600 hover:bg-red-700 text-white font-semibold text-[14px] shadow-sm transition-colors disabled:opacity-50`}
           >
             {isPending ? "Procesando..." : textoConfirmar}
           </button>

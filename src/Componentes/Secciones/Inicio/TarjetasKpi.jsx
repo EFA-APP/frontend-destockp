@@ -11,18 +11,18 @@ const TarjetaKpi = ({
 }) => {
   const trendStyles = {
     up: {
-      text: "text-[var(--secondary)]",
-      bg: "bg-[var(--secondary-subtle)]",
+      text: "text-[var(--color-brand-primary)]",
+      bg: "bg-[var(--color-brand-soft)]",
       label: "↑",
     },
     down: {
-      text: "text-red-700",
-      bg: "bg-red-700/10",
+      text: "text-red-600",
+      bg: "bg-red-50",
       label: "↓",
     },
     neutral: {
-      text: "text-[var(--text-muted)]",
-      bg: "bg-black/5",
+      text: "text-[var(--color-neutral-text-muted)]",
+      bg: "bg-gray-100",
       label: "•",
     },
   };
@@ -30,29 +30,29 @@ const TarjetaKpi = ({
   const current = trendStyles[trend || "neutral"];
 
   return (
-    <div className="relative overflow-hidden rounded-md bg-[var(--surface)] p-4 border border-[var(--border-subtle)] shadow-sm hover:border-[var(--border-medium)] ">
+    <div className="relative overflow-hidden rounded-[16px] bg-white p-5 border border-[var(--color-neutral-border)] shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition-shadow duration-300">
       {/* CONTENIDO */}
       <div className="relative z-10 flex flex-col h-full">
         {/* Header */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-wide text-[var(--color-neutral-text-muted)]">
             {title}
           </div>
-          <div className="p-1.5 rounded-md bg-[var(--surface-hover)] text-[var(--primary)] border border-[var(--border-subtle)]">
+          <div className="p-2 rounded-[12px] bg-[var(--color-brand-soft)] text-[var(--color-brand-primary)] transition-transform hover:scale-105">
             {React.isValidElement(icon)
-              ? React.cloneElement(icon, { size: 14 })
+              ? React.cloneElement(icon, { size: 16 })
               : icon}
           </div>
         </div>
 
         {/* Valor y Trend */}
-        <div className="flex items-baseline gap-2 mb-0.5">
-          <div className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
+        <div className="flex items-baseline gap-2.5 mb-1">
+          <div className="text-[26px] font-bold text-[var(--color-neutral-text-main)] tracking-tight">
             {value}
           </div>
           {footer && (
             <span
-              className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${current.bg} ${current.text}`}
+              className={`text-[12px] font-bold px-2 py-0.5 rounded-full ${current.bg} ${current.text}`}
             >
               {current.label} {footer}
             </span>
@@ -61,15 +61,15 @@ const TarjetaKpi = ({
 
         {/* Subtexto */}
         {subtitle && (
-          <div className="text-[13px] text-[var(--text-secondary)] mt-0.5 leading-relaxed font-medium">
+          <div className="text-[14px] text-[var(--color-neutral-text-muted)] mt-1 font-medium">
             {subtitle}
           </div>
         )}
 
         {/* Acción */}
         {actionLabel && (
-          <div className="mt-auto pt-3 flex justify-end">
-            <button className="cursor-pointer text-[12px]! font-bold! px-2.5 py-1.5 rounded-md! bg-[var(--primary-light)]/30! hover:bg-[var(--primary)]/30! text-[var(--primary)]!  border border-[var(--border-subtle)] uppercase tracking-wider">
+          <div className="mt-auto pt-4 flex justify-end">
+            <button className="cursor-pointer text-[13px] font-semibold px-3 py-1.5 rounded-[8px] bg-gray-50 hover:bg-gray-100 text-[var(--color-neutral-text-main)] border border-[var(--color-neutral-border)] transition-colors">
               {actionLabel}
             </button>
           </div>

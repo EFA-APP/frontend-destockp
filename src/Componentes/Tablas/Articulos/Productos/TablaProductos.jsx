@@ -191,9 +191,9 @@ const TablaProductos = () => {
               <div className="py-2">
                 <div
                   onClick={() => handleAbrirDrawer(fila)}
-                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-md border backdrop-blur-md cursor-pointer hover:scale-105 active:scale-95 ${config.bg} ${config.color} ${config.border} ${config.glow}  `}
+                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-[16px] border cursor-pointer hover:scale-105 active:scale-95 transition-all ${config.bg} ${config.color} ${config.border}`}
                 >
-                  <span className="text-[14px] font-black tracking-tight">
+                  <span className="text-[14px] font-bold tracking-tight">
                     {valor}
                   </span>
                 </div>
@@ -356,46 +356,32 @@ const TablaProductos = () => {
     (!Array.isArray(camposDinamicos) || camposDinamicos.length === 0)
   ) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] w-full ">
-        <div className="max-w-lg w-full bg-[var(--fill)] border border-black/5 rounded-md p-10 text-center shadow-2xl relative overflow-hidden group">
-          {/* Decoración de fondo */}
-          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-[var(--primary)]/5 rounded-full blur-3xl group-hover:bg-[var(--primary)]/10  "></div>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] w-full">
+        <div className="max-w-lg w-full bg-white border border-[var(--color-neutral-border)] rounded-[16px] p-10 text-center shadow-[0_4px_24px_rgba(0,0,0,0.04)] relative overflow-hidden group">
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-amber-50 rounded-full blur-3xl transition-colors"></div>
 
           <div className="relative z-10">
-            {/* Contenedor del Icono */}
-            <div className="w-20 h-20 bg-yellow-500/10 rounded-md flex items-center justify-center mx-auto mb-6 border border-yellow-500/50 rotate-3 group-hover:rotate-6  ">
-              <div className="text-yellow-600">
-                <AdvertenciaIcono size={35} />
-              </div>
+            <div className="w-20 h-20 bg-amber-50 rounded-[16px] flex items-center justify-center mx-auto mb-6 border border-amber-100 transition-transform">
+              <AdvertenciaIcono size={40} className="text-amber-600" />
             </div>
 
-            {/* Texto Principal */}
-            <h2 className="text-3xl font-black text-black mb-4 tracking-tight leading-tight">
-              ¡Catálogo <br />{" "}
-              <span className="text-[var(--primary)] italic font-medium">
-                Requerido
-              </span>
-              !
+            <h2 className="text-[26px] font-bold text-[var(--color-neutral-text-main)] mb-3 tracking-tight leading-tight">
+              ¡Catálogo <span className="text-amber-600">Requerido</span>!
             </h2>
 
-            <p className="text-[var(--text-theme)]/80 text-sm leading-relaxed mb-10 max-w-[280px] mx-auto font-medium">
-              Es necesario que hables con el administrador del sistema para
-              configurar los campos del producto.
+            <p className="text-[14px] text-[var(--color-neutral-text-muted)] leading-relaxed mb-8 max-w-[280px] mx-auto font-medium">
+              Es necesario que hables con el administrador del sistema para configurar los campos del producto.
             </p>
 
-            {/* Botones de Acción */}
             <div className="flex justify-center items-center">
               <button
                 onClick={() => navigate("/panel")}
-                className="px-10 py-4 bg-[var(--primary)]/10 text-[var(--primary)]/90 font-bold uppercase tracking-[0.15em] text-xs rounded-md hover:bg-[var(--primary)]/20  border border-[var(--primary)]/80 hover:border-[var(--primary)]/10 w-full sm:w-max cursor-pointer"
+                className="px-8 py-3 bg-white text-[var(--color-neutral-text-main)] font-semibold text-[13px] rounded-[10px] hover:bg-gray-50 border border-[var(--color-neutral-border)] transition-colors w-full sm:w-auto"
               >
                 Ir al Inicio
               </button>
             </div>
           </div>
-
-          {/* Línea decorativa inferior */}
-          <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--primary)]/20 to-transparent"></div>
         </div>
       </div>
     );
@@ -447,9 +433,9 @@ const TablaProductos = () => {
               <TieneAccion accion="HISTORIAL_PRODUCTO">
                 <button
                   onClick={handleOpenHistorial}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border border-[var(--primary)]/20 rounded-md text-[13px] font-bold text-[var(--primary)] uppercase tracking-wider  cursor-pointer shadow-lg shadow-amber-700/5 group"
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 border border-[var(--color-neutral-border)] rounded-[8px] text-[13px] font-semibold text-[var(--color-neutral-text-main)] cursor-pointer transition-colors"
                 >
-                  <HistorialIcono size={14} className=" " />
+                  <HistorialIcono size={16} />
                   Historial
                 </button>
               </TieneAccion>
@@ -458,9 +444,9 @@ const TablaProductos = () => {
               <TieneAccion accion="IMPORTAR_LISTA_PRODUCTO">
                 <button
                   onClick={handleOpenImportarLista}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-700/20 rounded-md text-[13px] font-bold text-blue-400 uppercase tracking-wider  cursor-pointer shadow-lg shadow-blue-700/5 group"
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-blue-50 border border-blue-100 rounded-[8px] text-[13px] font-semibold text-blue-600 cursor-pointer transition-colors"
                 >
-                  <FileSpreadsheet size={14} className=" " />
+                  <FileSpreadsheet size={16} />
                   Importar Lista
                 </button>
               </TieneAccion>
@@ -469,11 +455,11 @@ const TablaProductos = () => {
               <TieneAccion accion="PRODUCCION_PRODUCTO">
                 <button
                   onClick={handleOpenProduccion}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-purple-600/10 hover:bg-purple-600/20 border border-purple-700/20 rounded-md text-[13px] font-bold text-purple-400 uppercase tracking-wider  cursor-pointer shadow-lg shadow-purple-700/5 group"
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-purple-50 border border-purple-100 rounded-[8px] text-[13px] font-semibold text-purple-600 cursor-pointer transition-colors group"
                 >
                   <ProduccionIcono
-                    size={14}
-                    className="group-hover:rotate-12 "
+                    size={16}
+                    className="group-hover:rotate-12 transition-transform"
                   />
                   Producción
                 </button>
@@ -483,9 +469,9 @@ const TablaProductos = () => {
               <TieneAccion accion="CARGA_MASIVA_PRODUCTO">
                 <button
                   onClick={handleOpenCargaMasiva}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-700/20 rounded-md text-[13px] font-bold text-emerald-400 uppercase tracking-wider  cursor-pointer shadow-lg shadow-emerald-700/5 group"
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-emerald-50 border border-emerald-100 rounded-[8px] text-[13px] font-semibold text-emerald-600 cursor-pointer transition-colors"
                 >
-                  <FileSpreadsheet size={14} className=" " />
+                  <FileSpreadsheet size={16} />
                   Carga Masiva
                 </button>
               </TieneAccion>
@@ -497,20 +483,20 @@ const TablaProductos = () => {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setMostrarSelectProv(!mostrarSelectProv)}
-                        className="flex items-center gap-2 px-4 py-2 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold text-black/60 hover:bg-black/10  cursor-pointer group"
+                        className="flex items-center gap-2 px-4 py-2 bg-white border border-[var(--color-neutral-border)] rounded-[8px] text-[13px] font-semibold text-[var(--color-neutral-text-main)] hover:bg-gray-50 cursor-pointer transition-colors"
                       >
-                        <User size={14} className="" />
+                        <User size={16} />
                         Filtrar Proveedor
                       </button>
                       {mostrarSelectProv && (
-                        <div className="absolute top-full left-0 mt-2 w-72 z-50 bg-[var(--fill)] border border-[var(--text-theme)] rounded-md shadow-2xl p-4   ">
+                        <div className="absolute top-full left-0 mt-2 w-72 z-50 bg-white border border-[var(--color-neutral-border)] rounded-[12px] shadow-[0_4px_24px_rgba(0,0,0,0.06)] p-4">
                           <input
                             autoFocus
                             type="text"
                             placeholder="Buscar proveedor..."
                             value={busquedaProv}
                             onChange={(e) => setBusquedaProv(e.target.value)}
-                            className="w-full bg-[var(--surface-hover)] border border-[var(--text-theme)] rounded-md px-3 py-2 text-xs text-black focus:outline-none focus:border-[var(--primary)]/50 placeholder:text-[var(--text-theme)]/70"
+                            className="w-full bg-gray-50 border border-[var(--color-neutral-border)] rounded-[8px] px-3 py-2 text-[13px] text-[var(--color-neutral-text-main)] focus:outline-none focus:border-[var(--color-brand-primary)] placeholder:text-[var(--color-neutral-text-muted)] transition-colors"
                           />
                           <div className="mt-3 max-h-48 overflow-y-auto space-y-1 custom-scrollbar">
                             <SelectorProveedoresInterno
@@ -526,22 +512,22 @@ const TablaProductos = () => {
                       )}
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 px-3 py-2 bg-amber-700/10 border border-amber-700/30 rounded-md shadow-lg shadow-amber-700/5  ">
-                      <div className="w-5 h-5 rounded-full bg-amber-700 flex items-center justify-center text-[12px] font-black text-black">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--color-brand-soft)] border border-[var(--color-brand-primary)]/20 rounded-[8px]">
+                      <div className="w-6 h-6 rounded-[6px] bg-white flex items-center justify-center text-[12px] font-bold text-[var(--color-brand-primary)] shadow-sm">
                         {provFiltro.razonSocial?.[0]?.toUpperCase() || "P"}
                       </div>
-                      <span className="text-[13px] font-black text-amber-700 uppercase max-w-[120px] truncate">
-                        {provFiltro.razonSocial.toUpperCase() ||
-                          provFiltro.nombre.toUpperCase() ||
-                          provFiltro.apellido.toUpperCase() +
+                      <span className="text-[13px] font-semibold text-[var(--color-brand-primary)] max-w-[120px] truncate">
+                        {provFiltro.razonSocial ||
+                          provFiltro.nombre ||
+                          provFiltro.apellido +
                             " " +
-                            provFiltro.nombre.toUpperCase()}
+                            provFiltro.nombre}
                       </span>
                       <button
                         onClick={() => setProvFiltro(null)}
-                        className="p-1 hover:bg-amber-700/20 rounded-md text-amber-700  cursor-pointer"
+                        className="p-1 hover:bg-white/50 rounded-[4px] text-[var(--color-brand-primary)] transition-colors cursor-pointer"
                       >
-                        <X size={12} />
+                        <X size={14} />
                       </button>
                     </div>
                   )}
@@ -743,19 +729,19 @@ const SelectorProveedoresInterno = memo(({ busqueda, onSeleccion }) => {
     <button
       key={p.codigoSecuencial}
       onClick={() => onSeleccion(p)}
-      className="w-full flex items-center gap-3 p-2 rounded-md hover:bg-black/5  text-left group"
+      className="w-full flex items-center gap-3 p-2 rounded-[8px] hover:bg-gray-50 text-left transition-colors"
     >
-      <div className="w-8 h-8 rounded-md bg-[var(--primary)]/10 flex items-center justify-center text-[12px] font-black text-[var(--primary)] group-hover:bg-[var(--primary)] group-hover:text-white">
+      <div className="w-8 h-8 rounded-[6px] bg-white border border-[var(--color-neutral-border)] flex items-center justify-center text-[12px] font-bold text-[var(--color-neutral-text-main)]">
         {p.razonSocial?.[0]?.toUpperCase() || "P"}
       </div>
       <div className="flex flex-col min-w-0">
-        <span className="text-[13px] font-bold text-black/80 truncate group-hover:text-black ">
-          {p.razonSocial.toUpperCase() ||
-            p.nombre.toUpperCase() ||
-            p.apellido.toUpperCase() + " " + p.nombre.toUpperCase()}
+        <span className="text-[13px] font-semibold text-[var(--color-neutral-text-main)] truncate">
+          {p.razonSocial ||
+            p.nombre ||
+            p.apellido + " " + p.nombre}
         </span>
-        <span className="text-[11px] font-black text-[var(--primary)] uppercase mt-1 ">
-          Código: {p.codigoSecuencial.toString().padStart(4, "0")}
+        <span className="text-[11px] text-[var(--color-neutral-text-muted)] mt-0.5">
+          Cód: {p.codigoSecuencial.toString().padStart(4, "0")}
         </span>
       </div>
     </button>

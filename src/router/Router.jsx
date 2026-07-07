@@ -115,8 +115,7 @@ const Empresas = lazy(
   () => import("../Componentes/Secciones/Sistema/Empresas"),
 );
 const GestionCuotas = lazy(
-  () =>
-    import("../Componentes/Secciones/Escuela/GestionCuotas/GestionCuotas"),
+  () => import("../Componentes/Secciones/Escuela/GestionCuotas/GestionCuotas"),
 );
 const NuevoIngreso = lazy(
   () => import("../Componentes/Secciones/Articulos/Movimientos/NuevoIngreso"),
@@ -147,12 +146,19 @@ const MovimientosTesoreria = lazy(
     import("../Componentes/Secciones/Tesoreria/Movimientos/MovimientosTesoreria"),
 );
 const LotesTarjeta = lazy(
-  () =>
-    import("../Componentes/Secciones/Tesoreria/LotesTarjeta/LotesTarjeta"),
+  () => import("../Componentes/Secciones/Tesoreria/LotesTarjeta/LotesTarjeta"),
 );
 const ChequeTercero = lazy(
   () =>
     import("../Componentes/Secciones/Tesoreria/ChequeTercero/ChequeTercero"),
+);
+const CajaDiaria = lazy(
+  () => import("../Componentes/Secciones/Tesoreria/CajaDiaria/CajaDiaria"),
+);
+
+const VistaCuentasCorrientes = lazy(
+  () =>
+    import("../Componentes/Secciones/CuentasCorrientes/VistaCuentasCorrientes"),
 );
 
 export default function Router() {
@@ -310,8 +316,11 @@ export default function Router() {
             {/* CONTACTOS */}
             <Route element={<RutaProtegida />}>
               <Route path="contactos" element={<DashboardContactos />} />
+              <Route
+                path="contactos/cuenta-corriente"
+                element={<VistaCuentasCorrientes />}
+              />
             </Route>
-
             {/* VENTAS */}
             <Route element={<RutaProtegida />}>
               <Route
@@ -366,6 +375,10 @@ export default function Router() {
               <Route
                 path="tesoreria/cheque-tercero"
                 element={<ChequeTercero />}
+              />
+              <Route
+                path="tesoreria/caja-diaria"
+                element={<CajaDiaria />}
               />
             </Route>
 

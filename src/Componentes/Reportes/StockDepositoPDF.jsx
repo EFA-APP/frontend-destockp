@@ -9,6 +9,7 @@ const THEME = {
   soft: "#f8fafc",
   white: "#ffffff",
   accent: "#c77719",
+  danger: "#dc2626",
 };
 
 const styles = StyleSheet.create({
@@ -192,16 +193,21 @@ const StockDepositoPDF = ({ matrizStock = [], depositos = [], empresaNombre }) =
                 <Text style={styles.td}>{row.nombre || "-"}</Text>
               </View>
               {depositos.map((dep) => {
-                const val = row[`dep_${dep.codigoSecuencial}`] || 0;
+                const rawVal = row[`dep_${dep.codigoSecuencial}`];
+                const val = Number(rawVal) || 0;
                 return (
                   <View key={dep.codigoSecuencial} style={styles.colDep}>
                     <Text
                       style={[
                         styles.td,
-                        { textAlign: "center", color: val > 0 ? THEME.ink : THEME.muted },
+                        {
+                          textAlign: "center",
+                          color:
+                            val < 0 ? THEME.danger : val > 0 ? THEME.ink : THEME.muted,
+                        },
                       ]}
                     >
-                      {val > 0 ? val : "-"}
+                      {val !== 0 ? val.toString() : "-"}
                     </Text>
                   </View>
                 );

@@ -6,15 +6,32 @@
  */
 
 export const METODOS_POR_CONDICION = {
-  CONTADO: ["EFECTIVO"],
-  CUENTA_CORRIENTE: [],
+  CONTADO: [
+    "EFECTIVO",
+    "TRANSFERENCIA",
+    "TARJETA_DEBITO",
+    "TARJETA_CREDITO",
+    "CHEQUE_PROPIO",
+    "CHEQUE_TERCERO",
+  ],
+  CUENTA_CORRIENTE: [
+    "EFECTIVO",
+    "TRANSFERENCIA",
+    "TARJETA_DEBITO",
+    "TARJETA_CREDITO",
+    "CHEQUE_PROPIO",
+    "CHEQUE_TERCERO",
+  ],
   CREDITO_30_DIAS: [],
   CREDITO_60_DIAS: [],
   CREDITO_90_DIAS: [],
-  TRANSFERENCIA_BANCARIA: ["TRANSFERENCIA"],
-  TARJETA_DEBITO: ["TARJETA_DEBITO"],
-  TARJETA_CREDITO: ["TARJETA_CREDITO"],
-  CHEQUE: ["CHEQUE_TERCERO", "CHEQUE_PROPIO"],
+};
+
+/**
+ * Devuelve true si la condición admite agregar más de un método de pago.
+ */
+export const permiteMultiplesPagos = (condicionComprobante) => {
+  return condicionComprobante === 'CONTADO' || condicionComprobante === 'CUENTA_CORRIENTE';
 };
 
 /**
@@ -37,6 +54,5 @@ export const obtenerMetodosPermitidos = (condicionComprobante) => {
  * pago cargado antes de guardar (usado en Ingresos.jsx / Egresos.jsx).
  */
 export const requierePago = (condicionComprobante) => {
-  const metodos = obtenerMetodosPermitidos(condicionComprobante);
-  return metodos === null || metodos.length > 0;
+  return condicionComprobante === 'CONTADO';
 };

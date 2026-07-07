@@ -170,9 +170,9 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
   };
 
   return (
-    <div className="flex flex-col gap-5 p-4 border border-gray-200 ">
+    <div className="flex flex-col gap-5 p-6 bg-white border border-[var(--color-neutral-border)] rounded-[16px] shadow-sm">
       {/* SECCIÓN 1: FECHAS */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 pb-3 border-b border-gray-700/20 rounded-md w-full">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 pb-5 border-b border-[var(--color-neutral-border)] w-full">
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="datepicker-range-start"
@@ -213,7 +213,7 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
       </div>
 
       {/* SECCIÓN 2: CONFIGURACIÓN Y TIPO */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end pb-3 border-b border-gray-700/20 rounded-md w-full">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end pb-5 border-b border-[var(--color-neutral-border)] w-full">
         <div className="flex flex-col gap-2">
           <span className="text-md font-semibold uppercase tracking-wider text-gray-900">
             Naturaleza
@@ -343,13 +343,9 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
           >
             <option value="CONTADO">CONTADO</option>
             <option value="CUENTA_CORRIENTE">CUENTA CORRIENTE</option>
-            <option value="CREDITO_30_DIAS">CRÉDITO 30 DÍAS</option>
-            <option value="CREDITO_60_DIAS">CRÉDITO 60 DÍAS</option>
-            <option value="CREDITO_90_DIAS">CRÉDITO 90 DÍAS</option>
-            <option value="TRANSFERENCIA_BANCARIA">TRANSFERENCIA BANCARIA</option>
-            <option value="TARJETA_DEBITO">TARJETA DÉBITO</option>
-            <option value="TARJETA_CREDITO">TARJETA CRÉDITO</option>
-            <option value="CHEQUE">CHEQUE</option>
+            <option value="CREDITO_30_DIAS">CREDITO 30 DÍAS</option>
+            <option value="CREDITO_60_DIAS">CREDITO 60 DÍAS</option>
+            <option value="CREDITO_90_DIAS">CREDITO 90 DÍAS</option>
           </select>
         </div>
 

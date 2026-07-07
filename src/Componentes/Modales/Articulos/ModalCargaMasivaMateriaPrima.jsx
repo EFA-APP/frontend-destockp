@@ -251,14 +251,14 @@ const ModalCargaMasivaMateriaPrima = ({ open, onClose, onExito }) => {
     <div className="space-y-4">
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
-          <label className="text-[12px] font-black text-black/50 uppercase tracking-widest flex items-center gap-1.5">
-            <ClipboardList size={14} className="text-[var(--primary)]" />
+          <label className="text-[12px] font-semibold text-[var(--color-neutral-text-muted)] uppercase flex items-center gap-1.5">
+            <ClipboardList size={14} className="text-[var(--color-brand-primary)]" />
             Pega tu listado de nombres (uno por línea):
           </label>
           {pastedText && (
             <button
               onClick={clearPastedText}
-              className="text-[10px] font-black text-rose-500 hover:text-rose-600 uppercase cursor-pointer"
+              className="text-[11px] font-bold text-rose-500 hover:text-rose-600 uppercase cursor-pointer"
             >
               Limpiar
             </button>
@@ -270,26 +270,26 @@ const ModalCargaMasivaMateriaPrima = ({ open, onClose, onExito }) => {
               ? "Soja\nTrigo\nMaíz\nSorgo\nCebada"
               : "Bolsas de Polietileno\nHilo de Coser\nInsecticida Líquido\nPallets de Madera"
           }
-          className="w-full h-28 md:h-36 bg-black/10 border border-black/10 rounded-md p-3 text-xs text-black focus:outline-none focus:border-[var(--primary)]/30 font-mono leading-relaxed"
+          className="w-full h-28 md:h-36 bg-white border border-[var(--color-neutral-border)] rounded-[8px] p-3 text-[13px] text-[var(--color-neutral-text-main)] focus:outline-none focus:border-[var(--color-brand-primary)] font-mono leading-relaxed shadow-sm"
           value={pastedText}
           onChange={(e) => setPastedText(e.target.value)}
         />
-        <p className="text-[10px] text-black/30 font-bold uppercase tracking-wider">
+        <p className="text-[11px] text-[var(--color-neutral-text-muted)] font-medium">
           💡 Puedes copiar una columna de nombres de Excel y pegarla aquí directamente. Las pestañas y comas se detectarán automáticamente.
         </p>
       </div>
 
       {/* Valores por defecto de configuración rápida */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 bg-black/5 p-3 md:p-4 rounded-md border border-black/5 shadow-inner">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 bg-gray-50 p-3 md:p-4 rounded-[12px] border border-[var(--color-neutral-border)]">
         {!esEspecie && (
           <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] font-black text-black/40 uppercase tracking-wider flex items-center gap-1">
-              <Layers size={10} /> Categoría por Defecto
+            <span className="text-[11px] font-semibold text-[var(--color-neutral-text-muted)] uppercase flex items-center gap-1">
+              <Layers size={12} /> Categoría por Defecto
             </span>
             <select
               value={defaultTipo}
               onChange={(e) => setDefaultTipo(e.target.value)}
-              className="w-full bg-[var(--surface)] border border-black/10 rounded-md p-2 text-xs text-black font-black uppercase focus:outline-none"
+              className="w-full bg-white border border-[var(--color-neutral-border)] rounded-[8px] p-2 text-[13px] text-[var(--color-neutral-text-main)] font-semibold uppercase focus:outline-none focus:border-[var(--color-brand-primary)] shadow-sm"
             >
               <option value="INSUMO">INSUMO - Materia prima base</option>
               <option value="FRUTA">FRUTA - Insumo fresco/agrícola</option>
@@ -298,13 +298,13 @@ const ModalCargaMasivaMateriaPrima = ({ open, onClose, onExito }) => {
         )}
 
         <div className="flex flex-col gap-1.5 col-span-1 sm:col-span-1">
-          <span className="text-[10px] font-black text-black/40 uppercase tracking-wider flex items-center gap-1">
-            <Info size={10} /> Unidad de Medida por Defecto
+          <span className="text-[11px] font-semibold text-[var(--color-neutral-text-muted)] uppercase flex items-center gap-1">
+            <Info size={12} /> Unidad de Medida por Defecto
           </span>
           <select
             value={defaultUnidad}
             onChange={(e) => setDefaultUnidad(e.target.value)}
-            className="w-full bg-[var(--surface)] border border-black/10 rounded-md p-2 text-xs text-black font-black uppercase focus:outline-none"
+            className="w-full bg-white border border-[var(--color-neutral-border)] rounded-[8px] p-2 text-[13px] text-[var(--color-neutral-text-main)] font-semibold uppercase focus:outline-none focus:border-[var(--color-brand-primary)] shadow-sm"
           >
             <option value="KG">Masa: Kilogramos (KG)</option>
             <option value="GR">Masa: Gramos (GR)</option>
@@ -323,26 +323,26 @@ const ModalCargaMasivaMateriaPrima = ({ open, onClose, onExito }) => {
       <div className="flex flex-wrap gap-3 md:gap-4">
         <button
           onClick={descargarPlantilla}
-          className="flex-1 flex items-center justify-center gap-2 md:gap-3 px-4 py-3 md:px-6 md:py-4 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-md text-emerald-600 transition-all cursor-pointer group"
+          className="flex-1 flex items-center justify-center gap-2 md:gap-3 px-4 py-3 md:px-6 md:py-4 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-[12px] text-emerald-700 transition-colors cursor-pointer group"
         >
-          <Download size={20} className="group-hover:-translate-y-0.5 transition-transform" />
+          <Download size={24} className="group-hover:-translate-y-0.5 transition-transform" />
           <div className="text-left">
-            <div className="text-xs font-black uppercase tracking-wider">
+            <div className="text-[14px] font-bold uppercase tracking-wide">
               Descargar Plantilla
             </div>
-            <div className="text-[10px] opacity-60 uppercase font-bold tracking-widest">
+            <div className="text-[12px] opacity-80 font-medium">
               Formato Excel (.xlsx)
             </div>
           </div>
         </button>
 
-        <label className="flex-1 flex items-center justify-center gap-2 md:gap-3 px-4 py-3 md:px-6 md:py-4 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-md text-blue-600 transition-all cursor-pointer group">
-          <UploadCloud size={20} className="group-hover:scale-105 transition-transform" />
+        <label className="flex-1 flex items-center justify-center gap-2 md:gap-3 px-4 py-3 md:px-6 md:py-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-[12px] text-blue-700 transition-colors cursor-pointer group">
+          <UploadCloud size={24} className="group-hover:scale-105 transition-transform" />
           <div className="text-left">
-            <div className="text-xs font-black uppercase tracking-wider">
+            <div className="text-[14px] font-bold uppercase tracking-wide">
               Subir Archivo
             </div>
-            <div className="text-[10px] opacity-60 uppercase font-bold tracking-widest">
+            <div className="text-[12px] opacity-80 font-medium">
               Seleccionar Excel completado
             </div>
           </div>
@@ -355,13 +355,13 @@ const ModalCargaMasivaMateriaPrima = ({ open, onClose, onExito }) => {
         </label>
       </div>
 
-      <div className="bg-black/5 p-3 md:p-4 rounded-md border border-black/5 text-[11px] font-bold text-black/50 uppercase leading-relaxed space-y-1">
-        <p className="flex items-center gap-1.5 text-black/70">
-          <Info size={12} className="text-[var(--primary)] shrink-0" />
+      <div className="bg-gray-50 p-4 rounded-[12px] border border-[var(--color-neutral-border)] text-[12px] font-medium text-[var(--color-neutral-text-main)] leading-relaxed space-y-2">
+        <p className="flex items-center gap-1.5 font-bold uppercase text-[var(--color-neutral-text-main)]">
+          <Info size={14} className="text-[var(--color-brand-primary)] shrink-0" />
           ESTRUCTURA DE COLUMNAS DE LA PLANTILLA:
         </p>
-        <ol className="list-decimal pl-5 space-y-0.5 mt-2 font-mono">
-          <li>Nombre <span className="text-rose-500 font-black">* Obligatorio</span></li>
+        <ol className="list-decimal pl-5 space-y-1">
+          <li>Nombre <span className="text-rose-500 font-bold">* Obligatorio</span></li>
           <li>Categoría (INSUMO o FRUTA, opcional)</li>
           <li>Unidad Medida (KG/GR/UND/LT/ML, opcional, por defecto {defaultUnidad})</li>
           <li>Stock Inicial (opcional, por defecto 0)</li>
@@ -374,20 +374,20 @@ const ModalCargaMasivaMateriaPrima = ({ open, onClose, onExito }) => {
   const content = (
     <div className="space-y-4 md:space-y-5 py-1">
       {/* Selector de Pestaña */}
-      <div className="flex bg-black/10 p-1 border border-black/5 rounded-md self-start shrink-0">
+      <div className="flex bg-gray-100 p-1 rounded-[10px] self-start shrink-0">
         <button
           onClick={() => {
             setActiveTab("paste");
             setFileData([]);
           }}
           disabled={cargando}
-          className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-md text-[11px] font-black uppercase tracking-[0.1em] cursor-pointer transition-all ${
+          className={`flex items-center justify-center gap-2 px-6 py-2 rounded-[8px] text-[13px] font-bold uppercase tracking-wide cursor-pointer transition-colors ${
             activeTab === "paste"
-              ? "text-[var(--primary)] bg-[var(--surface)] border border-black/5 shadow-[0_2px_10px_rgba(0,0,0,0.05)]"
-              : "text-black/40 hover:text-black/70"
+              ? "text-[var(--color-brand-primary)] bg-white shadow-sm"
+              : "text-[var(--color-neutral-text-muted)] hover:text-[var(--color-neutral-text-main)]"
           }`}
         >
-          <ClipboardList size={14} />
+          <ClipboardList size={16} />
           Pegar Lista
         </button>
         <button
@@ -396,13 +396,13 @@ const ModalCargaMasivaMateriaPrima = ({ open, onClose, onExito }) => {
             setFileData([]);
           }}
           disabled={cargando}
-          className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-md text-[11px] font-black uppercase tracking-[0.1em] cursor-pointer transition-all ${
+          className={`flex items-center justify-center gap-2 px-6 py-2 rounded-[8px] text-[13px] font-bold uppercase tracking-wide cursor-pointer transition-colors ${
             activeTab === "upload"
-              ? "text-[var(--primary)] bg-[var(--surface)] border border-black/5 shadow-[0_2px_10px_rgba(0,0,0,0.05)]"
-              : "text-black/40 hover:text-black/70"
+              ? "text-[var(--color-brand-primary)] bg-white shadow-sm"
+              : "text-[var(--color-neutral-text-muted)] hover:text-[var(--color-neutral-text-main)]"
           }`}
         >
-          <FileSpreadsheet size={14} />
+          <FileSpreadsheet size={16} />
           Subir Excel
         </button>
       </div>

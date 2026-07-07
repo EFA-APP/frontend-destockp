@@ -116,6 +116,7 @@ const adaptarParaDrawer = (full) => {
   const letraComprobante =
     full.letraComprobante || LETRA_MAP[full.codigoTipoComprobante] || "";
   return {
+    codigoUnidadNegocio: full.codigoUnidadNegocio,
     tipoDocumento: full.codigoTipoComprobante,
     letraComprobante,
     puntoVenta: full.puntoVenta,
@@ -178,7 +179,7 @@ const SelectFiltro = ({ label, value, onChange, options }) => (
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full h-9 px-2 border border-gray-200 rounded-md text-xs font-bold text-gray-700 bg-white focus:outline-none focus:border-[var(--primary)] cursor-pointer"
+      className="w-full h-10 px-3 border border-[var(--color-neutral-border)] rounded-[8px] text-[13px] font-bold text-[var(--color-neutral-text-main)] bg-white focus:outline-none focus:border-[var(--color-brand-primary)] cursor-pointer"
     >
       {options.map((o) => (
         <option key={o.value} value={o.value}>
@@ -460,17 +461,17 @@ const ListadoComprobante = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f8fafc] w-full p-3 md:p-6 font-sans overflow-x-hidden">
+    <div className="flex flex-col min-h-screen bg-[var(--color-neutral-bg)] w-full p-3 md:p-6 text-[var(--color-neutral-text-main)] font-sans overflow-x-hidden">
       {/* ── TABS ── */}
-      <div className="flex bg-gray-200/60 p-1.5 rounded-md border border-gray-200 w-full sm:w-fit mb-5 shadow-inner">
+      <div className="flex bg-white p-1.5 rounded-[12px] border border-[var(--color-neutral-border)] w-full sm:w-fit mb-5 shadow-sm">
         {["INGRESO", "EGRESO"].map((tab) => (
           <button
             key={tab}
             onClick={() => setTipoOperacion(tab)}
-            className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-md text-xs font-black uppercase tracking-wider transition-all duration-200 ${
+            className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wide transition-colors duration-200 cursor-pointer ${
               tipoOperacion === tab
-                ? "bg-white text-gray-900 shadow-sm border border-gray-200/50"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-[var(--color-brand-soft)] text-[var(--color-brand-primary)]"
+                : "text-[var(--color-neutral-text-muted)] hover:text-[var(--color-neutral-text-main)] hover:bg-gray-50"
             }`}
           >
             {tab === "INGRESO" ? "Ventas (Ingresos)" : "Compras (Egresos)"}
@@ -479,7 +480,7 @@ const ListadoComprobante = () => {
       </div>
 
       {/* ── PANEL DE FILTROS ── */}
-      <div className="bg-white border border-gray-200 rounded-md p-4 mb-4 shadow-sm">
+      <div className="bg-white border border-[var(--color-neutral-border)] rounded-[16px] p-5 mb-4 shadow-sm">
         <div className="flex items-center gap-2 mb-3">
           <Filter size={13} className="text-[var(--primary)]" />
           <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
@@ -503,7 +504,7 @@ const ListadoComprobante = () => {
             <select
               value={unidadNegocio}
               onChange={(e) => setUnidadNegocio(e.target.value)}
-              className="w-full h-9 px-2 border border-gray-200 rounded-md text-xs font-bold text-gray-700 bg-white focus:outline-none focus:border-[var(--primary)] cursor-pointer"
+              className="w-full h-10 px-3 border border-[var(--color-neutral-border)] rounded-[8px] text-[13px] font-bold text-[var(--color-neutral-text-main)] bg-white focus:outline-none focus:border-[var(--color-brand-primary)] cursor-pointer"
             >
               {unidadesNegocio.map((u) => (
                 <option key={u.codigoSecuencial} value={u.codigoSecuencial}>
@@ -525,7 +526,7 @@ const ListadoComprobante = () => {
             <select
               value={fiscal}
               onChange={(e) => setFiscal(e.target.value)}
-              className="w-full h-9 px-2 border border-gray-200 rounded-md text-xs font-bold text-gray-700 bg-white focus:outline-none focus:border-[var(--primary)] cursor-pointer"
+              className="w-full h-10 px-3 border border-[var(--color-neutral-border)] rounded-[8px] text-[13px] font-bold text-[var(--color-neutral-text-main)] bg-white focus:outline-none focus:border-[var(--color-brand-primary)] cursor-pointer"
             >
               <option value="">Todos</option>
               <option value="true">Fiscal (con CAE)</option>
@@ -557,7 +558,7 @@ const ListadoComprobante = () => {
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
                 placeholder="Razón social, número..."
-                className="w-full h-9 pl-7 pr-7 border border-gray-200 rounded-md text-xs font-bold text-gray-700 focus:outline-none focus:border-[var(--primary)] placeholder:font-normal"
+                className="w-full h-10 pl-8 pr-7 border border-[var(--color-neutral-border)] rounded-[8px] text-[13px] font-bold text-[var(--color-neutral-text-main)] focus:outline-none focus:border-[var(--color-brand-primary)] placeholder:font-normal placeholder:text-[var(--color-neutral-text-muted)]"
               />
               {busqueda && (
                 <button
@@ -573,7 +574,7 @@ const ListadoComprobante = () => {
       </div>
 
       {/* ── TABLA ── */}
-      <div className="bg-white border border-gray-200 rounded-md shadow-sm overflow-hidden flex-1">
+      <div className="bg-white border border-[var(--color-neutral-border)] rounded-[16px] shadow-sm overflow-hidden flex-1">
         {/* Info bar */}
         <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between bg-gray-50/60">
           <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
@@ -655,7 +656,7 @@ const ListadoComprobante = () => {
             <button
               disabled={pagina <= 1}
               onClick={() => setPagina((p) => p - 1)}
-              className="flex items-center gap-1 px-3 py-1.5 text-xs font-black uppercase tracking-wider rounded-md border border-gray-200 text-gray-600 hover:bg-gray-100 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              className="flex items-center gap-1 px-3 py-2 text-[11px] font-bold uppercase tracking-wider rounded-[8px] border border-[var(--color-neutral-border)] text-[var(--color-neutral-text-main)] hover:bg-gray-50 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               <ChevronLeft size={13} />
               Anterior
@@ -674,10 +675,10 @@ const ListadoComprobante = () => {
                   <button
                     key={page}
                     onClick={() => setPagina(page)}
-                    className={`w-7 h-7 rounded-md text-[11px] font-black transition cursor-pointer ${
+                    className={`w-8 h-8 rounded-[8px] text-[13px] font-bold transition cursor-pointer ${
                       page === pagina
-                        ? "bg-[var(--primary)] text-white shadow-sm"
-                        : "text-gray-500 hover:bg-gray-100"
+                        ? "bg-[var(--color-brand-primary)] text-white shadow-sm"
+                        : "text-[var(--color-neutral-text-main)] hover:bg-gray-50"
                     }`}
                   >
                     {page}
@@ -689,7 +690,7 @@ const ListadoComprobante = () => {
             <button
               disabled={pagina >= totalPaginas}
               onClick={() => setPagina((p) => p + 1)}
-              className="flex items-center gap-1 px-3 py-1.5 text-xs font-black uppercase tracking-wider rounded-md border border-gray-200 text-gray-600 hover:bg-gray-100 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              className="flex items-center gap-1 px-3 py-2 text-[11px] font-bold uppercase tracking-wider rounded-[8px] border border-[var(--color-neutral-border)] text-[var(--color-neutral-text-main)] hover:bg-gray-50 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               Siguiente
               <ChevronRight size={13} />

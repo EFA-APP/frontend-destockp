@@ -134,6 +134,7 @@ const OrdenPago = () => {
         },
       }),
       ...(p.chequeTercero && { chequeTercero: p.chequeTercero }),
+      ...(p.endosoChequeTercero && { endosoChequeTercero: p.endosoChequeTercero }),
       ...(p.chequePropio && { chequePropio: p.chequePropio }),
     }));
 
@@ -160,7 +161,13 @@ const OrdenPago = () => {
           iva: 0,
           subtotal: montoFinal,
         }],
-        detallePagos,
+        detallePagos: detallePagos.map((dp) => {
+          if (dp.endosoChequeTercero) {
+            const { _chequeOriginal, ...endosoLimpio } = dp.endosoChequeTercero;
+            return { ...dp, endosoChequeTercero: endosoLimpio };
+          }
+          return dp;
+        }),
         comprobantesAsociados: deudas
           .filter((d) => seleccionados.has(d.codigo) && (d.importeAplicado || 0) > 0)
           .map((d) => ({
@@ -360,7 +367,7 @@ const OrdenPago = () => {
               type="button"
               onClick={handleConfirmar}
               disabled={isPending || !contactoSeleccionado || pagos.length === 0 || seleccionados.size === 0}
-              className="flex items-center gap-2 px-6 py-2.5 bg-[var(--primary)] text-white text-sm font-black uppercase tracking-wider rounded-md hover:bg-[var(--primary)]/90 transition active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              className="flex items-center gap-2 px-6 py-2.5 bg-[var(--color-brand-primary)] text-white text-[13px] font-bold uppercase tracking-wider rounded-[8px] hover:brightness-110 transition active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
               <Save size={16} />
               {isPending ? "Guardando..." : "Confirmar Orden de Pago"}

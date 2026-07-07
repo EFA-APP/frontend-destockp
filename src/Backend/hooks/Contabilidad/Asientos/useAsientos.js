@@ -41,7 +41,7 @@ export const useAsientos = () => {
     movimientos: (a.detalles || []).map((d) => ({
       id: d.codigoSecuencial,
       cuenta: d.codigoCuenta ?? String(d.codigoCuentaContable),
-      nombreCuenta: d.nombreCuenta ?? "",
+      nombreCuenta: d.nombreCuenta ?? d.nombreCuentaContable ?? "",
       debe: Number(d.debe || 0),
       haber: Number(d.haber || 0),
     })),

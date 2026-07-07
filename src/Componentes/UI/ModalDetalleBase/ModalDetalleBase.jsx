@@ -16,7 +16,7 @@ const ModalDetalleBase = ({
   if (!open) return null;
 
   const modalContent = (
-    <div className="fixed inset-0 z-[99999999] flex items-end md:items-center justify-center bg-black/80 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[99999999] flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm transition-all duration-300">
       {/* Overlay for clicking outside */}
       <div
         className="absolute inset-0 h-screen cursor-default"
@@ -28,18 +28,18 @@ const ModalDetalleBase = ({
         className={`
           relative z-10 w-full ${width}
           max-h-[85vh] md:max-h-[90vh]
-          bg-[var(--fill)] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-2xl
-          overflow-hidden rounded-t-[32px] md:rounded-md
-          border-t md:border border-black/10
-          flex flex-col
+          bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)]
+          overflow-hidden rounded-t-[24px] md:rounded-[16px]
+          border-t md:border border-[var(--color-neutral-border)]
+          flex flex-col animate-in fade-in zoom-in-95 duration-200
         `}
       >
         {/* Barra de arrastre superior para Mobile */}
         <div
-          className="flex md:hidden justify-center pt-4 pb-2 w-full absolute top-0 left-0 right-0 z-30 bg-gradient-to-b from-[var(--fill)] to-transparent"
+          className="flex md:hidden justify-center pt-4 pb-2 w-full absolute top-0 left-0 right-0 z-30 bg-white"
           onClick={onClose}
         >
-          <div className="w-12 h-1.5 bg-black/20 rounded-full"></div>
+          <div className="w-12 h-1.5 bg-black/10 rounded-full"></div>
         </div>
 
         {/* Contenido scrolleable */}

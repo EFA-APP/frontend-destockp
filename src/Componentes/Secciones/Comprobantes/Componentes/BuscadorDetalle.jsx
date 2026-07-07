@@ -49,46 +49,44 @@ const BuscadorDetalle = ({
   }, 0);
 
   return (
-    <>
+    <div className="flex flex-col gap-4 p-6 mt-5 bg-white border border-[var(--color-neutral-border)] rounded-[16px] shadow-sm">
       {/* SELECTOR TIPO DETALLE */}
-      <div className="flex p-1 px-4 rounded-md border-b border-gray-700/20  w-auto mb-1 gap-2">
-        <div className="flex w-full bg-gray-300 rounded-md">
-          {tipoOperacion === "EGRESO" && (
-            <button
-              type="button"
-              onClick={() => setTipoDetalle("MATERIA_PRIMA")}
-              className={`flex-1 py-2 rounded-md text-md font-semibold uppercase tracking-wider transition-all ${tipoDetalle === "MATERIA_PRIMA" ? "bg-white text-gray-900 shadow-sm border border-gray-200/50" : "text-gray-500 hover:text-gray-850 hover:bg-gray-105/50"}`}
-            >
-              Materia Prima
-            </button>
-          )}
+      <div className="flex w-full sm:w-fit bg-gray-50 p-1.5 rounded-[12px] border border-[var(--color-neutral-border)] shadow-sm gap-1 mb-2">
+        {tipoOperacion === "EGRESO" && (
           <button
             type="button"
-            onClick={() => setTipoDetalle("PRODUCTO")}
-            className={`flex-1 py-2 rounded-md text-md font-semibold uppercase tracking-wider transition-all ${tipoDetalle === "PRODUCTO" ? "bg-white text-gray-900 shadow-sm border border-gray-200/50" : "text-gray-500 hover:text-gray-850 hover:bg-gray-105/50"}`}
+            onClick={() => setTipoDetalle("MATERIA_PRIMA")}
+            className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wide transition-colors duration-200 cursor-pointer ${tipoDetalle === "MATERIA_PRIMA" ? "bg-white text-[var(--color-brand-primary)] shadow-sm border border-[var(--color-neutral-border)]" : "text-[var(--color-neutral-text-muted)] hover:text-[var(--color-neutral-text-main)] hover:bg-gray-100/50"}`}
           >
-            Producto
+            Materia Prima
           </button>
-          <button
-            type="button"
-            onClick={() => setTipoDetalle("CUENTA_CONTABLE")}
-            className={`flex-1 py-2 rounded-md text-md font-semibold uppercase tracking-wider transition-all ${tipoDetalle === "CUENTA_CONTABLE" ? "bg-white text-gray-900 shadow-sm border border-gray-200/50" : "text-gray-500 hover:text-gray-850 hover:bg-gray-105/50"}`}
-          >
-            Servicios
-          </button>
-        </div>
+        )}
+        <button
+          type="button"
+          onClick={() => setTipoDetalle("PRODUCTO")}
+          className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wide transition-colors duration-200 cursor-pointer ${tipoDetalle === "PRODUCTO" ? "bg-white text-[var(--color-brand-primary)] shadow-sm border border-[var(--color-neutral-border)]" : "text-[var(--color-neutral-text-muted)] hover:text-[var(--color-neutral-text-main)] hover:bg-gray-100/50"}`}
+        >
+          Producto
+        </button>
+        <button
+          type="button"
+          onClick={() => setTipoDetalle("CUENTA_CONTABLE")}
+          className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wide transition-colors duration-200 cursor-pointer ${tipoDetalle === "CUENTA_CONTABLE" ? "bg-white text-[var(--color-brand-primary)] shadow-sm border border-[var(--color-neutral-border)]" : "text-[var(--color-neutral-text-muted)] hover:text-[var(--color-neutral-text-main)] hover:bg-gray-100/50"}`}
+        >
+          Servicios
+        </button>
       </div>
 
       {/* AGREGAR DETALLE */}
-      <div className="relative flex justify-center items-center  focus-within:border-[var(--primary)] focus-within:ring-2 focus-within:ring-[var(--primary)]/10 transition h-[50px] items-center justify-between px-3">
+      <div className="relative flex items-center mb-2">
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="p-1.5 rounded-md bg-[var(--primary)]/10 bg-[var(--primary)] text-[var(--primary)] hover:text-white transition-colors duration-200 flex items-center justify-center gap-2 cursor-pointer"
+          className="px-4 py-2.5 rounded-[8px] bg-[var(--color-brand-soft)] text-[var(--color-brand-primary)] hover:bg-[var(--color-brand-primary)] hover:text-white transition-colors duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-sm border border-[var(--color-brand-primary)]/20 uppercase tracking-widest text-[11px]"
           title="Agregar detalle manualmente"
         >
           <CajaIcono className="w-5 h-5" />
-          <p className="font-bold">Agregar Detalle</p>
+          <span className="font-bold">Agregar Detalle</span>
         </button>
       </div>
 
@@ -135,7 +133,7 @@ const BuscadorDetalle = ({
         montoPreCargado={precioUnitarioInicial}
         montosSugeridos={montosSugeridos}
       />
-    </>
+    </div>
   );
 };
 

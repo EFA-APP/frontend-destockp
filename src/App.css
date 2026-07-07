@@ -1,18 +1,4 @@
-body {
-  background-color: var(--fill);
-  font-size: var(--text-sm);
-  line-height: var(--tw-leading, var(--text-sm--line-height));
-  font-family: var(
-    --default-font-family,
-    ui-sans-serif,
-    system-ui,
-    sans-serif,
-    "Apple Color Emoji",
-    "Segoe UI Emoji",
-    "Segoe UI Symbol",
-    "Noto Color Emoji"
-  );
-}
+/* El styling del body ahora se maneja en index.css */
 
 .top-loading-bar {
   position: fixed;
@@ -62,65 +48,23 @@ body {
 }
 
 :root {
-  /* --- HSL Brand Palette --- */
-  --p-h: 219;
-  --p-s: 100%;
-  --p-l: 56%;
+  /* --- Legacy Variables Bridge --- */
+  /* Mapeamos las variables antiguas a los nuevos tokens de Tailwind v4 */
+  --primary: var(--brand-primary);
+  --primary-hover: var(--color-brand-hover);
+  --primary-active: var(--color-brand-hover);
+  --primary-light: var(--color-brand-light);
+  --primary-subtle: var(--color-brand-soft);
+  --primary-emphasis: var(--color-brand-hover);
 
-  --primary: hsl(var(--p-h), var(--p-s), var(--p-l));
-  --fucsia: hsl(219, 100%, 56%);
-  --primary-hover: hsl(var(--p-h), var(--p-s), calc(var(--p-l) - 5%));
-  --primary-active: hsl(var(--p-h), var(--p-s), calc(var(--p-l) - 10%));
-  --primary-light: hsl(var(--p-h), var(--p-s), 70%);
-  --primary-subtle: hsla(var(--p-h), var(--p-s), var(--p-l), 0.1);
-  --primary-emphasis: hsl(var(--p-h), var(--p-s), 30%);
+  --secondary: var(--brand-primary);
+  --secondary-subtle: var(--color-brand-soft);
 
-  /* Secondary (Green): #10d127 -> HSL(127, 86%, 44%) */
-  --s-h: 127;
-  --s-s: 86%;
-  --s-l: 44%;
-  --secondary: hsl(var(--s-h), var(--s-s), var(--s-l));
-  --secondary-subtle: hsla(var(--s-h), var(--s-s), var(--s-l), 0.1);
-
-  /* --- Global Tokens --- */
-  --font-sans:
-    ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-    "Segoe UI Symbol", "Noto Color Emoji";
-  --spacing: 0.25rem;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
-  --radius-xl: 12px;
-  --radius-full: 9999px;
-
-  /* --- Typography --- */
-  --text-xs: 0.65rem;
-  --text-sm: 0.75rem;
-  --text-base: 0.85rem;
-  --text-lg: 1rem;
-  --text-xl: 1.1rem;
-  --text-2xl: 1.25rem;
-
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-
-  /* --- Semantic Colors --- */
-  --fill: hsl(
-    230,
-    25%,
-    96%
-  ); /* Fondo principal ligeramente más oscuro para dar contraste a las tarjetas blancas */
-  --fill-secondary: hsl(230, 25%, 92%);
-  --surface: rgba(
-    255,
-    255,
-    255,
-    0.95
-  ); /* Superficies casi blancas pero con sutil transparencia */
-  --surface-hover: rgba(255, 255, 255, 1);
-  --surface-active: hsl(230, 20%, 98%);
+  --fill: var(--neutral-bg);
+  --fill-secondary: var(--neutral-bg);
+  --surface: var(--color-neutral-surface);
+  --surface-hover: var(--color-neutral-surface);
+  --surface-active: var(--color-neutral-surface);
 
   --text-primary: hsla(0, 0%, 0%, 0.9);
   --text-secondary: hsla(0, 0%, 0%, 0.6);

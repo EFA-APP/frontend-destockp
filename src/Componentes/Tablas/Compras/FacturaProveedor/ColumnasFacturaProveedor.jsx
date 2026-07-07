@@ -8,23 +8,26 @@ export const columnasFacturasProveedor = [
 
       // Identificación amigable del tipo
       const tipo = Number(fila.tipoDocumento);
-      const esNC = [3, 8, 13, 53, 993].includes(tipo);
-      const esND = [2, 7, 12, 52, 994].includes(tipo);
+      const esNC = [3, 8, 13, 53, 994].includes(tipo);
+      const esND = [2, 7, 12, 52, 995].includes(tipo);
       const esRecibo = [4, 9, 15, 54, 992].includes(tipo);
+      const esOP = [993].includes(tipo);
 
       let label = "Factura";
-      let badgeStyle =
-        "bg-emerald-700/10 text-emerald-400 border-emerald-700/20";
+      let badgeStyle = "bg-emerald-50 text-emerald-700 border-emerald-200";
 
       if (esNC) {
         label = "Nota Crédito";
-        badgeStyle = "bg-rose-700/10 text-rose-400 border-rose-700/20";
+        badgeStyle = "bg-rose-50 text-rose-700 border-rose-200";
       } else if (esND) {
         label = "Nota Débito";
-        badgeStyle = "bg-amber-700/10 text-amber-700 border-amber-700/20";
+        badgeStyle = "bg-amber-50 text-amber-700 border-amber-200";
       } else if (esRecibo) {
-        label = "Pago Prov.";
-        badgeStyle = "bg-blue-700/10 text-blue-400 border-blue-700/20";
+        label = "Recibo";
+        badgeStyle = "bg-blue-50 text-blue-700 border-blue-200";
+      } else if (esOP) {
+        label = "Orden de Pago";
+        badgeStyle = "bg-cyan-50 text-cyan-700 border-cyan-200";
       }
 
       return (

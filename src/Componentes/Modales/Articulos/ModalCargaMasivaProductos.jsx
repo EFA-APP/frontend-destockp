@@ -156,24 +156,24 @@ const ModalCargaMasivaProductos = ({ open, onClose, onExito }) => {
       <div className="flex flex-wrap gap-4">
         <button
           onClick={descargarPlantilla}
-          className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-md text-emerald-400  group"
+          className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-white hover:bg-emerald-50 border border-[var(--color-neutral-border)] rounded-[12px] text-emerald-600 transition-colors group cursor-pointer shadow-sm"
         >
-          <Download size={20} className="group-hover:-translate-y-1 " />
+          <Download size={20} className="group-hover:-translate-y-1 transition-transform" />
           <div className="text-left">
-            <div className="text-xs font-black uppercase tracking-wider">
+            <div className="text-[13px] font-semibold text-[var(--color-neutral-text-main)]">
               Descargar Plantilla
             </div>
-            <div className="text-[12px] opacity-60">Formato Excel (.xlsx)</div>
+            <div className="text-[12px] text-[var(--color-neutral-text-muted)]">Formato Excel (.xlsx)</div>
           </div>
         </button>
 
-        <label className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-md text-blue-400  cursor-pointer group">
-          <FileSpreadsheet size={20} className=" " />
+        <label className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-white hover:bg-blue-50 border border-[var(--color-neutral-border)] rounded-[12px] text-blue-600 transition-colors cursor-pointer group shadow-sm">
+          <FileSpreadsheet size={20} />
           <div className="text-left">
-            <div className="text-xs font-black uppercase tracking-wider">
+            <div className="text-[13px] font-semibold text-[var(--color-neutral-text-main)]">
               Subir Archivo
             </div>
-            <div className="text-[12px] opacity-60">
+            <div className="text-[12px] text-[var(--color-neutral-text-muted)]">
               Seleccionar Excel completado
             </div>
           </div>
@@ -187,7 +187,7 @@ const ModalCargaMasivaProductos = ({ open, onClose, onExito }) => {
       </div>
 
       {error && (
-        <div className="bg-rose-500/10 border border-rose-500/20 rounded-md p-4 flex items-center gap-3 text-rose-400 text-xs font-bold   ">
+        <div className="bg-rose-50 border border-rose-200 rounded-[10px] p-4 flex items-center gap-3 text-rose-700 text-[13px] font-semibold shadow-sm">
           <AlertCircle size={18} />
           {error}
         </div>
@@ -196,26 +196,26 @@ const ModalCargaMasivaProductos = ({ open, onClose, onExito }) => {
       {/* Previsualización */}
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
-          <label className="text-[13px] font-bold text-black/50 uppercase tracking-widest">
+          <label className="text-[13px] font-semibold text-[var(--color-neutral-text-main)] uppercase tracking-wide">
             Previsualización de Datos
           </label>
-          <span className="text-[12px] font-black text-amber-500 uppercase">
+          <span className="text-[12px] font-bold text-[var(--color-brand-primary)] bg-[var(--color-brand-soft)] px-2.5 py-1 rounded-full">
             {fileData.length} productos detectados
           </span>
         </div>
 
         <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
           {fileData.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-black/10 border-2 border-dashed border-black/5 rounded-md">
+            <div className="flex flex-col items-center justify-center py-12 text-[var(--color-neutral-text-muted)] border-2 border-dashed border-[var(--color-neutral-border)] rounded-[12px] bg-gray-50/50">
               <FileSpreadsheet
                 size={48}
-                strokeWidth={1}
-                className="mb-4 opacity-10"
+                strokeWidth={1.5}
+                className="mb-4 opacity-30"
               />
-              <p className="text-sm font-bold uppercase tracking-widest">
+              <p className="text-[14px] font-semibold tracking-wide text-[var(--color-neutral-text-main)]">
                 No hay datos para mostrar
               </p>
-              <p className="text-[12px] uppercase tracking-[0.2em] mt-1">
+              <p className="text-[12px] mt-1 text-[var(--color-neutral-text-muted)]">
                 Sube un archivo para comenzar
               </p>
             </div>
@@ -223,34 +223,34 @@ const ModalCargaMasivaProductos = ({ open, onClose, onExito }) => {
             fileData.map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-4 bg-black/5 p-4 rounded-md border border-black/10 hover:bg-white/[0.08]   "
+                className="flex items-center gap-4 bg-white p-4 rounded-[12px] border border-[var(--color-neutral-border)] shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="w-10 h-10 rounded-md bg-amber-500/10 flex items-center justify-center border border-amber-500/20 shrink-0">
-                  <Package size={20} className="text-amber-500" />
+                <div className="w-10 h-10 rounded-[10px] bg-amber-50 flex items-center justify-center border border-amber-100 shrink-0">
+                  <Package size={20} className="text-amber-600" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-bold text-black truncate">
+                  <div className="text-[14px] font-semibold text-[var(--color-neutral-text-main)] truncate">
                     {item.nombre}
                   </div>
-                  <div className="flex items-center gap-2 mt-0.5 overflow-hidden">
-                    <span className="text-[12px] text-black/40 uppercase font-black">
+                  <div className="flex items-center gap-2 mt-1 overflow-hidden">
+                    <span className="text-[12px] text-[var(--color-neutral-text-muted)] font-bold">
                       {item.unidadMedida}
                     </span>
-                    <span className="text-[12px] text-black/20">•</span>
-                    <span className="text-[12px] text-amber-500/70 font-bold whitespace-nowrap">
+                    <span className="text-[12px] text-[var(--color-neutral-text-muted)]">•</span>
+                    <span className="text-[12px] text-[var(--color-brand-primary)] font-bold whitespace-nowrap bg-[var(--color-brand-soft)] px-2 rounded-[4px]">
                       Stock: {item.stock}
                     </span>
                     {Object.keys(item.atributos).length > 0 && (
                       <>
-                        <span className="text-[12px] text-black/20">•</span>
-                        <span className="text-[12px] text-emerald-500/70 font-bold truncate">
+                        <span className="text-[12px] text-[var(--color-neutral-text-muted)]">•</span>
+                        <span className="text-[12px] text-blue-600 font-bold truncate bg-blue-50 px-2 rounded-[4px]">
                           +{Object.keys(item.atributos).length} campos
                         </span>
                       </>
                     )}
                   </div>
                 </div>
-                <CheckCircle2 size={18} className="text-emerald-500/40" />
+                <CheckCircle2 size={20} className="text-[var(--color-brand-primary)]" />
               </div>
             ))
           )}
@@ -260,22 +260,22 @@ const ModalCargaMasivaProductos = ({ open, onClose, onExito }) => {
   );
 
   const footer = (
-    <div className="flex items-center justify-between w-full">
+    <div className="flex items-center justify-end gap-3 w-full border-t border-[var(--color-neutral-border)] pt-4 mt-2">
       <button
         onClick={handleClose}
-        className="px-6 py-2.5 text-xs font-black text-black/60 hover:text-black uppercase tracking-widest "
+        className="px-6 py-2.5 text-[13px] font-semibold text-[var(--color-neutral-text-main)] hover:bg-gray-50 border border-[var(--color-neutral-border)] rounded-[10px] transition-colors"
       >
         Cancelar
       </button>
       <button
         onClick={handleSubmit}
         disabled={fileData.length === 0 || cargando}
-        className="flex items-center gap-3 px-8 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed text-black rounded-md font-black text-[13px] uppercase tracking-widest  shadow-xl shadow-amber-500/20 active:scale-95"
+        className="flex items-center gap-2 px-8 py-2.5 bg-[var(--color-brand-primary)] hover:bg-[var(--color-brand-primary-hover)] disabled:opacity-50 text-white rounded-[10px] font-semibold text-[13px] transition-colors shadow-sm"
       >
         {cargando ? (
-          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full " />
+          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
         ) : (
-          <GuardarIcono size={16} />
+          <GuardarIcono size={18} />
         )}
         {cargando ? "Importando..." : "Realizar Carga Masiva"}
       </button>

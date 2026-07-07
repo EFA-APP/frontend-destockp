@@ -52,17 +52,13 @@ const VALORES_ESPERADOS = [
   "CREDITO_30_DIAS",
   "CREDITO_60_DIAS",
   "CREDITO_90_DIAS",
-  "TRANSFERENCIA_BANCARIA",
-  "TARJETA_DEBITO",
-  "TARJETA_CREDITO",
-  "CHEQUE",
 ];
 
-test("tiene exactamente 9 <option>", () => {
-  assert.equal(valoresEncontrados.length, 9);
+test("contiene exactamente las 5 opciones de condición", () => {
+  assert.equal(valoresEncontrados.length, 5);
 });
 
-test("los 9 value coinciden exactamente con los 9 valores del enum (mismo orden)", () => {
+test("los 5 value coinciden exactamente con los 5 valores del enum (mismo orden)", () => {
   assert.deepEqual(valoresEncontrados, VALORES_ESPERADOS);
 });
 

@@ -20,6 +20,7 @@ import { BorrarIcono } from "../../../../assets/Icons";
 import { useObtenerCuentasImputablesQuery } from "../../../../Backend/Contabilidad/queries/useCuentas.query";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { obtenerMetodosPermitidos } from "../utils/condicionMetodoPago.js";
+import SelectorChequeEndosoModal from "./SelectorChequeEndosoModal";
 
 const METODOS = [
   {
@@ -566,8 +567,10 @@ export const DetallePago = ({
   const [tarjeta, setTarjeta] = useState(datosTarjetaInit);
   const [modalTarjetaAbierto, setModalTarjetaAbierto] = useState(false);
   const [modalChequeAbierto, setModalChequeAbierto] = useState(false);
+  const [modalEndosoAbierto, setModalEndosoAbierto] = useState(false);
   const [chequeTercero, setChequeTercero] = useState(chequeTerceroInit);
   const [chequePropio, setChequePropio] = useState(chequesPropioInit);
+  const [endosoChequeTercero, setEndosoChequeTercero] = useState(null);
 
   // ── Vuelto ──
   const [tipoVuelto, setTipoVuelto] = useState("EFECTIVO");
@@ -614,21 +617,20 @@ export const DetallePago = ({
     totalComprobante,
     pagos,
     vueltos,
-    montoPagoFocused,
     tipoPago,
     tarjeta.recargo,
   ]);
 
   // Actualizar automáticamente el vuelto sugerido por defecto si hay excedente
   useEffect(() => {
-    if (hayExcedente && !montoVueltoFocused) {
+    if (hayExcedente) {
       setMontoVuelto(
         excedente > 0 ? excedente.toFixed(2).replace(".", ",") : "",
       );
     } else if (!hayExcedente) {
       setMontoVuelto("");
     }
-  }, [hayExcedente, excedente, montoVueltoFocused]);
+  }, [hayExcedente, excedente]);
 
   // Reasignar tipoPago cuando la condición cambia y el método actual dejó de
   // estar permitido (R16)
@@ -656,6 +658,7 @@ export const DetallePago = ({
     setTarjeta(datosTarjetaInit);
     setChequeTercero(chequeTerceroInit);
     setChequePropio(chequesPropioInit);
+    setEndosoChequeTercero(null);
   };
 
   const handleAgregarPago = () => {
@@ -676,11 +679,18 @@ export const DetallePago = ({
           recargo: parseFloat(tarjeta.recargo) || 0,
         },
       }),
-      ...(tipoPago === "CHEQUE_TERCERO" && {
-        chequeTercero: { ...chequeTercero },
-      }),
+      ...(tipoPago === "CHEQUE_TERCERO" &&
+        tipoOperacion === "INGRESO" && {
+          chequeTercero: { ...chequeTercero, importe: monto },
+        }),
+      ...(tipoPago === "CHEQUE_TERCERO" &&
+        tipoOperacion === "EGRESO" &&
+        endosoChequeTercero && {
+          endosoChequeTercero: { ...endosoChequeTercero },
+          monto: endosoChequeTercero._chequeOriginal?.importe || monto,
+        }),
       ...(tipoPago === "CHEQUE_PROPIO" && {
-        chequePropio: { ...chequePropio },
+        chequePropio: { ...chequePropio, importe: monto },
       }),
     };
 
@@ -840,7 +850,13 @@ export const DetallePago = ({
               <div className="flex items-center gap-3 pt-2 border-t border-gray-100">
                 <button
                   type="button"
-                  onClick={() => setModalChequeAbierto(true)}
+                  onClick={() => {
+                    if (tipoPago === "CHEQUE_TERCERO" && tipoOperacion === "EGRESO") {
+                      setModalEndosoAbierto(true);
+                    } else {
+                      setModalChequeAbierto(true);
+                    }
+                  }}
                   className="flex-1 py-2.5 rounded-md bg-white border border-[var(--border-subtle)] text-xs font-bold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-sm"
                 >
                   <FileText
@@ -851,12 +867,27 @@ export const DetallePago = ({
                         : "text-amber-500"
                     }
                   />
-                  {(tipoPago === "CHEQUE_TERCERO" && chequeTercero.numero) ||
-                  (tipoPago === "CHEQUE_PROPIO" && chequePropio.numero)
-                    ? `Cheque: ${tipoPago === "CHEQUE_TERCERO" ? chequeTercero.banco : chequePropio.banco} #${tipoPago === "CHEQUE_TERCERO" ? chequeTercero.numero : chequePropio.numero}`
-                    : "Completar Datos del Cheque"}
+                  {tipoPago === "CHEQUE_TERCERO" && tipoOperacion === "EGRESO"
+                    ? endosoChequeTercero
+                      ? `Endoso: #${endosoChequeTercero._chequeOriginal?.numero}`
+                      : "Seleccionar Cheque a Endosar"
+                    : (tipoPago === "CHEQUE_TERCERO" && chequeTercero.numero) ||
+                      (tipoPago === "CHEQUE_PROPIO" && chequePropio.numero)
+                      ? `Cheque: ${tipoPago === "CHEQUE_TERCERO" ? chequeTercero.banco : chequePropio.banco} #${tipoPago === "CHEQUE_TERCERO" ? chequeTercero.numero : chequePropio.numero}`
+                      : "Completar Datos del Cheque"}
                 </button>
               </div>
+            )}
+            
+            {modalEndosoAbierto && (
+              <SelectorChequeEndosoModal
+                onClose={() => setModalEndosoAbierto(false)}
+                onConfirm={(endosoData) => {
+                  setEndosoChequeTercero(endosoData);
+                  setMontoPago(formatNumber(endosoData._chequeOriginal?.importe || 0));
+                  setModalEndosoAbierto(false);
+                }}
+              />
             )}
 
             {modalChequeAbierto && (
@@ -912,6 +943,11 @@ export const DetallePago = ({
                 {pago.chequeTercero?.numero && (
                   <span className="text-md font-semibold text-gray-500 truncate">
                     {pago.chequeTercero.banco} #{pago.chequeTercero.numero}
+                  </span>
+                )}
+                {pago.endosoChequeTercero && (
+                  <span className="text-md font-semibold text-gray-500 truncate">
+                    Endoso #{pago.endosoChequeTercero._chequeOriginal?.numero} (CUIT: {pago.endosoChequeTercero.cuitEndosado})
                   </span>
                 )}
                 {pago.chequePropio?.numero && (

@@ -49,8 +49,8 @@ function debeBloquearGuardado(condicionComprobante, pagos) {
 
 console.log("Ingresos.jsx / Egresos.jsx — handleGuardar (T21, T22, R21, R22)");
 
-test('condicionComprobante="TRANSFERENCIA_BANCARIA" + pagos=[] → bloquea (R21)', () => {
-  assert.equal(debeBloquearGuardado("TRANSFERENCIA_BANCARIA", []), true);
+test('condicionComprobante="CONTADO" + pagos=[] → bloquea (R21)', () => {
+  assert.equal(debeBloquearGuardado("CONTADO", []), true);
 });
 
 test('condicionComprobante="CUENTA_CORRIENTE" + pagos=[] → NO bloquea (R22)', () => {
@@ -74,9 +74,6 @@ test('condicionComprobante="CONTADO" + pagos con 1 elemento → NO bloquea', () 
   );
 });
 
-test('condicionComprobante="CHEQUE" + pagos=[] → bloquea (R21)', () => {
-  assert.equal(debeBloquearGuardado("CHEQUE", []), true);
-});
 
 console.log(
   "\nVerificación de código fuente: Ingresos.jsx / Egresos.jsx usan requierePago y pasan condicionComprobante",
