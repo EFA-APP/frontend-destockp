@@ -114,9 +114,7 @@ const ImportadorPrecios = lazy(
 const Empresas = lazy(
   () => import("../Componentes/Secciones/Sistema/Empresas"),
 );
-const GestionCuotas = lazy(
-  () => import("../Componentes/Secciones/Escuela/GestionCuotas/GestionCuotas"),
-);
+
 const NuevoIngreso = lazy(
   () => import("../Componentes/Secciones/Articulos/Movimientos/NuevoIngreso"),
 );
@@ -357,10 +355,7 @@ export default function Router() {
               />
             </Route>
 
-            {/* ESCUELA */}
-            <Route element={<RutaProtegida />}>
-              <Route path="escuela/cuotas" element={<GestionCuotas />} />
-            </Route>
+
 
             {/* TESORERÍA */}
             <Route element={<RutaProtegida />}>
