@@ -154,6 +154,11 @@ const CajaDiaria = lazy(
   () => import("../Componentes/Secciones/Tesoreria/CajaDiaria/CajaDiaria"),
 );
 
+// ESCUELA
+const GestionCuotas = lazy(
+  () => import("../Componentes/Secciones/Escuela/GestionCuotas/GestionCuotas"),
+);
+
 const VistaCuentasCorrientes = lazy(
   () =>
     import("../Componentes/Secciones/CuentasCorrientes/VistaCuentasCorrientes"),
@@ -381,6 +386,12 @@ export default function Router() {
             <Route element={<RutaProtegida />}>
               <Route path="sistema/empresa" element={<Empresas />} />
             </Route>
+            
+            {/* ESCUELA */}
+            <Route element={<RutaProtegida />}>
+              <Route path="escuela/cuotas" element={<GestionCuotas />} />
+            </Route>
+
             {/* <Route path="demo" element={<SistemaContable />} /> */}
           </Route>
         </Route>
