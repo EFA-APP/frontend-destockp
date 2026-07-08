@@ -1,1 +1,0 @@
-import{q as r}from"./index-tqZrnK_S.js";import{l as o}from"./tesoreria.api-BO4SKrha.js";const a=(e={})=>r({queryKey:["tesoreria-movimientos",e],queryFn:()=>o(e),staleTime:1e3*60*2,enabled:!!e.codigoEmpresa});export{a as u};

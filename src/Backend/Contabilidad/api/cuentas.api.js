@@ -49,3 +49,12 @@ export const obtenerCuentasImputablesPorTipo = async ({ tipo, busqueda, codigoEm
   });
   return data;
 };
+
+export const obtenerCuentasPorCodigos = async (codigos) => {
+  const { data } = await axiosInitial.get("/contabilidad/cuentas/por-codigos", {
+    params: { codigos: (codigos || []).join(",") },
+    showLoader: false,
+    sinEmpresa: true,
+  });
+  return data;
+};

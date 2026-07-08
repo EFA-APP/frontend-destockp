@@ -175,6 +175,20 @@ export const useDetalleComprobante = (tipoOperacion = "INGRESO") => {
     );
   };
 
+  /**
+   * Vuelve el detalle (carrito + búsquedas) al mismo estado inicial que
+   * tenía al montar el componente, para dejar el formulario listo para
+   * cargar un comprobante nuevo después de guardar exitosamente.
+   */
+  const reset = () => {
+    setItems([]);
+    setTipoDetalle("PRODUCTO");
+    setCodigoBusqueda("");
+    setBusquedaCCDebounced("");
+    setFiltrosProductos({ pagina: 1, limite: 10 });
+    setColumnaPrecioSeleccionada("precioVenta");
+  };
+
   // ───────────────────────── TOTALES ─────────────────────────
   // Cada total vive en su propia variable: nunca se mezcla el precio del
   // producto con el IVA dentro del mismo número.
@@ -220,6 +234,7 @@ export const useDetalleComprobante = (tipoOperacion = "INGRESO") => {
     actualizarTasaIvaItem,
     actualizarTipoFiscalItem,
     quitarItem,
+    reset,
     subtotalSinIva,
     totalIva,
     totalGeneral,

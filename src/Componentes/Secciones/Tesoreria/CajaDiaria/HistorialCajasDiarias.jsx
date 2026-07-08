@@ -2,9 +2,9 @@ import { formatPrice, formatDate } from "../../../../utils/formatters";
 
 const HistorialCajasDiarias = ({ historial }) => {
   return (
-    <div className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md shadow-sm flex-1 flex flex-col">
-      <div className="px-5 py-4 border-b border-[var(--border-subtle)] bg-black/[0.01]">
-        <span className="text-xs font-black text-black/40 uppercase tracking-widest">
+    <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] flex-1 flex flex-col overflow-hidden">
+      <div className="px-6 py-5 border-b border-[#E9EDEC]">
+        <span className="text-[15px] font-semibold text-[#1A1D1C]">
           Historial de Cajas Anteriores
         </span>
       </div>
@@ -12,7 +12,7 @@ const HistorialCajasDiarias = ({ historial }) => {
       <div className="overflow-x-auto overflow-y-visible">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-black/[0.02] border-b border-[var(--border-subtle)]">
+            <tr>
               {[
                 "Fecha",
                 "Fondo Inicial",
@@ -25,7 +25,7 @@ const HistorialCajasDiarias = ({ historial }) => {
               ].map((col) => (
                 <th
                   key={col}
-                  className="px-5 py-3.5 text-[9px] font-black text-black/40 uppercase tracking-[0.18em] whitespace-nowrap"
+                  className="px-6 py-4 text-[13px] font-medium text-[#6B7472] whitespace-nowrap border-b border-[#E9EDEC]"
                 >
                   {col}
                 </th>
@@ -37,7 +37,7 @@ const HistorialCajasDiarias = ({ historial }) => {
               <tr>
                 <td
                   colSpan={8}
-                  className="px-5 py-12 text-center text-sm font-semibold text-black/40"
+                  className="px-6 py-12 text-center text-sm font-medium text-[#6B7472]"
                 >
                   No hay cajas anteriores registradas
                 </td>
@@ -46,46 +46,48 @@ const HistorialCajasDiarias = ({ historial }) => {
               historial.map((entrada, index) => (
                 <tr
                   key={`${entrada.fecha}-${index}`}
-                  className="border-b border-[var(--border-subtle)]/60 hover:bg-[var(--primary)]/[0.02] transition-colors cursor-default"
+                  className="border-b border-[#E9EDEC] hover:bg-[#F5F7F6] transition-colors cursor-default"
                 >
-                  <td className="px-5 py-4 text-xs font-bold text-gray-700 whitespace-nowrap">
+                  <td className="px-6 py-4 text-sm font-normal text-[#1A1D1C] whitespace-nowrap">
                     {formatDate(entrada.fecha)}
                   </td>
-                  <td className="px-5 py-4 text-xs font-semibold text-gray-700 whitespace-nowrap">
+                  <td className="px-6 py-4 text-sm font-normal text-[#1A1D1C] whitespace-nowrap">
                     {formatPrice(entrada.fondoInicial)}
                   </td>
-                  <td className="px-5 py-4 text-xs font-semibold text-emerald-700 whitespace-nowrap">
-                    {formatPrice(entrada.ingresos)}
+                  <td className="px-6 py-4 text-sm font-normal text-[#1FAE6D] whitespace-nowrap">
+                    {entrada.ingresos !== null && entrada.ingresos !== undefined ? formatPrice(entrada.ingresos) : "—"}
                   </td>
-                  <td className="px-5 py-4 text-xs font-semibold text-rose-700 whitespace-nowrap">
-                    {formatPrice(entrada.egresos)}
+                  <td className="px-6 py-4 text-sm font-normal text-[#EF5A5A] whitespace-nowrap">
+                    {entrada.egresos !== null && entrada.egresos !== undefined ? formatPrice(entrada.egresos) : "—"}
                   </td>
-                  <td className="px-5 py-4 text-xs font-semibold text-gray-700 whitespace-nowrap">
-                    {formatPrice(entrada.saldoEsperado)}
+                  <td className="px-6 py-4 text-sm text-[#1A1D1C] whitespace-nowrap">
+                    {entrada.saldoEsperado !== null && entrada.saldoEsperado !== undefined ? formatPrice(entrada.saldoEsperado) : "—"}
                   </td>
-                  <td className="px-5 py-4 text-xs font-semibold text-gray-700 whitespace-nowrap">
-                    {formatPrice(entrada.saldoContado)}
+                  <td className="px-6 py-4 text-sm text-[#1A1D1C] whitespace-nowrap">
+                    {entrada.saldoContado !== null && entrada.saldoContado !== undefined ? formatPrice(entrada.saldoContado) : "—"}
                   </td>
-                  <td className="px-5 py-4 text-xs font-black whitespace-nowrap">
-                    <span
-                      className={
-                        entrada.diferencia === 0
-                          ? "text-emerald-600"
-                          : entrada.diferencia < 0
-                            ? "text-rose-600"
-                            : "text-amber-600"
-                      }
-                    >
-                      {formatPrice(entrada.diferencia)}
-                    </span>
+                  <td className="px-6 py-4 text-[15px] font-semibold whitespace-nowrap">
+                    {entrada.diferencia !== null && entrada.diferencia !== undefined ? (
+                      <span
+                        className={
+                          entrada.diferencia === 0
+                            ? "text-[#1FAE6D]"
+                            : entrada.diferencia < 0
+                              ? "text-[#EF5A5A]"
+                              : "text-[#F5B944]"
+                        }
+                      >
+                        {formatPrice(entrada.diferencia)}
+                      </span>
+                    ) : "—"}
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-6 py-4">
                     {entrada.estado === "cerrada" ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-[#E8F7EF] text-[#178F58]">
                         Cerrada
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-100">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-[#F5B944]/10 text-[#F5B944]">
                         Abierta
                       </span>
                     )}

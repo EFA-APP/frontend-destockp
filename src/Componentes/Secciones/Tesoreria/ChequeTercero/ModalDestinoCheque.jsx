@@ -18,21 +18,27 @@ const ModalDestinoCheque = ({ cheque, accion, onClose }) => {
     return () => clearTimeout(t);
   }, [busqueda]);
 
-  // 110102 es el parent "Bancos" (codigoSecuencial: 110102)
+  // 58 es el codigoSecuencial en DB para la cuenta agrupadora "Bancos" (codigo string: "110102")
   const { data: bancos, isLoading: isLoadingBancos } =
-    useObtenerDescendientesImputablesQuery(110102, busquedaDebounced || undefined);
+    useObtenerDescendientesImputablesQuery(
+      58,
+      busquedaDebounced || undefined,
+    );
 
   const cuentaOptions = useMemo(() => {
     const opts = [];
-    
+
     // Inyectamos Caja Principal si no hay búsqueda, o si la búsqueda coincide con "caja"
-    if (!busquedaDebounced || "caja principal".includes(busquedaDebounced.toLowerCase())) {
+    if (
+      !busquedaDebounced ||
+      "caja principal".includes(busquedaDebounced.toLowerCase())
+    ) {
       opts.push({ value: "85", label: "Caja Principal" });
     }
 
     if (bancos && bancos.length > 0) {
       bancos.forEach((b) => {
-        opts.push({ value: String(b.codigo), label: b.nombre });
+        opts.push({ value: String(b.codigoSecuencial), label: b.nombre });
       });
     }
     return opts;
@@ -45,13 +51,20 @@ const ModalDestinoCheque = ({ cheque, accion, onClose }) => {
   const isPending =
     mDepositar.isPending || mCobrar.isPending || mRechazar.isPending;
 
+  const mostrarAdvertencias = (data) => {
+    if (data?.advertencias?.length > 0) {
+      alert(`Advertencia:\n\n${data.advertencias.join("\n")}`);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (accion === "RECHAZAR") {
       mRechazar.mutate(cheque.codigo, {
-        onSuccess: () => {
+        onSuccess: (data) => {
           alert("Cheque rechazado correctamente");
+          mostrarAdvertencias(data);
           onClose();
         },
         onError: (err) => alert(err.message),
@@ -71,16 +84,18 @@ const ModalDestinoCheque = ({ cheque, accion, onClose }) => {
 
     if (accion === "DEPOSITAR") {
       mDepositar.mutate(payload, {
-        onSuccess: () => {
+        onSuccess: (data) => {
           alert("Cheque depositado correctamente");
+          mostrarAdvertencias(data);
           onClose();
         },
         onError: (err) => alert(err.message),
       });
     } else if (accion === "COBRAR") {
       mCobrar.mutate(payload, {
-        onSuccess: () => {
+        onSuccess: (data) => {
           alert("Cheque cobrado correctamente");
+          mostrarAdvertencias(data);
           onClose();
         },
         onError: (err) => alert(err.message),
@@ -163,7 +178,11 @@ const ModalDestinoCheque = ({ cheque, accion, onClose }) => {
                   value={String(codigoCuentaDestino)}
                   onChange={(e) => setCodigoCuentaDestino(e.target.value)}
                   onSearchChange={setBusqueda}
-                  placeholder={isLoadingBancos ? "Cargando bancos..." : "Seleccione una cuenta"}
+                  placeholder={
+                    isLoadingBancos
+                      ? "Cargando bancos..."
+                      : "Seleccione una cuenta"
+                  }
                   disabled={isLoadingBancos && !bancos}
                 />
               </div>

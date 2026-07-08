@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { pdf } from "@react-pdf/renderer";
 import { createPortal } from "react-dom";
 import ContenedorSeccion from "../../../ContenidoPanel/ContenedorSeccion";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
@@ -13,13 +12,11 @@ import {
   ChevronDown,
   GripVertical,
 } from "lucide-react";
-import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { useDepositoUI } from "../../../../Backend/Articulos/hooks/Deposito/useDepositoUI.jsx";
-import { useDepositosConStock } from "../../../../Backend/Articulos/queries/Deposito/useDepositosConStock.query";
+import { DescargarReporteStockPdfApi } from "../../../../Backend/Articulos/api/Deposito/deposito.api";
 import DataTable from "../../../UI/DataTable/DataTable";
 import { columnasDepositos } from "../../../Tablas/Articulos/Deposito/ColumnasDepositos";
 import TablaDepositoStock from "../../../Tablas/Articulos/Deposito/TablaDepositoStock";
-import StockDepositoPDF from "../../../Reportes/StockDepositoPDF.jsx";
 import { usePermisosDeUsuario } from "../../../../Backend/Autenticacion/hooks/Permiso/usePermisoDeUsuario";
 import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion.jsx";
 
@@ -41,17 +38,16 @@ const Deposito = () => {
   const [procesando, setProcesando] = useState(false);
   const { tieneAccion } = usePermisosDeUsuario();
   const { depositos, cargando, eliminarDeposito } = useDepositoUI();
-  const usuario = useAuthStore((state) => state.usuario);
-  const [activarDescarga, setActivarDescarga] = useState(false);
-  const [activarDescargaMp, setActivarDescargaMp] = useState(false);
   const [modalDescarga, setModalDescarga] = useState({
     isOpen: false,
     tipoArticulo: null,
   });
   const [incluirCerosNegativos, setIncluirCerosNegativos] = useState(true);
 
-  const [selectedIds, setSelectedIds] = useState(new Set());
-  const [selectedIdsMp, setSelectedIdsMp] = useState(new Set());
+  // Alcance del reporte PDF: "todos" los productos o "busqueda" por palabra específica
+  const [modoReporte, setModoReporte] = useState("todos");
+  const [textoBusquedaReporte, setTextoBusquedaReporte] = useState("");
+
   const [generandoPdf, setGenerandoPdf] = useState(false);
 
   const [depositosOrdenadosCustom, setDepositosOrdenadosCustom] = useState([]);
@@ -61,6 +57,8 @@ const Deposito = () => {
   useEffect(() => {
     if (modalDescarga.isOpen) {
       setDepositosOrdenadosCustom([...depositos]);
+      setModoReporte("todos");
+      setTextoBusquedaReporte("");
     }
   }, [modalDescarga.isOpen, depositos]);
 
@@ -86,21 +84,37 @@ const Deposito = () => {
     setDraggedIndex(null);
   };
 
-  const descargarPDFAutomatico = async (tipo) => {
+  // Feature sin spec (2026-07-08): el PDF de "Reporte de Stock por
+  // Deposito" ahora se genera en el servidor (client-gateway, con
+  // renderToBuffer de @react-pdf/renderer sobre Node), no en el navegador.
+  // Antes se traia TODA la data via useDepositosConStock (limite: 100000) y
+  // se armaba el PDF client-side con pdf(doc).toBlob(), lo cual con
+  // catalogos de 3000+ productos bloqueaba el hilo principal (el motor de
+  // layout Yoga/flexbox de @react-pdf/renderer no esta pensado para tablas
+  // de miles de filas). Ahora es una sola llamada HTTP que devuelve el
+  // binario ya armado.
+  const descargarReporte = async (tipo) => {
     try {
       setGenerandoPdf(true);
 
-      const esProd = tipo === "PRODUCTO";
-      const doc = esProd ? stockPdfDocument : stockPdfDocumentMp;
+      const filtros = {
+        tipoArticulo: tipo,
+        incluirCerosNegativos,
+        depositosOrden: depositosOrdenadosCustom
+          .map((d) => d.codigoSecuencial)
+          .join(","),
+        ...(modoReporte === "busqueda" && textoBusquedaReporte.trim()
+          ? { busqueda: textoBusquedaReporte.trim() }
+          : {}),
+      };
 
-      // Generar el blob usando la API imperativa de @react-pdf/renderer
-      const blob = await pdf(doc).toBlob();
+      const blob = await DescargarReporteStockPdfApi(filtros);
       const url = URL.createObjectURL(blob);
 
       // Crear elemento de descarga programático
       const link = document.createElement("a");
       link.href = url;
-      link.download = `Reporte_Stock_${esProd ? "Productos" : "MateriaPrima"}_${new Date().toLocaleDateString("es-AR")}.pdf`;
+      link.download = `Reporte_Stock_${tipo === "PRODUCTO" ? "Productos" : "MateriaPrima"}_${new Date().toLocaleDateString("es-AR")}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -108,54 +122,11 @@ const Deposito = () => {
     } catch (error) {
       console.error("Error al descargar PDF:", error);
     } finally {
-      // Resetear estados y cerrar modal
       setGenerandoPdf(false);
-      setActivarDescarga(false);
-      setActivarDescargaMp(false);
       setModalDescarga({ isOpen: false, tipoArticulo: null });
     }
   };
 
-  const {
-    data: stockCompletoData,
-    isFetching: cargandoStockCompleto,
-    isSuccess: listoStock,
-  } = useDepositosConStock(
-    {
-      pagina: 1,
-      limite: 100000,
-      tipoArticulo: "PRODUCTO",
-      codigosArticulos: Array.from(selectedIds).join(","),
-    },
-    { enabled: activarDescarga && selectedIds.size > 0 },
-  );
-
-  const {
-    data: stockCompletoMpData,
-    isFetching: cargandoStockCompletoMp,
-    isSuccess: listoStockMp,
-  } = useDepositosConStock(
-    {
-      pagina: 1,
-      limite: 100000,
-      tipoArticulo: "MATERIA_PRIMA",
-      codigosArticulos: Array.from(selectedIdsMp).join(","),
-    },
-    { enabled: activarDescargaMp && selectedIdsMp.size > 0 },
-  );
-
-  // Disparar la descarga automática cuando los datos estén listos
-  useEffect(() => {
-    if (activarDescarga && listoStock && stockCompletoData) {
-      descargarPDFAutomatico("PRODUCTO");
-    }
-  }, [activarDescarga, listoStock, stockCompletoData]);
-
-  useEffect(() => {
-    if (activarDescargaMp && listoStockMp && stockCompletoMpData) {
-      descargarPDFAutomatico("MATERIA_PRIMA");
-    }
-  }, [activarDescargaMp, listoStockMp, stockCompletoMpData]);
   const handleEliminarSucursal = useCallback((suc) => {
     setDepositoAEliminar(suc);
   }, []);
@@ -185,126 +156,6 @@ const Deposito = () => {
     setDepositoAEliminar(null);
     setBorrarStock(false);
   }, []);
-
-  const matrizStockCompletaPDF = useMemo(() => {
-    const data = Array.isArray(stockCompletoData?.data)
-      ? stockCompletoData.data
-      : [];
-    const productosMap = {};
-
-    data.forEach((producto) => {
-      const prodCodigo = producto.codigoSecuencial;
-      if (!productosMap[prodCodigo]) {
-        productosMap[prodCodigo] = {
-          ...producto,
-          codigoProducto: prodCodigo,
-        };
-      }
-
-      producto.stockPorDeposito?.forEach((sp) => {
-        const depCodigo = sp.codigoDeposito;
-        productosMap[prodCodigo][`dep_${depCodigo}`] =
-          (productosMap[prodCodigo][`dep_${depCodigo}`] || 0) + Number(sp.stock || 0);
-      });
-    });
-
-    let result = Object.values(productosMap);
-    if (!incluirCerosNegativos) {
-      result = result.filter((item) => (item.stock || 0) > 0);
-    }
-    return [...result].sort((a, b) =>
-      (a.nombre || "").localeCompare(b.nombre || "", "es"),
-    );
-  }, [stockCompletoData, incluirCerosNegativos]);
-
-  const stockPdfDocument = useMemo(
-    () => (
-      <StockDepositoPDF
-        matrizStock={matrizStockCompletaPDF}
-        depositos={depositosOrdenadosCustom}
-        empresaNombre={
-          usuario?.nombreEmpresa || usuario?.datosFiscales?.razonSocial
-        }
-      />
-    ),
-    [matrizStockCompletaPDF, depositosOrdenadosCustom],
-  );
-  const matrizStockCompletaPDFMp = useMemo(() => {
-    const data = Array.isArray(stockCompletoMpData?.data)
-      ? stockCompletoMpData.data
-      : [];
-    const productosMap = {};
-
-    data.forEach((producto) => {
-      const prodCodigo = producto.codigoSecuencial;
-      if (!productosMap[prodCodigo]) {
-        productosMap[prodCodigo] = {
-          ...producto,
-          codigoProducto: prodCodigo,
-          codigoMateriaPrima: prodCodigo,
-        };
-      }
-
-      producto.stockPorDeposito?.forEach((sp) => {
-        const depCodigo = sp.codigoDeposito;
-        productosMap[prodCodigo][`dep_${depCodigo}`] =
-          (productosMap[prodCodigo][`dep_${depCodigo}`] || 0) + Number(sp.stock || 0);
-      });
-    });
-
-    let result = Object.values(productosMap);
-    if (!incluirCerosNegativos) {
-      result = result.filter((item) => (item.stock || 0) > 0);
-    }
-    return [...result].sort((a, b) =>
-      (a.nombre || "").localeCompare(b.nombre || "", "es"),
-    );
-  }, [stockCompletoMpData, incluirCerosNegativos]);
-
-  const stockPdfDocumentMp = useMemo(
-    () => (
-      <StockDepositoPDF
-        matrizStock={matrizStockCompletaPDFMp}
-        depositos={depositosOrdenadosCustom}
-        empresaNombre={
-          usuario?.nombreEmpresa || usuario?.datosFiscales?.razonSocial
-        }
-      />
-    ),
-    [
-      matrizStockCompletaPDFMp,
-      depositosOrdenadosCustom,
-      usuario?.nombreEmpresa,
-      usuario?.datosFiscales?.razonSocial,
-    ],
-  );
-
-  const orderKey = useMemo(() => {
-    return depositosOrdenadosCustom.map((d) => d.codigoSecuencial).join("-");
-  }, [depositosOrdenadosCustom]);
-
-  // Fuerza remount del PDFDownloadLink cuando cambia la data de origen
-  // para evitar el primer blob vacío por cache interno del componente.
-  const pdfLinkKey = useMemo(
-    () =>
-      `pdf-stock-${matrizStockCompletaPDF.length}-${depositosOrdenadosCustom.length}-${orderKey}-${usuario?.codigoEmpresa || "na"}`,
-    [
-      matrizStockCompletaPDF.length,
-      depositosOrdenadosCustom.length,
-      orderKey,
-      usuario?.codigoEmpresa,
-    ],
-  );
-  const pdfLinkKeyMp = useMemo(
-    () =>
-      `pdf-stock-mp-${matrizStockCompletaPDFMp.length}-${depositosOrdenadosCustom.length}-${orderKey}-${usuario?.codigoEmpresa || "na"}`,
-    [
-      matrizStockCompletaPDFMp.length,
-      depositosOrdenadosCustom.length,
-      orderKey,
-      usuario?.codigoEmpresa,
-    ],
-  );
 
   const columnasDinamicas = useMemo(() => {
     return columnasDepositos.map((col) => {
@@ -363,34 +214,19 @@ const Deposito = () => {
           <section>
             <div className="flex items-center justify-between mb-4 px-2">
               <button
-                disabled={selectedIds.size === 0}
                 onClick={() =>
                   setModalDescarga({ isOpen: true, tipoArticulo: "PRODUCTO" })
                 }
-                className={`flex items-center gap-2.5 px-4 py-2 border rounded-[8px] font-semibold text-[13px] transition-all active:scale-95 group/pdf ${
-                  selectedIds.size > 0
-                    ? "bg-white hover:bg-emerald-50 text-[var(--color-neutral-text-main)] border-[var(--color-neutral-border)] cursor-pointer shadow-sm"
-                    : "bg-gray-50 text-[var(--color-neutral-text-muted)] border-[var(--color-neutral-border)] cursor-not-allowed"
-                }`}
+                className="flex items-center gap-2.5 px-4 py-2 border rounded-[8px] font-semibold text-[13px] transition-all active:scale-95 group/pdf bg-white hover:bg-emerald-50 text-[var(--color-neutral-text-main)] border-[var(--color-neutral-border)] cursor-pointer shadow-sm"
               >
                 <DescargarIcono
                   size={18}
-                  className={
-                    selectedIds.size > 0
-                      ? "text-emerald-600 group-hover:-translate-y-0.5 transition-transform"
-                      : "text-[var(--color-neutral-text-muted)] opacity-50"
-                  }
+                  className="text-emerald-600 group-hover:-translate-y-0.5 transition-transform"
                 />
-                Descargar Reporte{" "}
-                {selectedIds.size > 0 && `(${selectedIds.size} seleccionados)`}
+                Descargar Reporte
               </button>
             </div>
-            <TablaDepositoStock
-              tipoArticulo="PRODUCTO"
-              titulo="Productos"
-              selectedIds={selectedIds}
-              setSelectedIds={setSelectedIds}
-            />
+            <TablaDepositoStock tipoArticulo="PRODUCTO" titulo="Productos" />
           </section>
         </TieneAccion>
         {/* Stock Matrix Section - Materia Prima */}
@@ -398,37 +234,24 @@ const Deposito = () => {
           <section>
             <div className="flex items-center justify-between mb-4 px-2">
               <button
-                disabled={selectedIdsMp.size === 0}
                 onClick={() =>
                   setModalDescarga({
                     isOpen: true,
                     tipoArticulo: "MATERIA_PRIMA",
                   })
                 }
-                className={`flex items-center gap-2.5 px-4 py-2 border rounded-md font-bold text-[12px] uppercase tracking-widest transition-all active:scale-95 group/pdf ${
-                  selectedIdsMp.size > 0
-                    ? "bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 border-emerald-600/20 cursor-pointer shadow-md"
-                    : "bg-black/5 text-black/30 border-black/5 cursor-not-allowed"
-                }`}
+                className="flex items-center gap-2.5 px-4 py-2 border rounded-md font-bold text-[12px] uppercase tracking-widest transition-all active:scale-95 group/pdf bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 border-emerald-600/20 cursor-pointer shadow-md"
               >
                 <DescargarIcono
                   size={20}
-                  className={
-                    selectedIdsMp.size > 0
-                      ? "group-hover:rotate-90 text-emerald-700"
-                      : "text-black/30"
-                  }
+                  className="group-hover:rotate-90 text-emerald-700"
                 />
-                Descargar Reporte{" "}
-                {selectedIdsMp.size > 0 &&
-                  `(${selectedIdsMp.size} seleccionados)`}
+                Descargar Reporte
               </button>
             </div>
             <TablaDepositoStock
               tipoArticulo="MATERIA_PRIMA"
               titulo="Materia Prima"
-              selectedIds={selectedIdsMp}
-              setSelectedIds={setSelectedIdsMp}
             />
           </section>
         </TieneAccion>
@@ -565,6 +388,47 @@ const Deposito = () => {
                   </div>
                 </div>
 
+                {/* Selector de alcance: Todos los productos vs Buscar por palabra */}
+                <div className="flex flex-col gap-2 w-full text-left mb-6">
+                  <label className="text-[12px] font-semibold text-[var(--color-neutral-text-muted)] ml-1">
+                    Productos a incluir
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setModoReporte("todos")}
+                      className={`flex-1 px-3 py-2 rounded-[8px] border text-[13px] font-semibold transition-all cursor-pointer ${
+                        modoReporte === "todos"
+                          ? "bg-[var(--color-brand-soft)] border-[var(--color-brand-primary)]/40 text-[var(--color-brand-primary)]"
+                          : "bg-white border-[var(--color-neutral-border)] text-[var(--color-neutral-text-muted)] hover:bg-gray-50"
+                      }`}
+                    >
+                      Todos los productos
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setModoReporte("busqueda")}
+                      className={`flex-1 px-3 py-2 rounded-[8px] border text-[13px] font-semibold transition-all cursor-pointer ${
+                        modoReporte === "busqueda"
+                          ? "bg-[var(--color-brand-soft)] border-[var(--color-brand-primary)]/40 text-[var(--color-brand-primary)]"
+                          : "bg-white border-[var(--color-neutral-border)] text-[var(--color-neutral-text-muted)] hover:bg-gray-50"
+                      }`}
+                    >
+                      Buscar por palabra
+                    </button>
+                  </div>
+                  {modoReporte === "busqueda" && (
+                    <input
+                      type="text"
+                      value={textoBusquedaReporte}
+                      onChange={(e) => setTextoBusquedaReporte(e.target.value)}
+                      placeholder="Escribe una palabra para filtrar..."
+                      autoFocus
+                      className="w-full px-3 py-2 mt-1 border border-[var(--color-neutral-border)] rounded-[8px] text-[13px] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-primary)]/20"
+                    />
+                  )}
+                </div>
+
                 {/* Opción Premium: Incluir/Excluir Ceros y Negativos */}
                 <button
                   type="button"
@@ -589,7 +453,7 @@ const Deposito = () => {
                     <span
                       className={`text-xs font-black block uppercase tracking-wider ${incluirCerosNegativos ? "text-[var(--primary)]" : "text-black"}`}
                     >
-                      Incluir stock cero o negativo
+                      Incluir stock cero
                     </span>
                     <span className="text-[11px] text-black/40 block mt-0.5 font-medium">
                       {incluirCerosNegativos
@@ -601,52 +465,33 @@ const Deposito = () => {
 
                 <div className="flex gap-3 w-full mt-2">
                   <button
-                    disabled={
-                      generandoPdf || activarDescarga || activarDescargaMp
+                    disabled={generandoPdf}
+                    onClick={() =>
+                      setModalDescarga({ isOpen: false, tipoArticulo: null })
                     }
-                    onClick={() => {
-                      setModalDescarga({ isOpen: false, tipoArticulo: null });
-                      setActivarDescarga(false);
-                      setActivarDescargaMp(false);
-                    }}
                     className="flex-1 px-4 py-3 bg-white hover:bg-gray-50 border border-[var(--color-neutral-border)] text-[var(--color-neutral-text-main)] font-semibold text-[13px] rounded-[10px] cursor-pointer transition-colors disabled:opacity-50"
                   >
                     Cancelar
                   </button>
 
-                  {(() => {
-                    const tipo = modalDescarga.tipoArticulo;
-                    const esProd = tipo === "PRODUCTO";
-                    const activar = esProd
-                      ? activarDescarga
-                      : activarDescargaMp;
-                    
-                    if (!activar && !generandoPdf) {
-                      return (
-                        <button
-                          onClick={() => {
-                            if (esProd) setActivarDescarga(true);
-                            else setActivarDescargaMp(true);
-                          }}
-                          className="flex-1 px-4 py-3 bg-[var(--color-brand-primary)] hover:bg-[var(--color-brand-primary-hover)] text-white font-semibold text-[13px] rounded-[10px] cursor-pointer transition-colors shadow-sm"
-                        >
-                          Generar PDF
-                        </button>
-                      );
-                    }
-
-                    return (
-                      <button
-                        disabled
-                        className="flex-1 px-4 py-3 bg-[var(--color-brand-primary)] text-white/90 font-semibold text-[13px] rounded-[10px] flex items-center justify-center gap-2 opacity-70"
-                      >
-                        <Loader2 size={16} className="animate-spin" />
-                        {generandoPdf
-                          ? "Generando PDF..."
-                          : "Cargando Datos..."}
-                      </button>
-                    );
-                  })()}
+                  {!generandoPdf ? (
+                    <button
+                      onClick={() =>
+                        descargarReporte(modalDescarga.tipoArticulo)
+                      }
+                      className="flex-1 px-4 py-3 bg-[var(--color-brand-primary)] hover:bg-[var(--color-brand-primary-hover)] text-white font-semibold text-[13px] rounded-[10px] cursor-pointer transition-colors shadow-sm"
+                    >
+                      Generar PDF
+                    </button>
+                  ) : (
+                    <button
+                      disabled
+                      className="flex-1 px-4 py-3 bg-[var(--color-brand-primary)] text-white/90 font-semibold text-[13px] rounded-[10px] flex items-center justify-center gap-2 opacity-70"
+                    >
+                      <Loader2 size={16} className="animate-spin" />
+                      Generando PDF...
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

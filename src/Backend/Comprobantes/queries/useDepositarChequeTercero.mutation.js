@@ -6,11 +6,11 @@ export const useDepositarChequeTerceroMutation = (config = {}) => {
 
   return useMutation({
     mutationFn: ({ codigo, codigoCuentaDestino }) => depositarChequeTercero(codigo, codigoCuentaDestino),
-    onSuccess: () => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries(['cheques-terceros-cartera']);
       queryClient.invalidateQueries(['cheques-terceros-disponibles']);
       if (config.onSuccess) {
-        config.onSuccess();
+        config.onSuccess(data, variables, context);
       }
     },
     ...config,

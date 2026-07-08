@@ -10,7 +10,6 @@ export const listarCarteraChequeTercero = async (filtros = {}) => {
   const { data } = await axiosInitial.get(`${URL_BASE}/cartera`, {
     params: cleanFiltros,
     showLoader: false,
-    sinEmpresa: true,
   });
   return data;
 };

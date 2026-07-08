@@ -3,7 +3,6 @@ import ModalDetalleBase from "../../../UI/ModalDetalleBase/ModalDetalleBase";
 import ModalDetalle from "../../../UI/ModalDetalleBase/ModalDetalle";
 import { BilleteraIcono } from "../../../../assets/Icons";
 import { formatPrice } from "../../../../utils/formatters";
-import { BILLETES, MONEDAS } from "./utils/denominaciones";
 
 const FieldLabel = ({ children }) => (
   <span className="text-[12px] font-bold text-slate-500 uppercase tracking-widest ml-1 block mb-1.5">
@@ -11,30 +10,10 @@ const FieldLabel = ({ children }) => (
   </span>
 );
 
-// Claves compuestas ("billete-10"/"moneda-10") para evitar colisión entre
-// denominaciones de igual valor numérico presentes en BILLETES y MONEDAS
-// (design.md §5).
-const claveBillete = (valor) => `billete-${valor}`;
-const claveMoneda = (valor) => `moneda-${valor}`;
-
-const denominacionDesdeClave = (clave) => {
-  const [, valor] = clave.split("-");
-  return Number(valor);
-};
-
 const ModalCierreCaja = ({ saldoTeorico, onConfirmar, onClose }) => {
-  const [conteo, setConteo] = useState({});
+  const [montoContadoStr, setMontoContadoStr] = useState("");
 
-  const cambiarCantidad = (clave, cantidad) => {
-    setConteo((prev) => ({ ...prev, [clave]: cantidad }));
-  };
-
-  const totalContado = Object.entries(conteo).reduce(
-    (acc, [clave, cantidad]) =>
-      acc + denominacionDesdeClave(clave) * (Number(cantidad) || 0),
-    0,
-  );
-
+  const totalContado = Number(montoContadoStr) || 0;
   const diferencia = totalContado - saldoTeorico;
 
   const colorDiferencia =
@@ -46,7 +25,7 @@ const ModalCierreCaja = ({ saldoTeorico, onConfirmar, onClose }) => {
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
-    onConfirmar({ totalContado, diferencia, detalleConteo: conteo });
+    onConfirmar({ saldoContadoFinal: totalContado, detalleDenominaciones: {} });
   };
 
   const footer = (
@@ -68,55 +47,27 @@ const ModalCierreCaja = ({ saldoTeorico, onConfirmar, onClose }) => {
   );
 
   const content = (
-    <div className="space-y-5 py-2 px-1">
+    <form onSubmit={handleSubmit} className="space-y-5 py-2 px-1">
       <div>
-        <FieldLabel>Billetes</FieldLabel>
-        <div className="grid grid-cols-2 gap-3">
-          {BILLETES.map((valor) => {
-            const clave = claveBillete(valor);
-            return (
-              <label key={clave} className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-600 w-16 shrink-0">
-                  {formatPrice(valor)}
-                </span>
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={conteo[clave] ?? ""}
-                  onChange={(e) => cambiarCantidad(clave, e.target.value)}
-                  placeholder="0"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)] focus:bg-white transition-all"
-                />
-              </label>
-            );
-          })}
+        <FieldLabel>Efectivo Físico Contado</FieldLabel>
+        <div className="relative">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">
+            $
+          </span>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            value={montoContadoStr}
+            onChange={(e) => setMontoContadoStr(e.target.value)}
+            placeholder="0.00"
+            className="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-lg font-black text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)] focus:bg-white transition-all placeholder:font-medium placeholder:text-slate-300"
+            autoFocus
+          />
         </div>
-      </div>
-
-      <div>
-        <FieldLabel>Monedas</FieldLabel>
-        <div className="grid grid-cols-2 gap-3">
-          {MONEDAS.map((valor) => {
-            const clave = claveMoneda(valor);
-            return (
-              <label key={clave} className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-600 w-16 shrink-0">
-                  {formatPrice(valor)}
-                </span>
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={conteo[clave] ?? ""}
-                  onChange={(e) => cambiarCantidad(clave, e.target.value)}
-                  placeholder="0"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)] focus:bg-white transition-all"
-                />
-              </label>
-            );
-          })}
-        </div>
+        <p className="text-[11px] font-bold text-slate-400 mt-2 px-1">
+          Ingrese la suma total del efectivo físico presente en la caja.
+        </p>
       </div>
 
       <div className="border-t border-slate-100 pt-4 space-y-2">
@@ -145,13 +96,13 @@ const ModalCierreCaja = ({ saldoTeorico, onConfirmar, onClose }) => {
           </span>
         </div>
       </div>
-    </div>
+    </form>
   );
 
   return (
-    <ModalDetalleBase open onClose={onClose} width="max-w-[520px]">
+    <ModalDetalleBase open onClose={onClose} width="max-w-[420px]">
       <ModalDetalle
-        title="Cierre de Caja — Arqueo"
+        title="Cierre de Caja"
         icon={<BilleteraIcono size={20} />}
         onClose={onClose}
         footer={footer}

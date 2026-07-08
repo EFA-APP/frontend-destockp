@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -17,6 +17,7 @@ import { formatPrice } from "../../../../utils/formatters";
 import { BilleteraIcono } from "../../../../assets/Icons";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import DateRangePicker from "../../../UI/DateRangePicker/DateRangePicker";
+import SelectorUnidadNegocio from "../../../UI/Select/SelectorUnidadNegocio";
 import ModalMovimientoManual from "../../../Modales/Tesoreria/ModalMovimientoManual";
 
 const TIPOS_MOVIMIENTO = [
@@ -53,7 +54,7 @@ const TIPO_OPERACION_STYLE = {
 };
 
 const MovimientosTesoreria = () => {
-  const { usuario } = useAuthStore();
+  const { usuario, unidadActiva } = useAuthStore();
   const [pagina, setPagina] = useState(1);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [filtros, setFiltros] = useState({
@@ -62,6 +63,23 @@ const MovimientosTesoreria = () => {
     tipoOperacion: "",
     codigoTipoMovimiento: "",
   });
+
+  const unidadesNegocio = usuario?.unidadesNegocio || [];
+  const [filtroUnidadNegocio, setFiltroUnidadNegocio] = useState(
+    unidadActiva?.codigoSecuencial ?? "",
+  );
+
+  useEffect(() => {
+    if (unidadActiva?.codigoSecuencial) {
+      setFiltroUnidadNegocio(unidadActiva.codigoSecuencial);
+    }
+  }, [unidadActiva?.codigoSecuencial]);
+
+  // Si hay una sola unidad de negocio (o ninguna), se usa fija sin mostrar selector.
+  const codigoUnidadNegocio =
+    unidadesNegocio.length <= 1
+      ? (unidadesNegocio[0]?.codigoSecuencial ?? unidadActiva?.codigoSecuencial)
+      : filtroUnidadNegocio;
 
   const filtrosQuery = {
     codigoEmpresa: usuario?.codigoEmpresa,
@@ -73,6 +91,7 @@ const MovimientosTesoreria = () => {
     ...(filtros.codigoTipoMovimiento && {
       codigoTipoMovimiento: filtros.codigoTipoMovimiento,
     }),
+    ...(codigoUnidadNegocio && { codigoUnidadNegocio: Number(codigoUnidadNegocio) }),
   };
 
   const { data, isLoading } = useMovimientosTesoreriaQuery(filtrosQuery);
@@ -173,6 +192,14 @@ const MovimientosTesoreria = () => {
                 }}
               />
             </div>
+
+            <SelectorUnidadNegocio
+              value={filtroUnidadNegocio}
+              onChange={(valor) => {
+                setFiltroUnidadNegocio(Number(valor));
+                setPagina(1);
+              }}
+            />
 
             <label className="flex flex-col gap-1.5">
               <span className="text-[10px] font-black text-black/50 uppercase tracking-wider">

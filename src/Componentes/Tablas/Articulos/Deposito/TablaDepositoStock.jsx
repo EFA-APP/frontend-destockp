@@ -11,7 +11,7 @@ import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
 /**
  * Componente TablaDepositoStock: Visualización de la matriz de stock global.
  */
-const TablaDepositoStock = ({ tipoArticulo = "PRODUCTO", titulo, selectedIds, setSelectedIds }) => {
+const TablaDepositoStock = ({ tipoArticulo = "PRODUCTO", titulo }) => {
   const [filtros, setFiltros] = React.useState({ pagina: 1, limite: 10 });
   const [busquedaInput, setBusquedaInput] = React.useState("");
   const [busquedaClave, setBusquedaClave] = React.useState("nombre"); // 'nombre' o 'codigo'
@@ -71,58 +71,6 @@ const TablaDepositoStock = ({ tipoArticulo = "PRODUCTO", titulo, selectedIds, se
     [dataDepositosRaw, busquedaInput],
   );
 
-  const columnasConSeleccion = React.useMemo(() => {
-    if (!selectedIds || !setSelectedIds) return columnasStock;
-
-    const selectorCol = {
-      key: "seleccion",
-      etiqueta: (
-        <input
-          type="checkbox"
-          checked={
-            matrizStock.length > 0 &&
-            matrizStock.every((fila) => selectedIds.has(fila.codigoSecuencial))
-          }
-          onChange={(e) => {
-            const checked = e.target.checked;
-            setSelectedIds((prev) => {
-              const nuevos = new Set(prev);
-              matrizStock.forEach((fila) => {
-                if (checked) {
-                  nuevos.add(fila.codigoSecuencial);
-                } else {
-                  nuevos.delete(fila.codigoSecuencial);
-                }
-              });
-              return nuevos;
-            });
-          }}
-          className="rounded border-black/20 text-[var(--primary)] focus:ring-[var(--primary)]/20 cursor-pointer w-4 h-4"
-        />
-      ),
-      renderizar: (_, fila) => (
-        <input
-          type="checkbox"
-          checked={selectedIds.has(fila.codigoSecuencial)}
-          onChange={(e) => {
-            const checked = e.target.checked;
-            setSelectedIds((prev) => {
-              const nuevos = new Set(prev);
-              if (checked) {
-                nuevos.add(fila.codigoSecuencial);
-              } else {
-                nuevos.delete(fila.codigoSecuencial);
-              }
-              return nuevos;
-            });
-          }}
-          className="rounded border-black/20 text-[var(--primary)] focus:ring-[var(--primary)]/20 cursor-pointer w-4 h-4"
-        />
-      ),
-    };
-    return [selectorCol, ...columnasStock];
-  }, [columnasStock, matrizStock, selectedIds, setSelectedIds]);
-
   return (
     <React.Fragment>
       <div className="bg-white border border-[var(--color-neutral-border)] rounded-[16px] shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-hidden">
@@ -148,7 +96,7 @@ const TablaDepositoStock = ({ tipoArticulo = "PRODUCTO", titulo, selectedIds, se
           <div className="block">
             <DataTable
               id_tabla={`stock_deposito_${tipoArticulo.toLowerCase()}`}
-              columnas={columnasConSeleccion}
+              columnas={columnasStock}
               datos={matrizConAcciones}
               mostrarBuscador={true}
               busqueda={busquedaInput}

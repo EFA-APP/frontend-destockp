@@ -8,6 +8,7 @@ const ModalDetalle = ({
   footer,
   accentColor = "default",
   isStandalone = false,
+  allowOverflow = false,
 }) => {
   const colors = {
     default: {
@@ -71,7 +72,7 @@ const ModalDetalle = ({
   return (
     <div
       className={`
-        relative overflow-hidden
+        relative ${allowOverflow ? "overflow-visible" : "overflow-hidden"}
         w-full h-full flex flex-col flex-1 min-h-0
         ${
           isStandalone
@@ -128,9 +129,8 @@ const ModalDetalle = ({
         </div>
       )}
 
-      {/* Body - Clean & Spaced */}
       <div
-        className={`${isStandalone ? "p-0" : "flex-1 px-4 py-5 md:px-6 md:py-6 overflow-y-auto custom-scrollbar"}`}
+        className={`${isStandalone ? "p-0" : `flex-1 px-4 py-5 md:px-6 md:py-6 ${allowOverflow ? "overflow-visible" : "overflow-y-auto"} custom-scrollbar`}`}
       >
         {children}
       </div>

@@ -6,6 +6,7 @@ import {
   obtenerCuentasNoImputables,
   obtenerCuentasImputablesPorTipo,
   obtenerDescendientesImputables,
+  obtenerCuentasPorCodigos,
 } from "../api/cuentas.api";
 
 export const useObtenerArbolCuentasQuery = () => {
@@ -39,6 +40,16 @@ export const useObtenerCuentasImputablesQuery = (tipo, busqueda, codigoEmpresa) 
     queryFn: () => obtenerCuentasImputablesPorTipo({ tipo, busqueda, codigoEmpresa }),
     enabled: !!tipo,
     staleTime: 1000 * 60 * 5,
+  });
+};
+
+export const useObtenerCuentasPorCodigosQuery = (codigos) => {
+  const codigosOrdenados = [...(codigos || [])].sort((a, b) => a - b);
+  return useQuery({
+    queryKey: ["cuentas-por-codigos", codigosOrdenados],
+    queryFn: () => obtenerCuentasPorCodigos(codigosOrdenados),
+    enabled: codigosOrdenados.length > 0,
+    staleTime: 1000 * 60 * 10,
   });
 };
 

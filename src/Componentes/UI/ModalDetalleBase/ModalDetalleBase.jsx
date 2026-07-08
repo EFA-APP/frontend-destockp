@@ -7,6 +7,7 @@ const ModalDetalleBase = ({
   onClose,
   children,
   width = "max-w-[400px]",
+  allowOverflow = false,
 }) => {
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -29,7 +30,7 @@ const ModalDetalleBase = ({
           relative z-10 w-full ${width}
           max-h-[85vh] md:max-h-[90vh]
           bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)]
-          overflow-hidden rounded-t-[24px] md:rounded-[16px]
+          ${allowOverflow ? 'overflow-visible' : 'overflow-hidden'} rounded-t-[24px] md:rounded-[16px]
           border-t md:border border-[var(--color-neutral-border)]
           flex flex-col animate-in fade-in zoom-in-95 duration-200
         `}
@@ -43,7 +44,7 @@ const ModalDetalleBase = ({
         </div>
 
         {/* Contenido scrolleable */}
-        <div className="flex-1 overflow-y-auto md:overflow-hidden custom-scrollbar flex flex-col pt-6 md:pt-0">
+        <div className={`flex-1 ${allowOverflow ? 'overflow-visible' : 'overflow-y-auto md:overflow-hidden'} custom-scrollbar flex flex-col pt-6 md:pt-0`}>
           {children}
         </div>
       </div>

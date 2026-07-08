@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Wallet,
   TrendingUp,
@@ -9,6 +9,8 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
+import { useAlertas } from "../../../../store/useAlertas";
+import { useObtenerUnidadesNegocio } from "../../../../Backend/Autenticacion/queries/UnidadNegocio/useObtenerUnidadesNegocio.query";
 import { useMovimientosTesoreriaQuery } from "../../../../Backend/Tesoreria/queries/useMovimientosTesoreria.query";
 import { formatPrice } from "../../../../utils/formatters";
 import { BilleteraIcono } from "../../../../assets/Icons";
@@ -16,6 +18,12 @@ import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import ModalAperturaCaja from "./ModalAperturaCaja";
 import ModalCierreCaja from "./ModalCierreCaja";
 import HistorialCajasDiarias from "./HistorialCajasDiarias";
+import { useCajaDiariaAbiertaQuery } from "../../../../Backend/Tesoreria/queries/useCajaDiariaAbierta.query";
+import { useHistorialCajaDiariaQuery } from "../../../../Backend/Tesoreria/queries/useHistorialCajaDiaria.query";
+import { useAbrirCajaDiariaMutation } from "../../../../Backend/Tesoreria/queries/useAbrirCajaDiaria.mutation";
+import { useCerrarCajaDiariaMutation } from "../../../../Backend/Tesoreria/queries/useCerrarCajaDiaria.mutation";
+import { useObtenerCuentasPorCodigosQuery } from "../../../../Backend/Contabilidad/queries/useCuentas.query";
+import ModalIngresoEgresoCaja from "./ModalIngresoEgresoCaja";
 
 const hoyISO = () => new Date().toISOString().slice(0, 10);
 
@@ -28,44 +36,18 @@ const fmtFecha = (iso) =>
       })
     : "—";
 
-// Datos de ejemplo sembrados en estado local (R17): no existe persistencia
-// de aperturas/cierres de caja en backend (tesoreria-ms no tiene ningún
-// modelo de este tipo hoy, ver design.md §0).
-const HISTORIAL_EJEMPLO = [
-  {
-    fecha: "2026-07-03",
-    fondoInicial: 50000,
-    ingresos: 320000,
-    egresos: 145000,
-    saldoEsperado: 225000,
-    saldoContado: 225000,
-    diferencia: 0,
-    estado: "cerrada",
-  },
-  {
-    fecha: "2026-07-04",
-    fondoInicial: 50000,
-    ingresos: 180500,
-    egresos: 92000,
-    saldoEsperado: 138500,
-    saldoContado: 137000,
-    diferencia: -1500,
-    estado: "cerrada",
-  },
-];
-
-const ResumenCard = ({ titulo, monto, icono, colorClass }) => (
-  <div className="bg-white border border-[var(--border-subtle)] rounded-md p-5 flex items-center gap-4 shadow-sm hover:border-gray-300 transition-colors">
-    <div className={`p-3 rounded-md bg-black/[0.03] ${colorClass} shrink-0`}>
-      {icono}
-    </div>
-    <div className="min-w-0 flex-1">
-      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">
+const ResumenCard = ({ titulo, monto, icono, colorFondo, colorIcono }) => (
+  <div className="bg-white rounded-[16px] p-5 xl:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all flex flex-col justify-between h-[130px] relative">
+    <div className="flex justify-between items-start w-full">
+      <p className="text-[13px] font-medium text-[#6B7472] max-w-[70%] leading-tight">
         {titulo}
       </p>
-      <p
-        className={`text-2xl font-black leading-none tracking-tight ${colorClass}`}
-      >
+      <div className={`p-2 rounded-xl ${colorFondo} ${colorIcono} shrink-0`}>
+        {icono}
+      </div>
+    </div>
+    <div>
+      <p className="text-[24px] xl:text-[28px] font-bold text-[#1A1D1C] leading-none tracking-tight">
         {formatPrice(monto)}
       </p>
     </div>
@@ -73,20 +55,60 @@ const ResumenCard = ({ titulo, monto, icono, colorClass }) => (
 );
 
 const CajaDiaria = () => {
-  const { usuario } = useAuthStore();
+  const { usuario, unidadActiva } = useAuthStore();
   const hoy = hoyISO();
 
-  // Estado local de apertura/cierre/arqueo de caja (sin persistencia,
-  // sin llamadas NATS nuevas — limitación aceptada, ver design.md §0, R11,
-  // R14, R15).
-  const [cajaAbierta, setCajaAbierta] = useState(false);
-  const [fondoInicial, setFondoInicial] = useState(0);
+  const [filtroUnidadNegocio, setFiltroUnidadNegocio] = useState(
+    unidadActiva?.codigoSecuencial || ""
+  );
+
+  useEffect(() => {
+    if (unidadActiva?.codigoSecuencial) {
+      setFiltroUnidadNegocio(unidadActiva.codigoSecuencial);
+    }
+  }, [unidadActiva?.codigoSecuencial]);
+
   const [modalAperturaAbierto, setModalAperturaAbierto] = useState(false);
   const [modalCierreAbierto, setModalCierreAbierto] = useState(false);
-  const [historial, setHistorial] = useState(HISTORIAL_EJEMPLO);
+  const [modalMovimiento, setModalMovimiento] = useState({ isOpen: false, tipoOperacion: "INGRESO" });
+  
+  const agregarAlerta = useAlertas((state) => state.agregarAlerta);
+
+  const { data: unidades = [] } = useObtenerUnidadesNegocio({
+    codigoEmpresa: usuario?.codigoEmpresa,
+  });
+
+  const { mutate: abrirCaja } = useAbrirCajaDiariaMutation();
+  const { mutate: cerrarCaja } = useCerrarCajaDiariaMutation();
+
+  const codUnidad = Number(filtroUnidadNegocio) || 0;
+
+  const { data: cajaAbiertaData } = useCajaDiariaAbiertaQuery(
+    usuario?.codigoEmpresa ? codUnidad : null
+  );
+  
+  const cajaObj = cajaAbiertaData?.data ?? cajaAbiertaData;
+  const cajaAbierta = !!cajaObj && typeof cajaObj === 'object' && Object.keys(cajaObj).length > 0;
+  const fondoInicial = cajaObj?.fondoInicial || 0;
+
+  const { data: historialData } = useHistorialCajaDiariaQuery({
+    codigoUnidadNegocio: codUnidad,
+  });
+
+  const historial = (historialData?.data || []).map((caja) => ({
+    fecha: caja.fechaApertura,
+    fondoInicial: caja.fondoInicial,
+    ingresos: null,
+    egresos: null,
+    saldoEsperado: caja.estado === "ABIERTA" ? null : caja.saldoTeoricoFinal,
+    saldoContado: caja.estado === "ABIERTA" ? null : caja.saldoContadoFinal,
+    diferencia: caja.estado === "ABIERTA" ? null : caja.diferencia,
+    estado: caja.estado?.toLowerCase(),
+  }));
 
   const { data, isLoading } = useMovimientosTesoreriaQuery({
     codigoEmpresa: usuario?.codigoEmpresa,
+    codigoUnidadNegocio: codUnidad,
     fechaDesde: hoy,
     fechaHasta: hoy,
     pagina: 1,
@@ -109,35 +131,86 @@ const CajaDiaria = () => {
 
   const saldoTeorico = fondoInicial + ingresosEfectivo - egresosEfectivo;
 
+  const codigosCuentaImputada = useMemo(() => {
+    const codigos = movimientosEfectivo
+      .map((m) => m.codigoCuentaImputada)
+      .filter((c) => c !== null && c !== undefined);
+    return [...new Set(codigos)];
+  }, [movimientosEfectivo]);
+
+  const { data: cuentasImputadasData } = useObtenerCuentasPorCodigosQuery(
+    codigosCuentaImputada,
+  );
+
+  const mapaCuentasImputadas = useMemo(() => {
+    const cuentas = cuentasImputadasData?.data ?? cuentasImputadasData ?? [];
+    return new Map(cuentas.map((c) => [c.codigoSecuencial, c]));
+  }, [cuentasImputadasData]);
+
   return (
     <div className="w-full py-6 px-6 space-y-6">
       <EncabezadoSeccion
         ruta="Tesorería / Caja Diaria"
         icono={<BilleteraIcono size={20} />}
       >
-        {!cajaAbierta ? (
-          <button
-            onClick={() => setModalAperturaAbierto(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-[var(--primary)] text-white text-xs font-black uppercase tracking-wider shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
+        <div className="flex gap-3 items-center">
+          <select
+            value={filtroUnidadNegocio}
+            onChange={(e) => setFiltroUnidadNegocio(e.target.value)}
+            className="h-10 px-4 rounded-[10px] border border-[#E9EDEC] bg-[#F5F7F6] text-[#1A1D1C] text-[13px] font-medium focus:outline-none focus:border-[#1FAE6D] focus:ring-1 focus:ring-[#1FAE6D] cursor-pointer mr-2"
           >
-            <Unlock size={16} />
-            Abrir Caja
-          </button>
-        ) : (
-          <button
-            onClick={() => setModalCierreAbierto(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-rose-600 text-white text-xs font-black uppercase tracking-wider shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
-          >
-            <Lock size={16} />
-            Cerrar Caja
-          </button>
-        )}
+            <option value="">Seleccione Unidad de Negocio</option>
+            {unidades.map((u) => (
+              <option key={u.codigoSecuencial} value={u.codigoSecuencial}>
+                {u.nombre}
+              </option>
+            ))}
+          </select>
+
+          {cajaAbierta && (
+            <>
+              <button
+                onClick={() => setModalMovimiento({ isOpen: true, tipoOperacion: "INGRESO" })}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#E8F7EF] text-[#178F58] text-sm font-semibold hover:bg-[#1FAE6D] hover:text-white transition-colors cursor-pointer"
+              >
+                <TrendingUp size={18} />
+                Ingreso
+              </button>
+              <button
+                onClick={() => setModalMovimiento({ isOpen: true, tipoOperacion: "EGRESO" })}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-[#E9EDEC] text-[#1A1D1C] text-sm font-semibold hover:bg-[#F5F7F6] transition-colors cursor-pointer"
+              >
+                <TrendingDown size={18} />
+                Egreso
+              </button>
+              <div className="w-px bg-[#E9EDEC] mx-2 my-1"></div>
+            </>
+          )}
+
+          {!cajaAbierta ? (
+            <button
+              onClick={() => setModalAperturaAbierto(true)}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1FAE6D] text-white text-sm font-semibold shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:bg-[#178F58] transition-colors cursor-pointer"
+            >
+              <Unlock size={18} />
+              Abrir Caja
+            </button>
+          ) : (
+            <button
+              onClick={() => setModalCierreAbierto(true)}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-[#E9EDEC] text-[#EF5A5A] text-sm font-semibold hover:bg-red-50 transition-colors cursor-pointer"
+            >
+              <Lock size={18} />
+              Cerrar Caja
+            </button>
+          )}
+        </div>
       </EncabezadoSeccion>
 
       {!cajaAbierta && (
-        <div className="flex items-center gap-3 px-5 py-3.5 rounded-md bg-amber-50 border border-amber-200 text-amber-800">
-          <AlertTriangle size={18} className="shrink-0" />
-          <span className="text-xs font-bold">
+        <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-[#F5B944]/10 border border-[#F5B944]/20 text-[#1A1D1C]">
+          <AlertTriangle size={20} className="shrink-0 text-[#F5B944]" />
+          <span className="text-sm font-medium">
             La caja del día no fue abierta. Ingrese el fondo inicial para
             poder realizar el cierre de caja.
           </span>
@@ -146,36 +219,61 @@ const CajaDiaria = () => {
 
       {modalAperturaAbierto && (
         <ModalAperturaCaja
-          onConfirmar={(monto) => {
-            setFondoInicial(monto);
-            setCajaAbierta(true);
-            setModalAperturaAbierto(false);
-          }}
           onClose={() => setModalAperturaAbierto(false)}
+          onConfirmar={(monto) => {
+            abrirCaja(
+              {
+                payload: { fondoInicial: monto },
+                query: {
+                  codigoEmpresa: usuario?.codigoEmpresa,
+                  codigoUnidadNegocio: codUnidad,
+                },
+              },
+              {
+                onSuccess: () => {
+                  setModalAperturaAbierto(false);
+                  agregarAlerta("Caja abierta exitosamente", "success");
+                },
+                onError: (error) => {
+                  agregarAlerta(error?.message || "Error al abrir la caja", "error");
+                }
+              }
+            );
+          }}
         />
       )}
 
       {modalCierreAbierto && (
         <ModalCierreCaja
           saldoTeorico={saldoTeorico}
-          onConfirmar={(resultadoCierre) => {
-            setHistorial((prev) => [
-              {
-                fecha: hoy,
-                fondoInicial,
-                ingresos: ingresosEfectivo,
-                egresos: egresosEfectivo,
-                saldoEsperado: saldoTeorico,
-                saldoContado: resultadoCierre.totalContado,
-                diferencia: resultadoCierre.diferencia,
-                estado: "cerrada",
-              },
-              ...prev,
-            ]);
-            setCajaAbierta(false);
-            setModalCierreAbierto(false);
-          }}
           onClose={() => setModalCierreAbierto(false)}
+          onConfirmar={(dataCierre) => {
+            cerrarCaja(
+              {
+                payload: dataCierre,
+                query: {
+                  codigoEmpresa: usuario?.codigoEmpresa,
+                  codigoUnidadNegocio: codUnidad,
+                },
+              },
+              {
+                onSuccess: () => {
+                  setModalCierreAbierto(false);
+                  agregarAlerta("Caja cerrada exitosamente", "success");
+                },
+                onError: (error) => {
+                  agregarAlerta(error?.message || "Error al cerrar la caja", "error");
+                }
+              }
+            );
+          }}
+        />
+      )}
+
+      {modalMovimiento.isOpen && (
+        <ModalIngresoEgresoCaja
+          tipoOperacion={modalMovimiento.tipoOperacion}
+          onClose={() => setModalMovimiento({ isOpen: false, tipoOperacion: "INGRESO" })}
         />
       )}
 
@@ -184,33 +282,37 @@ const CajaDiaria = () => {
         <ResumenCard
           titulo="Fondo Inicial"
           monto={fondoInicial}
-          icono={<Wallet size={18} />}
-          colorClass="text-gray-700"
+          icono={<Wallet size={20} />}
+          colorFondo="bg-[#F5F7F6]"
+          colorIcono="text-[#6B7472]"
         />
         <ResumenCard
           titulo="Ingresos Efectivo"
           monto={ingresosEfectivo}
-          icono={<TrendingUp size={18} />}
-          colorClass="text-emerald-600"
+          icono={<TrendingUp size={20} />}
+          colorFondo="bg-[#E8F7EF]"
+          colorIcono="text-[#1FAE6D]"
         />
         <ResumenCard
           titulo="Egresos Efectivo"
           monto={egresosEfectivo}
-          icono={<TrendingDown size={18} />}
-          colorClass="text-rose-600"
+          icono={<TrendingDown size={20} />}
+          colorFondo="bg-[#EF5A5A]/10"
+          colorIcono="text-[#EF5A5A]"
         />
         <ResumenCard
           titulo="Saldo Teórico Esperado"
           monto={saldoTeorico}
-          icono={<Scale size={18} />}
-          colorClass={saldoTeorico >= 0 ? "text-emerald-600" : "text-rose-600"}
+          icono={<Scale size={20} />}
+          colorFondo={saldoTeorico >= 0 ? "bg-[#E8F7EF]" : "bg-[#EF5A5A]/10"}
+          colorIcono={saldoTeorico >= 0 ? "text-[#1FAE6D]" : "text-[#EF5A5A]"}
         />
       </div>
 
       {/* Panel Principal: Tabla de movimientos en efectivo del día */}
-      <div className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md shadow-sm flex-1 flex flex-col">
-        <div className="px-5 py-4 border-b border-[var(--border-subtle)] bg-black/[0.01]">
-          <span className="text-xs font-black text-black/40 uppercase tracking-widest">
+      <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] flex-1 flex flex-col overflow-hidden">
+        <div className="px-6 py-5 border-b border-[#E9EDEC]">
+          <span className="text-[15px] font-semibold text-[#1A1D1C]">
             Movimientos en Efectivo — {fmtFecha(hoy)}
           </span>
         </div>
@@ -218,7 +320,7 @@ const CajaDiaria = () => {
         <div className="overflow-x-auto overflow-y-visible">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-black/[0.02] border-b border-[var(--border-subtle)]">
+              <tr>
                 {[
                   "Fecha",
                   "Tipo",
@@ -228,7 +330,7 @@ const CajaDiaria = () => {
                 ].map((col) => (
                   <th
                     key={col}
-                    className="px-5 py-3.5 text-[9px] font-black text-black/40 uppercase tracking-[0.18em] whitespace-nowrap"
+                    className="px-6 py-4 text-[13px] font-medium text-[#6B7472] whitespace-nowrap border-b border-[#E9EDEC]"
                   >
                     {col}
                   </th>
@@ -240,7 +342,7 @@ const CajaDiaria = () => {
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-5 py-12 text-center text-sm font-semibold text-black/40"
+                    className="px-6 py-12 text-center text-sm font-medium text-[#6B7472]"
                   >
                     Cargando movimientos…
                   </td>
@@ -249,7 +351,7 @@ const CajaDiaria = () => {
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-5 py-12 text-center text-sm font-semibold text-black/40"
+                    className="px-6 py-12 text-center text-sm font-medium text-[#6B7472]"
                   >
                     No se encontraron movimientos en efectivo hoy
                   </td>
@@ -258,43 +360,55 @@ const CajaDiaria = () => {
                 movimientosEfectivo.map((mov) => (
                   <tr
                     key={mov.codigo}
-                    className="border-b border-[var(--border-subtle)]/60 hover:bg-[var(--primary)]/[0.02] transition-colors cursor-default"
+                    className="border-b border-[#E9EDEC] hover:bg-[#F5F7F6] transition-colors cursor-default"
                   >
-                    <td className="px-5 py-4 text-xs font-bold text-gray-700 whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm font-normal text-[#1A1D1C] whitespace-nowrap">
                       {fmtFecha(mov.fecha)}
                     </td>
-                    <td className="px-5 py-4">
+                    <td className="px-6 py-4">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border ${
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border ${
                           mov.tipoOperacion === "INGRESO"
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                            : "bg-rose-50 text-rose-700 border-rose-200"
+                            ? "bg-[#E8F7EF] text-[#178F58] border-transparent"
+                            : "bg-[#EF5A5A]/10 text-[#EF5A5A] border-transparent"
                         }`}
                       >
                         {mov.tipoOperacion === "INGRESO" ? (
-                          <TrendingUp size={12} />
+                          <TrendingUp size={14} />
                         ) : (
-                          <TrendingDown size={12} />
+                          <TrendingDown size={14} />
                         )}
-                        {mov.tipoOperacion}
+                        <span className="capitalize">{mov.tipoOperacion.toLowerCase()}</span>
                       </span>
                     </td>
-                    <td className="px-5 py-4 text-xs font-semibold text-gray-800">
-                      {mov._comprobante?.razonSocial ??
-                        mov.descripcion ??
-                        mov.tipoMovimiento?.nombre ??
-                        "—"}
+                    <td className="px-6 py-4 text-sm text-[#1A1D1C]">
+                      <div>
+                        {mov._comprobante?.razonSocial ??
+                          mov.descripcion ??
+                          mov.tipoMovimiento?.nombre ??
+                          "—"}
+                      </div>
+                      {mov.codigoCuentaImputada &&
+                        mapaCuentasImputadas.get(mov.codigoCuentaImputada) && (
+                          <div className="text-xs text-[#6B7472] mt-0.5">
+                            Cuenta:{" "}
+                            {
+                              mapaCuentasImputadas.get(mov.codigoCuentaImputada)
+                                .nombre
+                            }
+                          </div>
+                        )}
                     </td>
-                    <td className="px-5 py-4 text-xs font-semibold text-gray-500 whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm text-[#6B7472] whitespace-nowrap">
                       {mov._comprobante ? (
                         <span className="flex items-center gap-1.5">
-                          <span className="text-[9px] font-black text-gray-400 uppercase tracking-wider">
+                          <span className="uppercase text-xs font-medium">
                             {mov._comprobante.tipoDescripcionComprobante?.substring(
                               0,
                               3,
                             )}
                           </span>
-                          <span className="font-mono tabular-nums">
+                          <span className="tabular-nums">
                             {mov._comprobante.puntoVenta &&
                             mov._comprobante.numeroComprobante
                               ? `${String(mov._comprobante.puntoVenta).padStart(4, "0")}-${String(mov._comprobante.numeroComprobante).padStart(8, "0")}`
@@ -302,19 +416,19 @@ const CajaDiaria = () => {
                           </span>
                         </span>
                       ) : mov.codigoComprobante ? (
-                        <span className="font-mono tabular-nums">
+                        <span className="tabular-nums">
                           #{mov.codigoComprobante}
                         </span>
                       ) : (
                         "—"
                       )}
                     </td>
-                    <td className="px-5 py-4 text-sm font-black whitespace-nowrap tabular-nums">
+                    <td className="px-6 py-4 text-[15px] font-semibold whitespace-nowrap tabular-nums">
                       <span
                         className={
                           mov.tipoOperacion === "INGRESO"
-                            ? "text-emerald-700"
-                            : "text-rose-700"
+                            ? "text-[#1FAE6D]"
+                            : "text-[#EF5A5A]"
                         }
                       >
                         {mov.tipoOperacion === "EGRESO" ? "−" : "+"}

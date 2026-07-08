@@ -280,6 +280,13 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
               numeroComprobante: data?.comprobante?.numeroComprobante,
             });
           }
+
+          // El formulario se limpia siempre que la mutación fue exitosa,
+          // independientemente del tipo de comprobante generado.
+          cabecera.reset();
+          detalle.reset();
+          setPagos([]);
+          setVueltos([]);
         },
       },
     );

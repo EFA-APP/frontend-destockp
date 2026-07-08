@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { useCarteraChequeTerceroQuery } from "../../../../Backend/Comprobantes/queries/useCarteraChequeTerceroQuery";
 import { formatPrice } from "../../../../utils/formatters";
 import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import DateRangePicker from "../../../UI/DateRangePicker/DateRangePicker";
+import SelectorUnidadNegocio from "../../../UI/Select/SelectorUnidadNegocio";
 import { Landmark, Filter, X, ArrowDownCircle, Banknote, XCircle, CheckCircle2 } from "lucide-react";
 import ModalDestinoCheque from "./ModalDestinoCheque";
 
@@ -36,7 +37,7 @@ const ESTADO_STYLE = {
 };
 
 const ChequeTercero = () => {
-  const { usuario } = useAuthStore();
+  const { usuario, unidadActiva } = useAuthStore();
   const [filtros, setFiltros] = useState({
     fechaDesde: "",
     fechaHasta: "",
@@ -46,8 +47,26 @@ const ChequeTercero = () => {
 
   const [modalDestino, setModalDestino] = useState({ isOpen: false, accion: null, cheque: null });
 
+  const unidadesNegocio = usuario?.unidadesNegocio || [];
+  const [filtroUnidadNegocio, setFiltroUnidadNegocio] = useState(
+    unidadActiva?.codigoSecuencial ?? "",
+  );
+
+  useEffect(() => {
+    if (unidadActiva?.codigoSecuencial) {
+      setFiltroUnidadNegocio(unidadActiva.codigoSecuencial);
+    }
+  }, [unidadActiva?.codigoSecuencial]);
+
+  // Si hay una sola unidad de negocio (o ninguna), se usa fija sin mostrar selector.
+  const codigoUnidadNegocio =
+    unidadesNegocio.length <= 1
+      ? (unidadesNegocio[0]?.codigoSecuencial ?? unidadActiva?.codigoSecuencial)
+      : filtroUnidadNegocio;
+
   const filtrosQuery = {
     ...filtros,
+    ...(codigoUnidadNegocio && { codigoUnidadNegocio: Number(codigoUnidadNegocio) }),
     pagina: 1,
     limite: 1000,
   };
@@ -126,6 +145,11 @@ const ChequeTercero = () => {
                 }}
               />
             </div>
+
+            <SelectorUnidadNegocio
+              value={filtroUnidadNegocio}
+              onChange={(valor) => setFiltroUnidadNegocio(Number(valor))}
+            />
 
             <label className="flex flex-col gap-1.5">
               <span className="text-[10px] font-black text-black/50 uppercase tracking-wider">Estado</span>
