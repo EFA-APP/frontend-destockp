@@ -174,41 +174,7 @@ const Ingresos = ({ tipoOperacion }) => {
 
   const { mutate: crearComprobante, isPending } = useGenerarComprobante();
 
-  // Prefill desde flujo de cuotas escolares
-  useEffect(() => {
-    const state = location.state;
-    if (state?.origen !== "ESCUELA_CUOTAS") return;
 
-    // Prefill cliente (alumno) preservando su enteFacturacion para que se renderice en el bloque "Se factura a"
-    if (state.cliente) {
-      const a = state.cliente;
-      cabecera.setClienteSeleccionado(a);
-      const razonSocial =
-        a.razonSocial || `${a.nombre || ""} ${a.apellido || ""}`.trim();
-      cabecera.setBusquedaCliente(razonSocial);
-    }
-
-    // Prefill ítems como cuenta contable 4106
-    if (state.itemsCobro?.length) {
-      detalle.setTipoDetalle("CUENTA_CONTABLE");
-      detalle.setItems(
-        state.itemsCobro.map((item) => ({
-          codigoSecuencial: item.codigoSecuencial ?? 4106,
-          nombre: item.nombre,
-          tipoDetalle: "CUENTA_CONTABLE",
-          cantidad: item.cantidad ?? 1,
-          precioUnitario: item.precioUnitario,
-          descuento: 0,
-          tasaIva: 0,
-        })),
-      );
-    }
-
-    // Prefill observaciones con el período
-    if (state.observaciones) {
-      cabecera.setObservaciones(state.observaciones);
-    }
-  }, []); // solo en mount
 
   // Cuando se selecciona un comprobante para asociar, cargar todos sus datos
   useEffect(() => {

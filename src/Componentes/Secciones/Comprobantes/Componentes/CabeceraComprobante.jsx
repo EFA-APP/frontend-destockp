@@ -23,7 +23,7 @@ const LABELS_CONDICION_IVA = {
 };
 
 const LABELS_TIPO_ENTIDAD = {
-  ALUM: "Alumno",
+
   PADR: "Padre / Tutor",
   PROV: "Proveedor",
   CLI: "Cliente",
