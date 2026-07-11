@@ -14,6 +14,7 @@ import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
 import SelectorComprobanteModal from "./SelectorComprobanteModal";
 import FormularioContacto from "../../Contactos/GestionContactos/FormularioContacto";
 import { formatPrice } from "../../../../utils/formatters";
+import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store.js";
 
 const LABELS_CONDICION_IVA = {
   CF: "Consumidor Final",
@@ -62,6 +63,8 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
     setTipoComprobante,
     comprobanteAsociado,
     setComprobanteAsociado,
+    importeAplicadoManual,
+    setImporteAplicadoManual,
     esNotaAsociada,
     numeroComprobanteEgreso,
     setNumeroComprobanteEgreso,
@@ -82,6 +85,9 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
     busqueda: busquedaCliente,
     limite: 10,
   });
+
+  const usuario = useAuthStore((state) => state.usuario);
+  const arcaHabilitado = usuario?.conexionArca || usuario?.configuracionArca?.activo;
   const clientesRaw =
     tipoOperacion !== "EGRESO"
       ? contactosFetched.filter((c) => c.tipoEntidad !== "PROV")
@@ -226,13 +232,15 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
             >
               Interno
             </button>
-            <button
-              type="button"
-              onClick={() => setEsFiscal(true)}
-              className={`flex-1 py-1.5 text-md font-semibold uppercase rounded transition-all duration-300 ${esFiscal ? "bg-blue-500 text-white shadow-sm border border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
-            >
-              Fiscal (ARCA)
-            </button>
+            {arcaHabilitado && (
+              <button
+                type="button"
+                onClick={() => setEsFiscal(true)}
+                className={`flex-1 py-1.5 text-md font-semibold uppercase rounded transition-all duration-300 ${esFiscal ? "bg-blue-500 text-white shadow-sm border border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
+              >
+                Fiscal (ARCA)
+              </button>
+            )}
           </div>
         </div>
 
@@ -370,13 +378,99 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
             className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-md rounded-md font-semibold shadow-sm transition-colors duration-200 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10"
           >
             {unidadesNegocio?.map((u) => (
-              <option key={u.codigoSecuencial} value={u.codigoSecuencial}>
+              <option key={u.codigo} value={u.codigo}>
                 {u.nombre}
               </option>
             ))}
           </select>
         </div>
       </div>
+
+      {/* SECCIÓN 7: COMPROBANTE ASOCIADO (Nota de Crédito / Débito) */}
+      {esNotaAsociada && (
+        <div className="flex flex-col gap-3 pb-3 border-b border-gray-700/20 rounded-md w-full">
+          <label className="flex items-center gap-2 text-md font-semibold uppercase tracking-wider text-gray-900">
+            <Link size={16} className="text-[var(--primary)]" />
+            Comprobante Asociado
+          </label>
+          <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide -mt-1">
+            Vinculá el comprobante original que origina esta nota
+          </p>
+
+          {comprobanteAsociado ? (
+            <div className="flex items-center gap-3 border border-[var(--primary)]/30 bg-[var(--primary)]/5 rounded-md px-4 py-3">
+              <div className="flex items-center justify-center h-9 w-9 rounded-full bg-[var(--primary)]/10 shrink-0">
+                <Link size={16} className="text-[var(--primary)]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-100">
+                    {comprobanteAsociado.tipoDescripcionComprobante ||
+                      "COMPROBANTE"}{" "}
+                    {comprobanteAsociado.letraComprobante || ""}
+                  </span>
+                  <span className="text-sm font-black text-gray-900">
+                    {`${String(comprobanteAsociado.puntoVenta || 0).padStart(5, "0")}-${String(comprobanteAsociado.numeroComprobante || 0).padStart(8, "0")}`}
+                  </span>
+                </div>
+                {(comprobanteAsociado.nombreCliente ||
+                  comprobanteAsociado.razonSocial) && (
+                  <p className="text-[11px] font-semibold text-gray-500 mt-0.5 truncate">
+                    {comprobanteAsociado.nombreCliente ||
+                      comprobanteAsociado.razonSocial}
+                  </p>
+                )}
+                <p className="text-[11px] font-bold text-gray-700 mt-0.5">
+                  Total: {formatPrice(comprobanteAsociado.total || 0)}
+                  {comprobanteAsociado.saldoPendiente !== undefined && (
+                    <span className="text-amber-600 ml-2">
+                      · Saldo: {formatPrice(comprobanteAsociado.saldoPendiente)}
+                    </span>
+                  )}
+                </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">
+                    Importe a aplicar
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={
+                      comprobanteAsociado.saldoPendiente ??
+                      comprobanteAsociado.total
+                    }
+                    value={
+                      importeAplicadoManual ??
+                      (comprobanteAsociado.saldoPendiente ??
+                        comprobanteAsociado.total)
+                    }
+                    onChange={(e) =>
+                      setImporteAplicadoManual(parseFloat(e.target.value) || 0)
+                    }
+                    className="w-32 px-2 py-1 text-sm font-bold text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+                  />
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setComprobanteAsociado(null)}
+                className="p-2 rounded-md text-red-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer shrink-0"
+              >
+                <BorrarIcono size={18} />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setModalComprobanteOpen(true)}
+              className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-gray-300 rounded-md text-sm font-bold text-gray-500 hover:border-[var(--primary)]/50 hover:text-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all cursor-pointer self-start"
+            >
+              <Search size={16} />
+              Buscar comprobante asociado
+            </button>
+          )}
+        </div>
+      )}
 
       {/* SECCION 4: OBSERVACIONES */}
       <div className="grid grid-cols-1 gap-4 pb-3 border-b border-gray-700/20 rounded-md w-full">
@@ -613,7 +707,7 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
                     <>
                       {clientesRaw.map((cliente, index) => (
                         <button
-                          key={cliente.id || cliente.codigoSecuencial}
+                          key={cliente.id || cliente.codigo}
                           ref={(el) => (refsResultados.current[index] = el)}
                           type="button"
                           onClick={() => seleccionarCliente(cliente)}
@@ -684,69 +778,7 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
         )}
       </div>
 
-      {/* SECCIÓN 7: COMPROBANTE ASOCIADO (Nota de Crédito / Débito) */}
-      {esNotaAsociada && (
-        <div className="flex flex-col gap-3 pb-3 border-b border-gray-700/20 rounded-md w-full">
-          <label className="flex items-center gap-2 text-md font-semibold uppercase tracking-wider text-gray-900">
-            <Link size={16} className="text-[var(--primary)]" />
-            Comprobante Asociado
-          </label>
-          <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide -mt-1">
-            Vinculá el comprobante original que origina esta nota
-          </p>
 
-          {comprobanteAsociado ? (
-            <div className="flex items-center gap-3 border border-[var(--primary)]/30 bg-[var(--primary)]/5 rounded-md px-4 py-3">
-              <div className="flex items-center justify-center h-9 w-9 rounded-full bg-[var(--primary)]/10 shrink-0">
-                <Link size={16} className="text-[var(--primary)]" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-100">
-                    {comprobanteAsociado.tipoDescripcionComprobante ||
-                      "COMPROBANTE"}{" "}
-                    {comprobanteAsociado.letraComprobante || ""}
-                  </span>
-                  <span className="text-sm font-black text-gray-900">
-                    {`${String(comprobanteAsociado.puntoVenta || 0).padStart(5, "0")}-${String(comprobanteAsociado.numeroComprobante || 0).padStart(8, "0")}`}
-                  </span>
-                </div>
-                {(comprobanteAsociado.nombreCliente ||
-                  comprobanteAsociado.razonSocial) && (
-                  <p className="text-[11px] font-semibold text-gray-500 mt-0.5 truncate">
-                    {comprobanteAsociado.nombreCliente ||
-                      comprobanteAsociado.razonSocial}
-                  </p>
-                )}
-                <p className="text-[11px] font-bold text-gray-700 mt-0.5">
-                  Total: {formatPrice(comprobanteAsociado.total || 0)}
-                  {comprobanteAsociado.saldoPendiente !== undefined && (
-                    <span className="text-amber-600 ml-2">
-                      · Saldo: {formatPrice(comprobanteAsociado.saldoPendiente)}
-                    </span>
-                  )}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setComprobanteAsociado(null)}
-                className="p-2 rounded-md text-red-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer shrink-0"
-              >
-                <BorrarIcono size={18} />
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setModalComprobanteOpen(true)}
-              className="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-gray-300 rounded-md text-sm font-bold text-gray-500 hover:border-[var(--primary)]/50 hover:text-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all cursor-pointer self-start"
-            >
-              <Search size={16} />
-              Buscar comprobante asociado
-            </button>
-          )}
-        </div>
-      )}
 
       <SelectorComprobanteModal
         isOpen={modalComprobanteOpen}

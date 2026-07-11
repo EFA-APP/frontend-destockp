@@ -32,7 +32,7 @@ const VistaRolesEmpresa = ({ empresa, onClose }) => {
   const [rolAVincularPermisos, setRolAVincularPermisos] = useState(null);
   
   // Parametros comunes
-  const filtroEmpresa = { codigoEmpresa: empresa.codigo || empresa.codigoSecuencial };
+  const filtroEmpresa = { codigoEmpresa: empresa.codigo || empresa.codigo };
 
   // --- FETCHING DATOS ---
   const queryRoles = useObtenerRoles(filtroEmpresa);
@@ -70,7 +70,7 @@ const VistaRolesEmpresa = ({ empresa, onClose }) => {
       if (window.confirm(`¿Estás seguro de eliminar el rol "${fila.nombre}"? Esta acción no se puede deshacer.`)) {
         try {
           await eliminarRol({
-            codigo: fila.codigo || fila.codigoSecuencial,
+            codigo: fila.codigo || fila.codigo,
             codigoEmpresa: filtroEmpresa.codigoEmpresa
           });
         } catch (error) {
@@ -91,7 +91,7 @@ const VistaRolesEmpresa = ({ empresa, onClose }) => {
         try {
           await eliminarSeccion({
             codigoEmpresa: filtroEmpresa.codigoEmpresa,
-            codigoSecuencial: fila.codigoSecuencial
+            codigo: fila.codigo
           });
         } catch (error) {
           console.error("Error al eliminar", error);

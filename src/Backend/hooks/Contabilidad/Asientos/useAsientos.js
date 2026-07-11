@@ -29,7 +29,7 @@ export const useAsientos = () => {
 
   // Normalizar la respuesta del servidor al formato que espera la tabla
   const asientosMapeados = rawAsientos.map((a) => ({
-    id: a.codigoSecuencial,
+    id: a.codigo,
     fecha: a.fecha,
     descripcion: a.descripcion,
     origen: a.origenModulo,
@@ -39,7 +39,7 @@ export const useAsientos = () => {
     totalHaber:
       a.detalles?.reduce((sum, d) => sum + Number(d.haber || 0), 0) ?? 0,
     movimientos: (a.detalles || []).map((d) => ({
-      id: d.codigoSecuencial,
+      id: d.codigo,
       cuenta: d.codigoCuenta ?? String(d.codigoCuentaContable),
       nombreCuenta: d.nombreCuenta ?? d.nombreCuentaContable ?? "",
       debe: Number(d.debe || 0),
@@ -47,8 +47,6 @@ export const useAsientos = () => {
     })),
   }));
 
-  // Ya no filtramos en el cliente, el backend lo hace.
-  // Pero inyectamos el término para el resaltado visual (mark)
   const asientosFinales = asientosMapeados.map((a) => ({
     ...a,
     _terminoBusqueda: busqueda,

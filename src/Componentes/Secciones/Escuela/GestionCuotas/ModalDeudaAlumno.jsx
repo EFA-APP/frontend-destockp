@@ -1,18 +1,46 @@
 import { useMemo } from "react";
-import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { useDeudaAlumno } from "../../../../Backend/Escuela/hooks/useDeudaAlumno";
 import { formatearARS } from "../../../../utils/formatearMoneda";
-import { formatDate } from "../../../../utils/formatters";
+
+const MESES_ES = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+];
 
 /**
- * Modal con historial de cuotas emitidas de un alumno (referencia CUOTA-*).
- * R29
+ * Estado real del comprobante (`PENDIENTE_PAGO`/`PARCIALMENTE_ABONADO`/
+ * `ABONADO`/`ANULADO`), con "VENCIDA" derivada en frontend con el MISMO
+ * criterio que `TablaCuotas.jsx` (`estadoMostrado`): no se inventa un
+ * criterio nuevo acá.
  */
-const ModalDeudaAlumno = ({ alumno, onClose }) => {
-  const { usuario } = useAuthStore();
-  const { asientosCuota, cargandoDeuda } = useDeudaAlumno({
-    codigoEmpresa: usuario?.codigoEmpresa,
-    codigoContacto: alumno.codigoSecuencial,
+const derivarEstadoMostrado = (comprobante, hoyNormalizado) => {
+  const { estado, fechaVto } = comprobante;
+  if (
+    (estado === "PENDIENTE_PAGO" || estado === "PARCIALMENTE_ABONADO") &&
+    fechaVto &&
+    new Date(fechaVto) < hoyNormalizado
+  ) {
+    return "VENCIDA";
+  }
+  if (estado === "PENDIENTE_PAGO") {
+    return "EMITIDA";
+  }
+  return estado;
+};
+
+/**
+ * Modal con historial de cuotas emitidas (multi-período) de un alumno,
+ * para UN tipo de cuota (`codigoCuentaContable`). R29.
+ *
+ * Reescrito para armar `historialPeriodos` directamente desde los campos
+ * del `Comprobante` (`useDeudaAlumno`, fuente de verdad real) en vez de
+ * reconstruir Debe/Haber desde asientos contables — ver
+ * progress/impl_cuotas-deudas-y-verificacion-cobrar.md.
+ */
+const ModalDeudaAlumno = ({ alumno, codigoCuentaContable, onClose }) => {
+  const { comprobantesCuota, cargandoDeuda } = useDeudaAlumno({
+    codigoContacto: alumno.codigo,
+    codigoCuentaContable,
   });
 
   const nombreCompleto =
@@ -20,74 +48,39 @@ const ModalDeudaAlumno = ({ alumno, onClose }) => {
     `${alumno.nombre ?? ""} ${alumno.apellido ?? ""}`.trim();
 
   const historialPeriodos = useMemo(() => {
-    const grupos = {};
-    for (const asiento of asientosCuota) {
-      const ref = asiento.referencia;
-      if (!ref) continue;
-      if (!grupos[ref]) {
-        grupos[ref] = {
-          referencia: ref,
-          fecha: asiento.fecha,
-          detalles: [],
+    const hoy = new Date();
+    const hoyNormalizado = new Date(
+      hoy.getFullYear(),
+      hoy.getMonth(),
+      hoy.getDate(),
+    );
+
+    return comprobantesCuota
+      .map((comprobante) => {
+        const fechaVto = comprobante.fechaVto
+          ? new Date(comprobante.fechaVto)
+          : null;
+        const anio = fechaVto ? fechaVto.getFullYear() : null;
+        const mes = fechaVto ? fechaVto.getMonth() + 1 : null;
+
+        return {
+          codigo: comprobante.codigo,
+          periodoStr:
+            mes != null && anio != null
+              ? `${MESES_ES[mes - 1]} ${anio}`
+              : "—",
+          totalEmitido: comprobante.total ?? 0,
+          saldoPendiente: comprobante.saldoPendiente ?? 0,
+          estado: derivarEstadoMostrado(comprobante, hoyNormalizado),
+          anio,
+          mes,
         };
-      }
-      if (asiento.detalles) {
-        grupos[ref].detalles.push(...asiento.detalles);
-      }
-    }
-
-    const list = [];
-    const MESES_ES = [
-      "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-    ];
-
-    for (const ref in grupos) {
-      let totalDebe = 0;
-      let totalHaber = 0;
-      for (const d of grupos[ref].detalles) {
-        if (
-          d.codigoCuentaContable === 507 ||
-          d.nombreCuentaContable?.includes("PADRE") ||
-          d.nombreCuentaContable?.includes("Padre")
-        ) {
-          totalDebe += d.debe ?? 0;
-          totalHaber += d.haber ?? 0;
-        }
-      }
-
-      const saldoPendiente = Math.max(0, totalDebe - totalHaber);
-      const partes = ref.split("-");
-      const anio = Number(partes[partes.length - 2]);
-      const mes = Number(partes[partes.length - 1]);
-
-      const vencimiento = new Date(anio, mes - 1, 10);
-      const hoy = new Date();
-      const hoyNorm = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-
-      let estado = "EMITIDA";
-      if (saldoPendiente <= 0) {
-        estado = "ABONADO";
-      } else if (saldoPendiente < totalDebe) {
-        estado = "PARCIAL";
-      } else if (hoyNorm > vencimiento) {
-        estado = "VENCIDA";
-      }
-
-      list.push({
-        referencia: ref,
-        periodoStr: `${MESES_ES[mes - 1]} ${anio}`,
-        fecha: grupos[ref].fecha,
-        totalEmitido: totalDebe,
-        saldoPendiente,
-        estado,
-        anio,
-        mes,
+      })
+      .sort((a, b) => {
+        if (a.anio !== b.anio) return (b.anio ?? 0) - (a.anio ?? 0);
+        return (b.mes ?? 0) - (a.mes ?? 0);
       });
-    }
-
-    return list.sort((a, b) => b.anio !== a.anio ? b.anio - a.anio : b.mes - a.mes);
-  }, [asientosCuota]);
+  }, [comprobantesCuota]);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
@@ -146,15 +139,17 @@ const ModalDeudaAlumno = ({ alumno, onClose }) => {
                   let badgeClass = "bg-sky-100 text-sky-700 border-sky-200";
                   if (periodo.estado === "ABONADO") {
                     badgeClass = "bg-emerald-100 text-emerald-700 border-emerald-200";
-                  } else if (periodo.estado === "PARCIAL") {
+                  } else if (periodo.estado === "PARCIALMENTE_ABONADO") {
                     badgeClass = "bg-amber-100 text-amber-700 border-amber-200";
                   } else if (periodo.estado === "VENCIDA") {
                     badgeClass = "bg-rose-100 text-rose-700 border-rose-200";
+                  } else if (periodo.estado === "ANULADO") {
+                    badgeClass = "bg-gray-200 text-gray-600 border-gray-300";
                   }
 
                   return (
                     <tr
-                      key={periodo.referencia}
+                      key={periodo.codigo}
                       className="hover:bg-gray-50/50 transition-colors"
                     >
                       <td className="px-4 py-3 text-xs font-bold text-gray-800 uppercase">

@@ -85,7 +85,7 @@ export const SelectorCuentaImputable = ({ tipoOperacion, value, onChange, codigo
               ) : (
                 cuentas.map((c) => (
                   <button
-                    key={c.codigoSecuencial}
+                    key={c.codigo}
                     type="button"
                     onMouseDown={(e) => {
                       e.preventDefault();

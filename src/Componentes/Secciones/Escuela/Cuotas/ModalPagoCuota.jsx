@@ -55,7 +55,7 @@ const ModalPagoCuota = ({ alumno, onClose }) => {
         const cuota = alumno.cuotas[p];
         return {
           tipoDetalle: "CUENTA_CONTABLE",
-          codigoSecuencial: 4106,
+          codigo: 4106,
           nombre: `CUOTA ESCOLAR - ${cuota.periodoFormateado}`,
           cantidad: 1,
           precioUnitario: montosManuales[p] || cuota.monto,

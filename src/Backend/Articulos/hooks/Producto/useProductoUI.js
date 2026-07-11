@@ -35,7 +35,7 @@ export const useProductoUI = (filtrosIniciales = {}, options = {}) => {
         return data.filter(p => 
             p.nombre?.toLowerCase().includes(termino) ||
             p.sabor?.toLowerCase().includes(termino) ||
-            String(p.codigoSecuencial || "").toLowerCase().includes(termino)
+            String(p.codigo || "").toLowerCase().includes(termino)
         );
     }, [query.data, query.isLoading, busqueda]);
 

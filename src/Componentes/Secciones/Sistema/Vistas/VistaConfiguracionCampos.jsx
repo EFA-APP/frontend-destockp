@@ -11,7 +11,7 @@ const VistaConfiguracionCampos = ({ empresa, onClose }) => {
 
   const { data: configuracionBackend, isLoading: cargandoConfig } =
     useConfiguracionProducto({
-      codigoEmpresa: empresa.codigo || empresa.codigoSecuencial,
+      codigoEmpresa: empresa.codigo || empresa.codigo,
     });
 
   const { mutateAsync: crearConfiguracion, isLoading: guardando } =
@@ -23,7 +23,7 @@ const VistaConfiguracionCampos = ({ empresa, onClose }) => {
   useEffect(() => {
     if (configuracionBackend) {
       const camposMapeados = configuracionBackend.map((c) => ({
-        id: c.codigoSecuencial,
+        id: c.codigo,
         nombre: c.nombreCampo,
         clave: c.claveCampo,
         tipo:
@@ -79,7 +79,7 @@ const VistaConfiguracionCampos = ({ empresa, onClose }) => {
 
       await crearConfiguracion({
         data: payload,
-        params: { codigoEmpresa: empresa.codigo || empresa.codigoSecuencial },
+        params: { codigoEmpresa: empresa.codigo || empresa.codigo },
       });
 
       agregarAlerta({

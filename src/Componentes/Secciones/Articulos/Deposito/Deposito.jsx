@@ -101,7 +101,7 @@ const Deposito = () => {
         tipoArticulo: tipo,
         incluirCerosNegativos,
         depositosOrden: depositosOrdenadosCustom
-          .map((d) => d.codigoSecuencial)
+          .map((d) => d.codigo)
           .join(","),
         ...(modoReporte === "busqueda" && textoBusquedaReporte.trim()
           ? { busqueda: textoBusquedaReporte.trim() }
@@ -135,7 +135,7 @@ const Deposito = () => {
     if (!depositoAEliminar) return;
     setProcesando(true);
     try {
-      await eliminarDeposito(depositoAEliminar.codigoSecuencial, borrarStock);
+      await eliminarDeposito(depositoAEliminar.codigo, borrarStock);
       setDepositoAEliminar(null);
       setBorrarStock(false);
     } catch (e) {
@@ -147,7 +147,7 @@ const Deposito = () => {
 
   const handleEditarSucursal = useCallback(
     (suc) => {
-      navigate(`${baseRoute}/editar?codigoSecuencial=${suc.codigoSecuencial}`);
+      navigate(`${baseRoute}/editar?codigo=${suc.codigo}`);
     },
     [navigate, baseRoute],
   );
@@ -359,7 +359,7 @@ const Deposito = () => {
                     ) : (
                       depositosOrdenadosCustom.map((dep, index) => (
                         <div
-                          key={dep.codigoSecuencial}
+                          key={dep.codigo}
                           draggable
                           onDragStart={(e) => handleDragStart(e, index)}
                           onDragOver={(e) => handleDragOver(e, index)}

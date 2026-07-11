@@ -87,7 +87,7 @@ const Empresas = () => {
     // Por ahora, aplicamos el bloqueo/desbloqueo instantáneo (soft-delete):
     try {
       await actualizarEmpresa({
-        codigoEmpresa: fila.codigo || fila.codigoSecuencial,
+        codigoEmpresa: fila.codigo || fila.codigo,
         activo: !fila.activo,
       });
     } catch (error) {

@@ -34,7 +34,7 @@ const GestionMateriaPrima = () => {
   useEffect(() => {
     if (!materiaPrima && materiasPrimas.length > 0) {
       const found = materiasPrimas.find(
-        (p) => String(p.codigoSecuencial) === id,
+        (p) => String(p.codigo) === id,
       );
       if (found) setMateriaPrima(found);
     }
@@ -126,7 +126,7 @@ const GestionMateriaPrima = () => {
               initialTab="info"
               width="w-full"
               onSave={async (dataEditada) => {
-                const { codigoSecuencial, codigoEmpresa, id, ...payload } =
+                const { codigo, codigoEmpresa, id, ...payload } =
                   dataEditada;
 
                 if (payload.stock !== undefined)
@@ -139,7 +139,7 @@ const GestionMateriaPrima = () => {
 
                 try {
                   await actualizarMateriaPrima(
-                    materiaPrima.codigoSecuencial,
+                    materiaPrima.codigo,
                     payload,
                   );
                   navigate(baseRoute);
@@ -149,7 +149,7 @@ const GestionMateriaPrima = () => {
               }}
             >
               <ListaMovimientos
-                codigoArticulo={materiaPrima?.codigoSecuencial}
+                codigoArticulo={materiaPrima?.codigo}
                 tipoArticulo="MATERIA_PRIMA"
               />
             </ModalDetalleGenerico>
@@ -172,7 +172,7 @@ const GestionMateriaPrima = () => {
               </div>
             </div>
             <ListaMovimientos
-              codigoArticulo={materiaPrima?.codigoSecuencial}
+              codigoArticulo={materiaPrima?.codigo}
               tipoArticulo="MATERIA_PRIMA"
             />
           </div>

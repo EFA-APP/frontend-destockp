@@ -42,7 +42,7 @@ const ModalEmisionIndividual = ({
       const fVenc = new Date(parseInt(anio), parseInt(mes) - 1, 10);
 
       await emitirCuota(
-        alumno.codigoSecuencial,
+        alumno.codigo,
         form.periodo,
         form.monto,
         form.concepto,

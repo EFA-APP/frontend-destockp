@@ -108,7 +108,7 @@ const NuevoEgreso = () => {
         "Sin Nombre";
 
       return {
-        value: String(c.codigoSecuencial),
+        value: String(c.codigo),
         label: `${nombreCompleto.toUpperCase()} ${
           c.documento ? `(${c.documento})` : ""
         }`,
@@ -174,13 +174,13 @@ const NuevoEgreso = () => {
       return;
 
     const clienteObj = contactos.find(
-      (c) => String(c.codigoSecuencial) === String(clienteId),
+      (c) => String(c.codigo) === String(clienteId),
     );
 
     const payloadLogistico = {
       lote: loteSeleccionado,
       cliente: clienteObj?.razonSocial || clienteObj?.nombre || "Sin Cliente",
-      clienteId: clienteObj?.codigoSecuencial,
+      clienteId: clienteObj?.codigo,
       etapa,
       chofer,
       transporte,

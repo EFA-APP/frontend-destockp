@@ -93,14 +93,14 @@ const SelectorArticuloModal = ({
 
   useEffect(() => {
     if (depositos.length > 0 && !depositoSeleccionado) {
-      setDepositoSeleccionado(String(depositos[0].codigoSecuencial));
+      setDepositoSeleccionado(String(depositos[0].codigo));
     }
   }, [depositos.length]);
 
   const esArticulo =
     tipoDetalle === "PRODUCTO" || tipoDetalle === "MATERIA_PRIMA";
 
-  const codigosVisibles = articulos.map((a) => a.codigoSecuencial).join(",");
+  const codigosVisibles = articulos.map((a) => a.codigo).join(",");
 
   const { data: stockDepositoData } = useQuery({
     queryKey: [
@@ -134,13 +134,13 @@ const SelectorArticuloModal = ({
       const sp = prod.stockPorDeposito?.find(
         (s) => s.codigoDeposito === Number(depositoSeleccionado),
       );
-      stockPorProducto[prod.codigoSecuencial] = sp?.stock ?? 0;
+      stockPorProducto[prod.codigo] = sp?.stock ?? 0;
     });
   }
 
   const getStockProducto = (p) => {
     if (tieneRestarStock && depositoSeleccionado) {
-      return stockPorProducto[p.codigoSecuencial] ?? null; // null = aún cargando
+      return stockPorProducto[p.codigo] ?? null; // null = aún cargando
     }
     return parseFloat(p.stock) || 0;
   };
@@ -195,8 +195,8 @@ const SelectorArticuloModal = ({
   };
 
   const getPrecioFila = (item) => {
-    if (preciosPorFila[item.codigoSecuencial] !== undefined) {
-      return preciosPorFila[item.codigoSecuencial];
+    if (preciosPorFila[item.codigo] !== undefined) {
+      return preciosPorFila[item.codigo];
     }
     if (tasaIvaSeleccionada !== null) return tasaIvaSeleccionada.monto;
     return (
@@ -213,7 +213,7 @@ const SelectorArticuloModal = ({
     if (esCuentaContable) {
       const importe =
         parseFloat(
-          importes[item.codigoSecuencial] ?? tasaIvaSeleccionada?.monto ?? montoPreCargado,
+          importes[item.codigo] ?? tasaIvaSeleccionada?.monto ?? montoPreCargado,
         ) || 0;
       agregarItem(item, 1, {
         precioUnitario: importe,
@@ -221,7 +221,7 @@ const SelectorArticuloModal = ({
         tasaIva: tasaIvaSeleccionada?.alicuota ?? 0,
       });
     } else {
-      const qty = cantidades[item.codigoSecuencial] || 1;
+      const qty = cantidades[item.codigo] || 1;
       const precioUnitario = parseFloat(getPrecioFila(item)) || 0;
       agregarItem(item, qty, {
         precioUnitario,
@@ -235,9 +235,9 @@ const SelectorArticuloModal = ({
 
 
     // Activar feedback de agregado
-    setAgregados((prev) => ({ ...prev, [item.codigoSecuencial]: true }));
+    setAgregados((prev) => ({ ...prev, [item.codigo]: true }));
     setTimeout(() => {
-      setAgregados((prev) => ({ ...prev, [item.codigoSecuencial]: false }));
+      setAgregados((prev) => ({ ...prev, [item.codigo]: false }));
     }, 1500);
   };
 
@@ -307,8 +307,8 @@ const SelectorArticuloModal = ({
                 <option value="">Sin depósito específico</option>
                 {depositos.map((dep) => (
                   <option
-                    key={dep.codigoSecuencial}
-                    value={dep.codigoSecuencial}
+                    key={dep.codigo}
+                    value={dep.codigo}
                   >
                     {dep.nombre}
                   </option>
@@ -425,13 +425,13 @@ const SelectorArticuloModal = ({
           ) : (
             <div className="space-y-3">
               {articulos.map((p) => {
-                const isSelected = agregados[p.codigoSecuencial];
+                const isSelected = agregados[p.codigo];
 
                 // ───────── FILA: CUENTA CONTABLE (importe a mano, sin stock ni cantidad) ─────────
                 if (esCuentaContable) {
                   return (
                     <div
-                      key={p.codigoSecuencial}
+                      key={p.codigo}
                       className={`flex flex-col sm:flex-row sm:items-center justify-between bg-white border rounded-md p-4 transition gap-4 shadow-sm hover:border-[var(--primary)]/30 hover:shadow-md ${
                         isSelected
                           ? "border-emerald-500/40 bg-emerald-50/10"
@@ -458,13 +458,13 @@ const SelectorArticuloModal = ({
                           <input
                             type="number"
                             value={
-                              importes[p.codigoSecuencial] ??
+                              importes[p.codigo] ??
                               tasaIvaSeleccionada?.monto ??
                               montoPreCargado
                             }
                             onChange={(e) =>
                               handleImporteChange(
-                                p.codigoSecuencial,
+                                p.codigo,
                                 e.target.value,
                               )
                             }
@@ -503,11 +503,11 @@ const SelectorArticuloModal = ({
                 }
 
                 // ───────── FILA: PRODUCTO / MATERIA PRIMA (stock, precio, cantidad + IVA) ─────────
-                const quantity = cantidades[p.codigoSecuencial] || 1;
+                const quantity = cantidades[p.codigo] || 1;
 
                 return (
                   <div
-                    key={p.codigoSecuencial}
+                    key={p.codigo}
                     className={`flex flex-col sm:flex-row sm:items-center justify-between bg-white border rounded-md p-4 transition gap-4 shadow-sm hover:border-[var(--primary)]/30 hover:shadow-md ${
                       isSelected
                         ? "border-emerald-500/40 bg-emerald-50/10"
@@ -567,7 +567,7 @@ const SelectorArticuloModal = ({
                           value={getPrecioFila(p)}
                           onChange={(e) =>
                             handlePrecioChange(
-                              p.codigoSecuencial,
+                              p.codigo,
                               e.target.value,
                             )
                           }
@@ -580,7 +580,7 @@ const SelectorArticuloModal = ({
                       <div className="flex items-center bg-gray-100 border border-gray-200 rounded-full p-0.5 shadow-inner">
                         <button
                           type="button"
-                          onClick={() => handleDecrement(p.codigoSecuencial)}
+                          onClick={() => handleDecrement(p.codigo)}
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-white hover:bg-gray-50 text-gray-600 transition active:scale-90 font-black shadow-sm cursor-pointer"
                         >
                           <Minus size={12} strokeWidth={3} />
@@ -590,7 +590,7 @@ const SelectorArticuloModal = ({
                           value={quantity}
                           onChange={(e) =>
                             handleQuantityChange(
-                              p.codigoSecuencial,
+                              p.codigo,
                               e.target.value,
                             )
                           }
@@ -599,7 +599,7 @@ const SelectorArticuloModal = ({
                         />
                         <button
                           type="button"
-                          onClick={() => handleIncrement(p.codigoSecuencial)}
+                          onClick={() => handleIncrement(p.codigo)}
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-white hover:bg-gray-50 text-gray-600 transition active:scale-90 font-black shadow-sm cursor-pointer"
                         >
                           <Plus size={12} strokeWidth={3} />

@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
-import { emitirLoteCuotasApi } from "../../../../Backend/Escuela/api/cuotas.api";
-import {
-  evaluarFormulaCuota,
-  formatearReferenciaCuota,
-  calcularEstadoCuota,
-} from "../../../../utils/cuotaUtils";
+import { emitirCuotaIndividualApi } from "../../../../Backend/Escuela/api/cuotas.api";
+import ModalConfirmarEmision from "./ModalConfirmarEmision";
+import SelectorTipoComprobanteCuota, {
+  useTiposComprobanteCuotaPermitidos,
+} from "./SelectorTipoComprobanteCuota";
 
 const MESES_ES = [
   "Enero",
@@ -24,15 +23,18 @@ const MESES_ES = [
 ];
 
 /**
- * Modal de emisión individual de cuota para un alumno.
- * R18, R19, R20
+ * Modal de emisión individual de cuota para un alumno (R50, R55, R104):
+ * emite una Factura real (fiscal o interna, R6-R8) vía
+ * `cuotas.emitirIndividual`, con el monto sugerido por el motor de reglas
+ * (§5) como precarga editable (`montoOverride`).
  */
 const ModalEmitirIndividual = ({
-  alumno,
-  formula,
+  fila,
+  cuenta,
+  tipoEntidadObligado = "ALUM",
   mes,
   anio,
-  asientos,
+  codigoUnidadNegocio,
   onClose,
   onExito,
 }) => {
@@ -40,46 +42,44 @@ const ModalEmitirIndividual = ({
   const queryClient = useQueryClient();
   const [emitiendo, setEmitiendo] = useState(false);
   const [error, setError] = useState(null);
-
-  const tipoAlumno = alumno.atributos?.tipo_alumno ?? "";
-  const monto = evaluarFormulaCuota(formula, tipoAlumno);
-  const [montoEditable, setMontoEditable] = useState(monto);
-  const referencia = formatearReferenciaCuota(
-    alumno.codigoSecuencial,
-    anio,
-    mes,
+  // R2 (bugfix puntual "selector de tipo de comprobante" 2026-07-11, ver
+  // progress/impl_cuotas-selector-tipo-comprobante.md): ya no es un booleano
+  // esFiscal auto-derivado — el usuario elige explícitamente el tipo real
+  // (991/1/6/11) entre los que tiene permitidos, precargado con el primero.
+  const tiposComprobantePermitidos = useTiposComprobanteCuotaPermitidos();
+  const [codigoTipoComprobante, setCodigoTipoComprobante] = useState(
+    () => tiposComprobantePermitidos[0]?.id ?? null,
   );
-  const periodoDate = new Date(anio, mes - 1, 1);
-  const hoy = new Date();
-  const estado = calcularEstadoCuota(
-    referencia,
-    asientos ?? [],
-    periodoDate,
-    hoy,
-  );
-  const yaEmitida = estado !== "SIN_EMITIR";
-  const sinTutor = !alumno.enteFacturacion || !alumno.enteFacturacion.codigoSecuencial;
+  const [montoEditable, setMontoEditable] = useState(fila.montoSugerido ?? 0);
+  const [confirmando, setConfirmando] = useState(false);
 
+  const yaEmitida = fila.estado !== "SIN_EMITIR";
   const nombreCompleto =
-    alumno.razonSocial ||
-    `${alumno.nombre ?? ""} ${alumno.apellido ?? ""}`.trim();
+    fila.razonSocial || `${fila.nombre ?? ""} ${fila.apellido ?? ""}`.trim();
   const nombreMes = MESES_ES[mes - 1];
 
+  const unidadSeleccionada = usuario?.unidadesNegocio?.find(
+    (u) => String(u.codigo) === String(codigoUnidadNegocio),
+  );
+  const puntoVenta = unidadSeleccionada?.puntoVenta ?? 1;
+
   const handleConfirmar = async () => {
-    if (yaEmitida) return;
+    if (yaEmitida || !codigoTipoComprobante) return;
     setEmitiendo(true);
     setError(null);
     try {
-      await emitirLoteCuotasApi({
-        codigoCtaCte: "110301006",
+      await emitirCuotaIndividualApi({
+        codigoCuentaContable: cuenta.codigoSecuencial,
+        tipoEntidadObligado,
         mes,
         anio,
-        codigoContacto: alumno.codigoSecuencial,
+        codigoTipoComprobante,
+        puntoVenta,
+        codigoContacto: fila.codigo,
+        codigoUnidadNegocio: codigoUnidadNegocio ? Number(codigoUnidadNegocio) : undefined,
         montoOverride: montoEditable,
       });
-      queryClient.invalidateQueries({ queryKey: ["asientos"] });
-      queryClient.invalidateQueries({ queryKey: ["alumnos-cuotas"] });
-      queryClient.invalidateQueries({ queryKey: ["deuda-alumno"] });
+      queryClient.invalidateQueries({ queryKey: ["cuotas-listar"] });
       onExito();
     } catch (err) {
       setError(err?.response?.data?.message || "Error al emitir cuota");
@@ -87,6 +87,20 @@ const ModalEmitirIndividual = ({
       setEmitiendo(false);
     }
   };
+
+  // R3 (confirmación explícita con Unidad de Negocio) — paso intermedio
+  // antes de disparar `cuotas.emitirIndividual`.
+  if (confirmando) {
+    return (
+      <ModalConfirmarEmision
+        nombreUnidad={unidadSeleccionada?.nombre}
+        emitiendo={emitiendo}
+        error={error}
+        onConfirmar={handleConfirmar}
+        onCancelar={() => setConfirmando(false)}
+      />
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
@@ -96,7 +110,7 @@ const ModalEmitirIndividual = ({
             Emitir cuota individual
           </h2>
           <p className="text-xs font-semibold text-gray-500">
-            Emití una cuota manual para un alumno específico.
+            Cuenta: {cuenta?.nombre}
           </p>
         </div>
 
@@ -127,18 +141,28 @@ const ModalEmitirIndividual = ({
                 className="w-full bg-white border border-[var(--border-subtle)] rounded-md pl-8 pr-3 py-2.5 text-sm font-bold text-gray-700 outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 transition-all disabled:opacity-50 disabled:bg-gray-50"
               />
             </div>
+            {fila.montoSugerido == null && (
+              <p className="text-[11px] text-amber-600 font-bold">
+                No hay ninguna regla de monto configurada para este alumno; cargá un monto manual.
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5 pt-2">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+              Tipo de comprobante a emitir
+            </span>
+            <SelectorTipoComprobanteCuota
+              value={codigoTipoComprobante}
+              onChange={setCodigoTipoComprobante}
+              disabled={yaEmitida || emitiendo}
+            />
           </div>
         </div>
 
         {yaEmitida && (
           <div className="bg-amber-50 border border-amber-200 rounded-md p-4 text-sm font-semibold text-amber-700">
             Ya existe una cuota emitida para este alumno en {mes}/{anio}
-          </div>
-        )}
-
-        {sinTutor && (
-          <div className="bg-rose-50 border border-rose-200 rounded-md p-4 text-sm font-semibold text-rose-700">
-            Este alumno no tiene tutor registrado. No se puede emitir la cuota.
           </div>
         )}
 
@@ -157,15 +181,11 @@ const ModalEmitirIndividual = ({
             Cancelar
           </button>
           <button
-            onClick={handleConfirmar}
-            disabled={yaEmitida || emitiendo || sinTutor}
+            onClick={() => setConfirmando(true)}
+            disabled={yaEmitida || emitiendo || !codigoTipoComprobante}
             className="flex-1 py-3 rounded-md bg-[var(--primary)] text-white text-xs font-bold hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-[var(--primary)]/20"
           >
-            {emitiendo ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              "Emitir cuota"
-            )}
+            Emitir cuota
           </button>
         </div>
       </div>

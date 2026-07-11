@@ -62,7 +62,7 @@ const ModalMovimientoManual = ({ onClose }) => {
       tipoOperacion: form.tipoOperacion,
       monto: Number(form.monto),
       descripcion: form.descripcion.trim(),
-      codigoCuentaImputada: form.cuentaImputada.codigoSecuencial,
+      codigoCuentaImputada: form.cuentaImputada.codigo,
     };
 
     crearMovimientoManual(
@@ -70,7 +70,7 @@ const ModalMovimientoManual = ({ onClose }) => {
         payload,
         contexto: {
           codigoEmpresa: usuario?.codigoEmpresa,
-          codigoUnidadNegocio: unidadActiva?.codigoSecuencial,
+          codigoUnidadNegocio: unidadActiva?.codigo,
         },
       },
       {

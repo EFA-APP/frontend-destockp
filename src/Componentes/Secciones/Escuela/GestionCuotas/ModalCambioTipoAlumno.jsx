@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useContactos } from "../../../../Backend/Contactos/hooks/useContactos";
+import { construirContactoBaseDto } from "../../../../Backend/Contactos/contacto.utils";
 import {
   evaluarFormulaCuota,
   formatearReferenciaCuota,
@@ -35,7 +36,7 @@ const ModalCambioTipoAlumno = ({
   const [mensaje, setMensaje] = useState("");
   const { actualizarContacto } = useContactos();
 
-  const referencia = formatearReferenciaCuota(alumno.codigoSecuencial, anio, mes);
+  const referencia = formatearReferenciaCuota(alumno.codigo, anio, mes);
   const periodoDate = new Date(anio, mes - 1, 1);
   const hoy = new Date();
   const estadoCuotaActual = calcularEstadoCuota(referencia, asientos ?? [], periodoDate, hoy);
@@ -57,18 +58,9 @@ const ModalCambioTipoAlumno = ({
 
     try {
       await actualizarContacto({
-        id: alumno.codigoSecuencial,
+        id: alumno.codigo,
         dto: {
-          codigoEmpresa: alumno.codigoEmpresa,
-          tipoEntidad: alumno.tipoEntidad,
-          nombre: alumno.nombre || "",
-          apellido: alumno.apellido || "",
-          razonSocial: alumno.razonSocial || "",
-          documento: alumno.documento || "",
-          correoElectronico: alumno.correoElectronico || "",
-          tipoDocumento: alumno.tipoDocumento || 99,
-          condicionIva: alumno.condicionIva || "CF",
-          activo: alumno.activo ?? true,
+          ...construirContactoBaseDto(alumno),
           atributos: {
             ...(alumno.atributos ?? {}),
             tipo_alumno: nuevoTipo.toLowerCase(),

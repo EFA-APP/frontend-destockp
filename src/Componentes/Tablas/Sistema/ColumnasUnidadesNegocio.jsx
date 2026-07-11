@@ -3,7 +3,7 @@ import { Highlight } from "../../UI/DataTable/DataTable";
 
 export const columnasUnidadesNegocio = (busqueda = "") => [
   {
-    key: "codigoSecuencial",
+    key: "codigo",
     etiqueta: "CÓDIGO",
     renderizar: (valor) => (
       <span className="font-black text-black/40 text-[11px] tracking-widest">

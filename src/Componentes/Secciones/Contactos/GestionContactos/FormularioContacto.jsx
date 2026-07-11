@@ -58,13 +58,13 @@ const FormularioContacto = ({
   const [nuevaRelacion, setNuevaRelacion] = useState({
     tipo: "",
     entidad: "",
-    codigoSecuencial: "",
+    codigo: "",
     nombre: "",
   });
 
   const [busquedaEnte, setBusquedaEnte] = useState({
     entidad: "",
-    codigoSecuencial: "",
+    codigo: "",
     query: "",
     mostrarDropdown: false,
   });
@@ -108,7 +108,7 @@ const FormularioContacto = ({
 
   const enteActualNombre = Array.isArray(listaEntes)
     ? listaEntes.find(
-        (c) => c.codigoSecuencial === form.enteFacturacion?.codigoSecuencial,
+        (c) => c.codigo === form.enteFacturacion?.codigo,
       )?.razonSocial || "---"
     : "---";
 
@@ -156,7 +156,7 @@ const FormularioContacto = ({
 
     try {
       if (contacto) {
-        await actualizarContacto({ id: contacto.codigoSecuencial, dto: payload });
+        await actualizarContacto({ id: contacto.codigo, dto: payload });
         onClose();
       } else {
         const nuevo = await crearContacto(payload);
@@ -194,7 +194,7 @@ const FormularioContacto = ({
               </h2>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">
                 {contacto
-                  ? `ID: ${contacto.codigoSecuencial.toString().padStart(4, "0")}`
+                  ? `ID: ${contacto.codigo.toString().padStart(4, "0")}`
                   : "REGISTRO DE FICHA"}
               </p>
             </div>
@@ -436,7 +436,7 @@ const FormularioContacto = ({
                   )}
                 </div>
 
-                {!form.enteFacturacion?.codigoSecuencial ? (
+                {!form.enteFacturacion?.codigo ? (
                   <div className="space-y-3 bg-[var(--fill-secondary)] p-4 rounded-md border border-[var(--border-subtle)] shadow-inner">
                     <div className="space-y-2">
                       <div className="relative">
@@ -526,7 +526,7 @@ const FormularioContacto = ({
                             listaEntes.length > 0 ? (
                               listaEntes.map((c, idx) => (
                                 <div
-                                  key={c.codigoSecuencial}
+                                  key={c.codigo}
                                   onClick={() => {
                                     const nombre =
                                       c.razonSocial ||
@@ -716,14 +716,14 @@ const FormularioContacto = ({
                         listaVinculos.length > 0 ? (
                           listaVinculos.map((c, idx) => (
                             <div
-                              key={c.codigoSecuencial}
+                              key={c.codigo}
                               onClick={() => {
                                 const nombre =
                                   c.razonSocial ||
                                   `${c.nombre || ""} ${c.apellido || ""}`.trim();
                                 setNuevaRelacion((p) => ({
                                   ...p,
-                                  codigoSecuencial: String(c.codigoSecuencial),
+                                  codigo: String(c.codigo),
                                   nombre,
                                 }));
                                 setBusquedaVinculo({
@@ -755,7 +755,7 @@ const FormularioContacto = ({
                     onClick={() => {
                       if (
                         !nuevaRelacion.tipo ||
-                        !nuevaRelacion.codigoSecuencial
+                        !nuevaRelacion.codigo
                       )
                         return;
                       setForm((p) => ({
@@ -764,8 +764,8 @@ const FormularioContacto = ({
                           ...p.relaciones,
                           {
                             ...nuevaRelacion,
-                            codigoSecuencial: Number(
-                              nuevaRelacion.codigoSecuencial,
+                            codigo: Number(
+                              nuevaRelacion.codigo,
                             ),
                             nombre: nuevaRelacion.nombre || "S/N",
                           },
@@ -774,7 +774,7 @@ const FormularioContacto = ({
                       setNuevaRelacion({
                         tipo: "",
                         entidad: "",
-                        codigoSecuencial: "",
+                        codigo: "",
                         nombre: "",
                       });
                       setBusquedaVinculo({ query: "", mostrarDropdown: false });

@@ -26,9 +26,9 @@ export const editarSeccionApi = async ({ codigoEmpresa, ...data }) => {
     return respuesta.data;
 };
 
-export const eliminarSeccionApi = async ({ codigoEmpresa, codigoSecuencial }) => {
+export const eliminarSeccionApi = async ({ codigoEmpresa, codigo }) => {
     const respuesta = await axiosInitial.delete("/secciones/eliminar", { 
-        params: { codigoEmpresa, codigoSecuencial },
+        params: { codigoEmpresa, codigo },
         showLoader: false 
     });
     return respuesta.data;

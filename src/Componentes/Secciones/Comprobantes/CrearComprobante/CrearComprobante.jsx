@@ -10,7 +10,7 @@ const CrearComprobante = () => {
   const arcaData = location.state?.arcaData ?? null;
 
   const { tipoOperacion, setTipoOperacion } = useTabsComprobante(
-    arcaData ? "EGRESO" : "INGRESO"
+    arcaData ? "EGRESO" : (location.state?.tipoOperacion ?? "INGRESO")
   );
 
   return (

@@ -129,7 +129,7 @@ const ModalDetalleGenerico = ({
                 <p className="text-[11px] font-bold text-black/30 uppercase tracking-[0.05em]">
                   Código:{" "}
                   <span className="text-black/50! font-mono">
-                    {data.codigoSecuencial || "N/A"}
+                    {data.codigo || "N/A"}
                   </span>
                 </p>
                 <div className="w-1 h-1 rounded-full bg-black/10" />

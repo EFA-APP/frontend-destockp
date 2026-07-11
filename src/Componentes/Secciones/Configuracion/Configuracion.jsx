@@ -142,7 +142,7 @@ const Configuracion = () => {
                   ID de Usuario
                 </span>
                 <span className="font-mono text-[13px] font-bold text-[var(--primary)]">
-                  #{usuario?.codigoSecuencial?.toString().padStart(4, "0")}
+                  #{usuario?.codigo?.toString().padStart(4, "0")}
                 </span>
               </div>
               <div className="flex justify-between items-center p-1.5 rounded-md">

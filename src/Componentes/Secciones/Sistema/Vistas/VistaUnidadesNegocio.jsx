@@ -11,7 +11,7 @@ const VistaUnidadesNegocio = ({ empresa, onClose }) => {
   const [unidadAEditar, setUnidadAEditar] = useState(null);
 
   const { data: unidades, isLoading, refetch } = useObtenerUnidadesNegocio({
-    codigoEmpresa: empresa.codigo || empresa.codigoSecuencial,
+    codigoEmpresa: empresa.codigo || empresa.codigo,
   });
 
   const { mutateAsync: eliminarUnidad } = useEliminarUnidadNegocio();
@@ -30,8 +30,8 @@ const VistaUnidadesNegocio = ({ empresa, onClose }) => {
     if (window.confirm(`¿Estás seguro de eliminar la unidad "${unidad.nombre}"?`)) {
       try {
         await eliminarUnidad({
-          codigo: unidad.codigoSecuencial,
-          codigoEmpresa: Number(empresa.codigo || empresa.codigoSecuencial),
+          codigo: unidad.codigo,
+          codigoEmpresa: Number(empresa.codigo || empresa.codigo),
         });
       } catch (error) {
         console.error("Error al eliminar", error);

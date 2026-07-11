@@ -11,8 +11,8 @@ export const CrearDepositoApi = async (data) => {
 }
 
 export const ActualizarDepositoApi = async (codigo, data) => {
-    // El gateway espera 'codigo' en la query para el codigoSecuencial
-    const respuesta = await axiosInitial.patch(`/deposito/actualizar?codigoSecuencial=${codigo}`, data, { showLoader: false });
+    // El gateway espera 'codigo' en la query para el codigo
+    const respuesta = await axiosInitial.patch(`/deposito/actualizar?codigo=${codigo}`, data, { showLoader: false });
     return respuesta.data;
 }
 
@@ -46,6 +46,6 @@ export const TransferirDepositoPorStockApi = async (data) => {
 }
 
 export const EliminarDepositoApi = async (codigo, borrarStockProducto) => {
-    const respuesta = await axiosInitial.patch(`/deposito/eliminar?codigoSecuencial=${codigo}`, { borrarStockProducto }, { showLoader: false });
+    const respuesta = await axiosInitial.patch(`/deposito/eliminar?codigo=${codigo}`, { borrarStockProducto }, { showLoader: false });
     return respuesta.data;
 }

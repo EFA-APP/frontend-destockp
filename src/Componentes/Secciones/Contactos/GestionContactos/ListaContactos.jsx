@@ -25,7 +25,7 @@ import SearchableSelect from "../../../UI/Select/SearchableSelect";
 import { useAlertas } from "../../../../store/useAlertas";
 
 // Componente Interno para Asignar Ente de Facturación
-const InlineEnteFacturacion = ({ contacto, onActualizar }) => {
+export const InlineEnteFacturacion = ({ contacto, onActualizar }) => {
   const [modoEdicion, setModoEdicion] = useState(false);
   const { entidades } = useEntidades();
   const [tipoEntidadSeleccionada, setTipoEntidadSeleccionada] = useState("");
@@ -37,10 +37,10 @@ const InlineEnteFacturacion = ({ contacto, onActualizar }) => {
   const handleSelectEnte = async (e) => {
     const codSecuencial = e.target.value;
     const enteSeleccionado = listaEntes.find(
-      (c) => String(c.codigoSecuencial) === String(codSecuencial),
+      (c) => String(c.codigo) === String(codSecuencial),
     );
     if (enteSeleccionado) {
-      await onActualizar(contacto.codigoSecuencial, {
+      await onActualizar(contacto.codigo, {
         ...contacto,
         enteFacturacion: enteSeleccionado,
       });
@@ -50,7 +50,7 @@ const InlineEnteFacturacion = ({ contacto, onActualizar }) => {
 
   const handleRemoverEnte = async (e) => {
     e.stopPropagation();
-    await onActualizar(contacto.codigoSecuencial, {
+    await onActualizar(contacto.codigo, {
       ...contacto,
       enteFacturacion: null,
     });
@@ -123,7 +123,7 @@ const InlineEnteFacturacion = ({ contacto, onActualizar }) => {
           <div className="relative">
             <SearchableSelect
               options={(listaEntes || []).map((c) => ({
-                value: String(c.codigoSecuencial),
+                value: String(c.codigo),
                 label: (
                   c.razonSocial || `${c.nombre} ${c.apellido}`
                 ).toUpperCase(),
@@ -176,7 +176,7 @@ const InlineIdentidad = ({ contacto, onActualizar }) => {
       form.documento !== (contacto.documento || "") ||
       form.correoElectronico !== (contacto.correoElectronico || "")
     ) {
-      await onActualizar(contacto.codigoSecuencial, {
+      await onActualizar(contacto.codigo, {
         ...contacto,
         ...form,
       });
@@ -310,7 +310,7 @@ const InlineAtributo = ({ contacto, conf, onActualizar }) => {
             ? ""
             : Number(valor)
           : valor;
-      await onActualizar(contacto.codigoSecuencial, {
+      await onActualizar(contacto.codigo, {
         ...contacto,
         atributos: {
           ...(contacto.atributos || {}),
@@ -334,7 +334,7 @@ const InlineAtributo = ({ contacto, conf, onActualizar }) => {
     return (
       <button
         onClick={async () => {
-          await onActualizar(contacto.codigoSecuencial, {
+          await onActualizar(contacto.codigo, {
             ...contacto,
             atributos: {
               ...(contacto.atributos || {}),
@@ -354,7 +354,7 @@ const InlineAtributo = ({ contacto, conf, onActualizar }) => {
       <select
         value={valorActual}
         onChange={async (e) => {
-          await onActualizar(contacto.codigoSecuencial, {
+          await onActualizar(contacto.codigo, {
             ...contacto,
             atributos: {
               ...(contacto.atributos || {}),
@@ -443,7 +443,7 @@ const ListaContactos = ({
   // Sincronizar el detalle abierto con los datos frescos del servidor
   React.useEffect(() => {
     if (contactoDetalle && contactos.length > 0) {
-      const actualizado = contactos.find((c) => c.codigoSecuencial === contactoDetalle.codigoSecuencial);
+      const actualizado = contactos.find((c) => c.codigo === contactoDetalle.codigo);
       if (actualizado && JSON.stringify(actualizado) !== JSON.stringify(contactoDetalle)) {
         setContactoDetalle(actualizado);
       }
@@ -456,7 +456,7 @@ const ListaContactos = ({
   };
 
   const handleActualizarContactoInline = async (
-    codigoSecuencial,
+    codigo,
     payloadActualizado,
   ) => {
     try {
@@ -476,14 +476,14 @@ const ListaContactos = ({
       // Limpiar propiedades que no corresponden al DTO
       const {
         codigoEmpresa,
-        codigoSecuencial: _,
+        codigo: _,
         fechaCreacion,
         updatedAt,
         estado,
         ...dtoLimpio
       } = payloadActualizado;
 
-      await actualizarContacto({ id: codigoSecuencial, dto: dtoLimpio });
+      await actualizarContacto({ id: codigo, dto: dtoLimpio });
       agregarAlerta({
         title: "Actualizado",
         message: "Contacto actualizado correctamente.",
@@ -503,7 +503,7 @@ const ListaContactos = ({
     if (!contactoAEliminar) return;
     try {
       setEliminando(true);
-      await eliminarContacto(contactoAEliminar.codigoSecuencial);
+      await eliminarContacto(contactoAEliminar.codigo);
       setContactoAEliminar(null);
     } catch (error) {
       console.error("Error al eliminar contacto:", error);
@@ -568,7 +568,7 @@ const ListaContactos = ({
           ) : contactos.length > 0 ? (
             contactos.map((fila) => {
               const isSelected =
-                contactoDetalle?.codigoSecuencial === fila.codigoSecuencial;
+                contactoDetalle?.codigo === fila.codigo;
               const avatarInitial = fila.nombre
                 ? fila.nombre.charAt(0)
                 : fila.razonSocial
@@ -576,7 +576,7 @@ const ListaContactos = ({
                   : "?";
               return (
                 <div
-                  key={fila.codigoSecuencial}
+                  key={fila.codigo}
                   onClick={() => setContactoDetalle(fila)}
                   className={`flex items-center gap-4 p-3 rounded-md cursor-pointer transition-all group border ${isSelected ? "bg-[var(--primary)]/10 border-[var(--primary)]/30 shadow-sm" : "hover:bg-[var(--fill-secondary)]/50 border-transparent"}`}
                 >

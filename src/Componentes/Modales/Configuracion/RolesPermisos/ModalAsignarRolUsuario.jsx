@@ -15,10 +15,10 @@ const ModalAsignarRolUsuario = ({ isOpen, onClose, usuario }) => {
       // y el identificador que coincide con la lista global es r.codigo
       const userRoles = Array.isArray(usuario?.roles)
         ? usuario.roles
-            .map((r) => r.codigo || r.codigoSecuencial)
+            .map((r) => r.codigo || r.codigo)
             .filter(Boolean)
         : usuario?.rol
-          ? [usuario.rol.codigo || usuario.rol.codigoSecuencial].filter(Boolean)
+          ? [usuario.rol.codigo || usuario.rol.codigo].filter(Boolean)
           : [];
       setRolesSeleccionados(userRoles);
     } else {
@@ -30,14 +30,14 @@ const ModalAsignarRolUsuario = ({ isOpen, onClose, usuario }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (rolesSeleccionados.length === 0 || !usuario.codigoSecuencial) return;
+    if (rolesSeleccionados.length === 0 || !usuario.codigo) return;
 
     try {
       // Ejecutamos las peticiones individualmente ya que el backend espera un rol por petición
       const peticiones = rolesSeleccionados.map((cod) =>
         asignarRolMutation.mutateAsync({
           codigoRol: Number(cod),
-          codigoUsuario: Number(usuario.codigoSecuencial),
+          codigoUsuario: Number(usuario.codigo),
         }),
       );
 
@@ -142,7 +142,7 @@ const ModalAsignarRolUsuario = ({ isOpen, onClose, usuario }) => {
               ) : (
                 roles.map((r) => {
                   // Aquí nos aseguramos de tomar el ID correcto que devuelva el backend
-                  const id = r.codigoSecuencial;
+                  const id = r.codigo;
                   const isSelected = rolesSeleccionados.includes(id);
                   return (
                     <div

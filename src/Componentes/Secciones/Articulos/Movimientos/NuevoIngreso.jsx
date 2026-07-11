@@ -98,7 +98,7 @@ const NuevoIngreso = () => {
         "Sin Nombre";
 
       return {
-        value: String(c.codigoSecuencial),
+        value: String(c.codigo),
         label: `${nombreCompleto.toUpperCase()} ${
           c.documento ? `(${c.documento})` : ""
         }`,
@@ -108,14 +108,14 @@ const NuevoIngreso = () => {
 
   const opcionesEspecies = useMemo(() => {
     return materiasPrimas.map((mp) => ({
-      value: String(mp.codigoSecuencial),
+      value: String(mp.codigo),
       label: mp.nombre?.toUpperCase(),
     }));
   }, [materiasPrimas]);
 
   const opcionesGalpones = useMemo(() => {
     return depositos.map((d) => ({
-      value: String(d.codigoSecuencial),
+      value: String(d.codigo),
       label: d.nombre?.toUpperCase(),
     }));
   }, [depositos]);
@@ -140,11 +140,11 @@ const NuevoIngreso = () => {
     }
 
     const especieObj = materiasPrimas.find(
-      (m) => String(m.codigoSecuencial) === especieId,
+      (m) => String(m.codigo) === especieId,
     );
 
     const clienteObj = contactos.find(
-      (c) => String(c.codigoSecuencial) === String(clienteId),
+      (c) => String(c.codigo) === String(clienteId),
     );
 
     const especieStr = (especieObj?.nombre || "ESPECIE")
@@ -209,18 +209,18 @@ const NuevoIngreso = () => {
     if (!clienteId || !especieId || !kilos || !depositoId) return;
 
     const clienteObj = contactos.find(
-      (c) => String(c.codigoSecuencial) === String(clienteId),
+      (c) => String(c.codigo) === String(clienteId),
     );
 
     const depositoObj = depositos.find(
-      (d) => String(d.codigoSecuencial) === depositoId,
+      (d) => String(d.codigo) === depositoId,
     );
 
     const payloadLogistico = {
       lote,
       cliente: clienteObj?.razonSocial || clienteObj?.nombre || "Sin Cliente",
 
-      clienteId: clienteObj?.codigoSecuencial,
+      clienteId: clienteObj?.codigo,
       etapa,
 
       chofer,
@@ -693,7 +693,7 @@ const NuevoIngreso = () => {
           posicion="centro"
           onClose={() => setMostrarFormularioContacto(false)}
           onExito={(nuevo) => {
-            setClienteId(String(nuevo.codigoSecuencial));
+            setClienteId(String(nuevo.codigo));
             setMostrarFormularioContacto(false);
           }}
         />
@@ -704,7 +704,7 @@ const NuevoIngreso = () => {
           posicion="centro"
           onClose={() => setMostrarFormularioMateriaPrima(false)}
           onExito={(nuevo) => {
-            setEspecieId(String(nuevo.codigoSecuencial));
+            setEspecieId(String(nuevo.codigo));
             setMostrarFormularioMateriaPrima(false);
           }}
         />

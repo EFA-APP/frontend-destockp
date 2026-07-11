@@ -24,6 +24,7 @@ import {
   Mail,
   AlertCircle,
   CheckCircle,
+  Ban,
 } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import ComprobantePDF from "./ComprobantePDF";
@@ -31,6 +32,7 @@ import { ComprobanteIcono } from "../../../../assets/Icons";
 import {
   enviarComprobanteEmailApi,
   obtenerComprobantePorCodigo,
+  anularComprobanteApi,
 } from "../../../../Backend/Ventas/api/Comprobante/comprobante.api";
 import {
   ObtenerContactoApi,
@@ -204,6 +206,12 @@ const getTipoConfig = (tipo) => {
   };
 };
 
+// R76/R90: la anulación general (T63) aplica exclusivamente a
+// RECIBO/ORDEN_PAGO (incluidas sus variantes internas 992/993) — mismo
+// criterio ya usado por `AnularReciboCasoDeUso` (comprobantes-ms).
+const TIPOS_ANULABLES = [4, 9, 15, 54, 992, 993];
+const esAnulable = (tipo) => TIPOS_ANULABLES.includes(Number(tipo));
+
 const getFullTitle = (tipo, letra) => {
   const t = Number(tipo);
   let base = "COMPROBANTE";
@@ -214,6 +222,17 @@ const getFullTitle = (tipo, letra) => {
   if ([993].includes(t)) base = "ORDEN DE PAGO";
   const interno = [991, 992, 993, 994, 995, 996].includes(t);
   return `${base}${letra ? ` ${letra}` : ""}${interno ? " (INTERNO)" : ""}`;
+};
+
+// Resumen "tipo + número" de un comprobante asociado (mismo criterio de
+// formato ya usado en la sección "Comprobantes Asociados"), para mostrar
+// junto al ítem de pago en "Detalle de Ítems".
+const formatComprobanteAsociadoResumen = (cb) => {
+  const tipoLabel = isNaN(Number(cb.tipo))
+    ? String(cb.tipo || "").replace(/_/g, " ")
+    : getFullTitle(cb.tipo, "");
+  const numero = `${String(cb.ptoVta || 0).padStart(5, "0")}-${String(cb.nro || 0).padStart(8, "0")}`;
+  return `${tipoLabel} ${numero}`;
 };
 
 // ─── método de pago ───────────────────────────────────────────────────────────
@@ -338,8 +357,12 @@ const blobToBase64 = (blob) =>
     reader.readAsDataURL(blob);
   });
 
-const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
+const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [mostrarAnular, setMostrarAnular] = useState(false);
+  const [motivoAnular, setMotivoAnular] = useState("");
+  const [anulando, setAnulando] = useState(false);
+  const [errorAnular, setErrorAnular] = useState(null);
   const [caeCopiado, setCaeCopiado] = useState(false);
   const [stepEmail, setStepEmail] = useState(null); // null | 'cargando' | 'form' | 'enviado'
   const [emailInput, setEmailInput] = useState("");
@@ -514,6 +537,24 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
     }
   };
 
+  const handleAnular = async () => {
+    if (!motivoAnular.trim() || !data?.codigo) return;
+    setAnulando(true);
+    setErrorAnular(null);
+    try {
+      await anularComprobanteApi(data.codigo, motivoAnular.trim());
+      setMostrarAnular(false);
+      setMotivoAnular("");
+      onAnulado?.();
+    } catch (e) {
+      setErrorAnular(
+        e?.response?.data?.message || "No se pudo anular el comprobante.",
+      );
+    } finally {
+      setAnulando(false);
+    }
+  };
+
   const nroFmt = `${String(data.puntoVenta || 0).padStart(5, "0")}-${String(data.numeroComprobante || 0).padStart(8, "0")}`;
   const titulo = getFullTitle(data.tipoDocumento, data.letraComprobante);
   const { Icon: TipoIcon } = tipoConfig;
@@ -633,6 +674,16 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
                 </button>
               </TieneAccion>
             </div>
+            {esAnulable(data.tipoDocumento) && data.estado !== "ANULADO" && data.codigo && (
+              <button
+                onClick={() => setMostrarAnular((v) => !v)}
+                title="Anular comprobante"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wider bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-all shadow-sm active:scale-95 cursor-pointer"
+              >
+                <Ban size={14} />
+                <span className="hidden md:inline">Anular</span>
+              </button>
+            )}
             <button
               onClick={onClose}
               className="w-8 h-8 flex items-center justify-center rounded-md bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors group active:scale-95 cursor-pointer"
@@ -644,6 +695,46 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
             </button>
           </div>
         </div>
+
+        {/* ── ANULAR PANEL (R89, T63) ── */}
+        {mostrarAnular && (
+          <div className="px-5 py-3 border-b border-slate-100 bg-rose-50/50 flex flex-col gap-2">
+            <p className="text-[11px] font-bold text-rose-800 flex items-center gap-1">
+              <AlertCircle size={12} /> Esta acción revierte el saldo/asiento
+              contable de este comprobante. Ingresá un motivo obligatorio.
+            </p>
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                value={motivoAnular}
+                onChange={(e) => setMotivoAnular(e.target.value)}
+                placeholder="Motivo de la anulación"
+                disabled={anulando}
+                className="flex-1 px-3 py-1.5 text-xs font-bold border border-rose-300 rounded-md focus:outline-none focus:border-rose-500 disabled:opacity-60"
+              />
+              <button
+                onClick={handleAnular}
+                disabled={!motivoAnular.trim() || anulando}
+                className="px-3 py-1.5 text-xs font-black uppercase rounded-md bg-rose-600 text-white hover:bg-rose-700 disabled:opacity-50 cursor-pointer"
+              >
+                {anulando ? "..." : "Confirmar anulación"}
+              </button>
+              <button
+                onClick={() => {
+                  setMostrarAnular(false);
+                  setErrorAnular(null);
+                }}
+                disabled={anulando}
+                className="p-1.5 text-gray-400 hover:text-gray-600 cursor-pointer disabled:opacity-50"
+              >
+                <X size={13} />
+              </button>
+            </div>
+            {errorAnular && (
+              <p className="text-[10px] text-rose-600 font-bold">{errorAnular}</p>
+            )}
+          </div>
+        )}
 
         {/* ── EMAIL PANEL ── */}
         {stepEmail === "form" && (
@@ -824,6 +915,17 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario }) => {
                                   IVA {item.tasaIva}%
                                 </p>
                               )}
+                              {typeof item.nombre === "string" &&
+                                item.nombre.startsWith("Pago período") &&
+                                Array.isArray(data.cbtesAsoc) &&
+                                data.cbtesAsoc.length > 0 && (
+                                  <p className="text-[11px] text-slate-500 font-semibold mt-0.5">
+                                    Vinculado a:{" "}
+                                    {data.cbtesAsoc
+                                      .map((cb) => formatComprobanteAsociadoResumen(cb))
+                                      .join(", ")}
+                                  </p>
+                                )}
                             </td>
                             <td className="px-3 py-3 text-center text-sm font-bold text-slate-900 tabular-nums font-mono">
                               {item.cantidad}

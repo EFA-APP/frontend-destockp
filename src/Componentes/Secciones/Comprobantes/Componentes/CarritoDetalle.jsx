@@ -28,12 +28,14 @@ const CarritoDetalle = ({
   actualizarPrecioItem,
   actualizarTasaIvaItem,
   actualizarTipoFiscalItem,
+  actualizarDevolverAStockItem,
   quitarItem,
   subtotalSinIva,
   totalIva,
   totalGeneral,
   totalRecargo = 0,
   codigoTipoComprobante,
+  esNotaCredito = false,
   otrosTributos = 0,
   setOtrosTributos,
 }) => {
@@ -65,7 +67,7 @@ const CarritoDetalle = ({
 
           return (
             <div
-              key={item.codigoSecuencial}
+              key={item.codigo}
               className="bg-white border border-gray-200 rounded-md shadow-sm"
             >
               {/* Nombre + badge + botón eliminar */}
@@ -85,7 +87,7 @@ const CarritoDetalle = ({
                 </div>
                 <button
                   type="button"
-                  onClick={() => quitarItem(item.codigoSecuencial)}
+                  onClick={() => quitarItem(item.codigo)}
                   title="Quitar"
                   className="shrink-0 p-1 rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 transition cursor-pointer"
                 >
@@ -107,7 +109,7 @@ const CarritoDetalle = ({
                     value={item.precioUnitario}
                     onChange={(e) =>
                       actualizarPrecioItem(
-                        item.codigoSecuencial,
+                        item.codigo,
                         e.target.value,
                       )
                     }
@@ -125,7 +127,7 @@ const CarritoDetalle = ({
                       value={item.cantidad}
                       onChange={(e) =>
                         actualizarCantidadItem(
-                          item.codigoSecuencial,
+                          item.codigo,
                           e.target.value,
                         )
                       }
@@ -153,9 +155,9 @@ const CarritoDetalle = ({
                         value={item.tasaIva || 0}
                         onChange={(e) => {
                           const nuevaTasa = e.target.value;
-                          actualizarTasaIvaItem(item.codigoSecuencial, nuevaTasa);
+                          actualizarTasaIvaItem(item.codigo, nuevaTasa);
                           if (parseFloat(nuevaTasa) !== 0) {
-                            actualizarTipoFiscalItem(item.codigoSecuencial, "GRAVADO");
+                            actualizarTipoFiscalItem(item.codigo, "GRAVADO");
                           }
                         }}
                         className={`h-[30px] px-2 rounded-md text-md font-bold bg-white focus:outline-none cursor-pointer transition-all ${
@@ -181,7 +183,7 @@ const CarritoDetalle = ({
                     <select
                       value={item.tipoFiscal || "GRAVADO"}
                       onChange={(e) =>
-                        actualizarTipoFiscalItem(item.codigoSecuencial, e.target.value)
+                        actualizarTipoFiscalItem(item.codigo, e.target.value)
                       }
                       className="h-[30px] px-2 border border-gray-200 rounded-md text-md font-bold text-gray-700 bg-white focus:outline-none focus:border-[var(--primary)] cursor-pointer"
                     >
@@ -189,6 +191,31 @@ const CarritoDetalle = ({
                         <option key={val} value={val}>{label}</option>
                       ))}
                     </select>
+                  </div>
+                )}
+
+                {/* Devolver a stock — solo Nota de Crédito, ítems Producto/Materia Prima */}
+                {esNotaCredito && !esCuentaContable && (
+                  <div>
+                    <FieldLabel>Devolver a stock</FieldLabel>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        actualizarDevolverAStockItem(
+                          item.codigo,
+                          !item.devolverAStock,
+                        )
+                      }
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                        item.devolverAStock ? "bg-[var(--primary)]" : "bg-gray-300"
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                          item.devolverAStock ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
                   </div>
                 )}
 

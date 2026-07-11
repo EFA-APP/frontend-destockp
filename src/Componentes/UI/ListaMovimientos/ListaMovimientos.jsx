@@ -164,7 +164,7 @@ const ListaMovimientos = ({
             </label>
             <SearchableSelect
               options={listaDepositos.map((dep) => ({
-                value: dep.codigoSecuencial,
+                value: dep.codigo,
                 label: `${dep.nombre} ${dep.principal ? "(Principal)" : ""}`,
               }))}
               value={codigoDeposito ? Number(codigoDeposito) : ""}

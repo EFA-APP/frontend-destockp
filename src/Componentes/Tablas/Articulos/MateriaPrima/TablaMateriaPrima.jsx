@@ -63,7 +63,7 @@ const TablaMateriaPrima = () => {
   }, []);
 
   const handleEditarClick = (materiaPrima) => {
-    navigate(`${baseRoute}/${materiaPrima.codigoSecuencial}/editar`, {
+    navigate(`${baseRoute}/${materiaPrima.codigo}/editar`, {
       state: { materiaPrima },
     });
   };

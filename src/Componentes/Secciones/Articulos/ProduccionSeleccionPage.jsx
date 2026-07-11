@@ -28,7 +28,7 @@ const ProduccionSeleccionPage = () => {
     return productos.filter(
       (item) =>
         item.nombre?.toLowerCase().includes(term) ||
-        String(item.codigoSecuencial).includes(term),
+        String(item.codigo).includes(term),
     );
   }, [searchTerm, productos]);
 
@@ -75,10 +75,10 @@ const ProduccionSeleccionPage = () => {
           ) : (
             filteredItems.map((item) => (
               <div
-                key={item.codigoSecuencial}
+                key={item.codigo}
                 onClick={() =>
                   navigate(
-                    `/panel/inventario/produccion/${item.codigoSecuencial}`,
+                    `/panel/inventario/produccion/${item.codigo}`,
                   )
                 }
                 className="group bg-white border border-[var(--color-neutral-border)] hover:border-[var(--color-brand-primary)] rounded-[12px] p-4 flex items-center justify-between cursor-pointer hover:shadow-md active:scale-[0.98] transition-all"
@@ -90,7 +90,7 @@ const ProduccionSeleccionPage = () => {
                   <div>
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-[11px] font-mono text-[var(--color-neutral-text-muted)] uppercase">
-                        #{item.codigoSecuencial.toString().padStart(3, "0")}
+                        #{item.codigo.toString().padStart(3, "0")}
                       </span>
                       <div className="w-1 h-1 rounded-full bg-[var(--color-neutral-border)]" />
                       <span className="text-[11px] font-bold text-[var(--color-brand-primary)] uppercase tracking-wide">

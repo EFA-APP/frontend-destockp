@@ -14,7 +14,7 @@ const GestionarDeposito = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const location = useLocation();
-  const id = searchParams.get("codigoSecuencial");
+  const id = searchParams.get("codigo");
 
   const esGalpon = location.pathname.includes("/inventario/galpones");
   const labelSingular = esGalpon ? "Galpón" : "Depósito";
@@ -36,7 +36,7 @@ const GestionarDeposito = () => {
 
   // Buscar los datos del depósito si es edición
   const depositoAEditar = esEdicion
-    ? depositos.find((d) => String(d.codigoSecuencial) === id)
+    ? depositos.find((d) => String(d.codigo) === id)
     : null;
 
   const handleSubmit = async (data) => {
@@ -44,7 +44,7 @@ const GestionarDeposito = () => {
       // Sanitización del payload: eliminamos metadatos que el backend prohíbe en el cuerpo del PATCH
       // eslint-disable-next-line no-unused-vars
       const {
-        codigoSecuencial: _cs,
+        codigo: _cs,
         codigoEmpresa: _ce,
         createdAt: _ca,
         updatedAt: _ua,

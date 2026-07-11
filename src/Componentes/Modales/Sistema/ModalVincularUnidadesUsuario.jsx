@@ -20,7 +20,7 @@ const ModalVincularUnidadesUsuario = ({
   const agregarAlerta = useAlertas((state) => state.agregarAlerta);
 
   const { data: unidadesDisponibles, isLoading } = useObtenerUnidadesNegocio({
-    codigoEmpresa: empresa.codigo || empresa.codigoSecuencial,
+    codigoEmpresa: empresa.codigo || empresa.codigo,
   });
 
   // Cargar vinculaciones actuales
@@ -33,10 +33,10 @@ const ModalVincularUnidadesUsuario = ({
   const cargarVinculaciones = async () => {
     try {
       const res = await axiosInitial.get(
-        `/unidadesNegocio/usuario/${usuario.codigoSecuencial}`,
+        `/unidadesNegocio/usuario/${usuario.codigo}`,
         {
           params: {
-            codigoEmpresa: empresa.codigo || empresa.codigoSecuencial,
+            codigoEmpresa: empresa.codigo || empresa.codigo,
           },
         },
       );
@@ -50,9 +50,9 @@ const ModalVincularUnidadesUsuario = ({
     if (!unidad || !unidadesVinculadas || !Array.isArray(unidadesVinculadas))
       return false;
     return unidadesVinculadas.some((u) => {
-      const uId = Number(u.codigoSecuencial || u.codigo || u.id);
+      const uId = Number(u.codigo || u.codigo || u.id);
       const unidadId = Number(
-        unidad.codigoSecuencial || unidad.codigo || unidad.id,
+        unidad.codigo || unidad.codigo || unidad.id,
       );
       return uId === unidadId;
     });
@@ -63,9 +63,9 @@ const ModalVincularUnidadesUsuario = ({
     setProcesando(true);
     try {
       const vinculada = isVinculada(unidad);
-      const codigoEmpresa = Number(empresa.codigo || empresa.codigoSecuencial);
-      const usuarioId = Number(usuario.codigoSecuencial);
-      const unidadId = Number(unidad.codigoSecuencial);
+      const codigoEmpresa = Number(empresa.codigo || empresa.codigo);
+      const usuarioId = Number(usuario.codigo);
+      const unidadId = Number(unidad.codigo);
 
       if (vinculada) {
         // Desvincular
@@ -84,8 +84,8 @@ const ModalVincularUnidadesUsuario = ({
         await axiosInitial.post(
           `/unidadesNegocio/vincularUsuario`,
           {
-            codigoUsuarioSecuencial: usuarioId,
-            codigoUnidadNegocioSecuencial: unidadId,
+            codigoUsuario: usuarioId,
+            codigoUnidadNegocio: unidadId,
           },
           {
             params: { codigoEmpresa },
@@ -156,7 +156,7 @@ const ModalVincularUnidadesUsuario = ({
                 const vinculada = isVinculada(unidad);
                 return (
                   <div
-                    key={unidad.codigoSecuencial}
+                    key={unidad.codigo}
                     onClick={() => !procesando && toggleVinculacion(unidad)}
                     className={`p-3.5 rounded-md border transition-all duration-300 flex items-center justify-between group cursor-pointer ${
                       vinculada
@@ -189,7 +189,7 @@ const ModalVincularUnidadesUsuario = ({
                         <div className="flex items-center gap-2">
                           <span className="text-[9px] font-bold text-black/20 tracking-tighter uppercase">
                             ID: #
-                            {String(unidad.codigoSecuencial).padStart(3, "0")}
+                            {String(unidad.codigo).padStart(3, "0")}
                           </span>
                           {unidad.direccion && (
                             <span className="text-[9px] font-bold text-black/20 uppercase truncate max-w-[120px]">

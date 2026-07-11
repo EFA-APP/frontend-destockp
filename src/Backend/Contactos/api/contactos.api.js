@@ -31,10 +31,10 @@ export const ListarContactosApi = async (filtros = {}) => {
   return data;
 };
 
-export const ObtenerContactoApi = async (codigoSecuencial) => {
-  console.log(codigoSecuencial);
+export const ObtenerContactoApi = async (codigo) => {
+  console.log(codigo);
   const { data } = await axiosInitial.get(
-    `/contactos/listar/${codigoSecuencial}`,
+    `/contactos/listar/${codigo}`,
     {
       showLoader: false,
     },
@@ -47,16 +47,16 @@ export const CrearContactoApi = async (dto) => {
   return data;
 };
 
-export const ActualizarContactoApi = async (codigoSecuencial, dto) => {
+export const ActualizarContactoApi = async (codigo, dto) => {
   const { data } = await axiosInitial.patch(
-    `/contactos/actualizar/${codigoSecuencial}`,
+    `/contactos/actualizar/${codigo}`,
     dto,
   );
   return data;
 };
 
-export const EliminarContactoApi = async (codigoSecuencial) => {
-  const { data } = await axiosInitial.delete(`/contactos/${codigoSecuencial}`);
+export const EliminarContactoApi = async (codigo) => {
+  const { data } = await axiosInitial.delete(`/contactos/${codigo}`);
   return data;
 };
 
@@ -81,19 +81,19 @@ export const CrearConfiguracionCampoApi = async (dto) => {
 };
 
 export const ActualizarConfiguracionCampoApi = async (
-  codigoSecuencial,
+  codigo,
   dto,
 ) => {
   const { data } = await axiosInitial.patch(
-    `/contactos/configuracion/${codigoSecuencial}`,
+    `/contactos/configuracion/${codigo}`,
     dto,
   );
   return data;
 };
 
-export const EliminarConfiguracionCampoApi = async (codigoSecuencial) => {
+export const EliminarConfiguracionCampoApi = async (codigo) => {
   const { data } = await axiosInitial.delete(
-    `/contactos/configuracion/${codigoSecuencial}`,
+    `/contactos/configuracion/${codigo}`,
   );
   return data;
 };

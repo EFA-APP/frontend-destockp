@@ -98,7 +98,7 @@ const ModalCargarImagenProducto = ({ isOpen, onClose, producto }) => {
     cargarImagen(
       {
         codigoEmpresa: producto.codigoEmpresa,
-        codigoSecuencial: producto.codigoSecuencial,
+        codigo: producto.codigo,
         imagen: imagenBase64,
       },
       {

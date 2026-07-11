@@ -8,4 +8,11 @@ export const reportesContablesApi = {
     );
     return data;
   },
+  obtenerCuentasConMovimientos: async (params) => {
+    const { data } = await axiosInitial.get(
+      "/contabilidad/reportes/cuentas-con-movimientos",
+      { params },
+    );
+    return data;
+  },
 };

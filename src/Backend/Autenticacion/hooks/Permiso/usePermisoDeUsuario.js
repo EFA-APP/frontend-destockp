@@ -49,7 +49,7 @@ export const usePermisosDeUsuario = () => {
                     // Si hay restricciones, verificamos si el usuario actual está en la lista
                     const estaPermitido = acc.permitidos.some(
                       (pAllowed) =>
-                        pAllowed.codigoUsuario === usuario?.codigoSecuencial &&
+                        pAllowed.codigoUsuario === usuario?.codigo &&
                         pAllowed.codigoEmpresa === usuario?.codigoEmpresa &&
                         pAllowed.nombreUsuario ===
                           `${usuario.nombre} ${usuario.apellido}` &&

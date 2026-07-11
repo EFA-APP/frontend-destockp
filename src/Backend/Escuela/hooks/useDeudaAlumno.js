@@ -1,37 +1,37 @@
 import { useQuery } from "@tanstack/react-query";
-import { listarAsientos } from "../../Contabilidad/api/asientos.api";
+import { obtenerDeudaAlumnoApi } from "../api/cuotas.api";
 
 /**
- * Hook para obtener el historial de cuotas emitidas de un alumno específico.
- * Filtra asientos por referencia con patrón "CUOTA-{codigoContacto}-*".
+ * Hook para obtener el historial de cuotas emitidas (multi-período) de un
+ * alumno específico, para un `codigoCuentaContable` ("tipo de cuota") dado.
  *
- * Cubre: R29
+ * Reescrito para consumir la fuente de verdad real (`Comprobante`, vía
+ * `comprobantes.listarCuotasContacto`/`GET /escuela/cuotas/deuda-alumno`)
+ * en vez de reconstruir Debe/Haber desde asientos contables filtrados por
+ * `origenModulo: "ESCUELA"` — ese mecanismo viejo nunca devolvía resultados
+ * para cuotas emitidas con el mecanismo nuevo (feature 19,
+ * `cuotas-rediseno-contable`), que no tagea `origenModulo`/`referencia` por
+ * diseño.
  *
- * @param {{ codigoEmpresa: number, codigoContacto: number }} params
+ * @param {{ codigoContacto: number, codigoCuentaContable?: number }} params
  * @returns {{
- *   asientosCuota: Array,
+ *   comprobantesCuota: Array,
  *   cargandoDeuda: boolean
  * }}
  */
-export const useDeudaAlumno = ({ codigoEmpresa, codigoContacto }) => {
-  const { data: asientos = [], isLoading: cargandoDeuda } = useQuery({
-    queryKey: ["deuda-alumno", codigoEmpresa, codigoContacto],
-    queryFn: () =>
-      listarAsientos({
-        codigoEmpresa,
-        origenModulo: "ESCUELA",
-      }),
-    enabled: !!codigoEmpresa && !!codigoContacto,
-    staleTime: 30_000,
-  });
-
-  const prefijoBusqueda = `CUOTA-${codigoContacto}-`;
-  const asientosCuota = Array.isArray(asientos)
-    ? asientos.filter((a) => a.referencia?.startsWith(prefijoBusqueda))
-    : [];
+export const useDeudaAlumno = ({ codigoContacto, codigoCuentaContable }) => {
+  const { data: comprobantesCuota = [], isLoading: cargandoDeuda } = useQuery(
+    {
+      queryKey: ["deuda-alumno", codigoContacto, codigoCuentaContable],
+      queryFn: () =>
+        obtenerDeudaAlumnoApi({ codigoContacto, codigoCuentaContable }),
+      enabled: !!codigoContacto && !!codigoCuentaContable,
+      staleTime: 30_000,
+    },
+  );
 
   return {
-    asientosCuota,
+    comprobantesCuota,
     cargandoDeuda,
   };
 };

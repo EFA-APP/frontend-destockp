@@ -5,8 +5,8 @@ export const ObtenerPermisosApi = async (filtros) => {
     return response.data;
 }
 
-export const actualizarAccionesPermisoApi = async ({ codigoSecuencial, codigoEmpresa, acciones }) => {
-    const response = await axiosInitial.patch(`/permisos/${codigoSecuencial}/acciones`, { acciones }, { 
+export const actualizarAccionesPermisoApi = async ({ codigo, codigoEmpresa, acciones }) => {
+    const response = await axiosInitial.patch(`/permisos/${codigo}/acciones`, { acciones }, { 
         params: { codigoEmpresa },
         showLoader: false 
     });

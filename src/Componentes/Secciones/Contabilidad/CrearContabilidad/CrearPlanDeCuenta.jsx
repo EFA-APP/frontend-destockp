@@ -28,7 +28,7 @@ const CrearPlanDeCuenta = () => {
   // Opciones para el selector de cuenta padre (solo no imputables)
   const cuentasPadreOptions = useMemo(() => {
     const options = (rawCuentasNoImputables || []).map((node) => ({
-      value: node.codigoSecuencial,
+      value: node.codigo,
       label: `${node.codigo} - ${node.nombre}`,
     }));
 

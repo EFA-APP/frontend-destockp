@@ -99,7 +99,7 @@ describe("validar() — R12", () => {
     jest.clearAllMocks();
     useAuthStore.mockReturnValue({
       usuario: { codigoEmpresa: 1 },
-      unidadActiva: { codigoSecuencial: 2 },
+      unidadActiva: { codigo: 2 },
     });
   });
 

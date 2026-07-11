@@ -19,7 +19,7 @@ const VistaUsuariosEmpresa = ({ empresa, onClose }) => {
   const [isModalVincularRolOpen, setIsModalVincularRolOpen] = useState(false);
   const [isModalVincularUnidadesOpen, setIsModalVincularUnidadesOpen] = useState(false);
 
-  const { data: respuestaApi, isLoading, refetch } = useUsuariosPorEmpresa(empresa.codigo || empresa.codigoSecuencial);
+  const { data: respuestaApi, isLoading, refetch } = useUsuariosPorEmpresa(empresa.codigo || empresa.codigo);
   const { mutateAsync: actualizarEstado } = useActualizarEstadoUsuario();
 
   // Extraemos el arreglo de usuarios de la respuesta (respuestaApi.usuarios)
@@ -46,8 +46,8 @@ const VistaUsuariosEmpresa = ({ empresa, onClose }) => {
   const handleEliminarUsuario = async (fila) => {
     try {
       await actualizarEstado({
-        codigoSecuencial: fila.codigoSecuencial,
-        codigoEmpresa: empresa.codigo || empresa.codigoSecuencial,
+        codigo: fila.codigo,
+        codigoEmpresa: empresa.codigo || empresa.codigo,
         activo: !fila.activo,
       });
     } catch (error) {
@@ -64,8 +64,8 @@ const VistaUsuariosEmpresa = ({ empresa, onClose }) => {
       // Bloqueamos a todos los seleccionados secuencialmente (se podría hacer un endpoint masivo si el backend lo permite)
       for (const usuario of seleccionados) {
         await actualizarEstado({
-          codigoSecuencial: usuario.codigoSecuencial,
-          codigoEmpresa: empresa.codigo || empresa.codigoSecuencial,
+          codigo: usuario.codigo,
+          codigoEmpresa: empresa.codigo || empresa.codigo,
           activo: false, // Forzamos a bloqueado
         });
       }
@@ -166,7 +166,7 @@ const VistaUsuariosEmpresa = ({ empresa, onClose }) => {
       <ModalEditarUsuario 
         isOpen={isModalEditarOpen}
         onClose={() => setIsModalEditarOpen(false)}
-        usuarioAEditar={usuariosEmpresa.find(u => u.codigoSecuencial === usuarioAEditar?.codigoSecuencial) || usuarioAEditar}
+        usuarioAEditar={usuariosEmpresa.find(u => u.codigo === usuarioAEditar?.codigo) || usuarioAEditar}
         empresa={empresa}
       />
 
@@ -179,14 +179,14 @@ const VistaUsuariosEmpresa = ({ empresa, onClose }) => {
       <ModalVincularRolUsuario 
         isOpen={isModalVincularRolOpen}
         onClose={() => setIsModalVincularRolOpen(false)}
-        usuarioAEditar={usuariosEmpresa.find(u => u.codigoSecuencial === usuarioAEditar?.codigoSecuencial) || usuarioAEditar}
+        usuarioAEditar={usuariosEmpresa.find(u => u.codigo === usuarioAEditar?.codigo) || usuarioAEditar}
         empresa={empresa}
       />
 
       <ModalVincularUnidadesUsuario 
         isOpen={isModalVincularUnidadesOpen}
         onClose={() => setIsModalVincularUnidadesOpen(false)}
-        usuario={usuariosEmpresa.find(u => u.codigoSecuencial === usuarioAEditar?.codigoSecuencial) || usuarioAEditar}
+        usuario={usuariosEmpresa.find(u => u.codigo === usuarioAEditar?.codigo) || usuarioAEditar}
         empresa={empresa}
       />
     </div>

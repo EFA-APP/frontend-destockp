@@ -9,7 +9,7 @@ const ModalGestionarUsuariosRol = ({ isOpen, onClose, rol, empresa }) => {
 
   // Obtener todos los usuarios de la empresa
   const { data: respuestaUsuarios, isLoading: isLoadingUsuarios, refetch } = useUsuariosPorEmpresa(
-    empresa?.codigo || empresa?.codigoSecuencial
+    empresa?.codigo || empresa?.codigo
   );
 
   const usuariosEmpresa = useMemo(() => {
@@ -32,20 +32,20 @@ const ModalGestionarUsuariosRol = ({ isOpen, onClose, rol, empresa }) => {
   });
 
   const handleToggleUsuario = async (usuario) => {
-    const tieneRol = usuario.roles?.some(r => r.codigoSecuencial === rol.codigoSecuencial);
+    const tieneRol = usuario.roles?.some(r => r.codigo === rol.codigo);
     
     try {
       if (tieneRol) {
         await removerRol({
-          codigoUsuario: Number(usuario.codigoSecuencial),
-          codigoRol: Number(rol.codigoSecuencial),
-          codigoEmpresa: Number(empresa.codigo || empresa.codigoSecuencial),
+          codigoUsuario: Number(usuario.codigo),
+          codigoRol: Number(rol.codigo),
+          codigoEmpresa: Number(empresa.codigo || empresa.codigo),
         });
       } else {
         await asignarRol({
-          codigoUsuario: Number(usuario.codigoSecuencial),
-          codigoRol: Number(rol.codigoSecuencial),
-          codigoEmpresa: Number(empresa.codigo || empresa.codigoSecuencial),
+          codigoUsuario: Number(usuario.codigo),
+          codigoRol: Number(rol.codigo),
+          codigoEmpresa: Number(empresa.codigo || empresa.codigo),
         });
       }
       // Refrescamos la lista para ver el cambio reflejado en el objeto usuario.roles
@@ -109,11 +109,11 @@ const ModalGestionarUsuariosRol = ({ isOpen, onClose, rol, empresa }) => {
           ) : usuariosFiltrados.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {usuariosFiltrados.map((usuario) => {
-                const tieneRol = usuario.roles?.some(r => r.codigoSecuencial === rol.codigoSecuencial);
+                const tieneRol = usuario.roles?.some(r => r.codigo === rol.codigo);
                 
                 return (
                   <div 
-                    key={usuario.codigoSecuencial}
+                    key={usuario.codigo}
                     className={`p-3 rounded-md border transition-all flex items-center justify-between gap-3 ${
                       tieneRol 
                         ? "bg-indigo-500/5 border-indigo-500/20 ring-1 ring-indigo-500/10" 

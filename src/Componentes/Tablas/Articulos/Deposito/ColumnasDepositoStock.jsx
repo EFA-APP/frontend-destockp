@@ -45,14 +45,14 @@ export const generarColumnasStock = (depositos = [], busqueda = "") => {
   // Columnas dinámicas por cada depósito
   depositos.forEach((dep) => {
     columnas.push({
-      key: `dep_${dep.codigoSecuencial}`,
+      key: `dep_${dep.codigo}`,
       etiqueta: dep.nombre,
       renderizar: (_, fila) => {
         // Buscar el stock para este depósito en el array stockPorDeposito
         const stockItem = (fila.stockPorDeposito || []).find(
           (sp) =>
-            sp.codigoDeposito === dep.codigoSecuencial ||
-            sp.deposito?.codigoSecuencial === dep.codigoSecuencial,
+            sp.codigoDeposito === dep.codigo ||
+            sp.deposito?.codigo === dep.codigo,
         );
         const stock = stockItem ? Number(stockItem.stock || 0) : 0;
         const esCero = stock <= 0;
@@ -62,7 +62,7 @@ export const generarColumnasStock = (depositos = [], busqueda = "") => {
             className="py-1 flex justify-center cursor-pointer group"
             onClick={() =>
               fila.onActualizarStock &&
-              fila.onActualizarStock(fila, dep.codigoSecuencial.toString())
+              fila.onActualizarStock(fila, dep.codigo.toString())
             }
             title={`Ajustar stock en ${dep.nombre}`}
           >

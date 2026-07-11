@@ -47,13 +47,13 @@ const ModalCrearRol = ({ isOpen, onClose, empresa, rolAEditar = null }) => {
       if (modoEdicion) {
         // En este sistema, el ID del rol para actualizar suele pasarse como 'codigo'
         await actualizarRol({
-          codigo: rolAEditar.codigo || rolAEditar.codigoSecuencial,
-          codigoEmpresa: Number(empresa.codigo || empresa.codigoSecuencial),
+          codigo: rolAEditar.codigo || rolAEditar.codigo,
+          codigoEmpresa: Number(empresa.codigo || empresa.codigo),
           data: payload,
         });
       } else {
         await crearRol({
-          codigoEmpresa: Number(empresa.codigo || empresa.codigoSecuencial),
+          codigoEmpresa: Number(empresa.codigo || empresa.codigo),
           data: payload,
         });
       }

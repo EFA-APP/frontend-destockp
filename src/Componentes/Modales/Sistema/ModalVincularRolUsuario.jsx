@@ -9,7 +9,7 @@ const ModalVincularRolUsuario = ({ isOpen, onClose, usuarioAEditar, empresa }) =
 
   // Usamos el hook para buscar los roles de esta empresa en tiempo real
   const { data: respuestaApi, isLoading: isLoadingRoles } = useObtenerRoles(
-    isOpen ? { codigoEmpresa: empresa?.codigo || empresa?.codigoSecuencial } : null
+    isOpen ? { codigoEmpresa: empresa?.codigo || empresa?.codigo } : null
   );
   
   const rolesDisponibles = Array.isArray(respuestaApi) ? respuestaApi : respuestaApi?.roles || [];
@@ -27,9 +27,9 @@ const ModalVincularRolUsuario = ({ isOpen, onClose, usuarioAEditar, empresa }) =
     
     try {
       await asignarRol({
-        codigoUsuario: Number(usuarioAEditar.codigoSecuencial),
+        codigoUsuario: Number(usuarioAEditar.codigo),
         codigoRol: Number(rolSeleccionado),
-        codigoEmpresa: Number(empresa.codigo || empresa.codigoSecuencial),
+        codigoEmpresa: Number(empresa.codigo || empresa.codigo),
       });
       setRolSeleccionado("");
       // No cerramos el modal, permitimos que asigne/remueva varios sin salir
@@ -41,9 +41,9 @@ const ModalVincularRolUsuario = ({ isOpen, onClose, usuarioAEditar, empresa }) =
   const handleRemoverRol = async (codigoRol) => {
     try {
       await removerRol({
-        codigoUsuario: Number(usuarioAEditar.codigoSecuencial),
+        codigoUsuario: Number(usuarioAEditar.codigo),
         codigoRol: Number(codigoRol),
-        codigoEmpresa: Number(empresa.codigo || empresa.codigoSecuencial),
+        codigoEmpresa: Number(empresa.codigo || empresa.codigo),
       });
     } catch (error) {
       console.error("Error al remover rol", error);
@@ -132,9 +132,9 @@ const ModalVincularRolUsuario = ({ isOpen, onClose, usuarioAEditar, empresa }) =
                     {isLoadingRoles ? "Cargando roles..." : "-- Selecciona un Rol --"}
                   </option>
                   {rolesDisponibles
-                    .filter(r => !usuarioAEditar.roles?.some(ur => ur.codigo === r.codigoSecuencial)) // Comparamos codigo vs codigoSecuencial
+                    .filter(r => !usuarioAEditar.roles?.some(ur => ur.codigo === r.codigo)) // Comparamos codigo vs codigo
                     .map((rol) => (
-                    <option key={rol.codigoSecuencial} value={rol.codigoSecuencial}>
+                    <option key={rol.codigo} value={rol.codigo}>
                       {rol.nombre}
                     </option>
                   ))}

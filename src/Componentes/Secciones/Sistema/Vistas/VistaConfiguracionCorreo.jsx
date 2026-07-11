@@ -20,7 +20,7 @@ const VistaConfiguracionCorreo = ({ empresa, onClose }) => {
   const [emailPrueba, setEmailPrueba] = useState("");
 
   const { data: unidades } = useObtenerUnidadesNegocio({
-    codigoEmpresa: empresa.codigo || empresa.codigoSecuencial,
+    codigoEmpresa: empresa.codigo || empresa.codigo,
   });
 
   const { mutateAsync: guardarConfiguracion, isPending: guardando } = useGuardarConfiguracionSmtp();
@@ -31,7 +31,7 @@ const VistaConfiguracionCorreo = ({ empresa, onClose }) => {
     try {
       await guardarConfiguracion({
         ...formData,
-        codigoEmpresa: Number(empresa.codigo || empresa.codigoSecuencial),
+        codigoEmpresa: Number(empresa.codigo || empresa.codigo),
         codigoUnidadNegocio: Number(codigoUnidadNegocio),
         puerto: Number(formData.puerto),
       });
@@ -54,7 +54,7 @@ const VistaConfiguracionCorreo = ({ empresa, onClose }) => {
       await probarConfiguracion({
         configuracion: {
           ...formData,
-          codigoEmpresa: Number(empresa.codigo || empresa.codigoSecuencial),
+          codigoEmpresa: Number(empresa.codigo || empresa.codigo),
           codigoUnidadNegocio: Number(codigoUnidadNegocio),
           puerto: Number(formData.puerto),
         },
@@ -117,7 +117,7 @@ const VistaConfiguracionCorreo = ({ empresa, onClose }) => {
             >
               <option value={0}>Toda la empresa (Default)</option>
               {unidades?.map((u) => (
-                <option key={u.codigoSecuencial} value={u.codigoSecuencial}>{u.nombre}</option>
+                <option key={u.codigo} value={u.codigo}>{u.nombre}</option>
               ))}
             </select>
           </div>
@@ -184,7 +184,7 @@ const VistaConfiguracionCorreo = ({ empresa, onClose }) => {
 const HistorialTab = ({ empresa }) => {
   const [pagina, setPagina] = useState(1);
   const { data, isLoading } = useHistorialCorreos({
-    codigoEmpresa: empresa.codigo || empresa.codigoSecuencial,
+    codigoEmpresa: empresa.codigo || empresa.codigo,
     pagina,
     limite: 20
   });

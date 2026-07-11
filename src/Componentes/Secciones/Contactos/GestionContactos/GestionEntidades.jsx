@@ -71,7 +71,7 @@ const GestionEntidades = () => {
 
     if (editingId) {
       await actualizarConfiguracion({
-        codigoSecuencial: editingId,
+        codigo: editingId,
         data: payload,
       });
     } else {
@@ -91,7 +91,7 @@ const GestionEntidades = () => {
   };
 
   const startEdit = (conf) => {
-    setEditingId(conf.codigoSecuencial);
+    setEditingId(conf.codigo);
     setNuevoCampo({
       entidad: conf.entidadClave,
       nombreCampo: conf.nombreCampo,
@@ -418,7 +418,7 @@ const GestionEntidades = () => {
           <div className="grid grid-cols-1 gap-2.5">
             {configs.map((conf) => (
               <div
-                key={conf.codigoSecuencial}
+                key={conf.codigo}
                 className="flex flex-col px-5 py-4 bg-[var(--surface-hover)] rounded-md border border-[var(--border-subtle)] hover:border-[var(--primary)]/20 transition-all group shadow-sm"
               >
                 <div className="flex items-center justify-between">
@@ -456,7 +456,7 @@ const GestionEntidades = () => {
                             `¿Estás seguro de eliminar el atributo "${conf.nombreCampo}"?`,
                           )
                         ) {
-                          eliminarConfiguracion(conf.codigoSecuencial);
+                          eliminarConfiguracion(conf.codigo);
                         }
                       }}
                       className="p-2 text-red-500 bg-red-500/10 hover:bg-red-500/20 rounded-md transition-all cursor-pointer"

@@ -17,6 +17,18 @@ export const obtenerComprobantePorCodigo = async (codigo) => {
   return data;
 };
 
+/**
+ * Anulación general de Recibo/Orden de Pago (R75-R90, T44/T63):
+ * `POST /comprobantes/:codigo/anular`, dispara la reversión contable
+ * automática en el backend. `motivo` es obligatorio.
+ */
+export const anularComprobanteApi = async (codigo, motivo) => {
+  const { data } = await axiosInitial.post(`/comprobantes/${codigo}/anular`, {
+    motivo,
+  });
+  return data;
+};
+
 export const generarComprobante = async ({ dto, codigoUnidadNegocio }) => {
   const { data } = await axiosInitial.post(
     "/comprobantes/generar-comprobante",
@@ -47,10 +59,24 @@ export const enviarComprobanteEmailApi = async ({
   return data;
 };
 
-export const ObtenerDeudasContactoApi = async (codigoReceptor) => {
+export const ObtenerDeudasContactoApi = async (codigoReceptor, codigoUnidadNegocio) => {
   const { data } = await axiosInitial.get(
     `/comprobantes/deudas/${codigoReceptor}`,
-    { showLoader: false },
+    { 
+      params: { codigoUnidadNegocio },
+      showLoader: false 
+    },
+  );
+  return data;
+};
+
+export const ObtenerContactosConDeudaListApi = async (tipoOperacion, codigoEmpresa, codigoUnidadNegocio) => {
+  const { data } = await axiosInitial.get(
+    `/comprobantes/contactos-con-deuda`,
+    { 
+      params: { tipoOperacion, codigoEmpresa, codigoUnidadNegocio },
+      showLoader: false 
+    },
   );
   return data;
 };

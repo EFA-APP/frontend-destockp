@@ -51,7 +51,7 @@ const TablaProductos = () => {
     "",
   );
 
-  const [provFiltro, setProvFiltro] = useState(null); // { codigoSecuencial, razonSocial }
+  const [provFiltro, setProvFiltro] = useState(null); // { codigo, razonSocial }
   const [busquedaProv, setBusquedaProv] = useState("");
   const [mostrarSelectProv, setMostrarSelectProv] = useState(false);
 
@@ -72,7 +72,7 @@ const TablaProductos = () => {
         // Agregar filtro de proveedor si está seleccionado
         if (provFiltro) {
           nuevos.filtrosAtributos = JSON.stringify({
-            codigoProveedor: Number(provFiltro.codigoSecuencial),
+            codigoProveedor: Number(provFiltro.codigo),
           });
         }
 
@@ -302,8 +302,8 @@ const TablaProductos = () => {
 
   const handleEditarClick = useCallback(
     (item) => {
-      const { codigoSecuencial } = item;
-      navigate(`/panel/inventario/productos/${codigoSecuencial}/editar`, {
+      const { codigo } = item;
+      navigate(`/panel/inventario/productos/${codigo}/editar`, {
         state: { producto: item },
       });
     },
@@ -596,7 +596,7 @@ const MobileProductoCard = memo(
           <div className="flex flex-col gap-1 min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-mono font-black text-[var(--primary)] px-1.5 py-0.5 bg-[var(--primary)]/10 rounded border border-[var(--primary)]/30 shadow-sm uppercase tracking-tighter">
-                COD: {prod.codigoSecuencial?.toString().padStart(4, "0")}
+                COD: {prod.codigo?.toString().padStart(4, "0")}
               </span>
               <span className="text-[11px] font-black text-black/60 uppercase tracking-widest bg-black/10 px-1.5 py-0.5 rounded border border-black/5">
                 {prod.unidadMedida}
@@ -661,11 +661,11 @@ const MobileProductoCard = memo(
 
           return (
             <div
-              key={dep.codigoSecuencial || Math.random()}
+              key={dep.codigo || Math.random()}
               onClick={() =>
                 onAbrirDrawer({
                   ...prod,
-                  depositoInicial: dep.codigoSecuencial?.toString(),
+                  depositoInicial: dep.codigo?.toString(),
                 })
               }
               className={`group flex items-center justify-between p-3 rounded-md cursor-pointer   active:scale-[0.98] ${
@@ -727,7 +727,7 @@ const SelectorProveedoresInterno = memo(({ busqueda, onSeleccion }) => {
 
   return proveedores.map((p) => (
     <button
-      key={p.codigoSecuencial}
+      key={p.codigo}
       onClick={() => onSeleccion(p)}
       className="w-full flex items-center gap-3 p-2 rounded-[8px] hover:bg-gray-50 text-left transition-colors"
     >
@@ -741,7 +741,7 @@ const SelectorProveedoresInterno = memo(({ busqueda, onSeleccion }) => {
             p.apellido + " " + p.nombre}
         </span>
         <span className="text-[11px] text-[var(--color-neutral-text-muted)] mt-0.5">
-          Cód: {p.codigoSecuencial.toString().padStart(4, "0")}
+          Cód: {p.codigo.toString().padStart(4, "0")}
         </span>
       </div>
     </button>

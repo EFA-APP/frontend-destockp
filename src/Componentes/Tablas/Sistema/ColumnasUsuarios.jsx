@@ -24,7 +24,7 @@ export const columnasUsuarios = (busqueda) => [
     ),
   },
   {
-    key: "codigoSecuencial",
+    key: "codigo",
     etiqueta: "ID",
     renderizar: (valor) => (
       <span className="text-[11px] font-black text-[var(--text-muted)]">

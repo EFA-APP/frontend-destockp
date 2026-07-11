@@ -66,16 +66,16 @@ const SelectorArticuloModal = ({
   };
 
   const handleAgregar = (prod) => {
-    const qty = cantidades[prod.codigoSecuencial] || 1;
+    const qty = cantidades[prod.codigo] || 1;
     // Adaptación para Compras (tipoArticulo)
     const itemToAdd = setTipoBusqueda ? { ...prod, tipoArticulo: tipoBusqueda } : prod;
     
     agregarItem(itemToAdd, qty);
     
     // Activar feedback de agregado
-    setAgregados((prev) => ({ ...prev, [prod.codigoSecuencial]: true }));
+    setAgregados((prev) => ({ ...prev, [prod.codigo]: true }));
     setTimeout(() => {
-      setAgregados((prev) => ({ ...prev, [prod.codigoSecuencial]: false }));
+      setAgregados((prev) => ({ ...prev, [prod.codigo]: false }));
     }, 1500);
   };
 
@@ -198,13 +198,13 @@ const SelectorArticuloModal = ({
               {productos.map((p) => {
                 const stockVal = parseFloat(p.stock) || 0;
                 const isAvailable = stockVal > 0;
-                const isSelected = agregados[p.codigoSecuencial];
+                const isSelected = agregados[p.codigo];
                 const itemPrecio = tipoBusqueda === "PRODUCTO" && getPrecio ? getPrecio(p, columnaPrecioSeleccionada) : (parseFloat(p.precio) || 0);
-                const quantity = cantidades[p.codigoSecuencial] || 1;
+                const quantity = cantidades[p.codigo] || 1;
 
                 return (
                   <div
-                    key={p.codigoSecuencial}
+                    key={p.codigo}
                     className={`flex flex-col sm:flex-row sm:items-center justify-between bg-white border rounded-md p-4 transition gap-4 shadow-sm hover:border-[var(--primary)]/30 hover:shadow-md ${
                       isSelected ? "border-emerald-500/40 bg-emerald-50/10" : "border-gray-200"
                     }`}
@@ -256,7 +256,7 @@ const SelectorArticuloModal = ({
                       <div className="flex items-center bg-gray-100 border border-gray-200 rounded-full p-0.5 shadow-inner">
                         <button
                           type="button"
-                          onClick={() => handleDecrement(p.codigoSecuencial)}
+                          onClick={() => handleDecrement(p.codigo)}
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-white hover:bg-gray-50 text-gray-600 transition active:scale-90 font-black shadow-sm cursor-pointer"
                         >
                           <Minus size={12} strokeWidth={3} />
@@ -264,13 +264,13 @@ const SelectorArticuloModal = ({
                         <input
                           type="number"
                           value={quantity}
-                          onChange={(e) => handleQuantityChange(p.codigoSecuencial, e.target.value)}
+                          onChange={(e) => handleQuantityChange(p.codigo, e.target.value)}
                           className="w-10 bg-transparent border-none text-center font-black text-xs text-gray-800 focus:outline-none p-0"
                           min="1"
                         />
                         <button
                           type="button"
-                          onClick={() => handleIncrement(p.codigoSecuencial)}
+                          onClick={() => handleIncrement(p.codigo)}
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-white hover:bg-gray-50 text-gray-600 transition active:scale-90 font-black shadow-sm cursor-pointer"
                         >
                           <Plus size={12} strokeWidth={3} />

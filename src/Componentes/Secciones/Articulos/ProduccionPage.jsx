@@ -18,7 +18,7 @@ const ProduccionPage = () => {
 
   useEffect(() => {
     if (productos.length > 0) {
-      const found = productos.find((p) => String(p.codigoSecuencial) === id);
+      const found = productos.find((p) => String(p.codigo) === id);
       if (found) setProducto(found);
     }
   }, [id, productos]);
@@ -106,7 +106,7 @@ const ProduccionPage = () => {
                 Referencia
               </p>
               <h3 className="text-[14px] font-bold text-[var(--color-neutral-text-main)] uppercase">
-                SKU: #{producto?.codigoSecuencial?.toString().padStart(3, "0")}
+                SKU: #{producto?.codigo?.toString().padStart(3, "0")}
               </h3>
             </div>
           </div>

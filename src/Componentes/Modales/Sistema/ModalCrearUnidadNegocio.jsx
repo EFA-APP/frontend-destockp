@@ -21,7 +21,7 @@ const ModalCrearUnidadNegocio = ({ isOpen, onClose, empresa, unidadAEditar }) =>
   const { mutateAsync: actualizarUnidad, isPending: isActualizando } = useActualizarUnidadNegocio();
 
   const { data: puntosVentaData, isLoading: isCargandoPuntosVenta } = usePuntosVenta(
-    empresa?.codigo || empresa?.codigoSecuencial
+    empresa?.codigo || empresa?.codigo
   );
 
   useEffect(() => {
@@ -65,13 +65,13 @@ const ModalCrearUnidadNegocio = ({ isOpen, onClose, empresa, unidadAEditar }) =>
 
       if (unidadAEditar) {
         await actualizarUnidad({
-          codigo: unidadAEditar.codigoSecuencial,
-          codigoEmpresa: Number(empresa.codigo || empresa.codigoSecuencial),
+          codigo: unidadAEditar.codigo,
+          codigoEmpresa: Number(empresa.codigo || empresa.codigo),
           data: dataFinal,
         });
       } else {
         await crearUnidad({
-          codigoEmpresa: Number(empresa.codigo || empresa.codigoSecuencial),
+          codigoEmpresa: Number(empresa.codigo || empresa.codigo),
           data: dataFinal,
         });
       }

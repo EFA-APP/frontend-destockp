@@ -214,6 +214,18 @@ const styles = StyleSheet.create({
   },
 });
 
+// Helper para formatear fechas ISO en UTC (evita desfase de un día por timezone)
+const formatearFechaUTC = (fechaInput) => {
+  if (!fechaInput) return "";
+  try {
+    const d = new Date(fechaInput);
+    if (isNaN(d.getTime())) return fechaInput;
+    return d.toLocaleDateString("es-AR", { timeZone: "UTC" });
+  } catch {
+    return fechaInput;
+  }
+};
+
 const formatearFechaAfip = (fechaStr) => {
   if (!fechaStr || fechaStr.length !== 8) return fechaStr;
   const anio = fechaStr.substring(0, 4);
@@ -300,7 +312,7 @@ const ComprobantePagina = ({
 
   const nroFormateado = String(numeroComprobante).padStart(8, "0");
   const ptoVtaFormateado = String(puntoVenta).padStart(5, "0");
-  const fechaStr = new Date(fechaEmision).toLocaleDateString("es-AR");
+  const fechaStr = formatearFechaUTC(fechaEmision);
 
   return (
     <Page size="A4" style={styles.page}>
@@ -660,7 +672,7 @@ const ComprobantePDF = ({ comprobante, usuario }) => {
     cuit: df.cuit || "00-00000000-0",
     iibb: df.iibb || "-",
     inicioActividades: df.inicioActividades
-      ? new Date(df.inicioActividades).toLocaleDateString("es-AR")
+      ? formatearFechaUTC(df.inicioActividades)
       : "-",
   };
 

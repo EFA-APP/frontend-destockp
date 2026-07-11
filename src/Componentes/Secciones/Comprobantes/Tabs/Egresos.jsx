@@ -3,11 +3,18 @@ import { Save } from "lucide-react";
 import BuscadorDetalle from "../Componentes/BuscadorDetalle";
 import CabeceraComprobante from "../Componentes/CabeceraComprobante";
 import ModalExitoComprobante from "../Componentes/ModalExitoComprobante";
+import ModalError from "../../../Modales/ModalError";
 import { useCabeceraComprobante } from "../../../../Backend/Comprobantes/useCabeceraComprobante";
 import { useDetalleComprobante } from "../../../../Backend/Comprobantes/useDetalleComprobante";
 import { useGenerarComprobante } from "../../../../Backend/Ventas/queries/Comprobante/useGenerarComprobante.mutation";
 import { obtenerComprobantePorCodigo } from "../../../../Backend/Ventas/api/Comprobante/comprobante.api";
+import { obtenerCuentasPorCodigos } from "../../../../Backend/Contabilidad/api/cuentas.api";
 import { requierePago } from "../utils/condicionMetodoPago.js";
+import {
+  mapearPagosPrecargaAsociado,
+  obtenerCodigosBancoUnicos,
+  construirMapaCuentasPorCodigo,
+} from "../../../../Backend/Comprobantes/pagoComprobante.utils.js";
 
 const TIPO_DESCRIPCION_MAP = {
   1: "FACTURA",
@@ -49,7 +56,10 @@ const construirPayload = ({
 
   const detalle = items.map((item) => ({
     tipoDetalle: item.tipoDetalle,
-    codigoDetalle: item.codigoSecuencial,
+    codigoDetalle:
+      item.tipoDetalle === "CUENTA_CONTABLE"
+        ? item.codigoSecuencial || item.codigo || 0
+        : item.codigo,
     descripcion: [item.nombre, item.descripcion].filter(Boolean).join(" - "),
     ...(item.tipoDetalle !== "CUENTA_CONTABLE" &&
       item.codigoDeposito != null && {
@@ -61,6 +71,7 @@ const construirPayload = ({
     iva: item.tasaIva || 0,
     tipoFiscal: item.tipoFiscal || "GRAVADO",
     subtotal: item.precioUnitario * item.cantidad - (item.descuento || 0),
+    devolverAStock: item.devolverAStock === true,
   }));
 
   const detallePagos = pagos.map((p) => ({
@@ -96,7 +107,9 @@ const construirPayload = ({
         estado: "RECIBIDO",
       },
     }),
-    ...(p.endosoChequeTercero && { endosoChequeTercero: p.endosoChequeTercero }),
+    ...(p.endosoChequeTercero && {
+      endosoChequeTercero: p.endosoChequeTercero,
+    }),
     ...(p.chequePropio && { chequePropio: p.chequePropio }),
   }));
 
@@ -111,7 +124,7 @@ const construirPayload = ({
     esNota && cabecera.comprobanteAsociado
       ? [
           {
-            codigoComprobante: cabecera.comprobanteAsociado.codigoSecuencial,
+            codigoComprobante: cabecera.comprobanteAsociado.codigo,
             tipoDescripcionComprobante:
               cabecera.comprobanteAsociado.tipoDescripcionComprobante,
             tipoRelacion: tipoDescripcion,
@@ -119,6 +132,7 @@ const construirPayload = ({
             codigoTipoComprobante:
               cabecera.comprobanteAsociado.codigoTipoComprobante,
             importeAplicado:
+              cabecera.importeAplicadoManual ??
               cabecera.comprobanteAsociado.saldoPendiente ??
               cabecera.comprobanteAsociado.total,
             codigoUnidadNegocio: Number(cabecera.unidadNegocioSeleccionada),
@@ -132,7 +146,7 @@ const construirPayload = ({
     fechaEmision: cabecera.fechaInicio,
     fechaVto: cabecera.fechaVencimiento,
     puntoVenta: Number(cabecera.puntoVenta) || 1,
-    codigoReceptor: receptor?.codigoSecuencial,
+    codigoReceptor: receptor?.codigo,
     entidadReceptor: receptor?.tipoEntidad || "PROV",
     codigoTipoComprobante: codigoTipo,
     condicionComprobante: cabecera.condicionComprobante,
@@ -145,7 +159,9 @@ const construirPayload = ({
     subtotal: Number(subtotalSinIva.toFixed(2)),
     iva: Number(totalIva.toFixed(2)),
     otrosTributos: Number((otrosTributos ?? 0).toFixed(2)),
-    total: Number((subtotalSinIva + totalIva + (otrosTributos || 0)).toFixed(2)),
+    total: Number(
+      (subtotalSinIva + totalIva + (otrosTributos || 0)).toFixed(2),
+    ),
     detalle,
     ...(detallePagos.length > 0 && {
       detallePagos: detallePagos.map((dp) => {
@@ -176,6 +192,7 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
   const [pagos, setPagos] = useState([]);
   const [vueltos, setVueltos] = useState([]);
   const [comprobanteExito, setComprobanteExito] = useState(null);
+  const [errorModalMsg, setErrorModalMsg] = useState("");
 
   const { mutate: crearComprobante, isPending } = useGenerarComprobante();
 
@@ -184,14 +201,15 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
     const comp = cabecera.comprobanteAsociado;
     if (!comp) return;
 
-    obtenerComprobantePorCodigo(comp.codigo).then((full) => {
+    (async () => {
+      const full = await obtenerComprobantePorCodigo(comp.codigo);
       if (!full) return;
 
       // Cargar items del detalle
       if (full.detalles?.length) {
         detalle.setItems(
           full.detalles.map((d) => ({
-            codigoSecuencial: d.codigoDetalle,
+            codigo: d.codigoDetalle,
             nombre: d.descripcion,
             tipoDetalle: d.tipoDetalle,
             cantidad: d.cantidad,
@@ -206,7 +224,7 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
       // Cargar contacto desde los datos del comprobante
       if (full.codigoReceptor) {
         cabecera.setClienteSeleccionado({
-          codigoSecuencial: full.codigoReceptor,
+          codigo: full.codigoReceptor,
           razonSocial: full.razonSocial,
           tipoEntidad: full.entidadReceptor,
           condicionIva: full.condicionIvaReceptor,
@@ -225,7 +243,36 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
       if (full.codigoUnidadNegocio) {
         cabecera.setUnidadNegocioSeleccionada(String(full.codigoUnidadNegocio));
       }
-    });
+      // Bugfix: precargar las observaciones del comprobante original (p. ej.
+      // "CUOTA-{codigo}-{anio}-{mes}" cuando se cobró una cuota escolar,
+      // ver ModalSeleccionarCobro.jsx) para que el backend
+      // (VentaNotaCreditoStrategy) pueda marcar el asiento de la NC con la
+      // misma referencia y origenModulo "ESCUELA" que el cobro original.
+      if (full.observaciones) {
+        cabecera.setObservaciones(full.observaciones);
+      }
+
+      // Cargar el detalle de pago del comprobante asociado (mismo criterio
+      // que el detalle de ítems de arriba). El nombre de banco no viene
+      // persistido junto al pago (solo el código numérico de cuenta), se
+      // resuelve con el mismo endpoint batch que ya usa Caja Diaria.
+      if (full.pagos?.length) {
+        const codigosBanco = obtenerCodigosBancoUnicos(full.pagos);
+        let mapaCuentas = new Map();
+        if (codigosBanco.length) {
+          try {
+            const cuentas = await obtenerCuentasPorCodigos(codigosBanco);
+            mapaCuentas = construirMapaCuentasPorCodigo(cuentas);
+          } catch (e) {
+            console.error(
+              "Error resolviendo nombres de banco para la precarga de pagos",
+              e,
+            );
+          }
+        }
+        setPagos(mapearPagosPrecargaAsociado(full.pagos, mapaCuentas));
+      }
+    })();
   }, [cabecera.comprobanteAsociado]);
 
   const codigoTipo = Number(cabecera.tipoComprobante);
@@ -237,19 +284,40 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
 
   const handleGuardar = () => {
     const condicion = cabecera.condicionComprobante || "CONTADO";
+
+    if (condicion === "CUENTA_CORRIENTE" && !cabecera.clienteSeleccionado) {
+      setErrorModalMsg(
+        "Debe seleccionar un contacto si la condición del comprobante es Cuenta Corriente.",
+      );
+      return;
+    }
+
     if (requierePago(condicion) && pagos.length === 0) {
-      alert(
-        "⚠️ Esta condición de comprobante requiere al menos un método de pago.",
+      setErrorModalMsg(
+        "Esta condición de comprobante requiere al menos un método de pago.",
       );
       return;
     }
 
     if (requiereIva) {
-      alert(
-        `⚠️ Factura A requiere IVA en todos los ítems gravados.\n` +
-          `Completá la alícuota en: ${itemsGravadoSinIva.map((i) => i.nombre).join(", ")}`,
+      setErrorModalMsg(
+        `Factura A requiere IVA en todos los ítems gravados.\nCompletá la alícuota en: ${itemsGravadoSinIva.map((i) => i.nombre).join(", ")}`,
       );
       return;
+    }
+
+    const tipoDescripcion = TIPO_DESCRIPCION_MAP[codigoTipo] || "FACTURA";
+    if (tipoDescripcion === "NOTA_CREDITO" && cabecera.comprobanteAsociado) {
+      const maximo =
+        cabecera.comprobanteAsociado.saldoPendiente ??
+        cabecera.comprobanteAsociado.total;
+      const importe = cabecera.importeAplicadoManual ?? maximo;
+      if (importe <= 0 || importe > maximo) {
+        setErrorModalMsg(
+          `El importe a aplicar debe ser mayor a 0 y no puede superar el saldo pendiente ($${maximo}).`,
+        );
+        return;
+      }
     }
 
     const payload = construirPayload({
@@ -337,6 +405,12 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
           onClose={() => setComprobanteExito(null)}
         />
       )}
+      <ModalError
+        isOpen={!!errorModalMsg}
+        onClose={() => setErrorModalMsg("")}
+        titulo="Error de validación"
+        mensaje={errorModalMsg}
+      />
     </div>
   );
 };

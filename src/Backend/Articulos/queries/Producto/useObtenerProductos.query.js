@@ -10,7 +10,7 @@ export const useObtenerProductos = (filtros, options = {}) => {
     // Si se pasa una unidad específica por opciones, tiene prioridad (para contexto local del POS)
     const unidadContexto = options.codigoUnidadNegocio !== undefined 
         ? options.codigoUnidadNegocio 
-        : unidadActiva?.codigoSecuencial;
+        : unidadActiva?.codigo;
 
     return useQuery({
         // Incluimos la unidad de contexto en la Query Key para invalidar caché al cambiar de unidad localmente

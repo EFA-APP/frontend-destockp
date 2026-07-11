@@ -7,7 +7,7 @@ const materiaPrimaConfig = {
     {
       label: "Materia Prima",
       key: "nombre",
-      sub: (p) => `Cód: #${p.codigoSecuencial}`,
+      sub: (p) => `Cód: #${p.codigo}`,
       editable: true,
       type: "text",
     },

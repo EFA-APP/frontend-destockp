@@ -68,9 +68,9 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
       .filter(
         (item) =>
           (item.nombre?.toLowerCase().includes(term) ||
-            String(item.codigoSecuencial).includes(term)) &&
+            String(item.codigo).includes(term)) &&
           !selectedItems.find(
-            (selected) => selected.codigoSecuencial === item.codigoSecuencial,
+            (selected) => selected.codigo === item.codigo,
           ),
       )
       .slice(0, 5); // Limitar resultados sugeridos
@@ -83,14 +83,14 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
 
   const handleRemoveItem = (codigo) => {
     setSelectedItems((prev) =>
-      prev.filter((item) => item.codigoSecuencial !== codigo),
+      prev.filter((item) => item.codigo !== codigo),
     );
   };
 
   const handleUpdateQuantity = (codigo, value) => {
     setSelectedItems((prev) =>
       prev.map((item) =>
-        item.codigoSecuencial === codigo
+        item.codigo === codigo
           ? { ...item, cantidadCarga: value }
           : item,
       ),
@@ -110,7 +110,7 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
     try {
       for (const item of selectedItems) {
         const payload = {
-          codigoArticulo: item.codigoSecuencial,
+          codigoArticulo: item.codigo,
           tipoArticulo: tipo,
           tipoMovimiento: globalConfig.tipoMovimiento,
           origenMovimiento: globalConfig.origenMovimiento,
@@ -229,7 +229,7 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
           <div className="absolute z-50 left-0 right-0 mt-2 bg-[#1a1c1e] border border-black/10 rounded-md shadow-2xl overflow-hidden    ">
             {filteredItems.map((item) => (
               <button
-                key={item.codigoSecuencial}
+                key={item.codigo}
                 onClick={() => handleAddItem(item)}
                 className="w-full flex items-center justify-between px-4 py-3 hover:bg-black/5  border-b border-black/5 last:border-0 text-left"
               >
@@ -242,7 +242,7 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
                       {item.nombre}
                     </div>
                     <div className="text-[12px] text-black/40 font-bold uppercase tracking-widest">
-                      #{item.codigoSecuencial} • Stock: {item.stock}{" "}
+                      #{item.codigo} • Stock: {item.stock}{" "}
                       {item.unidadMedida}
                     </div>
                   </div>
@@ -269,7 +269,7 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
         ) : (
           selectedItems.map((item) => (
             <div
-              key={item.codigoSecuencial}
+              key={item.codigo}
               className="group flex items-center gap-4 bg-black/5 hover:bg-white/[0.08] p-4 rounded-md border border-black/10    "
             >
               <div className="flex-1 min-w-0">
@@ -278,7 +278,7 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
                 </div>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-[12px] text-amber-500 font-bold uppercase tracking-widest">
-                    #{item.codigoSecuencial}
+                    #{item.codigo}
                   </span>
                   <span className="text-[12px] text-black/30">•</span>
                   <span className="text-[12px] text-black/40 font-medium">
@@ -294,7 +294,7 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
                     value={item.cantidadCarga}
                     onChange={(e) =>
                       handleUpdateQuantity(
-                        item.codigoSecuencial,
+                        item.codigo,
                         e.target.value,
                       )
                     }
@@ -309,7 +309,7 @@ const ModalCargaMasivaMovimientos = ({ open, onClose, tipo = "PRODUCTO" }) => {
                 </div>
 
                 <button
-                  onClick={() => handleRemoveItem(item.codigoSecuencial)}
+                  onClick={() => handleRemoveItem(item.codigo)}
                   className="p-2 text-black/20 hover:text-rose-500 hover:bg-rose-500/10 rounded-md "
                 >
                   <Trash2 size={18} />

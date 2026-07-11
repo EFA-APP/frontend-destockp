@@ -162,7 +162,7 @@ const AlumnosCtaCte = () => {
     setMesSeleccionadoMayor(mesSeleccionado);
     setAnioSeleccionadoMayor(anioSeleccionado);
     try {
-      const res = await ListarMovimientosApi(alumno.codigoSecuencial, {
+      const res = await ListarMovimientosApi(alumno.codigo, {
         limite: 500,
         codigoCuenta: codigoCtaCte,
       });
@@ -229,7 +229,7 @@ const AlumnosCtaCte = () => {
 
   const columnasAlumnos = [
     {
-      key: "codigoSecuencial",
+      key: "codigo",
       etiqueta: "ID",
       renderizar: (val) => <span className="text-[10px] font-black text-black/30">{val}</span>,
     },
@@ -503,7 +503,7 @@ const AlumnosCtaCte = () => {
                       Cuenta Corriente
                     </h3>
                     <span className="text-[11px] font-bold text-black/40 uppercase tracking-widest mt-1 block">
-                      {alumnoSeleccionadoMayor.nombre} {alumnoSeleccionadoMayor.apellido} (Leg. {alumnoSeleccionadoMayor.codigoSecuencial})
+                      {alumnoSeleccionadoMayor.nombre} {alumnoSeleccionadoMayor.apellido} (Leg. {alumnoSeleccionadoMayor.codigo})
                     </span>
                   </div>
                 </div>

@@ -66,19 +66,19 @@ const MovimientosTesoreria = () => {
 
   const unidadesNegocio = usuario?.unidadesNegocio || [];
   const [filtroUnidadNegocio, setFiltroUnidadNegocio] = useState(
-    unidadActiva?.codigoSecuencial ?? "",
+    unidadActiva?.codigo ?? "",
   );
 
   useEffect(() => {
-    if (unidadActiva?.codigoSecuencial) {
-      setFiltroUnidadNegocio(unidadActiva.codigoSecuencial);
+    if (unidadActiva?.codigo) {
+      setFiltroUnidadNegocio(unidadActiva.codigo);
     }
-  }, [unidadActiva?.codigoSecuencial]);
+  }, [unidadActiva?.codigo]);
 
   // Si hay una sola unidad de negocio (o ninguna), se usa fija sin mostrar selector.
   const codigoUnidadNegocio =
     unidadesNegocio.length <= 1
-      ? (unidadesNegocio[0]?.codigoSecuencial ?? unidadActiva?.codigoSecuencial)
+      ? (unidadesNegocio[0]?.codigo ?? unidadActiva?.codigo)
       : filtroUnidadNegocio;
 
   const filtrosQuery = {

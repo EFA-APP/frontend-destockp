@@ -28,7 +28,7 @@ const SeleccionarMateriaPrimaGestionPage = () => {
     return items.filter(
       (item) =>
         item.nombre?.toLowerCase().includes(term) ||
-        String(item.codigoSecuencial).includes(term),
+        String(item.codigo).includes(term),
     );
   }, [searchTerm, items]);
 
@@ -73,10 +73,10 @@ const SeleccionarMateriaPrimaGestionPage = () => {
           ) : (
             filteredItems.map((item) => (
               <div
-                key={item.codigoSecuencial}
+                key={item.codigo}
                 onClick={() =>
                   navigate(
-                    `/panel/inventario/materia-prima/${item.codigoSecuencial}/editar`,
+                    `/panel/inventario/materia-prima/${item.codigo}/editar`,
                     { state: { materiaPrima: item } },
                   )
                 }
@@ -89,7 +89,7 @@ const SeleccionarMateriaPrimaGestionPage = () => {
                   <div>
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-[11px] font-mono text-black/85 uppercase">
-                        #{item.codigoSecuencial.toString().padStart(3, "0")}
+                        #{item.codigo.toString().padStart(3, "0")}
                       </span>
                       <div className="w-1 h-1 rounded-full bg-black/10" />
                       <span className="text-[11px] font-black text-emerald-700/50 uppercase tracking-widest">

@@ -38,7 +38,7 @@ export const useFacturas = (prefijoKey = "", tipo = "VENTA") => {
 
   // UNIDAD DE NEGOCIO SELECCIONADA
   const [unidadNegocio, setUnidadNegocio] = useState(
-    unidadActiva?.codigoSecuencial || null,
+    unidadActiva?.codigo || null,
   );
 
   // NUEVO FILTRO FISCAL

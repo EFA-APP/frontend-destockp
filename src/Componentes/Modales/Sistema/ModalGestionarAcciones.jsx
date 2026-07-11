@@ -22,7 +22,7 @@ const ModalGestionarAcciones = ({
   const [accionesLocal, setAccionesLocal] = useState([]); // Array de { nombre, permitidos: [] }
   const [accionEnEdicion, setAccionEnEdicion] = useState(null); // Nombre de la acción que estamos editando usuarios
 
-  const codigoEmpresa = empresa.codigo || empresa.codigoSecuencial;
+  const codigoEmpresa = empresa.codigo || empresa.codigo;
 
   const { mutateAsync: actualizarAcciones, isPending } =
     useActualizarAccionesPermiso();
@@ -63,7 +63,7 @@ const ModalGestionarAcciones = ({
     if (!permiso || !rolesEmpresa) return [];
     return rolesEmpresa.filter((rol) =>
       rol.permisos?.some(
-        (p) => p.codigoSecuencial === (permiso.codigo || permiso.codigoSecuencial),
+        (p) => p.codigo === (permiso.codigo || permiso.codigo),
       ),
     );
   }, [permiso, rolesEmpresa]);
@@ -104,13 +104,13 @@ const ModalGestionarAcciones = ({
         if (acc.nombre !== accionNombre) return acc;
 
         const yaEsta = acc.permitidos.some(
-          (p) => p.codigoUsuario === usuario.codigoSecuencial,
+          (p) => p.codigoUsuario === usuario.codigo,
         );
         if (yaEsta) {
           return {
             ...acc,
             permitidos: acc.permitidos.filter(
-              (p) => p.codigoUsuario !== usuario.codigoSecuencial,
+              (p) => p.codigoUsuario !== usuario.codigo,
             ),
           };
         } else {
@@ -120,7 +120,7 @@ const ModalGestionarAcciones = ({
               ...acc.permitidos,
               {
                 codigoEmpresa: codigoEmpresa,
-                codigoUsuario: usuario.codigoSecuencial,
+                codigoUsuario: usuario.codigo,
                 nombreEmpresa: empresa.nombre,
                 nombreUsuario: `${usuario.nombre} ${usuario.apellido}`.trim()
               },
@@ -134,7 +134,7 @@ const ModalGestionarAcciones = ({
   const handleGuardar = async () => {
     try {
       await actualizarAcciones({
-        codigoSecuencial: permiso.codigo || permiso.codigoSecuencial,
+        codigo: permiso.codigo || permiso.codigo,
         codigoEmpresa: codigoEmpresa,
         acciones: accionesLocal,
       });
@@ -333,12 +333,12 @@ const ModalGestionarAcciones = ({
                     const estaAsignado = accionesLocal
                       .find((a) => a.nombre === accionEnEdicion)
                       ?.permitidos.some(
-                        (p) => p.codigoUsuario === usuario.codigoSecuencial,
+                        (p) => p.codigoUsuario === usuario.codigo,
                       );
 
                     return (
                       <button
-                        key={usuario.codigoSecuencial}
+                        key={usuario.codigo}
                         onClick={() =>
                           toggleUsuarioEnAccion(accionEnEdicion, usuario)
                         }

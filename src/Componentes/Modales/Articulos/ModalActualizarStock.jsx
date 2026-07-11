@@ -48,12 +48,12 @@ const DrawerActualizarStock = ({
       // Nota: En useDepositoUI, la matriz de stock usa `dep_${id}` para acceder al stock por depósito
       setDepositoSeleccionado(
         depositoInicial ||
-          depositosRaw?.[0]?.codigoSecuencial?.toString() ||
+          depositosRaw?.[0]?.codigo?.toString() ||
           "",
       );
       setDepositoOrigen(
         depositoInicial ||
-          depositosRaw?.[0]?.codigoSecuencial?.toString() ||
+          depositosRaw?.[0]?.codigo?.toString() ||
           "",
       );
       setDepositoDestino("");
@@ -77,7 +77,7 @@ const DrawerActualizarStock = ({
     const stockItem = fila.stockPorDeposito.find(
       (sp) =>
         String(sp.codigoDeposito) === String(depId) ||
-        String(sp.deposito?.codigoSecuencial) === String(depId),
+        String(sp.deposito?.codigo) === String(depId),
     );
     return Number(stockItem?.stock || 0);
   };
@@ -107,11 +107,11 @@ const DrawerActualizarStock = ({
 
       const isProducto = tipoArticulo === "PRODUCTO" || !!fila.codigoProducto;
       const codigoIdentificador = Number(
-        fila.codigoSecuencial || fila.codigoProducto || fila.codigoMateriaPrima,
+        fila.codigo || fila.codigoProducto || fila.codigoMateriaPrima,
       );
 
       const depSeleccionadoObj = depositosRaw?.find(
-        (d) => String(d.codigoSecuencial) === String(depositoSeleccionado),
+        (d) => String(d.codigo) === String(depositoSeleccionado),
       );
 
       actualizarStock(
@@ -121,8 +121,8 @@ const DrawerActualizarStock = ({
           codigoDeposito: Number(depositoSeleccionado), // Volvemos a enviar ID
           nombreDeposito: depSeleccionadoObj?.nombre, // Opcional: enviamos nombre aparte
           cantidad: cantidadFinal,
-          codigoUsuario: usuario?.codigoSecuencial
-            ? Number(usuario.codigoSecuencial)
+          codigoUsuario: usuario?.codigo
+            ? Number(usuario.codigo)
             : undefined,
           nombreUsuario:
             `${usuario?.nombre || ""} ${usuario?.apellido || ""}`.trim() ||
@@ -140,14 +140,14 @@ const DrawerActualizarStock = ({
 
       const isProducto = tipoArticulo === "PRODUCTO" || !!fila.codigoProducto;
       const codigoIdentificador = Number(
-        fila.codigoSecuencial || fila.codigoProducto || fila.codigoMateriaPrima,
+        fila.codigo || fila.codigoProducto || fila.codigoMateriaPrima,
       );
 
       const depOrigenObj = depositosRaw?.find(
-        (d) => String(d.codigoSecuencial) === String(depositoOrigen),
+        (d) => String(d.codigo) === String(depositoOrigen),
       );
       const depDestinoObj = depositosRaw?.find(
-        (d) => String(d.codigoSecuencial) === String(depositoDestino),
+        (d) => String(d.codigo) === String(depositoDestino),
       );
 
       transferirStock(
@@ -159,8 +159,8 @@ const DrawerActualizarStock = ({
           nombreDepositoOrigen: depOrigenObj?.nombre, // Nombre para el historial
           nombreDepositoDestino: depDestinoObj?.nombre, // Nombre para el historial
           cantidad: Number(cantidad),
-          codigoUsuario: usuario?.codigoSecuencial
-            ? Number(usuario.codigoSecuencial)
+          codigoUsuario: usuario?.codigo
+            ? Number(usuario.codigo)
             : undefined,
           nombreUsuario:
             `${usuario?.nombre || ""} ${usuario?.apellido || ""}`.trim() ||
@@ -246,10 +246,10 @@ const DrawerActualizarStock = ({
               const dep = sp.deposito || {};
               const esSeleccionado =
                 (modo === "ajuste" &&
-                  String(dep.codigoSecuencial) ===
+                  String(dep.codigo) ===
                     String(depositoSeleccionado)) ||
                 (modo === "transferencia" &&
-                  String(dep.codigoSecuencial) === String(depositoOrigen));
+                  String(dep.codigo) === String(depositoOrigen));
 
               const getStockColor = (val) => {
                 if (val > 50)
@@ -278,7 +278,7 @@ const DrawerActualizarStock = ({
 
               return (
                 <div
-                  key={dep.codigoSecuencial || Math.random()}
+                  key={dep.codigo || Math.random()}
                   className={`p-3 rounded-[12px] border transition-all duration-300 flex flex-col gap-1 bg-white ${esSeleccionado ? "border-[var(--color-brand-primary)] shadow-sm scale-[1.02] ring-2 ring-[var(--color-brand-soft)]" : `border-[var(--color-neutral-border)] shadow-[0_2px_8px_rgba(0,0,0,0.02)]`}`}
                 >
                   <div className="flex items-center justify-between gap-1.5 mb-1">
@@ -346,8 +346,8 @@ const DrawerActualizarStock = ({
                       </option>
                       {depositosRaw?.map((dep) => (
                         <option
-                          key={dep.codigoSecuencial}
-                          value={dep.codigoSecuencial}
+                          key={dep.codigo}
+                          value={dep.codigo}
                           className="text-[var(--color-neutral-text-main)]"
                         >
                           {dep.nombre}
@@ -416,8 +416,8 @@ const DrawerActualizarStock = ({
                       </option>
                       {depositosRaw?.map((dep) => (
                         <option
-                          key={dep.codigoSecuencial}
-                          value={dep.codigoSecuencial}
+                          key={dep.codigo}
+                          value={dep.codigo}
                           className="text-[var(--color-neutral-text-main)]"
                         >
                           {dep.nombre}
@@ -466,10 +466,10 @@ const DrawerActualizarStock = ({
                       </option>
                       {depositosRaw?.map((dep) => (
                         <option
-                          key={dep.codigoSecuencial}
-                          value={dep.codigoSecuencial}
+                          key={dep.codigo}
+                          value={dep.codigo}
                           disabled={
-                            dep.codigoSecuencial?.toString() === depositoOrigen
+                            dep.codigo?.toString() === depositoOrigen
                           }
                           className="text-[var(--color-neutral-text-main)] disabled:opacity-30 disabled:text-[var(--color-neutral-text-muted)]"
                         >

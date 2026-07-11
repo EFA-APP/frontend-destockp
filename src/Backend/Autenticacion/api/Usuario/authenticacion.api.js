@@ -65,23 +65,23 @@ export const registrarseApi = async ({ codigoEmpresa, ...data }) => {
   return respuesta.data;
 };
 
-export const actualizarEstadoUsuarioApi = async ({ codigoSecuencial, activo, codigoEmpresa }) => {
+export const actualizarEstadoUsuarioApi = async ({ codigo, activo, codigoEmpresa }) => {
   const respuesta = await axiosInitial.patch(
-    `/auth/usuarios/${codigoSecuencial}/estado`, 
+    `/auth/usuarios/${codigo}/estado`, 
     { activo }, 
     { params: { codigoEmpresa }, showLoader: false }
   );
   return respuesta.data;
 };
 
-export const eliminarUsuarioApi = async (codigoSecuencial) => {
-  const respuesta = await axiosInitial.delete(`/auth/usuarios/${codigoSecuencial}`);
+export const eliminarUsuarioApi = async (codigo) => {
+  const respuesta = await axiosInitial.delete(`/auth/usuarios/${codigo}`);
   return respuesta.data;
 };
 
-export const actualizarUsuarioApi = async ({ codigoSecuencial, codigoEmpresa, ...datos }) => {
+export const actualizarUsuarioApi = async ({ codigo, codigoEmpresa, ...datos }) => {
   const respuesta = await axiosInitial.patch(
-    `/auth/usuarios/${codigoSecuencial}`, 
+    `/auth/usuarios/${codigo}`, 
     datos, 
     { params: { codigoEmpresa }, showLoader: false }
   );

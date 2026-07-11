@@ -13,7 +13,7 @@ import { ListarContactosApi } from "../../Contactos/api/contactos.api";
  *   refetch: () => void
  * }}
  */
-export const useCuotas = () => {
+export const useCuotas = (codigoUnidadNegocio) => {
   const {
     data: respuesta = { items: [], total: 0 },
     isLoading: cargandoAlumnos,
@@ -21,13 +21,18 @@ export const useCuotas = () => {
     error: errorAlumnos,
     refetch,
   } = useQuery({
-    queryKey: ["alumnos-cuotas"],
-    queryFn: () =>
-      ListarContactosApi({
+    queryKey: ["alumnos-cuotas", codigoUnidadNegocio],
+    queryFn: () => {
+      const params = {
         tipoEntidad: "ALUM",
-        limite: 200,
+        limite: 99999,
         codigoCuenta: "110301005",
-      }),
+      };
+      if (codigoUnidadNegocio) {
+        params.codigoUnidadNegocio = Number(codigoUnidadNegocio);
+      }
+      return ListarContactosApi(params);
+    },
     staleTime: 30_000,
   });
 

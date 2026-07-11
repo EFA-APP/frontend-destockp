@@ -13,7 +13,7 @@ export const accionesMateriaPrimas = ({
     {
       ...accionesReutilizables.eliminar,
       onClick: (fila) => {
-        handleEliminarClick(fila.codigoSecuencial, fila.nombre)
+        handleEliminarClick(fila.codigo, fila.nombre)
       },
     },
   ];

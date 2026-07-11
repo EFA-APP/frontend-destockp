@@ -18,7 +18,7 @@ const ModalDestinoCheque = ({ cheque, accion, onClose }) => {
     return () => clearTimeout(t);
   }, [busqueda]);
 
-  // 58 es el codigoSecuencial en DB para la cuenta agrupadora "Bancos" (codigo string: "110102")
+  // 58 es el codigo en DB para la cuenta agrupadora "Bancos" (codigo string: "110102")
   const { data: bancos, isLoading: isLoadingBancos } =
     useObtenerDescendientesImputablesQuery(
       58,
@@ -38,7 +38,7 @@ const ModalDestinoCheque = ({ cheque, accion, onClose }) => {
 
     if (bancos && bancos.length > 0) {
       bancos.forEach((b) => {
-        opts.push({ value: String(b.codigoSecuencial), label: b.nombre });
+        opts.push({ value: String(b.codigo), label: b.nombre });
       });
     }
     return opts;

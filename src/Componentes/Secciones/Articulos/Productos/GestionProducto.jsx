@@ -23,7 +23,7 @@ const GestionProducto = () => {
 
   useEffect(() => {
     if (!producto && productos.length > 0) {
-      const found = productos.find((p) => String(p.codigoSecuencial) === id);
+      const found = productos.find((p) => String(p.codigo) === id);
       if (found) setProducto(found);
     }
   }, [id, productos, producto]);
@@ -114,7 +114,7 @@ const GestionProducto = () => {
               initialTab="info"
               width="w-full"
               onSave={async (dataEditada) => {
-                const { codigoSecuencial, codigoEmpresa, id, ...payload } =
+                const { codigo, codigoEmpresa, id, ...payload } =
                   dataEditada;
 
                 // Numerical types
@@ -129,7 +129,7 @@ const GestionProducto = () => {
                   payload.activo = !!payload.activo;
 
                 try {
-                  await actualizarProducto(producto.codigoSecuencial, payload);
+                  await actualizarProducto(producto.codigo, payload);
                   // Force redirect or update
                   navigate("/panel/inventario/productos");
                 } catch (err) {
@@ -139,7 +139,7 @@ const GestionProducto = () => {
             >
               {activeTab === "editar" && (
                 <ListaMovimientos
-                  codigoArticulo={producto?.codigoSecuencial}
+                  codigoArticulo={producto?.codigo}
                   tipoArticulo="PRODUCTO"
                 />
               )}
@@ -163,7 +163,7 @@ const GestionProducto = () => {
               </div>
             </div>
             <ListaMovimientos
-              codigoArticulo={producto?.codigoSecuencial}
+              codigoArticulo={producto?.codigo}
               tipoArticulo="PRODUCTO"
             />
           </div>

@@ -40,7 +40,7 @@ const TablaFacturasProveedor = () => {
 
   const opcionesUnidad = useMemo(() => {
     return (usuario?.unidadesNegocio || []).map((un) => ({
-      valor: un.codigoSecuencial,
+      valor: un.codigo,
       texto: un.nombre,
     }));
   }, [usuario]);

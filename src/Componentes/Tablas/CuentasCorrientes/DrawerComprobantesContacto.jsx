@@ -22,7 +22,7 @@ const DrawerComprobantesContacto = ({ isOpen, onClose, contacto }) => {
   const [hasta, setHasta] = useState('');
   const [estado, setEstado] = useState('TODOS');
 
-  const codigoContacto = contacto?.codigoSecuencial || contacto?.codigoContacto;
+  const codigoContacto = contacto?.codigo || contacto?.codigoContacto;
 
   const { data: response, isLoading } = useListarComprobantesPorContacto(codigoContacto, {
     desde,

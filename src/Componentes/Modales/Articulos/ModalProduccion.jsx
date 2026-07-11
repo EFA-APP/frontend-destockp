@@ -59,7 +59,7 @@ const ModalProduccion = ({
   // Lógica para calcular el stock disponible real restando lo que ya está en la lista
   const getStockDisponibleReal = (codigoMP) => {
     const mp = materiasPrimas.find(
-      (m) => m.codigoSecuencial === Number(codigoMP),
+      (m) => m.codigo === Number(codigoMP),
     );
     if (!mp) return 0;
 
@@ -94,7 +94,7 @@ const ModalProduccion = ({
     if (!nuevoInsumo.codigoMateriaPrima || !nuevoInsumo.cantidad) return;
 
     const mp = materiasPrimas.find(
-      (m) => m.codigoSecuencial === Number(nuevoInsumo.codigoMateriaPrima),
+      (m) => m.codigo === Number(nuevoInsumo.codigoMateriaPrima),
     );
     if (!mp) return;
 
@@ -109,7 +109,7 @@ const ModalProduccion = ({
 
     // Evitar duplicados, sumar si ya existe
     const existe = formData.insumos.findIndex(
-      (i) => i.codigoMateriaPrima === mp.codigoSecuencial,
+      (i) => i.codigoMateriaPrima === mp.codigo,
     );
 
     if (existe >= 0) {
@@ -128,7 +128,7 @@ const ModalProduccion = ({
         insumos: [
           ...formData.insumos,
           {
-            codigoMateriaPrima: mp.codigoSecuencial,
+            codigoMateriaPrima: mp.codigo,
             nombre: mp.nombre,
             unidad: mp.unidadMedida,
             cantidad: nuevoInsumo.cantidad,
@@ -152,7 +152,7 @@ const ModalProduccion = ({
     setErrorStock(null);
 
     const payload = {
-      codigoProducto: Number(articulo.codigoSecuencial),
+      codigoProducto: Number(articulo.codigo),
       cantidadProducida: parseFloat(formData.cantidadProducida),
       codigoUsuario: usuario?.codigoUsuario || usuario?.id || 1,
       nombreUsuario: usuario?.nombre || "Usuario",
@@ -187,7 +187,7 @@ const ModalProduccion = ({
   };
 
   const mpSeleccionada = materiasPrimas.find(
-    (m) => m.codigoSecuencial === Number(nuevoInsumo.codigoMateriaPrima),
+    (m) => m.codigo === Number(nuevoInsumo.codigoMateriaPrima),
   );
   const stockDisponibleReal = nuevoInsumo.codigoMateriaPrima
     ? getStockDisponibleReal(nuevoInsumo.codigoMateriaPrima)
@@ -260,7 +260,7 @@ const ModalProduccion = ({
                     </div>
                     <div className="inline-flex items-center px-2 py-1 rounded-[6px] bg-white border border-[var(--color-neutral-border)] text-[12px] font-mono font-bold text-[var(--color-neutral-text-muted)] uppercase mt-2 shadow-sm">
                       SKU: #
-                      {articulo.codigoSecuencial?.toString().padStart(4, "0")}
+                      {articulo.codigo?.toString().padStart(4, "0")}
                     </div>
                   </div>
 
@@ -366,8 +366,8 @@ const ModalProduccion = ({
                     </option>
                     {materiasPrimas.map((mp) => (
                       <option
-                        key={mp.codigoSecuencial}
-                        value={mp.codigoSecuencial}
+                        key={mp.codigo}
+                        value={mp.codigo}
                         className="text-[var(--color-neutral-text-main)]"
                       >
                         {mp.nombre} ({mp.unidadMedida})
@@ -506,7 +506,7 @@ const ModalProduccion = ({
                   ) : (
                     formData.insumos.map((i, index) => {
                       const mpRef = materiasPrimas.find(
-                        (m) => m.codigoSecuencial === i.codigoMateriaPrima,
+                        (m) => m.codigo === i.codigoMateriaPrima,
                       );
                       const stockFinal =
                         (mpRef?.stock || 0) - parseFloat(i.cantidad);

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { useQuery } from "@tanstack/react-query";
 import { Save, Search, X } from "lucide-react";
 import { DetallePago } from "../../../../Componentes/Secciones/Comprobantes/Componentes/DetallePago";
@@ -6,6 +7,7 @@ import { ListarContactosApi } from "../../../../Backend/Contactos/api/contactos.
 import { ObtenerDeudasContactoApi } from "../../../../Backend/Ventas/api/Comprobante/comprobante.api";
 import { useGenerarComprobante } from "../../../../Backend/Ventas/queries/Comprobante/useGenerarComprobante.mutation";
 import { formatNumber, parseCurrency } from "../../../../utils/formatters";
+import { ListaContactosConDeuda } from "../../../../Componentes/Secciones/Comprobantes/Componentes/ListaContactosConDeuda";
 
 const formatPrice = (n) =>
   new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(n ?? 0);
@@ -35,6 +37,8 @@ const OrdenPago = () => {
     if (i >= 0 && i < all.length - 1) all[i + 1].focus();
   };
 
+  const { usuario } = useAuthStore();
+
   const { data: contactosRaw } = useQuery({
     queryKey: ["proveedores-orden-pago", busqueda],
     queryFn: () => ListarContactosApi({ tipoEntidad: "PROV", busqueda: busqueda.trim(), limite: 10 }),
@@ -42,9 +46,11 @@ const OrdenPago = () => {
   });
   const contactos = contactosRaw?.items ?? [];
 
+  const currentUnidadNegocio = contactoSeleccionado?.codigoUnidadNegocio || usuario?.codigoUnidadNegocio || 1;
+
   const { data: deudasRaw, isLoading: cargandoDeudas } = useQuery({
-    queryKey: ["deudas-orden-pago", contactoSeleccionado?.codigoSecuencial],
-    queryFn: () => ObtenerDeudasContactoApi(contactoSeleccionado.codigoSecuencial),
+    queryKey: ["deudas-orden-pago", contactoSeleccionado?.codigo, currentUnidadNegocio],
+    queryFn: () => ObtenerDeudasContactoApi(contactoSeleccionado.codigo, currentUnidadNegocio),
     enabled: !!contactoSeleccionado,
   });
 
@@ -145,22 +151,41 @@ const OrdenPago = () => {
         fechaEmision: hoy(),
         fechaVto: hoy(),
         puntoVenta: 1,
-        codigoReceptor: contactoSeleccionado.codigoSecuencial,
+        codigoReceptor: contactoSeleccionado.codigo,
         entidadReceptor: contactoSeleccionado.tipoEntidad,
         codigoTipoComprobante: 993,
         condicionComprobante: "CONTADO",
         subtotal: montoFinal,
         iva: 0,
         total: montoFinal,
-        detalle: [{
-          tipoDetalle: "CUENTA_CONTABLE",
-          codigoDetalle: 0,
-          descripcion: `Pago período ${periodo}`,
-          cantidad: 1,
-          precioUnitario: montoFinal,
-          iva: 0,
-          subtotal: montoFinal,
-        }],
+        detalle: (() => {
+          const deudasSeleccionadas = deudas.filter((d) => seleccionados.has(d.codigo) && (d.importeAplicado || 0) > 0);
+          const items = deudasSeleccionadas.map(d => ({
+            tipoDetalle: "CUENTA_CONTABLE",
+            codigoDetalle: 0,
+            descripcion: `Pago a cuenta ${d.tipoDescripcionComprobante || 'comprobante'} Nro ${d.numeroComprobante || ''}`.trim(),
+            cantidad: 1,
+            precioUnitario: d.importeAplicado,
+            iva: 0,
+            subtotal: d.importeAplicado,
+          }));
+
+          const montoAsignado = deudasSeleccionadas.reduce((sum, d) => sum + (d.importeAplicado || 0), 0);
+          const saldoAdicional = montoFinal - montoAsignado;
+
+          if (saldoAdicional > 0 || items.length === 0) {
+            items.push({
+              tipoDetalle: "CUENTA_CONTABLE",
+              codigoDetalle: 0,
+              descripcion: `Pago a cuenta período ${periodo}`,
+              cantidad: 1,
+              precioUnitario: saldoAdicional > 0 ? saldoAdicional : montoFinal,
+              iva: 0,
+              subtotal: saldoAdicional > 0 ? saldoAdicional : montoFinal,
+            });
+          }
+          return items;
+        })(),
         detallePagos: detallePagos.map((dp) => {
           if (dp.endosoChequeTercero) {
             const { _chequeOriginal, ...endosoLimpio } = dp.endosoChequeTercero;
@@ -177,10 +202,10 @@ const OrdenPago = () => {
             codigoTipoComprobante: d.codigoTipoComprobante,
             codigoComprobante: d.codigo,
             importeAplicado: d.importeAplicado,
-            codigoUnidadNegocio: 1,
+            codigoUnidadNegocio: currentUnidadNegocio,
           })),
       },
-      codigoUnidadNegocio: 1,
+      codigoUnidadNegocio: currentUnidadNegocio,
     });
   };
 
@@ -225,7 +250,7 @@ const OrdenPago = () => {
             {mostrarResultados && contactos.length > 0 && (
               <div className="absolute left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg z-50">
                 {contactos.map((c) => (
-                  <button key={c.codigoSecuencial} type="button" onClick={() => seleccionarContacto(c)}
+                  <button key={c.codigo} type="button" onClick={() => seleccionarContacto(c)}
                     className="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-100 last:border-0 transition-colors">
                     <span className="font-bold">
                       {c.razonSocial || `${c.nombre ?? ""} ${c.apellido ?? ""}`.trim()}
@@ -239,6 +264,13 @@ const OrdenPago = () => {
           </div>
         )}
       </div>
+
+      {!contactoSeleccionado && (
+        <ListaContactosConDeuda
+          tipoOperacion="EGRESO"
+          onSeleccionarContacto={seleccionarContacto}
+        />
+      )}
 
       {/* TABLA DE DEUDAS */}
       {contactoSeleccionado && (

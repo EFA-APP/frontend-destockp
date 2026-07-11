@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
+import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { useQuery } from "@tanstack/react-query";
 import { Save, Search, X } from "lucide-react";
 import { DetallePago } from "../../../../Componentes/Secciones/Comprobantes/Componentes/DetallePago";
@@ -6,6 +8,8 @@ import { ListarContactosApi } from "../../../../Backend/Contactos/api/contactos.
 import { ObtenerDeudasContactoApi } from "../../../../Backend/Ventas/api/Comprobante/comprobante.api";
 import { useGenerarComprobante } from "../../../../Backend/Ventas/queries/Comprobante/useGenerarComprobante.mutation";
 import { formatNumber, parseCurrency } from "../../../../utils/formatters";
+import { ListaContactosConDeuda } from "../../../../Componentes/Secciones/Comprobantes/Componentes/ListaContactosConDeuda";
+import { useCuentasTipoCuota } from "../../../../Backend/Escuela/hooks/useCuentasTipoCuota";
 
 const formatPrice = (n) =>
   new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(n ?? 0);
@@ -22,8 +26,18 @@ const Recibos = () => {
   const [seleccionados, setSeleccionados] = useState(new Set());
   const [importesRaw, setImportesRaw] = useState({});
   const [importeWarnings, setImporteWarnings] = useState({});
+  // R20-R22: mora opcional como ítem adicional del Recibo (nunca en la
+  // Factura de emisión). Cuenta "de mora" reutiliza el mismo selector de
+  // cuentas "tipo de cuota" (§5, cualquier RESULTADO_POSITIVO imputable),
+  // sin crear un endpoint nuevo solo para esto.
+  const [codigoCuentaMora, setCodigoCuentaMora] = useState("");
+  const [montoMoraRaw, setMontoMoraRaw] = useState("");
 
   const { mutate: crearComprobante, isPending } = useGenerarComprobante();
+  const { cuentas: cuentasMoraDisponibles } = useCuentasTipoCuota();
+
+  const location = useLocation();
+  const precargaEjecutadaRef = useRef(false);
 
   const handleEnterNext = (e) => {
     if (e.key !== "Enter") return;
@@ -35,6 +49,8 @@ const Recibos = () => {
     if (i >= 0 && i < all.length - 1) all[i + 1].focus();
   };
 
+  const { usuario } = useAuthStore();
+  
   const { data: contactosRaw } = useQuery({
     queryKey: ["contactos-recibo", busqueda],
     queryFn: () => ListarContactosApi({ busqueda: busqueda.trim(), limite: 10 }),
@@ -42,9 +58,11 @@ const Recibos = () => {
   });
   const contactos = contactosRaw?.items ?? [];
 
+  const currentUnidadNegocio = contactoSeleccionado?.codigoUnidadNegocio || usuario?.codigoUnidadNegocio || 1;
+
   const { data: deudasRaw, isLoading: cargandoDeudas } = useQuery({
-    queryKey: ["deudas-recibo", contactoSeleccionado?.codigoSecuencial],
-    queryFn: () => ObtenerDeudasContactoApi(contactoSeleccionado.codigoSecuencial),
+    queryKey: ["deudas-recibo", contactoSeleccionado?.codigo, currentUnidadNegocio],
+    queryFn: () => ObtenerDeudasContactoApi(contactoSeleccionado.codigo, currentUnidadNegocio),
     enabled: !!contactoSeleccionado,
   });
 
@@ -81,6 +99,20 @@ const Recibos = () => {
     setBusqueda("");
     limpiar();
   };
+
+  // R26/R105: precarga del contacto cuando se navega acá desde el botón
+  // "Cobrar" de /panel/escuela/cuotas (`ModalSeleccionarCobro.jsx`), mismo
+  // convenio `location.state.origen === "ESCUELA_CUOTAS"` ya usado por
+  // `Ingresos.jsx`/`Egresos.jsx` para precargar Notas de Crédito. Guard con
+  // useRef para que corra una sola vez.
+  useEffect(() => {
+    if (precargaEjecutadaRef.current) return;
+    if (location.state?.origen === "ESCUELA_CUOTAS" && location.state?.contacto) {
+      precargaEjecutadaRef.current = true;
+      seleccionarContacto(location.state.contacto);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state]);
 
   const actualizarImporte = (idx, valor) => {
     setDeudasConImporte((prev) =>
@@ -145,22 +177,57 @@ const Recibos = () => {
           fechaEmision: hoy(),
           fechaVto: hoy(),
           puntoVenta: 1,
-          codigoReceptor: contactoSeleccionado.codigoSecuencial,
+          codigoReceptor: contactoSeleccionado.codigo,
           entidadReceptor: contactoSeleccionado.tipoEntidad,
           codigoTipoComprobante: 992,
           condicionComprobante: "CONTADO",
           subtotal: montoFinal,
           iva: 0,
           total: montoFinal,
-          detalle: [{
-            tipoDetalle: "CUENTA_CONTABLE",
-            codigoDetalle: 0,
-            descripcion: `Pago período ${periodo}`,
-            cantidad: 1,
-            precioUnitario: montoFinal,
-            iva: 0,
-            subtotal: montoFinal,
-          }],
+          detalle: (() => {
+            const deudasSeleccionadas = deudas.filter((d) => seleccionados.has(d.codigo) && (d.importeAplicado || 0) > 0);
+            const items = deudasSeleccionadas.map(d => ({
+              tipoDetalle: "CUENTA_CONTABLE",
+              codigoDetalle: 0,
+              descripcion: `Pago a cuenta ${d.tipoDescripcionComprobante || 'comprobante'} Nro ${d.numeroComprobante || ''}`.trim(),
+              cantidad: 1,
+              precioUnitario: d.importeAplicado,
+              iva: 0,
+              subtotal: d.importeAplicado,
+            }));
+
+            const montoAsignado = deudasSeleccionadas.reduce((sum, d) => sum + (d.importeAplicado || 0), 0);
+            let saldoAdicional = montoFinal - montoAsignado;
+
+            // R20-R22: mora como ítem REAL de detalle (cuenta propia), no
+            // se lumpea con el "pago a cuenta período" genérico de abajo.
+            const montoMora = parseCurrency(montoMoraRaw || "0");
+            if (montoMora > 0 && codigoCuentaMora) {
+              items.push({
+                tipoDetalle: "CUENTA_CONTABLE",
+                codigoDetalle: Number(codigoCuentaMora),
+                descripcion: `Recargo por mora — ${periodo}`,
+                cantidad: 1,
+                precioUnitario: montoMora,
+                iva: 0,
+                subtotal: montoMora,
+              });
+              saldoAdicional -= montoMora;
+            }
+
+            if (saldoAdicional > 0 || items.length === 0) {
+              items.push({
+                tipoDetalle: "CUENTA_CONTABLE",
+                codigoDetalle: 0,
+                descripcion: `Pago a cuenta período ${periodo}`,
+                cantidad: 1,
+                precioUnitario: saldoAdicional > 0 ? saldoAdicional : montoFinal,
+                iva: 0,
+                subtotal: saldoAdicional > 0 ? saldoAdicional : montoFinal,
+              });
+            }
+            return items;
+          })(),
           detallePagos,
           comprobantesAsociados: deudas
             .filter((d) => seleccionados.has(d.codigo) && (d.importeAplicado || 0) > 0)
@@ -171,15 +238,17 @@ const Recibos = () => {
               codigoTipoComprobante: d.codigoTipoComprobante,
               codigoComprobante: d.codigo,
               importeAplicado: d.importeAplicado,
-              codigoUnidadNegocio: 1,
+              codigoUnidadNegocio: currentUnidadNegocio,
             })),
         },
-        codigoUnidadNegocio: 1,
+        codigoUnidadNegocio: currentUnidadNegocio,
       },
       {
         onSuccess: () => {
           setPagos([]);
           setVueltos([]);
+          setCodigoCuentaMora("");
+          setMontoMoraRaw("");
         },
       },
     );
@@ -226,7 +295,7 @@ const Recibos = () => {
             {mostrarResultados && contactos.length > 0 && (
               <div className="absolute left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg z-50">
                 {contactos.map((c) => (
-                  <button key={c.codigoSecuencial} type="button" onClick={() => seleccionarContacto(c)}
+                  <button key={c.codigo} type="button" onClick={() => seleccionarContacto(c)}
                     className="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-100 last:border-0 transition-colors">
                     <span className="font-bold">
                       {c.razonSocial || `${c.nombre ?? ""} ${c.apellido ?? ""}`.trim()}
@@ -240,6 +309,13 @@ const Recibos = () => {
           </div>
         )}
       </div>
+
+      {!contactoSeleccionado && (
+        <ListaContactosConDeuda
+          tipoOperacion="INGRESO"
+          onSeleccionarContacto={seleccionarContacto}
+        />
+      )}
 
       {/* TABLA DE DEUDAS */}
       {contactoSeleccionado && (
@@ -352,9 +428,41 @@ const Recibos = () => {
             )}
           </div>
 
+          {/* MORA (R20-R22): ítem opcional del Recibo, nunca de la Factura de emisión */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-bold uppercase tracking-wider text-gray-700">
+              Recargo por mora (opcional)
+            </label>
+            <div className="flex items-center gap-3">
+              <select
+                value={codigoCuentaMora}
+                onChange={(e) => setCodigoCuentaMora(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md bg-white text-sm font-semibold text-gray-700 outline-none focus:border-[var(--primary)]"
+              >
+                <option value="">Sin mora</option>
+                {cuentasMoraDisponibles.map((c) => (
+                  <option key={c.codigoSecuencial} value={c.codigoSecuencial}>
+                    {c.nombre}
+                  </option>
+                ))}
+              </select>
+              <div className="relative w-40">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">$</span>
+                <input
+                  type="text"
+                  disabled={!codigoCuentaMora}
+                  value={montoMoraRaw}
+                  onChange={(e) => setMontoMoraRaw(e.target.value)}
+                  placeholder="0"
+                  className="w-full pl-6 pr-3 py-2 border border-gray-300 rounded-md text-sm font-bold text-gray-900 text-right outline-none focus:border-[var(--primary)] disabled:bg-gray-100 disabled:text-gray-400"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* DETALLE DE PAGO */}
           <DetallePago
-            totalComprobante={totalAplicado}
+            totalComprobante={totalAplicado + parseCurrency(montoMoraRaw || "0")}
             tipoOperacion="INGRESO"
             pagos={pagos}
             setPagos={setPagos}

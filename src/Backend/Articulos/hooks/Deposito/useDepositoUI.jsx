@@ -70,7 +70,7 @@ export const useDepositoUI = (filtros = {}) => {
         d.nombre?.toLowerCase().includes(termino) ||
         d.descripcion?.toLowerCase().includes(termino) ||
         d.responsable?.toLowerCase().includes(termino) ||
-        String(d.codigoSecuencial || "")
+        String(d.codigo || "")
           .toLowerCase()
           .includes(termino),
     );

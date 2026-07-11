@@ -27,8 +27,8 @@ const SelectorComprobanteModal = ({
   onSeleccionar,
   unidadesNegocio = [],
 }) => {
-  const firstUnidad = unidadesNegocio[0]?.codigoSecuencial
-    ? String(unidadesNegocio[0].codigoSecuencial)
+  const firstUnidad = unidadesNegocio[0]?.codigo
+    ? String(unidadesNegocio[0].codigo)
     : "";
 
   const [unidadNegocio, setUnidadNegocio] = useState(firstUnidad);
@@ -58,7 +58,7 @@ const SelectorComprobanteModal = ({
 
   useEffect(() => {
     if (unidadesNegocio.length > 0 && !unidadNegocio) {
-      setUnidadNegocio(String(unidadesNegocio[0].codigoSecuencial));
+      setUnidadNegocio(String(unidadesNegocio[0].codigo));
     }
   }, [unidadesNegocio]);
 
@@ -123,7 +123,7 @@ const SelectorComprobanteModal = ({
                 className="w-full h-9 px-2 border border-gray-200 rounded-md text-xs font-bold text-gray-700 bg-white focus:outline-none focus:border-[var(--primary)] cursor-pointer"
               >
                 {unidadesNegocio.map((u) => (
-                  <option key={u.codigoSecuencial} value={u.codigoSecuencial}>
+                  <option key={u.codigo} value={u.codigo}>
                     {u.nombre}
                   </option>
                 ))}
@@ -222,7 +222,7 @@ const SelectorComprobanteModal = ({
             <div className="space-y-2">
               {comprobantes.map((comp) => (
                 <button
-                  key={comp.codigoSecuencial}
+                  key={comp.codigo}
                   type="button"
                   onClick={() => handleSeleccionar(comp)}
                   className="w-full text-left bg-white border border-gray-200 rounded-md px-4 py-3 hover:border-[var(--primary)]/50 hover:shadow-sm hover:bg-[var(--primary)]/5 transition-all cursor-pointer flex items-center justify-between gap-3 group"

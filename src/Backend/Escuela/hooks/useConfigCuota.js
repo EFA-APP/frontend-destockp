@@ -12,7 +12,7 @@ import {
  *
  * @returns {{
  *   configCuota: Object|null,
- *   codigoSecuencial: number|null,
+ *   codigo: number|null,
  *   formula: string,
  *   cargandoConfig: boolean,
  *   actualizarCuota: (nuevoValor: string|number) => Promise<void>
@@ -34,7 +34,7 @@ export const useConfigCuota = () => {
   const mutationActualizar = useMutation({
     mutationFn: (nuevoValor) => {
       if (!configCuota) throw new Error("Configuración de cuota no encontrada");
-      return ActualizarConfiguracionCampoApi(configCuota.codigoSecuencial, {
+      return ActualizarConfiguracionCampoApi(configCuota.codigo, {
         formula: String(nuevoValor),
       });
     },
@@ -52,7 +52,7 @@ export const useConfigCuota = () => {
 
   return {
     configCuota,
-    codigoSecuencial: configCuota?.codigoSecuencial ?? null,
+    codigo: configCuota?.codigo ?? null,
     formula: configCuota?.formula ?? "",
     cargandoConfig,
     actualizarCuota: mutationActualizar.mutateAsync,

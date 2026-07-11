@@ -83,7 +83,7 @@ const ModalConfiguracionFiscal = ({ isOpen, onClose, empresaAEditar }) => {
     try {
       setCargando(true);
       
-      const codigoEmpresa = empresaAEditar.codigo || empresaAEditar.codigoSecuencial;
+      const codigoEmpresa = empresaAEditar.codigo || empresaAEditar.codigo;
 
       // 1. Guardar Datos Fiscales Maestros
       await actualizarDatosFiscalesApi({

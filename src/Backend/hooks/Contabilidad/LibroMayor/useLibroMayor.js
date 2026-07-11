@@ -9,17 +9,43 @@ export const useLibroMayor = () => {
 
   const [codigoCuenta, setCodigoCuenta] = useState(null);
   const [codigoContacto, setCodigoContacto] = useState(null);
+  const [codigoUnidadNegocio, setCodigoUnidadNegocio] = useState("");
   const [datosMayor, setDatosMayor] = useState(null);
+  const [cuentasConMovimientos, setCuentasConMovimientos] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingCuentas, setLoadingCuentas] = useState(false);
   const [fechaDesde, setFechaDesde] = useState(() => {
     const d = new Date();
-    d.setMonth(d.getMonth() - 3);
+    d.setMonth(d.getMonth() - 1);
     return d.toISOString().split("T")[0];
   });
   const [fechaHasta, setFechaHasta] = useState(() =>
     new Date().toISOString().split("T")[0],
   );
   const { agregarAlerta } = useAlertas();
+
+  const cargarCuentasConMovimientos = useCallback(async () => {
+    if (!codigoEmpresa) return;
+
+    setLoadingCuentas(true);
+    try {
+      const data = await reportesContablesApi.obtenerCuentasConMovimientos({
+        codigoEmpresa,
+        codigoUnidadNegocio: codigoUnidadNegocio ? Number(codigoUnidadNegocio) : undefined,
+        fechaDesde: fechaDesde || undefined,
+        fechaHasta: fechaHasta || undefined,
+      });
+      setCuentasConMovimientos(data);
+    } catch (error) {
+      agregarAlerta({ type: "error", message: "Error al cargar cuentas con movimientos" });
+    } finally {
+      setLoadingCuentas(false);
+    }
+  }, [codigoEmpresa, codigoUnidadNegocio, fechaDesde, fechaHasta, agregarAlerta]);
+
+  useEffect(() => {
+    cargarCuentasConMovimientos();
+  }, [cargarCuentasConMovimientos]);
 
   const cargarLibroMayor = useCallback(async () => {
     if (!codigoCuenta || !codigoEmpresa) return;
@@ -29,6 +55,7 @@ export const useLibroMayor = () => {
       const data = await reportesContablesApi.obtenerLibroMayor({
         codigoEmpresa,
         codigoCuentaContable: Number(codigoCuenta),
+        codigoUnidadNegocio: codigoUnidadNegocio ? Number(codigoUnidadNegocio) : undefined,
         codigoContacto: codigoContacto ? Number(codigoContacto) : undefined,
         fechaDesde: fechaDesde || undefined,
         fechaHasta: fechaHasta || undefined,
@@ -39,25 +66,32 @@ export const useLibroMayor = () => {
     } finally {
       setLoading(false);
     }
-  }, [codigoCuenta, codigoContacto, codigoEmpresa, fechaDesde, fechaHasta, agregarAlerta]);
+  }, [codigoCuenta, codigoContacto, codigoUnidadNegocio, codigoEmpresa, fechaDesde, fechaHasta, agregarAlerta]);
 
   useEffect(() => {
     if (codigoCuenta) {
       cargarLibroMayor();
+    } else {
+      setDatosMayor(null);
     }
-  }, [codigoCuenta, codigoContacto, fechaDesde, fechaHasta, cargarLibroMayor]);
+  }, [codigoCuenta, codigoContacto, codigoUnidadNegocio, fechaDesde, fechaHasta, cargarLibroMayor]);
 
   return {
     codigoCuenta,
     setCodigoCuenta,
     codigoContacto,
     setCodigoContacto,
+    codigoUnidadNegocio,
+    setCodigoUnidadNegocio,
+    cuentasConMovimientos,
+    loadingCuentas,
     datosMayor,
     loading,
     fechaDesde,
     setFechaDesde,
     fechaHasta,
     setFechaHasta,
-    recargar: cargarLibroMayor,
+    cargarLibroMayor,
+    cargarCuentasConMovimientos,
   };
 };

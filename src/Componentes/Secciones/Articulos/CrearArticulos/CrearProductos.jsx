@@ -42,7 +42,7 @@ const CrearProductos = () => {
   // Si estamos editando y no tenemos data inicial (ej: F5), buscamos el producto
   useEffect(() => {
     if (isEdit && !initialData && productos.length > 0) {
-      const found = productos.find((p) => String(p.codigoSecuencial) === id);
+      const found = productos.find((p) => String(p.codigo) === id);
       if (found) {
         setInitialData({ ...found, ...(found.atributos || {}) }); // Aplanar
       }
@@ -173,7 +173,7 @@ const CrearProductos = () => {
 
       if (isEdit) {
         // Para actualizar, el backend suele pedir el código en el body o param
-        // El DTO de actualización espera 'codigo' (que es el codigoSecuencial)
+        // El DTO de actualización espera 'codigo' (que es el codigo)
         const payloadActualizar = {
           ...payload,
           codigoEmpresa: usuario.codigoEmpresa,

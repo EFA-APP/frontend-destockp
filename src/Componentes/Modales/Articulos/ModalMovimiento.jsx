@@ -52,7 +52,7 @@ const ModalMovimiento = ({
     if (!formData.cantidad || parseFloat(formData.cantidad) <= 0) return;
 
     const payload = {
-      codigoArticulo: articulo.codigoSecuencial,
+      codigoArticulo: articulo.codigo,
       tipoArticulo: tipo,
       ...formData,
       cantidad: parseFloat(formData.cantidad),
@@ -125,7 +125,7 @@ const ModalMovimiento = ({
                 {articulo.nombre}
               </div>
               <div className="inline-flex items-center px-2 py-0.5 mt-2 rounded-[6px] bg-white border border-[var(--color-neutral-border)] text-[11px] font-mono font-bold text-[var(--color-neutral-text-muted)] uppercase shadow-sm">
-                #{articulo.codigoSecuencial}
+                #{articulo.codigo}
               </div>
             </div>
             <div className="text-right">

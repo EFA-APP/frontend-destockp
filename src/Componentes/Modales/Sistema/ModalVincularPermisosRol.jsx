@@ -9,7 +9,7 @@ const ModalVincularPermisosRol = ({ isOpen, onClose, rol, empresa }) => {
 
   // Obtener todos los permisos disponibles en la empresa
   const { data: respuestaPermisos, isLoading: isLoadingPermisos } = useObtenerPermisos(
-    isOpen ? { codigoEmpresa: empresa?.codigo || empresa?.codigoSecuencial } : null
+    isOpen ? { codigoEmpresa: empresa?.codigo || empresa?.codigo } : null
   );
 
   const permisosDisponibles = useMemo(() => {
@@ -50,8 +50,8 @@ const ModalVincularPermisosRol = ({ isOpen, onClose, rol, empresa }) => {
       });
 
       await actualizarRol({
-        codigo: rol.codigoSecuencial,
-        codigoEmpresa: Number(empresa.codigo || empresa.codigoSecuencial),
+        codigo: rol.codigo,
+        codigoEmpresa: Number(empresa.codigo || empresa.codigo),
         data: {
           permisos: permisosPayload
         }
@@ -125,7 +125,7 @@ const ModalVincularPermisosRol = ({ isOpen, onClose, rol, empresa }) => {
                 
                 return (
                   <div 
-                    key={permiso.codigoSecuencial}
+                    key={permiso.codigo}
                     onClick={() => handleTogglePermiso(permiso.nombre)}
                     className={`p-4 rounded-md border cursor-pointer transition-all flex items-start gap-3 group ${
                       isSelected 

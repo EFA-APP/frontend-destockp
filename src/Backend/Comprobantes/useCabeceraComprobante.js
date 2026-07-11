@@ -3,7 +3,7 @@ import { useAuthStore } from "../Autenticacion/store/authenticacion.store";
 
 export const useCabeceraComprobante = (initialValues = {}) => {
   const usuario = useAuthStore((state) => state.usuario);
-  const conexionArca = usuario?.conexionArca || false;
+  const conexionArca = usuario?.conexionArca || usuario?.configuracionArca?.activo || false;
   const unidadesNegocio = usuario?.unidadesNegocio || [];
 
   const [fechaInicio, setFechaInicio] = useState(initialValues.fecha ?? "");
@@ -21,7 +21,15 @@ export const useCabeceraComprobante = (initialValues = {}) => {
       : conexionArca ? "11" : "991"
   );
 
-  const [comprobanteAsociado, setComprobanteAsociado] = useState(null);
+  const [comprobanteAsociado, _setComprobanteAsociado] = useState(null);
+  const [importeAplicadoManual, setImporteAplicadoManual] = useState(null);
+
+  // `null` = "usar el default saldoPendiente ?? total". Se resetea cada vez
+  // que se selecciona o se quita un comprobante asociado.
+  const setComprobanteAsociado = (cbte) => {
+    _setComprobanteAsociado(cbte);
+    setImporteAplicadoManual(null);
+  };
 
   // Campos controlados para el payload
   const [condicionComprobante, setCondicionComprobante] = useState("CONTADO");
@@ -65,7 +73,7 @@ export const useCabeceraComprobante = (initialValues = {}) => {
 
   useEffect(() => {
     if (unidadesNegocio.length > 0 && !unidadNegocioSeleccionada) {
-      setUnidadNegocioSeleccionada(String(unidadesNegocio[0].codigoSecuencial));
+      setUnidadNegocioSeleccionada(String(unidadesNegocio[0].codigo));
     }
   }, [unidadesNegocio]);
 
@@ -76,7 +84,7 @@ export const useCabeceraComprobante = (initialValues = {}) => {
       return;
     }
     const selected = unidadesNegocio.find(
-      (u) => String(u.codigoSecuencial) === String(unidadNegocioSeleccionada)
+      (u) => String(u.codigo) === String(unidadNegocioSeleccionada)
     );
     if (selected?.puntoVenta) {
       setPuntoVenta(String(selected.puntoVenta));
@@ -114,17 +122,18 @@ export const useCabeceraComprobante = (initialValues = {}) => {
     setTipoComprobante(
       iv.codigoTipo != null ? String(iv.codigoTipo) : conexionArca ? "11" : "991"
     );
-    setComprobanteAsociado(null);
+    _setComprobanteAsociado(null);
+    setImporteAplicadoManual(null);
     setCondicionComprobante("CONTADO");
 
     const unidadInicial =
       unidadesNegocio.length > 0
-        ? String(unidadesNegocio[0].codigoSecuencial)
+        ? String(unidadesNegocio[0].codigo)
         : "";
     setUnidadNegocioSeleccionada(unidadInicial);
 
     const selected = unidadesNegocio.find(
-      (u) => String(u.codigoSecuencial) === unidadInicial,
+      (u) => String(u.codigo) === unidadInicial,
     );
     setPuntoVenta(
       iv.puntoVenta != null
@@ -161,6 +170,8 @@ export const useCabeceraComprobante = (initialValues = {}) => {
     setTipoComprobante,
     comprobanteAsociado,
     setComprobanteAsociado,
+    importeAplicadoManual,
+    setImporteAplicadoManual,
     esNotaAsociada,
     condicionComprobante,
     setCondicionComprobante,

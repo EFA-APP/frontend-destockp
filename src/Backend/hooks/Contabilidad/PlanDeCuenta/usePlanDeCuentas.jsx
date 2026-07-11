@@ -49,7 +49,7 @@ const flattenImputables = (nodes) => {
     // Solo agregamos si es explícitamente imputable
     if (node.imputable === true) {
       result.push({
-        value: node.codigoSecuencial,
+        value: node.codigo,
         label: `${node.codigo} - ${node.nombre}`,
         codigo: node.codigo,
         nombre: node.nombre,

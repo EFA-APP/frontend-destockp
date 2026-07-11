@@ -24,8 +24,8 @@ export const useConfiguracionContactos = () => {
   });
 
   const mutationActualizar = useMutation({
-    mutationFn: ({ codigoSecuencial, data }) =>
-      ActualizarConfiguracionCampoApi(codigoSecuencial, data),
+    mutationFn: ({ codigo, data }) =>
+      ActualizarConfiguracionCampoApi(codigo, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["configuracion-campos-contacto"],

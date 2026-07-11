@@ -28,7 +28,7 @@ export const useMateriaPrimaUI = (filtrosIniciales = {}, options = {}) => {
         const termino = busqueda.toLowerCase();
         return data.filter(mp => 
             mp.nombre?.toLowerCase().includes(termino) ||
-            String(mp.codigoSecuencial).toLowerCase().includes(termino) ||
+            String(mp.codigo).toLowerCase().includes(termino) ||
             mp.tipo?.toLowerCase().includes(termino)
         );
     }, [query.data, busqueda]);

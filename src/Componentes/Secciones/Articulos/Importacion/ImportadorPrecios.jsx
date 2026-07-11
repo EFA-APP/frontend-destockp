@@ -145,7 +145,7 @@ export default function ImportadorPrecios({ onExito, onClose }) {
 
       const payload = {
         atributosExtra: {
-          codigoProveedor: proveedorSeleccionado.codigoSecuencial,
+          codigoProveedor: proveedorSeleccionado.codigo,
           nombreProveedor:
             proveedorSeleccionado.razonSocial || proveedorSeleccionado.nombre,
           margenGanancia: Number(
@@ -236,10 +236,10 @@ export default function ImportadorPrecios({ onExito, onClose }) {
         ) : (
           proveedores?.map((p) => {
             const sel =
-              proveedorSeleccionado?.codigoSecuencial === p.codigoSecuencial;
+              proveedorSeleccionado?.codigo === p.codigo;
             return (
               <button
-                key={p.codigoSecuencial}
+                key={p.codigo}
                 onClick={() => {
                   setProveedorSeleccionado(p);
                 }}
@@ -260,7 +260,7 @@ export default function ImportadorPrecios({ onExito, onClose }) {
                         "SIN NOMBRE"}
                     </p>
                     <p className="text-[11px] text-black/70 font-medium">
-                      #{String(p.codigoSecuencial).padStart(4, "0")} · Margen{" "}
+                      #{String(p.codigo).padStart(4, "0")} · Margen{" "}
                       {p.atributos?.margenGanancia || 0}%
                     </p>
                   </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Search,
   X,
@@ -116,6 +117,7 @@ const adaptarParaDrawer = (full) => {
   const letraComprobante =
     full.letraComprobante || LETRA_MAP[full.codigoTipoComprobante] || "";
   return {
+    codigo: full.codigo,
     codigoUnidadNegocio: full.codigoUnidadNegocio,
     tipoDocumento: full.codigoTipoComprobante,
     letraComprobante,
@@ -372,18 +374,21 @@ const FilaComprobante = ({ comp, onClick, isLoading }) => {
 const ListadoComprobante = () => {
   const usuario = useAuthStore((s) => s.usuario);
   const unidadesNegocio = usuario?.unidadesNegocio || [];
+  const location = useLocation();
 
   // ── Tabs ──
   const [tipoOperacion, setTipoOperacion] = useState("INGRESO");
 
   // ── Filtros ──
   const [unidadNegocio, setUnidadNegocio] = useState("");
-  const [tipo, setTipo] = useState("");
+  const [tipo, setTipo] = useState(location.state?.tipoInicial ?? "");
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
   const [fiscal, setFiscal] = useState("");
-  const [busqueda, setBusqueda] = useState("");
-  const [busquedaDebounced, setBusquedaDebounced] = useState("");
+  const [busqueda, setBusqueda] = useState(location.state?.busquedaInicial ?? "");
+  const [busquedaDebounced, setBusquedaDebounced] = useState(
+    location.state?.busquedaInicial ?? "",
+  );
   const [pagina, setPagina] = useState(1);
   const LIMITE = 15;
 
@@ -394,7 +399,7 @@ const ListadoComprobante = () => {
 
   useEffect(() => {
     if (unidadesNegocio.length > 0 && !unidadNegocio) {
-      setUnidadNegocio(String(unidadesNegocio[0].codigoSecuencial));
+      setUnidadNegocio(String(unidadesNegocio[0].codigo));
     }
   }, [unidadesNegocio]);
 
@@ -427,7 +432,7 @@ const ListadoComprobante = () => {
     limite: LIMITE,
   };
 
-  const { data, isLoading, isFetching } = useObtenerComprobantesQuery(filtros);
+  const { data, isLoading, isFetching, refetch: refetchComprobantes } = useObtenerComprobantesQuery(filtros);
 
   const comprobantes = Array.isArray(data) ? data : (data?.data ?? []);
   const totalPaginas = data?.totalPaginas ?? 1;
@@ -507,7 +512,7 @@ const ListadoComprobante = () => {
               className="w-full h-10 px-3 border border-[var(--color-neutral-border)] rounded-[8px] text-[13px] font-bold text-[var(--color-neutral-text-main)] bg-white focus:outline-none focus:border-[var(--color-brand-primary)] cursor-pointer"
             >
               {unidadesNegocio.map((u) => (
-                <option key={u.codigoSecuencial} value={u.codigoSecuencial}>
+                <option key={u.codigo} value={u.codigo}>
                   {u.nombre}
                 </option>
               ))}
@@ -557,7 +562,7 @@ const ListadoComprobante = () => {
                 type="text"
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                placeholder="Razón social, número..."
+                placeholder="Razón social, DNI/CUIT, número..."
                 className="w-full h-10 pl-8 pr-7 border border-[var(--color-neutral-border)] rounded-[8px] text-[13px] font-bold text-[var(--color-neutral-text-main)] focus:outline-none focus:border-[var(--color-brand-primary)] placeholder:font-normal placeholder:text-[var(--color-neutral-text-muted)]"
               />
               {busqueda && (
@@ -706,6 +711,10 @@ const ListadoComprobante = () => {
           onClose={() => setDrawerOpen(false)}
           data={comprobanteDetalle}
           usuario={usuario}
+          onAnulado={() => {
+            setDrawerOpen(false);
+            refetchComprobantes();
+          }}
         />
       )}
     </div>

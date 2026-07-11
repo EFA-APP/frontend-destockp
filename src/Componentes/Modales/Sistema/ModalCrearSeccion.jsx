@@ -16,7 +16,7 @@ const ModalCrearSeccion = ({ isOpen, onClose, empresa, seccionAEditar = null }) 
     subMenus: [],
   });
 
-  const filtroEmpresa = { codigoEmpresa: empresa.codigo || empresa.codigoSecuencial };
+  const filtroEmpresa = { codigoEmpresa: empresa.codigo || empresa.codigo };
   const { data: seccionesGlobales, isLoading: isLoadingGlobal } = useObtenerSeccionesGlobales();
   const { data: permisosExistentes, isLoading: isLoadingPermisos } = useObtenerPermisos(filtroEmpresa);
   
@@ -30,7 +30,7 @@ const ModalCrearSeccion = ({ isOpen, onClose, empresa, seccionAEditar = null }) 
   React.useEffect(() => {
     if (seccionAEditar) {
       setFormData({
-        codigoSecuencial: seccionAEditar.codigoSecuencial,
+        codigo: seccionAEditar.codigo,
         id_seccion: seccionAEditar.id_seccion || "",
         nombre: seccionAEditar.nombre || "",
         icono: seccionAEditar.icono || "",
@@ -104,7 +104,7 @@ const ModalCrearSeccion = ({ isOpen, onClose, empresa, seccionAEditar = null }) 
 
       const { permisoRequerido, ...restoData } = formData;
       const payload = {
-        codigoEmpresa: Number(empresa.codigo || empresa.codigoSecuencial),
+        codigoEmpresa: Number(empresa.codigo || empresa.codigo),
         ...restoData,
         id_seccion: formData.id_seccion.trim().toUpperCase(),
         subMenus: subMenusLimpios,
@@ -245,8 +245,8 @@ const ModalCrearSeccion = ({ isOpen, onClose, empresa, seccionAEditar = null }) 
                   >
                     <option value="">-- GENERAR AUTOMÁTICAMENTE --</option>
                     {listaPermisos.map(p => (
-                      <option key={p.codigoSecuencial} value={p.codigoSecuencial}>
-                        {p.nombre} ({p.codigoSecuencial})
+                      <option key={p.codigo} value={p.codigo}>
+                        {p.nombre} ({p.codigo})
                       </option>
                     ))}
                   </select>

@@ -32,8 +32,8 @@ const ModalEditarUsuario = ({ isOpen, onClose, usuarioAEditar, empresa }) => {
     e.preventDefault();
     try {
       await actualizarUsuario({
-        codigoSecuencial: usuarioAEditar.codigoSecuencial,
-        codigoEmpresa: empresa.codigo || empresa.codigoSecuencial,
+        codigo: usuarioAEditar.codigo,
+        codigoEmpresa: empresa.codigo || empresa.codigo,
         ...formData
       });
       onClose();

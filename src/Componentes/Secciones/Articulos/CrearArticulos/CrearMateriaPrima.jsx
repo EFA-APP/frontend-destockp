@@ -39,7 +39,7 @@ const CrearMateriaPrima = () => {
   useEffect(() => {
     if (isEdit && !initialData && materiasPrimas.length > 0) {
       const found = materiasPrimas.find(
-        (m) => String(m.codigoSecuencial) === id,
+        (m) => String(m.codigo) === id,
       );
       if (found) setInitialData(found);
     }
@@ -123,7 +123,7 @@ const CrearMateriaPrima = () => {
       // eslint-disable-next-line no-unused-vars
       const {
         id: _,
-        codigoSecuencial,
+        codigo,
         codigoEmpresa,
         codigoUnidadNegocio,
         createdAt,

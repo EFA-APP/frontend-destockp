@@ -98,7 +98,7 @@ export const useDetalleComprobante = (tipoOperacion = "INGRESO") => {
     setItems((prev) => {
       const itemIndex = prev.findIndex(
         (i) =>
-          i.codigoSecuencial === item.codigoSecuencial &&
+          i.codigo === item.codigo &&
           i.tipoDetalle === tipoDetalle,
       );
       if (itemIndex > -1) {
@@ -129,49 +129,57 @@ export const useDetalleComprobante = (tipoOperacion = "INGRESO") => {
     });
   };
 
-  const actualizarCantidadItem = (codigoSecuencial, cantidad) => {
+  const actualizarCantidadItem = (codigo, cantidad) => {
     const cant = Math.max(0, parseFloat(cantidad) || 0);
     setItems((prev) =>
       prev.map((i) =>
-        i.codigoSecuencial === codigoSecuencial ? { ...i, cantidad: cant } : i,
+        i.codigo === codigo ? { ...i, cantidad: cant } : i,
       ),
     );
   };
 
-  const actualizarTasaIvaItem = (codigoSecuencial, tasaIva) => {
+  const actualizarTasaIvaItem = (codigo, tasaIva) => {
     setItems((prev) =>
       prev.map((i) =>
-        i.codigoSecuencial === codigoSecuencial
+        i.codigo === codigo
           ? { ...i, tasaIva: parseFloat(tasaIva) || 0 }
           : i,
       ),
     );
   };
 
-  const actualizarTipoFiscalItem = (codigoSecuencial, tipoFiscal) => {
+  const actualizarTipoFiscalItem = (codigo, tipoFiscal) => {
     setItems((prev) =>
       prev.map((i) =>
-        i.codigoSecuencial === codigoSecuencial
+        i.codigo === codigo
           ? { ...i, tipoFiscal }
           : i,
       ),
     );
   };
 
-  const actualizarPrecioItem = (codigoSecuencial, precioUnitario) => {
+  const actualizarPrecioItem = (codigo, precioUnitario) => {
     const precio = Math.max(0, parseFloat(precioUnitario) || 0);
     setItems((prev) =>
       prev.map((i) =>
-        i.codigoSecuencial === codigoSecuencial
+        i.codigo === codigo
           ? { ...i, precioUnitario: precio }
           : i,
       ),
     );
   };
 
-  const quitarItem = (codigoSecuencial) => {
+  const quitarItem = (codigo) => {
     setItems((prev) =>
-      prev.filter((i) => i.codigoSecuencial !== codigoSecuencial),
+      prev.filter((i) => i.codigo !== codigo),
+    );
+  };
+
+  const actualizarDevolverAStockItem = (codigo, valor) => {
+    setItems((prev) =>
+      prev.map((i) =>
+        i.codigo === codigo ? { ...i, devolverAStock: !!valor } : i,
+      ),
     );
   };
 
@@ -233,6 +241,7 @@ export const useDetalleComprobante = (tipoOperacion = "INGRESO") => {
     actualizarPrecioItem,
     actualizarTasaIvaItem,
     actualizarTipoFiscalItem,
+    actualizarDevolverAStockItem,
     quitarItem,
     reset,
     subtotalSinIva,

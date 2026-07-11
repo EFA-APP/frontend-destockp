@@ -93,7 +93,7 @@ const DashboardContactos = () => {
                 const isActive = entidadSeleccionada?.clave === ent.clave;
                 return (
                   <button
-                    key={ent.codigoSecuencial}
+                    key={ent.codigo}
                     onClick={() => {
                       setEntidadSeleccionada(ent);
                       setFiltros((prev) => ({ ...prev, pagina: 1 }));

@@ -225,7 +225,7 @@ export const parsearArchivoArca = async (file, operacion) => {
 export const useMisComprobantesAFIP = () => {
   const { usuario, unidadActiva } = useAuthStore();
 
-  const storageKey = `arca-items-${usuario?.codigoEmpresa ?? ''}-${unidadActiva?.codigoSecuencial ?? ''}`;
+  const storageKey = `arca-items-${usuario?.codigoEmpresa ?? ''}-${unidadActiva?.codigo ?? ''}`;
 
   const [archivoRecibidos, setArchivoRecibidos] = useState(null);
   const [resultados, setResultados] = useState(null);
@@ -293,7 +293,7 @@ export const useMisComprobantesAFIP = () => {
 
     try {
       const codigoEmpresa = String(usuario?.codigoEmpresa ?? "");
-      const codigoUnidadNegocio = String(unidadActiva?.codigoSecuencial ?? "");
+      const codigoUnidadNegocio = String(unidadActiva?.codigo ?? "");
 
       const itemsParseados = await parsearArchivoArca(archivoRecibidos, "EGRESO");
 

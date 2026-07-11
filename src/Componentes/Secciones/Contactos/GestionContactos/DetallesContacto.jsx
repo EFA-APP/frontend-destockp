@@ -30,7 +30,7 @@ const DetallesContacto = ({ contacto, onClose }) => {
               </h2>
               <p className="text-[11px] text-[var(--text-muted)] font-black uppercase tracking-[0.1em]">
                 EXPEDIENTE:{" "}
-                {contacto.codigoSecuencial.toString().padStart(4, "0")} •{" "}
+                {contacto.codigo.toString().padStart(4, "0")} •{" "}
                 {contacto.tipoEntidad}
               </p>
             </div>
@@ -210,7 +210,7 @@ const DetallesContacto = ({ contacto, onClose }) => {
                         </span>
                         <span className="text-[13px] font-bold text-[var(--text-primary)] uppercase tracking-wide">
                           {rel.nombre?.toUpperCase() ||
-                            `ID: ${rel.codigoSecuencial}`}{" "}
+                            `ID: ${rel.codigo}`}{" "}
                           <span className="text-[10px] text-[var(--text-muted)] ml-1">
                             [{rel.entidad?.toUpperCase()}]
                           </span>

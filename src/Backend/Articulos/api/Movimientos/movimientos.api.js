@@ -10,8 +10,8 @@ export const ObtenerMovimientosApi = async (params) => {
   return response.data;
 };
 
-export const EliminarMovimientoApi = async ({ codigoEmpresa, codigoSecuencial, tipoArticulo }) => {
-  const response = await axiosInitial.delete(`/movimientos/eliminar/${codigoSecuencial}`, {
+export const EliminarMovimientoApi = async ({ codigoEmpresa, codigo, tipoArticulo }) => {
+  const response = await axiosInitial.delete(`/movimientos/eliminar/${codigo}`, {
     params: { codigoEmpresa, tipoArticulo },
     showLoader: true
   });

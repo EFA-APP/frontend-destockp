@@ -11,8 +11,8 @@ const SeleccionarUnidad = () => {
 
     const handleSeleccionar = (un) => {
         seleccionar({
-            codigoUsuarioSecuencial: usuario.codigoSecuencial,
-            codigoUnidadNegocioSecuencial: un.codigoSecuencial
+            codigoUsuario: usuario.codigo,
+            codigoUnidadNegocio: un.codigo
         }, {
             onSuccess: () => navigate("/panel")
         });
@@ -55,7 +55,7 @@ const SeleccionarUnidad = () => {
             }}>
                 {usuario?.unidadesNegocio?.map((un) => (
                     <div 
-                        key={un.codigoSecuencial}
+                        key={un.codigo}
                         onClick={() => !isPending && handleSeleccionar(un)}
                         style={{
                             background: "var(--surface)",

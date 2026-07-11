@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { axiosInitial } from "../../../Config";
 
-const cargarImagenProducto = async ({ codigoSecuencial, imagen }) => {
+const cargarImagenProducto = async ({ codigo, imagen }) => {
   const { data } = await axiosInitial.patch(
-    `/producto/cargar-imagen?codigoSecuencial=${codigoSecuencial}`,
+    `/producto/cargar-imagen?codigo=${codigo}`,
     { imagen }
   );
   return data;

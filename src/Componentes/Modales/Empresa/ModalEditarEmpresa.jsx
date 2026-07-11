@@ -105,7 +105,7 @@ const ModalEditarEmpresa = ({ isOpen, onClose, empresaAEditar }) => {
     try {
       const { configuracion, ...restFormData } = formData;
       const payload = {
-        codigoEmpresa: empresaAEditar.codigo || empresaAEditar.codigoSecuencial,
+        codigoEmpresa: empresaAEditar.codigo || empresaAEditar.codigo,
         ...restFormData,
         configuracion: parsedConfig,
       };

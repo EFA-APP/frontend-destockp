@@ -12,7 +12,7 @@ const VistaLogsArca = ({ empresa, onClose }) => {
   const limite = 10;
 
   const { data, isLoading, refetch } = useConsultarLogsArca({
-    codigoEmpresa: empresa.codigo || empresa.codigoSecuencial,
+    codigoEmpresa: empresa.codigo || empresa.codigo,
     categoria: categoria || undefined,
     estado: estado || undefined,
     fechaDesde: fechaDesde || undefined,

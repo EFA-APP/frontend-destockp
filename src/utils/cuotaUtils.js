@@ -46,6 +46,56 @@ export function evaluarFormulaCuota(formula, tipoAlumno) {
 }
 
 /**
+ * Obtiene el monto de la cuota para un alumno dado sus atributos.
+ *
+ * @param {string} formula
+ * @param {Array} atributos
+ * @returns {number}
+ */
+export function obtenerMontoCuotaAlumno(formula, atributos) {
+  if (!atributos || typeof atributos !== "object") {
+    return evaluarFormulaCuota(formula, "");
+  }
+
+  let cuotaOverride = undefined;
+  if (Array.isArray(atributos)) {
+    const attrOverride = atributos.find(
+      (a) => (a.nombre || "").toLowerCase() === "cuotaoverride"
+    );
+    cuotaOverride = attrOverride ? attrOverride.valor : undefined;
+  } else {
+    const keys = Object.keys(atributos);
+    const keyOverride = keys.find((k) => k.toLowerCase() === "cuotaoverride");
+    cuotaOverride = keyOverride ? atributos[keyOverride] : undefined;
+  }
+
+  if (
+    cuotaOverride !== undefined &&
+    cuotaOverride !== null &&
+    cuotaOverride !== "" &&
+    !isNaN(Number(cuotaOverride))
+  ) {
+    return Number(cuotaOverride);
+  }
+  // Soporta tanto si atributos es un objeto plano { tipo_alumno: 'interno' }
+  // o si fuera un array por algún motivo {nombre: 'tipo_alumno', valor: 'interno'}
+  let tipoAlumno = "";
+  if (Array.isArray(atributos)) {
+    const attrTipo = atributos.find(
+      (a) => (a.nombre || "").toLowerCase() === "tipo_alumno"
+    );
+    tipoAlumno = attrTipo ? attrTipo.valor : "";
+  } else {
+    // Buscar la clave case-insensitive
+    const keys = Object.keys(atributos);
+    const key = keys.find((k) => k.toLowerCase() === "tipo_alumno");
+    tipoAlumno = key ? atributos[key] : "";
+  }
+  
+  return evaluarFormulaCuota(formula, tipoAlumno);
+}
+
+/**
  * Construye la referencia canónica de una cuota.
  * Ej: "CUOTA-42-2026-06"
  *

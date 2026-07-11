@@ -59,14 +59,14 @@ const CajaDiaria = () => {
   const hoy = hoyISO();
 
   const [filtroUnidadNegocio, setFiltroUnidadNegocio] = useState(
-    unidadActiva?.codigoSecuencial || ""
+    unidadActiva?.codigo || ""
   );
 
   useEffect(() => {
-    if (unidadActiva?.codigoSecuencial) {
-      setFiltroUnidadNegocio(unidadActiva.codigoSecuencial);
+    if (unidadActiva?.codigo) {
+      setFiltroUnidadNegocio(unidadActiva.codigo);
     }
-  }, [unidadActiva?.codigoSecuencial]);
+  }, [unidadActiva?.codigo]);
 
   const [modalAperturaAbierto, setModalAperturaAbierto] = useState(false);
   const [modalCierreAbierto, setModalCierreAbierto] = useState(false);
@@ -144,7 +144,7 @@ const CajaDiaria = () => {
 
   const mapaCuentasImputadas = useMemo(() => {
     const cuentas = cuentasImputadasData?.data ?? cuentasImputadasData ?? [];
-    return new Map(cuentas.map((c) => [c.codigoSecuencial, c]));
+    return new Map(cuentas.map((c) => [c.codigo, c]));
   }, [cuentasImputadasData]);
 
   return (
@@ -161,7 +161,7 @@ const CajaDiaria = () => {
           >
             <option value="">Seleccione Unidad de Negocio</option>
             {unidades.map((u) => (
-              <option key={u.codigoSecuencial} value={u.codigoSecuencial}>
+              <option key={u.codigo} value={u.codigo}>
                 {u.nombre}
               </option>
             ))}

@@ -1,33 +1,18 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { useListarAsientosQuery } from "../../../../Backend/Contabilidad/queries/useAsientos.query";
-import {
-  evaluarFormulaCuota,
-  formatearReferenciaCuota,
-  calcularEstadoCuota,
-} from "../../../../utils/cuotaUtils";
 import { formatearARS } from "../../../../utils/formatearMoneda";
 import ModalEmitirIndividual from "./ModalEmitirIndividual";
 import ModalDeudaAlumno from "./ModalDeudaAlumno";
 import ModalCambioTipoAlumno from "./ModalCambioTipoAlumno";
+import ModalReglasCuota from "./ModalReglasCuota";
 import ModalSeleccionarCobro from "./ModalSeleccionarCobro";
 import DashboardCuotas from "./DashboardCuotas";
-import { Package } from "lucide-react";
-
-const MESES_ES = [
-  "Enero",
-  "Febrero",
-  "Marzo",
-  "Abril",
-  "Mayo",
-  "Junio",
-  "Julio",
-  "Agosto",
-  "Septiembre",
-  "Octubre",
-  "Noviembre",
-  "Diciembre",
-];
+import { Package, Pin } from "lucide-react";
+import { InlineEnteFacturacion } from "../../Contactos/GestionContactos/ListaContactos";
+import { useContactos } from "../../../../Backend/Contactos/hooks/useContactos";
+import { useAlertas } from "../../../../store/useAlertas";
 
 const ChipEstado = ({ estado }) => {
   if (estado === "ABONADO") {
@@ -51,6 +36,13 @@ const ChipEstado = ({ estado }) => {
       </span>
     );
   }
+  if (estado === "ANULADO") {
+    return (
+      <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest bg-gray-200 text-gray-600 border border-gray-300">
+        ANULADA
+      </span>
+    );
+  }
   if (estado === "EMITIDA") {
     return (
       <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest bg-emerald-100 text-emerald-700 border border-emerald-200">
@@ -65,19 +57,100 @@ const ChipEstado = ({ estado }) => {
   );
 };
 
-const TablaCuotas = ({ alumnos, cargando, formula, mes, anio, refetch, tipoOpciones = [] }) => {
+/**
+ * R99, R100, R107, R108: reemplaza el cálculo de estado basado en
+ * `useListarAsientosQuery` + `calcularEstadoCuota` por `filas` ya armadas
+ * en `GestionCuotas.jsx` a partir de `cuotas.listar` (estado real del
+ * comprobante). "VENCIDA" se sigue derivando acá mismo (R97), a partir de
+ * `estado` + `fechaVto`.
+ *
+ * `ModalCambioTipoAlumno.jsx` quedó FUERA de alcance explícito de esta
+ * sesión (no está en la lista de archivos de `design.md` §8) — se le sigue
+ * pasando `asientos` (mecanismo viejo, `origenModulo: "ESCUELA"`) solo para
+ * no romper su funcionamiento actual. Limitación documentada: ese modal no
+ * va a reflejar cuotas emitidas con el mecanismo NUEVO (que no tagea
+ * `origenModulo`/`referencia`), solo el historial viejo — ver
+ * progress/impl_cuotas-rediseno-contable.md.
+ *
+ * `ModalDeudaAlumno.jsx` SÍ fue migrado a la fuente de verdad real
+ * (`comprobantes.listarCuotasContacto`, sin pasar por asientos) — ver
+ * progress/impl_cuotas-deudas-y-verificacion-cobrar.md. Recibe
+ * `codigoCuentaContable` directamente (`cuentaSeleccionada.codigoSecuencial`),
+ * no `asientos`.
+ */
+const TablaCuotas = ({
+  filas,
+  cargando,
+  cuentaSeleccionada,
+  tipoEntidadObligado,
+  mes,
+  anio,
+  codigoUnidadNegocio,
+  refetch,
+  formula,
+  tipoOpciones = [],
+}) => {
   const { usuario } = useAuthStore();
+  const navigate = useNavigate();
   const [alumnoEmitirIndividual, setAlumnoEmitirIndividual] = useState(null);
   const [alumnoDeuda, setAlumnoDeuda] = useState(null);
   const [alumnoCambioTipo, setAlumnoCambioTipo] = useState(null);
+  const [alumnoReglaContacto, setAlumnoReglaContacto] = useState(null);
   const [alumnoCobrarComprobante, setAlumnoCobrarComprobante] = useState(null);
   const [filtroBusqueda, setFiltroBusqueda] = useState("");
 
-  const periodoDate = useMemo(() => new Date(anio, mes - 1, 1), [anio, mes]);
+  const { actualizarContacto } = useContactos();
+  const { agregarAlerta } = useAlertas();
+
+  const handleActualizarContactoInline = async (codigo, payloadActualizado) => {
+    try {
+      const {
+        codigoEmpresa,
+        codigo: _,
+        fechaCreacion,
+        updatedAt,
+        estado,
+        tipoAlumno,
+        curso,
+        monto,
+        montoSugerido,
+        tieneReglaContacto,
+        totalDeuda,
+        nombreCompleto,
+        tutorNombre,
+        documentoAlumno,
+        documentoTutor,
+        codigoComprobante,
+        puntoVenta,
+        numeroComprobante,
+        total,
+        saldoPendiente,
+        fechaVto,
+        ...dtoLimpio
+      } = payloadActualizado;
+
+      await actualizarContacto({ id: codigo, dto: dtoLimpio });
+      agregarAlerta({
+        title: "Actualizado",
+        message: "Tutor actualizado correctamente.",
+        type: "success",
+      });
+      refetch();
+    } catch (error) {
+      console.error("Error al actualizar contacto en línea:", error);
+      agregarAlerta({
+        title: "Error",
+        message: "No se pudo actualizar el tutor.",
+        type: "error",
+      });
+    }
+  };
+
   const hoy = new Date();
+  const hoyNormalizado = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
 
-  const mesStr = String(mes).padStart(2, "0");
-
+  // Solo para no romper ModalDeudaAlumno.jsx/ModalCambioTipoAlumno.jsx (ver
+  // nota arriba) — NO se usa para calcular el estado mostrado en esta tabla.
   const { data: asientosRaw = [] } = useListarAsientosQuery(
     usuario?.codigoEmpresa
       ? {
@@ -87,111 +160,68 @@ const TablaCuotas = ({ alumnos, cargando, formula, mes, anio, refetch, tipoOpcio
       : {},
   );
 
-  const asientos = useMemo(
-    () =>
-      asientosRaw.filter(
-        (a) =>
-          typeof a.referencia === "string" &&
-          a.referencia.startsWith("CUOTA-") &&
-          a.referencia.endsWith(`-${anio}-${mesStr}`),
-      ),
-    [asientosRaw, anio, mesStr],
-  );  const filas = useMemo(() => {
-    return alumnos.map((alumno) => {
-      const tipoAlumno = alumno.atributos?.tipo_alumno ?? "";
-      const curso = alumno.atributos?.curso ?? "";
-      const monto = evaluarFormulaCuota(formula, tipoAlumno);
-      const referencia = formatearReferenciaCuota(
-        alumno.codigoSecuencial,
-        anio,
-        mes,
-      );
-      const estado = calcularEstadoCuota(
-        referencia,
-        asientos,
-        periodoDate,
-        hoy,
-      );
-      const saldo = alumno.atributos?.saldo ?? 0;
+  const filasEnriquecidas = useMemo(() => {
+    return filas.map((fila) => {
+      const tipoAlumno = fila.atributos?.tipo_alumno ?? "";
+      const curso = fila.atributos?.curso ?? "";
       const nombreCompleto =
-        alumno.razonSocial ||
-        `${alumno.nombre ?? ""} ${alumno.apellido ?? ""}`.trim();
-      const ef = alumno.enteFacturacion;
+        fila.razonSocial || `${fila.nombre ?? ""} ${fila.apellido ?? ""}`.trim();
+      const ef = fila.enteFacturacion;
       const tutorNombre = ef ? `${ef.nombre ?? ""} ${ef.apellido ?? ""}`.trim() : "";
+      const documentoAlumno = fila.documento ?? "";
+      const documentoTutor = ef?.documento ?? "";
 
-      // Calcular deuda anterior y total a partir de asientosRaw
-      const prefijoBusqueda = `CUOTA-${alumno.codigoSecuencial}-`;
-      const asientosAlumno = asientosRaw.filter(
-        (a) => typeof a.referencia === "string" && a.referencia.startsWith(prefijoBusqueda)
-      );
-
-      const saldosPorReferencia = {};
-      for (const asiento of asientosAlumno) {
-        const ref = asiento.referencia;
-        if (!saldosPorReferencia[ref]) {
-          saldosPorReferencia[ref] = { debe: 0, haber: 0 };
-        }
-        if (asiento.detalles) {
-          for (const d of asiento.detalles) {
-            if (
-              d.codigoCuentaContable === 507 ||
-              d.nombreCuentaContable?.includes("PADRE") ||
-              d.nombreCuentaContable?.includes("Padre")
-            ) {
-              saldosPorReferencia[ref].debe += d.debe ?? 0;
-              saldosPorReferencia[ref].haber += d.haber ?? 0;
-            }
-          }
-        }
+      let estadoMostrado = fila.estado;
+      if (
+        (fila.estado === "PENDIENTE_PAGO" || fila.estado === "PARCIALMENTE_ABONADO") &&
+        fila.fechaVto &&
+        new Date(fila.fechaVto) < hoyNormalizado
+      ) {
+        estadoMostrado = "VENCIDA";
+      } else if (fila.estado === "PENDIENTE_PAGO") {
+        estadoMostrado = "EMITIDA";
       }
 
-      let deudaAnterior = 0;
-      let totalDeuda = 0;
-
-      for (const ref in saldosPorReferencia) {
-        const partes = ref.split("-");
-        const refAnio = Number(partes[partes.length - 2]);
-        const refMes = Number(partes[partes.length - 1]);
-
-        const saldoPendiente = Math.max(0, saldosPorReferencia[ref].debe - saldosPorReferencia[ref].haber);
-
-        if (saldoPendiente > 0) {
-          totalDeuda += saldoPendiente;
-
-          // Si es anterior al mes seleccionado
-          const esAnterior = refAnio < anio || (refAnio === anio && refMes < mes);
-          if (esAnterior) {
-            deudaAnterior += saldoPendiente;
-          }
-        }
-      }
+      const monto = fila.total ?? fila.montoSugerido ?? 0;
+      const totalDeuda = fila.saldoPendiente ?? 0;
 
       return {
-        ...alumno,
+        ...fila,
         tipoAlumno,
         curso,
-        monto,
-        referencia,
-        estado,
-        saldo,
         nombreCompleto,
         tutorNombre,
-        deudaAnterior,
+        documentoAlumno,
+        documentoTutor,
+        estadoMostrado,
+        monto,
         totalDeuda,
       };
     });
-  }, [alumnos, formula, anio, mes, asientos, asientosRaw, periodoDate]);
+  }, [filas, hoyNormalizado]);
 
   const filasFiltradas = useMemo(() => {
-    if (!filtroBusqueda.trim()) return filas;
+    if (!filtroBusqueda.trim()) return filasEnriquecidas;
     const query = filtroBusqueda.toLowerCase().trim();
-    return filas.filter(
+    return filasEnriquecidas.filter(
       (f) =>
         f.nombreCompleto?.toLowerCase().includes(query) ||
-        f.tutorNombre?.toLowerCase().includes(query)
+        f.tutorNombre?.toLowerCase().includes(query) ||
+        f.documentoAlumno?.toLowerCase().includes(query) ||
+        f.documentoTutor?.toLowerCase().includes(query)
     );
-  }, [filas, filtroBusqueda]);
+  }, [filasEnriquecidas, filtroBusqueda]);
 
+  if (!cuentaSeleccionada) {
+    return (
+      <div className="bg-[var(--surface)] rounded-md border border-[var(--border-subtle)] py-20 flex flex-col items-center gap-3 text-[var(--text-muted)]">
+        <Package size={40} className="opacity-20" />
+        <p className="text-[13px] font-bold uppercase tracking-widest">
+          Elegí un tipo de cuota para ver el listado
+        </p>
+      </div>
+    );
+  }
 
   if (cargando) {
     return (
@@ -206,7 +236,7 @@ const TablaCuotas = ({ alumnos, cargando, formula, mes, anio, refetch, tipoOpcio
                 "Curso",
                 "Monto Cuota",
                 "Estado",
-                "Total Deuda",
+                "Saldo Pendiente",
                 "Acciones",
               ].map((h) => (
                 <th
@@ -234,7 +264,7 @@ const TablaCuotas = ({ alumnos, cargando, formula, mes, anio, refetch, tipoOpcio
     );
   }
 
-  if (filas.length === 0) {
+  if (filasEnriquecidas.length === 0) {
     return (
       <div className="bg-[var(--surface)] rounded-md border border-[var(--border-subtle)] py-20 flex flex-col items-center gap-3 text-[var(--text-muted)]">
         <Package size={40} className="opacity-20" />
@@ -248,8 +278,8 @@ const TablaCuotas = ({ alumnos, cargando, formula, mes, anio, refetch, tipoOpcio
   return (
     <>
       {/* Dashboard */}
-      <DashboardCuotas 
-        filas={filas}
+      <DashboardCuotas
+        filas={filasEnriquecidas.map((f) => ({ ...f, estado: f.estadoMostrado }))}
         mes={mes}
         anio={anio}
         asientosRaw={asientosRaw}
@@ -298,7 +328,7 @@ const TablaCuotas = ({ alumnos, cargando, formula, mes, anio, refetch, tipoOpcio
                   Estado
                 </th>
                 <th className="px-5 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-right">
-                  Total Deuda
+                  Saldo Pendiente
                 </th>
                 <th className="px-5 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-right">
                   Acciones
@@ -315,31 +345,29 @@ const TablaCuotas = ({ alumnos, cargando, formula, mes, anio, refetch, tipoOpcio
               ) : (
                 filasFiltradas.map((fila) => (
                   <tr
-                    key={fila.codigoSecuencial}
+                    key={fila.codigo}
                     className={`transition-colors group ${
-                      fila.estado === "VENCIDA"
+                      fila.estadoMostrado === "VENCIDA"
                         ? "border-l-4 border-l-rose-500 bg-rose-50/30"
                         : "hover:bg-gray-50/80"
                     }`}
-                    data-estado={fila.estado}
+                    data-estado={fila.estadoMostrado}
                   >
                     <td className="px-5 py-4">
                       <div className="flex flex-col gap-0.5">
                         <span className="text-sm font-bold text-gray-800">
                           {fila.nombreCompleto ||
-                            `Alumno #${fila.codigoSecuencial}`}
+                            `Alumno #${fila.codigo}`}
                         </span>
-                        {fila.deudaAnterior > 0 && (
-                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200/50 rounded px-1.5 py-0.5 w-fit uppercase tracking-widest">
-                            Deuda anterior: {formatearARS(fila.deudaAnterior)}
-                          </span>
-                        )}
                       </div>
                     </td>
-                    <td className="px-5 py-4">
-                      <span className="text-xs font-semibold text-gray-500">
-                        {fila.tutorNombre || "—"}
-                      </span>
+                    <td className="px-5 py-4 relative">
+                      <div className="min-w-[150px]">
+                        <InlineEnteFacturacion
+                          contacto={fila}
+                          onActualizar={handleActualizarContactoInline}
+                        />
+                      </div>
                     </td>
                     <td className="px-5 py-4">
                       <span className="text-xs font-semibold text-gray-500">
@@ -352,12 +380,23 @@ const TablaCuotas = ({ alumnos, cargando, formula, mes, anio, refetch, tipoOpcio
                       </span>
                     </td>
                     <td className="px-5 py-4 text-right">
-                      <span className="text-sm font-bold text-gray-700">
-                        {formatearARS(fila.monto)}
+                      <span className="inline-flex items-center justify-end gap-1.5">
+                        {fila.tieneReglaContacto && (
+                          <span
+                            title="Regla de cuota fija (por contacto) activa para este alumno"
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-widest bg-violet-100 text-violet-700 border border-violet-200"
+                          >
+                            <Pin size={10} />
+                            Fija
+                          </span>
+                        )}
+                        <span className="text-sm font-bold text-gray-700">
+                          {formatearARS(fila.monto)}
+                        </span>
                       </span>
                     </td>
                     <td className="px-5 py-4 text-center">
-                      <ChipEstado estado={fila.estado} />
+                      <ChipEstado estado={fila.estadoMostrado} />
                     </td>
                     <td className="px-5 py-4 text-right">
                       <span className="text-base font-black text-rose-600">
@@ -388,11 +427,37 @@ const TablaCuotas = ({ alumnos, cargando, formula, mes, anio, refetch, tipoOpcio
                         >
                           Ver deudas
                         </button>
+                        {(fila.estado === "ABONADO" || fila.estado === "PARCIALMENTE_ABONADO") && (
+                          <button
+                            title="Ver/anular el Recibo que cobró esta cuota (R89/R107)"
+                            onClick={() =>
+                              navigate("/panel/comprobantes/listados", {
+                                state: {
+                                  tipoInicial: "RECIBO",
+                                  busquedaInicial: fila.nombreCompleto,
+                                },
+                              })
+                            }
+                            className="px-3 py-1.5 bg-white text-gray-600 border border-[var(--border-subtle)] rounded text-[10px] font-bold uppercase tracking-widest hover:bg-gray-50 transition-all cursor-pointer"
+                          >
+                            Recibos
+                          </button>
+                        )}
                         <button
                           onClick={() => setAlumnoCambioTipo(fila)}
                           className="px-3 py-1.5 bg-white text-gray-600 border border-[var(--border-subtle)] rounded text-[10px] font-bold uppercase tracking-widest hover:bg-gray-50 transition-all cursor-pointer"
                         >
                           Cambiar tipo
+                        </button>
+                        <button
+                          onClick={() => setAlumnoReglaContacto(fila)}
+                          className={`px-3 py-1.5 border rounded text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer ${
+                            fila.tieneReglaContacto
+                              ? "bg-violet-50 text-violet-600 border-violet-200 hover:bg-violet-100"
+                              : "bg-white text-gray-600 border-[var(--border-subtle)] hover:bg-gray-50"
+                          }`}
+                        >
+                          Cuota fija
                         </button>
                       </div>
                     </td>
@@ -406,11 +471,12 @@ const TablaCuotas = ({ alumnos, cargando, formula, mes, anio, refetch, tipoOpcio
 
       {alumnoEmitirIndividual && (
         <ModalEmitirIndividual
-          alumno={alumnoEmitirIndividual}
-          formula={formula}
+          fila={alumnoEmitirIndividual}
+          cuenta={cuentaSeleccionada}
+          tipoEntidadObligado={tipoEntidadObligado}
           mes={mes}
           anio={anio}
-          asientos={asientos}
+          codigoUnidadNegocio={codigoUnidadNegocio}
           onClose={() => setAlumnoEmitirIndividual(null)}
           onExito={() => {
             setAlumnoEmitirIndividual(null);
@@ -422,6 +488,7 @@ const TablaCuotas = ({ alumnos, cargando, formula, mes, anio, refetch, tipoOpcio
       {alumnoDeuda && (
         <ModalDeudaAlumno
           alumno={alumnoDeuda}
+          codigoCuentaContable={cuentaSeleccionada?.codigoSecuencial}
           onClose={() => setAlumnoDeuda(null)}
         />
       )}
@@ -433,10 +500,22 @@ const TablaCuotas = ({ alumnos, cargando, formula, mes, anio, refetch, tipoOpcio
           tipoOpciones={tipoOpciones}
           mes={mes}
           anio={anio}
-          asientos={asientos}
+          asientos={asientosRaw}
           onClose={() => setAlumnoCambioTipo(null)}
           onExito={() => {
             setAlumnoCambioTipo(null);
+            refetch();
+          }}
+        />
+      )}
+
+      {alumnoReglaContacto && (
+        <ModalReglasCuota
+          cuenta={cuentaSeleccionada}
+          codigoContactoInicial={alumnoReglaContacto.codigo}
+          nombreContactoInicial={alumnoReglaContacto.nombreCompleto}
+          onClose={() => {
+            setAlumnoReglaContacto(null);
             refetch();
           }}
         />

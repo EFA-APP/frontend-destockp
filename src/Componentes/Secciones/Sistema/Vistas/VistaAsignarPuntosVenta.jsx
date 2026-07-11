@@ -6,7 +6,7 @@ import { useAlertas } from "../../../../store/useAlertas";
 import { VolverIcono } from "../../../../assets/Icons";
 
 const VistaAsignarPuntosVenta = ({ empresa, onClose }) => {
-  const codigoEmpresa = empresa.codigo || empresa.codigoSecuencial;
+  const codigoEmpresa = empresa.codigo || empresa.codigo;
   const agregarAlerta = useAlertas((state) => state.agregarAlerta);
 
   const { data: unidades, isLoading, refetch } = useObtenerUnidadesNegocio({
@@ -41,10 +41,10 @@ const VistaAsignarPuntosVenta = ({ empresa, onClose }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [codigoEmpresa]);
 
-  const handleSelectChange = (codigoSecuencial, val) => {
+  const handleSelectChange = (codigo, val) => {
     setCambios((prev) => ({
       ...prev,
-      [codigoSecuencial]: val === "" ? null : Number(val),
+      [codigo]: val === "" ? null : Number(val),
     }));
   };
 
@@ -155,7 +155,7 @@ const VistaAsignarPuntosVenta = ({ empresa, onClose }) => {
               </thead>
               <tbody>
                 {unidades.map((unidad) => {
-                  const cs = unidad.codigoSecuencial;
+                  const cs = unidad.codigo;
                   const pvActual = unidad.puntoVenta;
                   const selectValue =
                     cs in cambios

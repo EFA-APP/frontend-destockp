@@ -22,7 +22,7 @@ const SelectorUnidadNegocio = ({
   const options = useMemo(
     () =>
       unidadesNegocio.map((un) => ({
-        valor: un.codigoSecuencial,
+        valor: un.codigo,
         texto: un.nombre,
       })),
     [unidadesNegocio],

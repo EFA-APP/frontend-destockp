@@ -76,7 +76,7 @@ const AjusteStockPage = () => {
     return allItems.filter(
       (item) =>
         item.nombre?.toLowerCase().includes(term) ||
-        String(item.codigoSecuencial).includes(term),
+        String(item.codigo).includes(term),
     );
   }, [searchTerm, allItems]);
 
@@ -285,18 +285,18 @@ const AjusteStockPage = () => {
                 </div>
               ) : (
                 filteredItems.map((item) => {
-                  const val = ajustes[item.codigoSecuencial];
+                  const val = ajustes[item.codigo];
                   const hasValue = val !== "" && val !== undefined;
                   const isNegative = hasValue && parseFloat(val) < 0;
 
                   return (
-                    <div key={item.codigoSecuencial}>
+                    <div key={item.codigo}>
                       {/* Desktop View */}
                       <div
                         className={`hidden lg:grid lg:grid-cols-[70px_1fr_100px_120px] gap-4 px-6 py-3 items-center hover:bg-gray-50/50 transition-colors ${hasValue ? "bg-[var(--color-brand-soft)]/20" : ""}`}
                       >
                         <div className="text-[13px] font-semibold text-[var(--color-neutral-text-muted)]">
-                          #{item.codigoSecuencial.toString().padStart(3, "0")}
+                          #{item.codigo.toString().padStart(3, "0")}
                         </div>
                         <div className="min-w-0">
                           <div className="text-[14px] font-semibold text-[var(--color-neutral-text-main)] truncate">
@@ -314,10 +314,10 @@ const AjusteStockPage = () => {
                         <div className="flex justify-end">
                           <input
                             type="number"
-                            value={ajustes[item.codigoSecuencial] || ""}
+                            value={ajustes[item.codigo] || ""}
                             onChange={(e) =>
                               handleUpdateQuantity(
-                                item.codigoSecuencial,
+                                item.codigo,
                                 e.target.value,
                               )
                             }
@@ -334,7 +334,7 @@ const AjusteStockPage = () => {
                         <div className="flex justify-between items-start mb-3">
                           <div className="flex flex-col">
                             <span className="text-[11px] font-semibold text-[var(--color-neutral-text-muted)] mb-1">
-                              #{item.codigoSecuencial.toString().padStart(3, "0")}
+                              #{item.codigo.toString().padStart(3, "0")}
                             </span>
                             <span className="text-[14px] font-bold text-[var(--color-neutral-text-main)] leading-tight">
                               {item.nombre.toUpperCase()}
@@ -359,10 +359,10 @@ const AjusteStockPage = () => {
                           <input
                             type="number"
                             inputMode="decimal"
-                            value={ajustes[item.codigoSecuencial] || ""}
+                            value={ajustes[item.codigo] || ""}
                             onChange={(e) =>
                               handleUpdateQuantity(
-                                item.codigoSecuencial,
+                                item.codigo,
                                 e.target.value,
                               )
                             }

@@ -5,6 +5,8 @@ import SelectorArticuloModal from "./SelectorArticuloModal";
 import CarritoDetalle from "./CarritoDetalle";
 import DetallePago from "./DetallePago";
 
+const CODIGOS_NOTA_CREDITO = [3, 8, 13, 994];
+
 const BuscadorDetalle = ({
   tipoOperacion,
   detalle,
@@ -33,6 +35,7 @@ const BuscadorDetalle = ({
     actualizarPrecioItem,
     actualizarTasaIvaItem,
     actualizarTipoFiscalItem,
+    actualizarDevolverAStockItem,
     quitarItem,
     subtotalSinIva,
     totalIva,
@@ -41,6 +44,9 @@ const BuscadorDetalle = ({
 
   const [isOpen, setIsOpen] = useState(false);
   const precioUnitarioInicial = montoPreCargado > 0 ? montoPreCargado : "";
+  const esNotaCredito = CODIGOS_NOTA_CREDITO.includes(
+    Number(codigoTipoComprobante),
+  );
 
   const totalRecargo = pagos.reduce((sum, p) => {
     const r = parseFloat(p.datosTarjeta?.recargo) || 0;
@@ -97,12 +103,14 @@ const BuscadorDetalle = ({
         actualizarPrecioItem={actualizarPrecioItem}
         actualizarTasaIvaItem={actualizarTasaIvaItem}
         actualizarTipoFiscalItem={actualizarTipoFiscalItem}
+        actualizarDevolverAStockItem={actualizarDevolverAStockItem}
         quitarItem={quitarItem}
         subtotalSinIva={subtotalSinIva}
         totalIva={totalIva}
         totalGeneral={totalGeneral}
         totalRecargo={totalRecargo}
         codigoTipoComprobante={codigoTipoComprobante}
+        esNotaCredito={esNotaCredito}
         otrosTributos={otrosTributos}
         setOtrosTributos={setOtrosTributos}
       />

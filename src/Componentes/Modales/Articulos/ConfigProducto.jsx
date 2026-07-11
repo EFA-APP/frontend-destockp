@@ -7,7 +7,7 @@ const productoConfig = {
     {
       label: "Producto",
       key: "nombre",
-      sub: (p) => `CODE: ${p.codigoSecuencial}`,
+      sub: (p) => `CODE: ${p.codigo}`,
       editable: true,
     },
     {

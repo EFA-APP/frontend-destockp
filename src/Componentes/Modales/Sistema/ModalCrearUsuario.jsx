@@ -23,7 +23,7 @@ const ModalCrearUsuario = ({ isOpen, onClose, empresa }) => {
     e.preventDefault();
     try {
       await registrarUsuario({
-        codigoEmpresa: empresa.codigo || empresa.codigoSecuencial,
+        codigoEmpresa: empresa.codigo || empresa.codigo,
         ...formData,
       });
       // Limpiar formulario y cerrar al finalizar
