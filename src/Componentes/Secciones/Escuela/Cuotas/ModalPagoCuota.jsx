@@ -72,7 +72,10 @@ const ModalPagoCuota = ({ alumno, onClose }) => {
     navigate("/panel/comprobantes/crear", {
       state: {
         origen: "ESCUELA_CUOTAS",
-        cliente: alumno,
+        cliente: {
+          ...(alumno.enteFacturacion || alumno),
+          codigoUnidadNegocio: alumno.codigoUnidadNegocio
+        },
         itemsCobro,
         observaciones: `COBRO CUOTA ESCOLAR - ${periodosLabel}`,
       },

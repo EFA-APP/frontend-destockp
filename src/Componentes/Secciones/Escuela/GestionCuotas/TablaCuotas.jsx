@@ -77,6 +77,13 @@ const ChipEstado = ({ estado }) => {
  * progress/impl_cuotas-deudas-y-verificacion-cobrar.md. Recibe
  * `codigoCuentaContable` directamente (`cuentaSeleccionada.codigoSecuencial`),
  * no `asientos`.
+ *
+ * Bugfix puntual "reemitir tras anulación" (2026-07-12, ver
+ * progress/impl_cuotas-reemitir-tras-anulacion.md): el botón "Emitir" se
+ * habilita también cuando `fila.estado === "ANULADO"` (backend ya soporta
+ * la reemisión, `VerificarCuotaPeriodo.casodeuso.ts` excluye
+ * `estado: { not: "ANULADO" }` de la verificación de idempotencia). El chip
+ * visual sigue mostrando "ANULADA" sin cambios (`ChipEstado`, no tocado).
  */
 const TablaCuotas = ({
   filas,
@@ -405,7 +412,7 @@ const TablaCuotas = ({
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
-                        {fila.estado === "SIN_EMITIR" && (
+                        {(fila.estado === "SIN_EMITIR" || fila.estado === "ANULADO") && (
                           <button
                             onClick={() => setAlumnoEmitirIndividual(fila)}
                             className="px-3 py-1.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-100 transition-all cursor-pointer"

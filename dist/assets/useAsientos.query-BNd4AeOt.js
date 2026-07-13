@@ -1,0 +1,1 @@
+import{t as s,g as t}from"./index-00-iepyh.js";import{u as r}from"./useMutation-V9QW3Xhy.js";import{c as a,l as n}from"./asientos.api-CNwu_oGo.js";const m=(e={})=>s({queryKey:["asientos",e],queryFn:()=>n(e),staleTime:1e3*60*5,enabled:!!e.codigoEmpresa}),y=()=>{const e=t();return r({mutationFn:a,onSuccess:()=>{e.invalidateQueries({queryKey:["asientos"]})}})};export{y as a,m as u};

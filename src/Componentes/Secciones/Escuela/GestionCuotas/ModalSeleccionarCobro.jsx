@@ -43,7 +43,10 @@ const ModalSeleccionarCobro = ({ alumno, onClose }) => {
       state: {
         origen: "ESCUELA_CUOTAS",
         tipoOperacion: "RECIBOS",
-        contacto: alumno,
+        contacto: {
+          ...(alumno.enteFacturacion || alumno),
+          codigoUnidadNegocio: alumno.codigoUnidadNegocio
+        },
       },
     });
     onClose();

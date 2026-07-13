@@ -53,7 +53,14 @@ const ModalEmitirIndividual = ({
   const [montoEditable, setMontoEditable] = useState(fila.montoSugerido ?? 0);
   const [confirmando, setConfirmando] = useState(false);
 
-  const yaEmitida = fila.estado !== "SIN_EMITIR";
+  // Bugfix puntual "reemitir tras anulación" (2026-07-12, ver
+  // progress/impl_cuotas-reemitir-tras-anulacion.md): "ANULADO" se trata
+  // igual que "SIN_EMITIR" (candidato a (re)emitir) — el backend ya
+  // soporta esto (`VerificarCuotaPeriodo.casodeuso.ts` excluye
+  // `estado: { not: "ANULADO" }` de la verificación de idempotencia).
+  // Solo bloquea para cualquier otro estado (PENDIENTE_PAGO,
+  // PARCIALMENTE_ABONADO, ABONADO).
+  const yaEmitida = fila.estado !== "SIN_EMITIR" && fila.estado !== "ANULADO";
   const nombreCompleto =
     fila.razonSocial || `${fila.nombre ?? ""} ${fila.apellido ?? ""}`.trim();
   const nombreMes = MESES_ES[mes - 1];

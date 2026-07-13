@@ -68,7 +68,10 @@ const GestionCuotas = () => {
 
   const { cuentas, cargandoCuentas } = useCuentasTipoCuota();
   const cuentaSeleccionada = useMemo(
-    () => cuentas.find((c) => String(c.codigoSecuencial) === String(codigoCuentaContable)),
+    () =>
+      cuentas.find(
+        (c) => String(c.codigoSecuencial) === String(codigoCuentaContable),
+      ),
     [cuentas, codigoCuentaContable],
   );
 
@@ -142,6 +145,7 @@ const GestionCuotas = () => {
     () =>
       items.map((item) => ({
         ...item.contacto,
+        codigoUnidadNegocio: Number(codigoUnidadNegocio),
         codigo: item.codigoContacto,
         estado: item.estado,
         codigoComprobante: item.codigoComprobante,
@@ -261,7 +265,9 @@ const GestionCuotas = () => {
               className="text-[13px] font-black uppercase bg-white border border-[var(--border-subtle)] rounded-md px-3 py-2.5 outline-none cursor-pointer hover:bg-[var(--surface-hover)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 transition-all text-[var(--text-primary)]"
             >
               <option value="">
-                {cargandoCuentas ? "Cargando cuentas..." : "Seleccionar tipo de cuota"}
+                {cargandoCuentas
+                  ? "Cargando cuentas..."
+                  : "Seleccionar tipo de cuota"}
               </option>
               {cuentas.map((c) => (
                 <option key={c.codigoSecuencial} value={c.codigoSecuencial}>
@@ -299,7 +305,6 @@ const GestionCuotas = () => {
           </p>
         )}
       </div>
-
       {loteMostrado && loteMostrado.codigo !== loteDescartadoCodigo && (
         <BannerLoteCuotas
           lote={loteMostrado}

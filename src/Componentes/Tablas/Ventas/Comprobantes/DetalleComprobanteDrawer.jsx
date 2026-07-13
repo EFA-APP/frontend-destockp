@@ -104,13 +104,25 @@ const adaptarComprobante = (full) => {
       codigoBancoDestino: p.codigoBancoDestino,
     })),
     ajustes: [],
-    cbtesAsoc: (full.comprobantesAsociados || []).map((a) => ({
-      tipo: a.codigoTipoComprobanteAsociado ?? a.codigoTipoComprobante ?? a.tipoRelacion,
-      ptoVta: a.puntoVenta || 0,
-      nro: a.numeroComprobanteAsociado ?? a.numeroComprobanteOrigen,
-      total: a.importeAplicado,
-      codigo: a.codigoComprobante,
-    })),
+    cbtesAsoc: (full.comprobantesAsociados || []).map((a) => {
+      // Preferimos los datos reales del documento origen (tipoDescripcionComprobanteOrigen/
+      // numeroComprobanteOrigenDisplay/puntoVentaOrigen), igual que ListadoComprobante.jsx.
+      // Si su relación es anular/nota de crédito y todavía no hay ese dato (comprobantes
+      // históricos generados antes del fix de backend), lo mostramos igual con ese nombre
+      // aunque internamente haya sido grabado como una Factura Interna (991).
+      const tipoVisual =
+        a.tipoDescripcionComprobanteOrigen ??
+        (a.tipoRelacion === "NOTA_CREDITO"
+          ? "NOTA_CREDITO"
+          : (a.codigoTipoComprobanteAsociado ?? a.codigoTipoComprobante ?? a.tipoRelacion));
+      return {
+        tipo: tipoVisual,
+        ptoVta: a.puntoVentaOrigen ?? a.puntoVenta ?? 0,
+        nro: a.numeroComprobanteOrigenDisplay ?? a.numeroComprobanteAsociado ?? a.numeroComprobanteOrigen,
+        total: a.importeAplicado,
+        codigo: a.codigoComprobante,
+      };
+    }),
   };
 };
 

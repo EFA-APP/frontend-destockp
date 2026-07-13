@@ -116,6 +116,7 @@ const isoToAfip = (iso) => {
 const adaptarParaDrawer = (full) => {
   const letraComprobante =
     full.letraComprobante || LETRA_MAP[full.codigoTipoComprobante] || "";
+
   return {
     codigo: full.codigo,
     codigoUnidadNegocio: full.codigoUnidadNegocio,

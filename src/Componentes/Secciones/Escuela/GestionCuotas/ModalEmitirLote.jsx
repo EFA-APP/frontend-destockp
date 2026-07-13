@@ -51,8 +51,16 @@ const ModalEmitirLote = ({
   const [codigoLote, setCodigoLote] = useState(null);
   const [confirmando, setConfirmando] = useState(false);
 
-  const pendientes = filas.filter((f) => f.estado === "SIN_EMITIR");
-  const yaEmitidos = filas.filter((f) => f.estado !== "SIN_EMITIR");
+  // Bugfix puntual "reemitir tras anulación" (2026-07-12, ver
+  // progress/impl_cuotas-reemitir-tras-anulacion.md): "ANULADO" se trata
+  // igual que "SIN_EMITIR" (candidato a (re)emitir) en el lote masivo,
+  // mismo criterio que ModalEmitirIndividual.jsx/TablaCuotas.jsx.
+  const pendientes = filas.filter(
+    (f) => f.estado === "SIN_EMITIR" || f.estado === "ANULADO",
+  );
+  const yaEmitidos = filas.filter(
+    (f) => f.estado !== "SIN_EMITIR" && f.estado !== "ANULADO",
+  );
 
   const unidadSeleccionada = usuario?.unidadesNegocio?.find(
     (u) => String(u.codigo) === String(codigoUnidadNegocio),

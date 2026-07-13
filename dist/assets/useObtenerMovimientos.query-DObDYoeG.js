@@ -1,0 +1,1 @@
+import{t as O}from"./index-00-iepyh.js";import{O as b}from"./movimientos.api-VkSECeKQ.js";const q=(r,e,m,s,n,t=1,y=15,v="")=>O({queryKey:["movimientos",e,r,m,s,n,t,y,v],queryFn:()=>b({codigoArticulo:r,tipoArticulo:e,fechaInicio:m,fechaFin:s,busqueda:n,pagina:t,limite:y,codigoDeposito:v}),enabled:!!e,staleTime:1e3*60});export{q as u};

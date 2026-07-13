@@ -1,0 +1,1 @@
+import{u,r as n,j as c}from"./index-00-iepyh.js";import{S as d}from"./Select-DwgGdpiz.js";const g=({value:r,onChange:s,label:t="Unidad de Negocio",className:a=""})=>{const e=u(o=>o.usuario)?.unidadesNegocio||[],i=n.useMemo(()=>e.map(o=>({valor:o.codigo,texto:o.nombre})),[e]);return e.length<=1?null:c.jsx(d,{label:t,valor:r,setValor:s,options:i,className:a})};export{g as S};
