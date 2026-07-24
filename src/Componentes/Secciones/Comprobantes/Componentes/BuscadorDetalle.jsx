@@ -19,7 +19,14 @@ const BuscadorDetalle = ({
   montosSugeridos = [],
   otrosTributos = 0,
   setOtrosTributos,
+  highlightStock = 0,
   condicionComprobante = null,
+  // Feature "egreso-distribucion-unidad-negocio" (R29, R41): calculadas en
+  // Egresos.jsx (elegibilidad R2 + `cabecera.unidadesNegocio.length > 1`),
+  // sin valor útil en cualquier otra pestaña (Ingreso, etc. — quedan en su
+  // default `false`/`[]`, no rompe nada existente).
+  permiteRepartoUnidadNegocio = false,
+  unidadesNegocio = [],
 }) => {
   const {
     tipoDetalle,
@@ -36,6 +43,8 @@ const BuscadorDetalle = ({
     actualizarTasaIvaItem,
     actualizarTipoFiscalItem,
     actualizarDevolverAStockItem,
+    actualizarRepartoItem,
+    quitarRepartoItem,
     quitarItem,
     subtotalSinIva,
     totalIva,
@@ -55,14 +64,14 @@ const BuscadorDetalle = ({
   }, 0);
 
   return (
-    <div className="flex flex-col gap-4 p-6 mt-5 bg-white border border-[var(--color-neutral-border)] rounded-[16px] shadow-sm">
+    <div className="flex flex-col gap-4 p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
       {/* SELECTOR TIPO DETALLE */}
-      <div className="flex w-full sm:w-fit bg-gray-50 p-1.5 rounded-[12px] border border-[var(--color-neutral-border)] shadow-sm gap-1 mb-2">
+      <div className="flex w-full sm:w-fit bg-white p-1 rounded-md border border-gray-200 shadow-sm gap-1 mb-2">
         {tipoOperacion === "EGRESO" && (
           <button
             type="button"
             onClick={() => setTipoDetalle("MATERIA_PRIMA")}
-            className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wide transition-colors duration-200 cursor-pointer ${tipoDetalle === "MATERIA_PRIMA" ? "bg-white text-[var(--color-brand-primary)] shadow-sm border border-[var(--color-neutral-border)]" : "text-[var(--color-neutral-text-muted)] hover:text-[var(--color-neutral-text-main)] hover:bg-gray-100/50"}`}
+            className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-md text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${tipoDetalle === "MATERIA_PRIMA" ? "bg-gray-900 text-white shadow-sm" : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"}`}
           >
             Materia Prima
           </button>
@@ -70,14 +79,14 @@ const BuscadorDetalle = ({
         <button
           type="button"
           onClick={() => setTipoDetalle("PRODUCTO")}
-          className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wide transition-colors duration-200 cursor-pointer ${tipoDetalle === "PRODUCTO" ? "bg-white text-[var(--color-brand-primary)] shadow-sm border border-[var(--color-neutral-border)]" : "text-[var(--color-neutral-text-muted)] hover:text-[var(--color-neutral-text-main)] hover:bg-gray-100/50"}`}
+          className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-md text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${tipoDetalle === "PRODUCTO" ? "bg-gray-900 text-white shadow-sm" : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"}`}
         >
           Producto
         </button>
         <button
           type="button"
           onClick={() => setTipoDetalle("CUENTA_CONTABLE")}
-          className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wide transition-colors duration-200 cursor-pointer ${tipoDetalle === "CUENTA_CONTABLE" ? "bg-white text-[var(--color-brand-primary)] shadow-sm border border-[var(--color-neutral-border)]" : "text-[var(--color-neutral-text-muted)] hover:text-[var(--color-neutral-text-main)] hover:bg-gray-100/50"}`}
+          className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-md text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${tipoDetalle === "CUENTA_CONTABLE" ? "bg-gray-900 text-white shadow-sm" : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"}`}
         >
           Servicios
         </button>
@@ -88,11 +97,11 @@ const BuscadorDetalle = ({
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="px-4 py-2.5 rounded-[8px] bg-[var(--color-brand-soft)] text-[var(--color-brand-primary)] hover:bg-[var(--color-brand-primary)] hover:text-white transition-colors duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-sm border border-[var(--color-brand-primary)]/20 uppercase tracking-widest text-[11px]"
+          className="px-4 py-2.5 rounded-md bg-[#1FAE6D] hover:bg-[#178F58] text-white transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm uppercase tracking-wider text-xs font-bold"
           title="Agregar detalle manualmente"
         >
-          <CajaIcono className="w-5 h-5" />
-          <span className="font-bold">Agregar Detalle</span>
+          <CajaIcono className="w-5 h-5 text-white" />
+          <span>Agregar Detalle</span>
         </button>
       </div>
 
@@ -104,6 +113,7 @@ const BuscadorDetalle = ({
         actualizarTasaIvaItem={actualizarTasaIvaItem}
         actualizarTipoFiscalItem={actualizarTipoFiscalItem}
         actualizarDevolverAStockItem={actualizarDevolverAStockItem}
+        highlightStock={highlightStock}
         quitarItem={quitarItem}
         subtotalSinIva={subtotalSinIva}
         totalIva={totalIva}
@@ -113,11 +123,15 @@ const BuscadorDetalle = ({
         esNotaCredito={esNotaCredito}
         otrosTributos={otrosTributos}
         setOtrosTributos={setOtrosTributos}
+        permiteRepartoUnidadNegocio={permiteRepartoUnidadNegocio}
+        unidadesNegocio={unidadesNegocio}
+        actualizarRepartoItem={actualizarRepartoItem}
+        quitarRepartoItem={quitarRepartoItem}
       />
 
       {/* PAGO */}
       <DetallePago
-        totalComprobante={totalGeneral}
+        totalComprobante={totalGeneral + (otrosTributos || 0)}
         tipoOperacion={tipoOperacion}
         pagos={pagos}
         setPagos={setPagos}

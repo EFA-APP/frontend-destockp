@@ -26,6 +26,7 @@ import {
   CheckCircle,
   Ban,
 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { pdf } from "@react-pdf/renderer";
 import ComprobantePDF from "./ComprobantePDF";
 import { ComprobanteIcono } from "../../../../assets/Icons";
@@ -370,6 +371,7 @@ const blobToBase64 = (blob) =>
   });
 
 const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) => {
+  const queryClient = useQueryClient();
   const [isVisible, setIsVisible] = useState(false);
   const [mostrarAnular, setMostrarAnular] = useState(false);
   const [motivoAnular, setMotivoAnular] = useState("");
@@ -557,6 +559,14 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) =
       await anularComprobanteApi(data.codigo, motivoAnular.trim());
       setMostrarAnular(false);
       setMotivoAnular("");
+      
+      // Invalidar todos los listados de comprobantes y deudas para que reflejen
+      // instantáneamente la anulación del comprobante/recibo
+      queryClient.invalidateQueries({ queryKey: ["deuda-alumno"] });
+      queryClient.invalidateQueries({ queryKey: ["cuotas-listar"] });
+      queryClient.invalidateQueries({ queryKey: ["deudas-cobro-cuota"] });
+      queryClient.invalidateQueries({ queryKey: ["comprobantes"] });
+      
       onAnulado?.();
     } catch (e) {
       setErrorAnular(
@@ -675,16 +685,14 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) =
               >
                 <Printer size={14} />
               </button>
-              <TieneAccion accion="ENVIAR_EMAIL">
-                <button
-                  onClick={handleAbrirEmail}
-                  disabled={stepEmail === "cargando"}
-                  title="Enviar por email"
-                  className="p-1.5 rounded-md text-slate-600 hover:text-violet-600 hover:bg-violet-50 transition-colors active:scale-95 cursor-pointer disabled:opacity-50"
-                >
-                  <Mail size={14} />
-                </button>
-              </TieneAccion>
+              <button
+                onClick={handleAbrirEmail}
+                disabled={stepEmail === "cargando"}
+                title="Enviar por email"
+                className="p-1.5 rounded-md text-slate-600 hover:text-violet-600 hover:bg-violet-50 transition-colors active:scale-95 cursor-pointer disabled:opacity-50"
+              >
+                <Mail size={14} />
+              </button>
             </div>
             {esAnulable(data.tipoDocumento) && data.estado !== "ANULADO" && data.codigo && (
               <button

@@ -22,156 +22,125 @@ import {
 
 const COLORS = ["#10b981", "#f43f5e", "#f59e0b", "#64748b"]; // Emerald (Pagadas), Rose (Vencidas), Amber (Parciales), Slate (Sin emitir)
 
-const DashboardCuotas = ({ filas, mes, anio, asientosRaw }) => {
+/**
+ * Optimización de performance (2026-07-14, PARTE 2/2 frontend, ver
+ * progress/impl_cuotas-listado-performance-backend.md): los conteos por
+ * estado (pagadas/vencidas/parciales/sinEmitir) y `deudaTotal` ya NO se
+ * calculan iterando `filas` (que ahora es solo la página actual, ~20 filas)
+ * — vienen del universo completo vía prop `resumen` (`useResumenCuotas.js`,
+ * `cuotas.resumen`).
+ *
+ * Nota de mapeo: el backend expone exactamente 4 buckets (pagadas/vencidas/
+ * parciales/sinEmitir) — el pie/tarjeta que antes se llamaba "Impagas"
+ * (VENCIDA + EMITIDA combinadas) ahora muestra solo `resumen.vencidas`
+ * (estrictamente vencidas); los contactos con cuota emitida pero AÚN NO
+ * vencida no entran en ningún bucket de este resumen (sí cuentan en
+ * `resumen.totalContactos`) — mismo criterio ya documentado en el backend.
+ *
+ * Optimización de performance, PARTE 3 (2026-07-14, ver
+ * progress/impl_cuotas-listado-performance-backend.md): "Total Emitido" y
+ * "Total Cobrado" ya NO se derivan de `filas` (la página actual) — vienen
+ * de `resumen.totalEmitido`/`resumen.totalCobrado` (universo completo,
+ * `cuotas.resumen`), reemplazando la limitación conocida documentada en la
+ * PARTE 2. Por eso este componente ya no recibe/usa la prop `filas`.
+ */
+const DashboardCuotas = ({ resumen, mes, anio, evolucionReal }) => {
   const metricas = useMemo(() => {
-    let pagadas = 0;
-    let impagas = 0;
-    let parciales = 0;
-    let sinEmitir = 0;
-
-    let totalEmitido = 0;
-    let totalCobrado = 0;
-    let totalDeuda = 0;
-
-    filas.forEach((f) => {
-      // Conteo por estado
-      if (f.estado === "ABONADO") pagadas++;
-      else if (f.estado === "VENCIDA" || f.estado === "EMITIDA") impagas++;
-      else if (f.estado === "PARCIALMENTE_ABONADO") parciales++;
-      else sinEmitir++;
-
-      // Valores monetarios
-      if (f.estado !== "SIN_EMITIR") {
-        totalEmitido += f.monto;
-        totalDeuda += f.totalDeuda;
-      }
-    });
-
-    totalCobrado = totalEmitido - totalDeuda;
+    const pagadas = resumen?.pagadas ?? 0;
+    const vencidas = resumen?.vencidas ?? 0;
+    const parciales = resumen?.parciales ?? 0;
+    const sinEmitir = resumen?.sinEmitir ?? 0;
+    const totalContactos = resumen?.totalContactos ?? 0;
+    const totalDeuda = resumen?.deudaTotal ?? 0;
+    const totalEmitido = resumen?.totalEmitido ?? 0;
+    const totalCobrado = resumen?.totalCobrado ?? 0;
 
     const dataPie = [
       { name: "Abonadas", value: pagadas },
-      { name: "Impagas", value: impagas },
+      { name: "Vencidas", value: vencidas },
       { name: "Parciales", value: parciales },
       { name: "Sin Emitir", value: sinEmitir },
     ].filter((d) => d.value > 0);
 
     return {
       pagadas,
-      impagas,
+      vencidas,
       parciales,
       sinEmitir,
+      totalContactos,
       totalEmitido,
       totalCobrado,
       totalDeuda,
       dataPie,
     };
-  }, [filas]);
+  }, [resumen]);
 
-  // Evolución últimos 6 meses (BarChart)
+  // Evolución últimos 6 meses (BarChart). Bugfix
+  // "cuotas-evolucion-facturas-reales": el array ya llega agregado y
+  // ordenado (más viejo primero) desde `cuotas.evolucion`
+  // (contabilidad-ms/comprobantes-ms, Facturas reales) vía el prop
+  // `evolucionReal` — acá solo se renombran los campos al nombre que ya
+  // espera el JSX de abajo (BarChart + tabla), sin recalcular nada.
   const evolucionData = useMemo(() => {
-    if (!asientosRaw) return [];
+    if (!evolucionReal) return [];
 
-    const mesesStr = [
-      "Ene",
-      "Feb",
-      "Mar",
-      "Abr",
-      "May",
-      "Jun",
-      "Jul",
-      "Ago",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dic",
-    ];
-    const resultado = [];
+    const mesesNombres = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
-    // Generar últimos 6 meses a partir del mes/año seleccionado
-    for (let i = 5; i >= 0; i--) {
-      let m = mes - i;
-      let y = anio;
-      if (m <= 0) {
-        m += 12;
-        y -= 1;
-      }
+    return evolucionReal.map((fila) => {
+      const d = new Date(fila.fechaVto);
+      const name = mesesNombres[d.getMonth()] || "";
+      const anio = d.getFullYear();
+      
+      const emitido = fila.totalEmitido || 0;
+      const cobrado = fila.totalCobrado || 0;
+      const deuda = emitido - cobrado;
+      const porcentajePendiente = emitido > 0 ? (deuda / emitido) * 100 : 0;
 
-      // Filtrar asientos que correspondan a esa cuota: CUOTA-XXX-YYYY-MM
-      const prefijo = `-${y}-${String(m).padStart(2, "0")}`;
-
-      let cobradoMes = 0;
-      let emitidoMes = 0;
-
-      asientosRaw.forEach((a) => {
-        if (
-          typeof a.referencia === "string" &&
-          a.referencia.endsWith(prefijo) &&
-          a.referencia.startsWith("CUOTA-")
-        ) {
-          // Asumiendo que el total emitido por cuota se puede estimar o buscar en las cuentas de padres
-          a.detalles?.forEach((d) => {
-            if (
-              d.codigoCuentaContable === 507 ||
-              d.nombreCuentaContable?.toUpperCase().includes("PADRE")
-            ) {
-              cobradoMes += d.haber || 0;
-              emitidoMes += d.debe || 0;
-            }
-          });
-        }
-      });
-
-      resultado.push({
-        name: `${mesesStr[m - 1]}`,
-        anio: y,
-        Cobrado: cobradoMes,
-        Deuda: Math.max(0, emitidoMes - cobradoMes),
-        Emitido: emitidoMes,
-        PorcentajePendiente:
-          emitidoMes > 0
-            ? (Math.max(0, emitidoMes - cobradoMes) / emitidoMes) * 100
-            : 0,
-      });
-    }
-
-    // Invertir para que el mes más reciente quede al final en el gráfico, pero en la tabla podemos mostrarlo de arriba hacia abajo
-    return resultado.reverse();
-  }, [asientosRaw, mes, anio]);
+      return {
+        name,
+        anio,
+        Cobrado: cobrado,
+        Deuda: deuda,
+        Emitido: emitido,
+        PorcentajePendiente: porcentajePendiente,
+      };
+    });
+  }, [evolucionReal]);
 
   return (
     <div className="flex flex-col gap-5 mb-6">
       {/* Tarjetas Superiores */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-[var(--border-subtle)] rounded-md p-5 flex flex-col justify-between shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+        {/* HERO KPI */}
+        <div className="bg-gray-900 border border-gray-800 rounded-md p-5 flex flex-col justify-between shadow-xl relative overflow-hidden group">
+          <div className="absolute -right-4 -bottom-4 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+            <DollarSign size={100} />
+          </div>
+          <div className="flex items-center justify-between mb-2 relative z-10">
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
               Total Emitido
             </span>
-            <div className="p-2 bg-[var(--primary)]/10 text-[var(--primary)] rounded-md">
-              <DollarSign size={16} />
-            </div>
           </div>
-          <span className="text-2xl font-black text-gray-800">
+          <span className="text-3xl font-black text-white relative z-10 tracking-tight">
             {formatearARS(metricas.totalEmitido)}
           </span>
         </div>
 
-        <div className="bg-white border border-[var(--border-subtle)] rounded-md p-5 flex flex-col justify-between shadow-sm">
+        <div className="bg-white border border-gray-200 rounded-md p-5 flex flex-col justify-between shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
               Total Cobrado
             </span>
-            <div className="p-2 bg-emerald-50 text-emerald-600 rounded-md">
-              <TrendingUp size={16} />
+            <div className="p-1.5 bg-[#1FAE6D]/10 text-[#1FAE6D] rounded-md">
+              <TrendingUp size={14} strokeWidth={2.5} />
             </div>
           </div>
-          <span className="text-2xl font-black text-emerald-600">
+          <span className="text-2xl font-black text-gray-900 tracking-tight">
             {formatearARS(metricas.totalCobrado)}
           </span>
-          <div className="w-full bg-emerald-100 h-1.5 rounded-full mt-3 overflow-hidden">
+          <div className="w-full bg-gray-100 h-1.5 rounded-full mt-3 overflow-hidden">
             <div
-              className="bg-emerald-500 h-full rounded-full"
+              className="bg-[#1FAE6D] h-full rounded-full"
               style={{
                 width: `${metricas.totalEmitido ? (metricas.totalCobrado / metricas.totalEmitido) * 100 : 0}%`,
               }}
@@ -179,19 +148,19 @@ const DashboardCuotas = ({ filas, mes, anio, asientosRaw }) => {
           </div>
         </div>
 
-        <div className="bg-white border border-[var(--border-subtle)] rounded-md p-5 flex flex-col justify-between shadow-sm">
+        <div className="bg-white border border-gray-200 rounded-md p-5 flex flex-col justify-between shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-rose-600">
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
               Total Deuda
             </span>
-            <div className="p-2 bg-rose-50 text-rose-600 rounded-md">
-              <TrendingDown size={16} />
+            <div className="p-1.5 bg-rose-50 text-rose-600 rounded-md">
+              <TrendingDown size={14} strokeWidth={2.5} />
             </div>
           </div>
-          <span className="text-2xl font-black text-rose-600">
+          <span className="text-2xl font-black text-gray-900 tracking-tight">
             {formatearARS(metricas.totalDeuda)}
           </span>
-          <div className="w-full bg-rose-100 h-1.5 rounded-full mt-3 overflow-hidden">
+          <div className="w-full bg-gray-100 h-1.5 rounded-full mt-3 overflow-hidden">
             <div
               className="bg-rose-500 h-full rounded-full"
               style={{
@@ -201,21 +170,21 @@ const DashboardCuotas = ({ filas, mes, anio, asientosRaw }) => {
           </div>
         </div>
 
-        <div className="bg-white border border-[var(--border-subtle)] rounded-md p-5 flex flex-col justify-between shadow-sm">
+        <div className="bg-white border border-gray-200 rounded-md p-5 flex flex-col justify-between shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
               Estado Alumnos
             </span>
-            <div className="p-2 bg-amber-50 text-amber-600 rounded-md">
-              <Users size={16} />
+            <div className="p-1.5 bg-gray-100 text-gray-600 rounded-md">
+              <Users size={14} strokeWidth={2.5} />
             </div>
           </div>
-          <div className="flex items-end gap-2">
-            <span className="text-2xl font-black text-gray-800">
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-black text-gray-900 tracking-tight">
               {metricas.pagadas}
             </span>
-            <span className="text-xs font-bold text-gray-400 mb-1">
-              / {filas.length} al día
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+              / {metricas.totalContactos} al día
             </span>
           </div>
         </div>
@@ -224,10 +193,10 @@ const DashboardCuotas = ({ filas, mes, anio, asientosRaw }) => {
       {/* Gráficos y Tabla */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Gráfico de Anillo */}
-        <div className="bg-white border border-[var(--border-subtle)] rounded-md p-5 shadow-sm flex flex-col">
-          <div className="flex items-center gap-2 mb-4">
-            <Activity size={16} className="text-[var(--primary)]" />
-            <h3 className="text-xs font-black uppercase tracking-widest text-gray-700">
+        <div className="bg-white border border-gray-200 rounded-md p-5 shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col">
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
+            <Activity size={14} className="text-gray-400" />
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-700">
               Estado del Mes
             </h3>
           </div>
@@ -276,10 +245,10 @@ const DashboardCuotas = ({ filas, mes, anio, asientosRaw }) => {
         </div>
 
         {/* Gráfico de Barras y Tabla */}
-        <div className="bg-white border border-[var(--border-subtle)] rounded-md p-5 shadow-sm lg:col-span-2 flex flex-col">
-          <div className="flex items-center gap-2 mb-4">
-            <TrendingUp size={16} className="text-[var(--primary)]" />
-            <h3 className="text-xs font-black uppercase tracking-widest text-gray-700">
+        <div className="bg-white border border-gray-200 rounded-md p-5 shadow-[0_2px_8px_rgba(0,0,0,0.02)] lg:col-span-2 flex flex-col">
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
+            <TrendingUp size={14} className="text-gray-400" />
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-700">
               Evolución (Últimos 6 Meses)
             </h3>
           </div>
@@ -334,46 +303,46 @@ const DashboardCuotas = ({ filas, mes, anio, asientosRaw }) => {
           </div>
 
           {/* Tabla de % Pendiente */}
-          <div className="border border-[var(--border-subtle)] rounded-md overflow-hidden">
+          <div className="border border-gray-200 rounded-md overflow-hidden shadow-sm">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-emerald-800 border-b border-emerald-900">
-                  <th className="px-4 py-2.5 text-[9px] font-black text-emerald-50 uppercase tracking-widest">
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="px-4 py-3 text-[10px] font-black text-gray-500 uppercase tracking-widest">
                     Mes
                   </th>
-                  <th className="px-4 py-2.5 text-[9px] font-black text-emerald-50 uppercase tracking-widest text-right">
+                  <th className="px-4 py-3 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right">
                     Monto Total
                   </th>
-                  <th className="px-4 py-2.5 text-[9px] font-black text-emerald-50 uppercase tracking-widest text-right">
+                  <th className="px-4 py-3 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right">
                     Pagado
                   </th>
-                  <th className="px-4 py-2.5 text-[9px] font-black text-emerald-50 uppercase tracking-widest text-right">
+                  <th className="px-4 py-3 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right">
                     Pendiente
                   </th>
-                  <th className="px-4 py-2.5 text-[9px] font-black text-emerald-50 uppercase tracking-widest text-right">
+                  <th className="px-4 py-3 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right">
                     % Pendiente
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--border-subtle)]">
+              <tbody className="divide-y divide-gray-100 bg-white">
                 {[...evolucionData].reverse().map((row, idx) => (
                   <tr
                     key={idx}
-                    className="hover:bg-gray-50/50 transition-colors"
+                    className="hover:bg-gray-50/80 transition-colors"
                   >
-                    <td className="px-4 py-2 text-xs font-bold text-gray-700 uppercase">
+                    <td className="px-4 py-3 text-[11px] font-bold text-gray-900 uppercase tracking-widest">
                       {row.name} {row.anio}
                     </td>
-                    <td className="px-4 py-2 text-xs font-semibold text-gray-600 text-right">
+                    <td className="px-4 py-3 text-xs font-bold text-gray-600 text-right">
                       {formatearARS(row.Emitido)}
                     </td>
-                    <td className="px-4 py-2 text-xs font-semibold text-gray-600 text-right">
+                    <td className="px-4 py-3 text-xs font-bold text-[#1FAE6D] text-right">
                       {formatearARS(row.Cobrado)}
                     </td>
-                    <td className="px-4 py-2 text-xs font-semibold text-rose-600 text-right">
+                    <td className="px-4 py-3 text-xs font-bold text-rose-600 text-right">
                       {formatearARS(row.Deuda)}
                     </td>
-                    <td className="px-4 py-2 text-xs font-black text-gray-800 text-right">
+                    <td className="px-4 py-3 text-xs font-black text-gray-900 text-right">
                       {row.PorcentajePendiente.toFixed(2).replace(".", ",")}%
                     </td>
                   </tr>

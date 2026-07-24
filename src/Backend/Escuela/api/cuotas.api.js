@@ -16,12 +16,63 @@ export const listarCuotasApi = async ({
   mes,
   anio,
   codigoUnidadNegocio,
+  pagina,
+  limite,
+  busqueda,
+  filtroEstado,
 }) => {
   const params = { codigoCuentaContable, tipoEntidadObligado, mes, anio };
   if (codigoUnidadNegocio != null && codigoUnidadNegocio !== "") {
     params.codigoUnidadNegocio = codigoUnidadNegocio;
   }
+  if (pagina != null) params.pagina = pagina;
+  if (limite != null) params.limite = limite;
+  if (busqueda != null && busqueda !== "") params.busqueda = busqueda;
+  // Optimización de performance (PARTE 3): filtro por Estado, resuelto en
+  // el backend (universo completo, filtra y RECIÉN AHÍ pagina) — antes se
+  // filtraba en memoria en TablaCuotas.jsx/TablaCuotasSocios.jsx, solo
+  // sobre la página actual.
+  if (filtroEstado != null && filtroEstado !== "" && filtroEstado !== "TODOS") {
+    params.filtroEstado = filtroEstado;
+  }
   const { data } = await axios.get("/escuela/cuotas", { params });
+  return data;
+};
+
+// ---- Resumen/KPIs del dashboard (performance: universo completo, sin
+// paginar/buscar, mismos filtros que el listado MENOS pagina/limite/
+// busqueda — ver progress/impl_cuotas-listado-performance-backend.md) ----
+
+export const resumenCuotasApi = async ({
+  codigoCuentaContable,
+  tipoEntidadObligado,
+  mes,
+  anio,
+  codigoUnidadNegocio,
+}) => {
+  const params = { codigoCuentaContable, tipoEntidadObligado, mes, anio };
+  if (codigoUnidadNegocio != null && codigoUnidadNegocio !== "") {
+    params.codigoUnidadNegocio = codigoUnidadNegocio;
+  }
+  const { data } = await axios.get("/escuela/cuotas/resumen", { params });
+  return data;
+};
+
+// ---- Evolución mensual (últimos 6 meses) desde Facturas reales ----
+
+/**
+ * Bugfix "cuotas-evolucion-facturas-reales": evolución mensual real (ya no
+ * el mecanismo viejo de asientos armados a mano), consumida por el gráfico
+ * "Evolución" de `DashboardCuotas.jsx`.
+ */
+export const evolucionCuotasApi = async ({
+  codigoCuentaContable,
+  mes,
+  anio,
+}) => {
+  const { data } = await axios.get("/escuela/cuotas/evolucion", {
+    params: { codigoCuentaContable, mes, anio },
+  });
   return data;
 };
 

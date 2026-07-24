@@ -31,15 +31,17 @@ const SelectorChequeEndosoModal = ({ onClose, onConfirm }) => {
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white border border-[var(--border-subtle)] rounded-xl max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <FileText className="text-amber-600" size={20} />
-            <h2 className="text-lg font-black tracking-tight text-amber-900 uppercase">
+      <div className="bg-white border border-gray-200 rounded-xl max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-md bg-emerald-50 text-[#1FAE6D] border border-emerald-200/60 flex items-center justify-center font-black">
+              <FileText size={18} />
+            </div>
+            <h2 className="text-xs font-black tracking-widest text-gray-900 uppercase">
               Seleccionar Cheque para Endoso
             </h2>
           </div>
-          <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center bg-white border border-gray-200 text-gray-500 hover:text-gray-900 rounded-md transition-all group shadow-sm cursor-pointer">
             <X size={18} />
           </button>
         </div>

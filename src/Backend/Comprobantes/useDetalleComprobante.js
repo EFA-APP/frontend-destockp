@@ -183,6 +183,32 @@ export const useDetalleComprobante = (tipoOperacion = "INGRESO") => {
     );
   };
 
+  // Feature "egreso-distribucion-unidad-negocio": reparto por unidad de
+  // negocio de una línea (solo porcentaje, Revisión 2). `repartos` es un
+  // arreglo de `{codigoUnidadNegocio, porcentaje}`, sin monto (la vista
+  // previa en pesos se calcula en el modal, no se persiste en el carrito).
+  const actualizarRepartoItem = (codigo, repartos) => {
+    setItems((prev) =>
+      prev.map((i) =>
+        i.codigo === codigo
+          ? { ...i, repartoUnidadNegocio: repartos }
+          : i,
+      ),
+    );
+  };
+
+  // R34: quita el reparto de una línea, volviendo al comportamiento por
+  // defecto (toda la línea se imputa a la unidad de cabecera).
+  const quitarRepartoItem = (codigo) => {
+    setItems((prev) =>
+      prev.map((i) => {
+        if (i.codigo !== codigo) return i;
+        const { repartoUnidadNegocio, ...resto } = i;
+        return resto;
+      }),
+    );
+  };
+
   /**
    * Vuelve el detalle (carrito + búsquedas) al mismo estado inicial que
    * tenía al montar el componente, para dejar el formulario listo para
@@ -242,6 +268,8 @@ export const useDetalleComprobante = (tipoOperacion = "INGRESO") => {
     actualizarTasaIvaItem,
     actualizarTipoFiscalItem,
     actualizarDevolverAStockItem,
+    actualizarRepartoItem,
+    quitarRepartoItem,
     quitarItem,
     reset,
     subtotalSinIva,

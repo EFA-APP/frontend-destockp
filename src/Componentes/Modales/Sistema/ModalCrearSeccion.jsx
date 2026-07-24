@@ -102,7 +102,7 @@ const ModalCrearSeccion = ({ isOpen, onClose, empresa, seccionAEditar = null }) 
       const subMenusLimpios = formData.subMenus
         .filter(sm => sm.nombre.trim() !== "" && sm.redireccion.trim() !== "");
 
-      const { permisoRequerido, ...restoData } = formData;
+      const { permisoRequerido, codigoSecuencial, ...restoData } = formData;
       const payload = {
         codigoEmpresa: Number(empresa.codigo || empresa.codigo),
         ...restoData,

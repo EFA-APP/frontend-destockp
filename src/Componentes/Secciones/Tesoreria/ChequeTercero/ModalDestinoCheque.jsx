@@ -1,55 +1,36 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { X, CheckCircle, AlertTriangle } from "lucide-react";
-import { useObtenerDescendientesImputablesQuery } from "../../../../Backend/Contabilidad/queries/useCuentas.query";
-import { useDepositarChequeTerceroMutation } from "../../../../Backend/Comprobantes/queries/useDepositarChequeTercero.mutation";
 import { useCobrarChequeTerceroMutation } from "../../../../Backend/Comprobantes/queries/useCobrarChequeTercero.mutation";
 import { useRechazarChequeTerceroMutation } from "../../../../Backend/Comprobantes/queries/useRechazarChequeTercero.mutation";
 import { formatPrice } from "../../../../utils/formatters";
-import SearchableSelect from "../../../UI/Select/SearchableSelect";
-import { useMemo } from "react";
+import CuentaBancariaAutocomplete from "../../../UI/Select/CuentaBancariaAutocomplete";
 
+const FieldLabel = ({ children }) => (
+  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block mb-2">
+    {children}
+  </span>
+);
+
+// Feature cheques-terceros-integracion-bancos (R1, R38): la acción
+// DEPOSITAR se elimina de este modal por completo — depositar un cheque
+// (solo o junto con otros/efectivo) pasa a hacerse exclusivamente desde
+// Bancos > Depósitos. Este modal pasa a manejar solo COBRAR/RECHAZAR.
 const ModalDestinoCheque = ({ cheque, accion, onClose }) => {
-  const [codigoCuentaDestino, setCodigoCuentaDestino] = useState("");
-  const [busqueda, setBusqueda] = useState("");
-  const [busquedaDebounced, setBusquedaDebounced] = useState("");
+  const esRepresentacion = accion === "COBRAR" && cheque.estado === "RECHAZADO";
 
-  useEffect(() => {
-    const t = setTimeout(() => setBusquedaDebounced(busqueda), 300);
-    return () => clearTimeout(t);
-  }, [busqueda]);
+  // R35, R40: selector de CuentaBancaria real de tesoreria-ms (en lugar del
+  // plan de cuentas de contabilidad-ms). El estado guarda la CuentaBancaria
+  // completa; se convierte a codigoCuentaBancaria (su `codigo`) recién al
+  // armar el payload de la mutation.
+  const [cuentaBancaria, setCuentaBancaria] = useState(null);
+  const [importeCobrado, setImporteCobrado] = useState(
+    esRepresentacion ? String(cheque.importe) : "",
+  );
 
-  // 58 es el codigo en DB para la cuenta agrupadora "Bancos" (codigo string: "110102")
-  const { data: bancos, isLoading: isLoadingBancos } =
-    useObtenerDescendientesImputablesQuery(
-      58,
-      busquedaDebounced || undefined,
-    );
-
-  const cuentaOptions = useMemo(() => {
-    const opts = [];
-
-    // Inyectamos Caja Principal si no hay búsqueda, o si la búsqueda coincide con "caja"
-    if (
-      !busquedaDebounced ||
-      "caja principal".includes(busquedaDebounced.toLowerCase())
-    ) {
-      opts.push({ value: "85", label: "Caja Principal" });
-    }
-
-    if (bancos && bancos.length > 0) {
-      bancos.forEach((b) => {
-        opts.push({ value: String(b.codigo), label: b.nombre });
-      });
-    }
-    return opts;
-  }, [bancos, busquedaDebounced]);
-
-  const mDepositar = useDepositarChequeTerceroMutation();
   const mCobrar = useCobrarChequeTerceroMutation();
   const mRechazar = useRechazarChequeTerceroMutation();
 
-  const isPending =
-    mDepositar.isPending || mCobrar.isPending || mRechazar.isPending;
+  const isPending = mCobrar.isPending || mRechazar.isPending;
 
   const mostrarAdvertencias = (data) => {
     if (data?.advertencias?.length > 0) {
@@ -72,47 +53,39 @@ const ModalDestinoCheque = ({ cheque, accion, onClose }) => {
       return;
     }
 
-    if (!codigoCuentaDestino) {
+    if (!cuentaBancaria) {
       alert("Debe seleccionar una cuenta destino");
       return;
     }
 
-    const payload = {
-      codigo: cheque.codigo,
-      codigoCuentaDestino: Number(codigoCuentaDestino),
-    };
-
-    if (accion === "DEPOSITAR") {
-      mDepositar.mutate(payload, {
-        onSuccess: (data) => {
-          alert("Cheque depositado correctamente");
-          mostrarAdvertencias(data);
-          onClose();
+    if (accion === "COBRAR") {
+      mCobrar.mutate(
+        {
+          codigo: cheque.codigo,
+          codigoCuentaBancaria: cuentaBancaria.codigo,
+          importeCobrado: importeCobrado ? Number(importeCobrado) : undefined,
         },
-        onError: (err) => alert(err.message),
-      });
-    } else if (accion === "COBRAR") {
-      mCobrar.mutate(payload, {
-        onSuccess: (data) => {
-          alert("Cheque cobrado correctamente");
-          mostrarAdvertencias(data);
-          onClose();
+        {
+          onSuccess: (data) => {
+            alert(
+              esRepresentacion
+                ? "Cheque re-presentado y acreditado correctamente"
+                : "Cheque cobrado correctamente",
+            );
+            mostrarAdvertencias(data);
+            onClose();
+          },
+          onError: (err) => alert(err.message),
         },
-        onError: (err) => alert(err.message),
-      });
+      );
     }
   };
 
   const accionConfig = {
-    DEPOSITAR: {
-      titulo: "Depositar Cheque",
-      color: "text-blue-600",
-      btnClass: "bg-blue-600 hover:bg-blue-700",
-    },
     COBRAR: {
-      titulo: "Cobrar Cheque",
-      color: "text-emerald-600",
-      btnClass: "bg-emerald-600 hover:bg-emerald-700",
+      titulo: esRepresentacion ? "Re-presentar Cheque" : "Cobrar Cheque",
+      color: "text-[#1FAE6D]",
+      btnClass: "bg-[#1FAE6D] hover:bg-[#178F58]",
     },
     RECHAZAR: {
       titulo: "Rechazar Cheque",
@@ -125,76 +98,93 @@ const ModalDestinoCheque = ({ cheque, accion, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      {/* Backdrop blur */}
       <div
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+        className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-200">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between rounded-t-xl">
-          <h2 className={`text-lg font-black tracking-tight ${cfg.color}`}>
+      <div className="relative w-full max-w-md bg-white rounded-md shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-200">
+        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gray-50/50 rounded-t-md">
+          <h2 className={`text-sm font-black uppercase tracking-widest ${cfg.color}`}>
             {cfg.titulo}
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-200 rounded-md transition-colors"
           >
-            <X size={18} />
+            <X size={16} strokeWidth={2.5} />
           </button>
         </div>
 
         <div className="p-6">
-          <div className="mb-6 p-4 bg-gray-50 border border-gray-100 rounded-lg space-y-1">
-            <p className="text-xs font-black text-gray-500 uppercase tracking-widest">
+          <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-md">
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
               Detalle del Cheque
             </p>
-            <p className="text-sm font-semibold text-gray-800">
+            <p className="text-sm font-bold text-gray-800">
               Banco {cheque.banco} - N° {cheque.numero}
             </p>
-            <p className="text-lg font-black text-gray-900">
+            <p className="text-xl font-black text-gray-900 mt-1">
               {formatPrice(cheque.importe)}
             </p>
           </div>
 
           {accion === "RECHAZAR" ? (
-            <div className="flex items-center gap-3 text-sm font-medium text-rose-700 bg-rose-50 p-4 rounded-lg border border-rose-100">
-              <AlertTriangle size={20} className="shrink-0" />
-              ¿Está seguro que desea marcar este cheque como RECHAZADO? Esta
-              acción no se puede deshacer.
+            <div className="flex gap-3 text-sm font-medium text-rose-700 bg-rose-50 p-4 rounded-md border border-rose-200">
+              <AlertTriangle size={20} className="shrink-0 text-rose-600" />
+              <div>
+                <span className="font-bold block mb-1">Confirmación de Rechazo</span>
+                ¿Está seguro que desea marcar este cheque como RECHAZADO? Esta acción no se puede deshacer.
+              </div>
             </div>
           ) : (
             <form
               id="accion-cheque-form"
               onSubmit={handleSubmit}
-              className="space-y-4"
+              className="space-y-6"
             >
-              <div className="space-y-1.5">
-                <label className="text-xs font-black text-gray-500 uppercase tracking-widest">
-                  Cuenta Destino
-                </label>
-                <SearchableSelect
-                  options={cuentaOptions}
-                  value={String(codigoCuentaDestino)}
-                  onChange={(e) => setCodigoCuentaDestino(e.target.value)}
-                  onSearchChange={setBusqueda}
-                  placeholder={
-                    isLoadingBancos
-                      ? "Cargando bancos..."
-                      : "Seleccione una cuenta"
-                  }
-                  disabled={isLoadingBancos && !bancos}
+              {esRepresentacion && (
+                <div className="flex gap-3 text-sm font-medium text-emerald-700 bg-emerald-50 p-4 rounded-md border border-emerald-200">
+                  <AlertTriangle size={20} className="shrink-0 text-emerald-600" />
+                  <div>
+                    <span className="font-bold block mb-1">Re-presentación</span>
+                    Este cheque fue RECHAZADO previamente. Al confirmar, se re-presenta y pasa a ACREDITADO.
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <CuentaBancariaAutocomplete
+                  label="Cuenta Destino"
+                  value={cuentaBancaria}
+                  onChange={setCuentaBancaria}
                 />
               </div>
+
+              {esRepresentacion && (
+                <div>
+                  <FieldLabel>Importe Cobrado</FieldLabel>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={importeCobrado}
+                      onChange={(e) => setImporteCobrado(e.target.value)}
+                      className="w-full h-11 bg-white border border-gray-300 rounded-md pl-9 pr-4 text-sm font-bold text-gray-900 focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 transition-all shadow-sm"
+                    />
+                  </div>
+                </div>
+              )}
             </form>
           )}
         </div>
 
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 rounded-b-xl">
+        <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3 rounded-b-md">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-bold text-gray-600 hover:text-gray-900 transition-colors"
+            className="px-5 py-2.5 text-xs font-bold text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors uppercase tracking-wider"
             disabled={isPending}
           >
             Cancelar
@@ -204,10 +194,9 @@ const ModalDestinoCheque = ({ cheque, accion, onClose }) => {
             form="accion-cheque-form"
             onClick={accion === "RECHAZAR" ? handleSubmit : undefined}
             disabled={isPending}
-            className={`flex items-center gap-2 px-5 py-2 text-sm font-bold text-white rounded-lg shadow-sm transition-all ${cfg.btnClass} disabled:opacity-50 disabled:cursor-not-allowed`}
+            className={`flex items-center gap-2 px-6 py-2.5 text-xs font-bold text-white rounded-md shadow-sm transition-all uppercase tracking-wider ${cfg.btnClass} disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {isPending ? "Procesando..." : "Confirmar"}
-            <CheckCircle size={16} />
           </button>
         </div>
       </div>

@@ -2,13 +2,13 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLoteCuotas } from "../../../../Backend/Escuela/hooks/useLoteCuotas";
 import { reintentarLoteCuotasApi } from "../../../../Backend/Escuela/api/cuotas.api";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, X } from "lucide-react";
 
 const ETIQUETAS_ESTADO = {
-  EXITO: { label: "Éxito", clase: "bg-emerald-100 text-emerald-700 border-emerald-200" },
-  ERROR: { label: "Error", clase: "bg-rose-100 text-rose-700 border-rose-200" },
-  OMITIDO: { label: "Ya emitida", clase: "bg-amber-100 text-amber-700 border-amber-200" },
-  PENDIENTE: { label: "Pendiente", clase: "bg-gray-100 text-gray-500 border-gray-200" },
+  EXITO: { label: "Éxito", clase: "bg-emerald-50 text-emerald-700 border-emerald-200/60", dot: "bg-emerald-500" },
+  ERROR: { label: "Error", clase: "bg-rose-50 text-rose-700 border-rose-200/60", dot: "bg-rose-500" },
+  OMITIDO: { label: "Ya emitida", clase: "bg-amber-50 text-amber-700 border-amber-200/60", dot: "bg-amber-500" },
+  PENDIENTE: { label: "Pendiente", clase: "bg-gray-50 text-gray-600 border-gray-200/60", dot: "bg-gray-400" },
 };
 
 /**
@@ -39,6 +39,8 @@ const ModalProgresoLoteCuotas = ({ codigoLote, onClose, onFinalizado }) => {
     try {
       await reintentarLoteCuotasApi(codigoLote);
       queryClient.invalidateQueries({ queryKey: ["lote-cuotas", codigoLote] });
+      queryClient.invalidateQueries({ queryKey: ["deuda-alumno"] });
+      queryClient.invalidateQueries({ queryKey: ["deudas-cobro-cuota"] });
     } catch (err) {
       setErrorReintento(err?.response?.data?.message || "Error al reintentar los ítems fallidos.");
     } finally {
@@ -47,20 +49,27 @@ const ModalProgresoLoteCuotas = ({ codigoLote, onClose, onFinalizado }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white border border-[var(--border-subtle)] rounded-xl max-w-2xl w-full p-7 shadow-2xl flex flex-col gap-5 max-h-[85vh]">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-xl font-black tracking-tight text-gray-800">
-            Emisión de cuotas — Lote #{codigoLote}
-          </h2>
-          <p className="text-xs font-semibold text-gray-500">
-            {finalizado
-              ? "Procesamiento finalizado."
-              : "Procesando en segundo plano, esta ventana se actualiza sola..."}
-          </p>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-200 max-h-[85vh]">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between rounded-t-xl">
+          <div>
+            <h2 className="text-lg font-black tracking-tight text-gray-800">
+              Emisión de cuotas — Lote #{codigoLote}
+            </h2>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+              {finalizado
+                ? "Procesamiento finalizado"
+                : "Procesando en segundo plano..."}
+            </p>
+          </div>
+          <button onClick={() => { if (finalizado) onFinalizado?.(); onClose(); }} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+            <X size={18} />
+          </button>
         </div>
 
-        <div className="grid grid-cols-4 gap-2">
+        <div className="p-6 overflow-y-auto space-y-6">
+          <div className="grid grid-cols-4 gap-3">
           {[
             ["PENDIENTE", "Pendientes"],
             ["EXITO", "Éxito"],
@@ -69,10 +78,13 @@ const ModalProgresoLoteCuotas = ({ codigoLote, onClose, onFinalizado }) => {
           ].map(([key, label]) => (
             <div
               key={key}
-              className={`rounded-md border p-3 flex flex-col gap-1 ${ETIQUETAS_ESTADO[key].clase}`}
+              className={`rounded-md border p-4 flex flex-col gap-1.5 shadow-[0_2px_8px_rgba(0,0,0,0.02)] ${ETIQUETAS_ESTADO[key].clase}`}
             >
-              <span className="text-[9px] font-black uppercase tracking-widest">{label}</span>
-              <span className="text-xl font-black">{totales[key] ?? 0}</span>
+              <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5">
+                <span className={`w-1.5 h-1.5 rounded-full ${ETIQUETAS_ESTADO[key].dot}`} />
+                {label}
+              </span>
+              <span className="text-2xl font-black tracking-tight leading-none mt-1">{totales[key] ?? 0}</span>
             </div>
           ))}
         </div>
@@ -84,41 +96,44 @@ const ModalProgresoLoteCuotas = ({ codigoLote, onClose, onFinalizado }) => {
             ))}
           </div>
         ) : (
-          <div className="overflow-y-auto flex-1 border border-[var(--border-subtle)] rounded-lg">
+          <div className="overflow-y-auto flex-1 border border-gray-200 rounded-md shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
             <table className="w-full border-collapse text-left">
-              <thead className="bg-gray-50/80 sticky top-0 border-b border-[var(--border-subtle)]">
+              <thead className="bg-gray-50 sticky top-0 border-b border-gray-200">
                 <tr>
-                  <th className="px-4 py-2.5 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                  <th className="px-5 py-3 text-[10px] font-black text-gray-500 uppercase tracking-widest">
                     Contacto
                   </th>
-                  <th className="px-4 py-2.5 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-right">
+                  <th className="px-5 py-3 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right">
                     Monto
                   </th>
-                  <th className="px-4 py-2.5 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-center">
+                  <th className="px-5 py-3 text-[10px] font-black text-gray-500 uppercase tracking-widest text-center">
                     Estado
                   </th>
-                  <th className="px-4 py-2.5 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                  <th className="px-5 py-3 text-[10px] font-black text-gray-500 uppercase tracking-widest">
                     Motivo
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--border-subtle)]">
+              <tbody className="divide-y divide-gray-100 bg-white">
                 {items.map((item) => (
-                  <tr key={item.codigo} className="hover:bg-gray-50/50">
-                    <td className="px-4 py-2 text-xs font-bold text-gray-700">
+                  <tr key={item.codigo} className="hover:bg-gray-50/80 transition-colors">
+                    <td className="px-5 py-4 text-[11px] font-black text-gray-900 uppercase tracking-widest">
                       Contacto #{item.codigoContacto}
                     </td>
-                    <td className="px-4 py-2 text-xs font-semibold text-right text-gray-600">
+                    <td className="px-5 py-4 text-xs font-semibold text-right text-gray-600">
                       {item.monto}
                     </td>
-                    <td className="px-4 py-2 text-center">
+                    <td className="px-5 py-4 text-center">
                       <span
-                        className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border ${ETIQUETAS_ESTADO[item.estado]?.clase ?? ""}`}
+                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest border ${ETIQUETAS_ESTADO[item.estado]?.clase ?? ""}`}
                       >
+                        {ETIQUETAS_ESTADO[item.estado] && (
+                          <span className={`w-1.5 h-1.5 rounded-full ${ETIQUETAS_ESTADO[item.estado].dot}`} />
+                        )}
                         {ETIQUETAS_ESTADO[item.estado]?.label ?? item.estado}
                       </span>
                     </td>
-                    <td className="px-4 py-2 text-[11px] text-rose-600 font-semibold">
+                    <td className="px-5 py-4 text-[11px] text-rose-600 font-semibold">
                       {item.motivoError ?? ""}
                     </td>
                   </tr>
@@ -133,13 +148,14 @@ const ModalProgresoLoteCuotas = ({ codigoLote, onClose, onFinalizado }) => {
             {errorReintento}
           </p>
         )}
-
-        <div className="flex gap-3 justify-end pt-1">
+        </div>
+        
+        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 rounded-b-xl">
           {finalizado && hayErrores && (
             <button
               onClick={handleReintentar}
               disabled={reintentando}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold hover:bg-amber-100 disabled:opacity-50 transition-all cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
             >
               <RefreshCw size={14} className={reintentando ? "animate-spin" : ""} />
               Reintentar fallidos
@@ -150,9 +166,9 @@ const ModalProgresoLoteCuotas = ({ codigoLote, onClose, onFinalizado }) => {
               if (finalizado) onFinalizado?.();
               onClose();
             }}
-            className="px-5 py-2.5 rounded-md bg-[var(--primary)] text-white text-xs font-bold hover:brightness-110 transition-all cursor-pointer shadow-md shadow-[var(--primary)]/20"
+            className="flex items-center gap-2 px-5 py-2 text-sm font-bold text-white rounded-lg shadow-sm bg-[#1FAE6D] hover:bg-[#178F58] transition-all cursor-pointer"
           >
-            {finalizado ? "Cerrar" : "Seguir en segundo plano"}
+            {finalizado ? "Cerrar panel" : "Seguir en segundo plano"}
           </button>
         </div>
       </div>

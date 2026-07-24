@@ -33,10 +33,15 @@ const TIPOS_MOVIMIENTO = [
   { value: "9", label: "Tarjeta Anulada" },
   { value: "10", label: "Cheque Propio Corriente" },
   { value: "12", label: "Cheque Tercero Entrante" },
+  { value: "13", label: "Cheque Tercero Depositado" },
   { value: "14", label: "Cheque Tercero Endosado" },
+  { value: "15", label: "Cheque Tercero Rechazado" },
   { value: "16", label: "Cheque Propio Diferido" },
   { value: "17", label: "Cheque Propio Anulado" },
   { value: "18", label: "Cheque Tercero Anulado" },
+  { value: "19", label: "Cheque Tercero Cobrado/Acreditado" },
+  { value: "20", label: "Cheque Tercero Entregado a Tercero" },
+  { value: "21", label: "Cheque Tercero Descontado" },
 ];
 
 const fmtFecha = (iso) =>

@@ -153,10 +153,44 @@ const ChequeTercero = lazy(
 const CajaDiaria = lazy(
   () => import("../Componentes/Secciones/Tesoreria/CajaDiaria/CajaDiaria"),
 );
+// Feature "bancos" (T47, R72)
+const BancosDashboard = lazy(
+  () => import("../Componentes/Secciones/Tesoreria/Bancos/Dashboard"),
+);
+const CuentasBancarias = lazy(
+  () => import("../Componentes/Secciones/Tesoreria/Bancos/CuentasBancarias"),
+);
+const LibroBanco = lazy(
+  () => import("../Componentes/Secciones/Tesoreria/Bancos/LibroBanco"),
+);
+const TransferenciasBancarias = lazy(
+  () => import("../Componentes/Secciones/Tesoreria/Bancos/Transferencias"),
+);
+const DepositosBancarios = lazy(
+  () => import("../Componentes/Secciones/Tesoreria/Bancos/Depositos"),
+);
+const ConciliacionBancaria = lazy(
+  () => import("../Componentes/Secciones/Tesoreria/Bancos/Conciliacion"),
+);
+const ChequePropio = lazy(
+  () => import("../Componentes/Secciones/Tesoreria/ChequePropio/ChequePropio"),
+);
 
 // ESCUELA
 const GestionCuotas = lazy(
   () => import("../Componentes/Secciones/Escuela/GestionCuotas/GestionCuotas"),
+);
+
+// SOCIOS
+const GestionCuotasSocios = lazy(
+  () =>
+    import("../Componentes/Secciones/Socios/GestionCuotas/GestionCuotasSocios"),
+);
+
+// OBRAS SOCIALES
+const ImportacionObrasSociales = lazy(
+  () =>
+    import("../Componentes/Secciones/ObrasSociales/Importaciones/ImportacionObrasSociales"),
 );
 
 const VistaCuentasCorrientes = lazy(
@@ -380,6 +414,35 @@ export default function Router() {
                 path="tesoreria/caja-diaria"
                 element={<CajaDiaria />}
               />
+              {/* Feature "bancos" (T47, R72, specs/analasis_bancos.md §5.A) */}
+              <Route
+                path="tesoreria/bancos"
+                element={<BancosDashboard />}
+              />
+              <Route
+                path="tesoreria/bancos/cuentas"
+                element={<CuentasBancarias />}
+              />
+              <Route
+                path="tesoreria/bancos/cuentas/:codigo"
+                element={<LibroBanco />}
+              />
+              <Route
+                path="tesoreria/bancos/cuentas/:codigo/conciliacion"
+                element={<ConciliacionBancaria />}
+              />
+              <Route
+                path="tesoreria/bancos/transferencias"
+                element={<TransferenciasBancarias />}
+              />
+              <Route
+                path="tesoreria/bancos/depositos"
+                element={<DepositosBancarios />}
+              />
+              <Route
+                path="tesoreria/cheques-propios"
+                element={<ChequePropio />}
+              />
             </Route>
 
             {/* SISTEMA */}
@@ -390,6 +453,22 @@ export default function Router() {
             {/* ESCUELA */}
             <Route element={<RutaProtegida />}>
               <Route path="escuela/cuotas" element={<GestionCuotas />} />
+            </Route>
+
+            {/* OBRAS SOCIALES */}
+            <Route element={<RutaProtegida />}>
+              <Route
+                path="obra-sociales/importaciones"
+                element={<ImportacionObrasSociales />}
+              />
+            </Route>
+
+            {/* SOCIOS */}
+            <Route element={<RutaProtegida />}>
+              <Route
+                path="socios/generar-cuotas"
+                element={<GestionCuotasSocios />}
+              />
             </Route>
 
             {/* <Route path="demo" element={<SistemaContable />} /> */}

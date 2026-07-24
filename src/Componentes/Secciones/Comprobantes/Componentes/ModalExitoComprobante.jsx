@@ -1,97 +1,7 @@
-import { useState } from "react";
 import { createPortal } from "react-dom";
-import { pdf } from "@react-pdf/renderer";
 import { X, Eye, Printer, Mail, CheckCircle, AlertCircle } from "lucide-react";
-import ComprobantePDF from "../../../Tablas/Ventas/Comprobantes/ComprobantePDF";
-import {
-  obtenerComprobantePorCodigo,
-  enviarComprobanteEmailApi,
-} from "../../../../Backend/Ventas/api/Comprobante/comprobante.api";
-import {
-  ObtenerContactoApi,
-  ActualizarContactoApi,
-} from "../../../../Backend/Contactos/api/contactos.api";
-import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
-
-// Copia de adaptarParaDrawer (misma que en ListadoComprobante.jsx)
-const LETRA_MAP = {
-  1: "A",
-  2: "A",
-  3: "A",
-  6: "B",
-  7: "B",
-  8: "B",
-  11: "C",
-  12: "C",
-  13: "C",
-};
-
-const isoToAfip = (iso) => {
-  if (!iso) return undefined;
-  const d = new Date(iso);
-  if (isNaN(d)) return undefined;
-  return `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, "0")}${String(d.getUTCDate()).padStart(2, "0")}`;
-};
-
-const adaptarParaDrawer = (full) => {
-  const letraComprobante =
-    full.letraComprobante || LETRA_MAP[full.codigoTipoComprobante] || "";
-  return {
-    tipoDocumento: full.codigoTipoComprobante,
-    letraComprobante,
-    puntoVenta: full.puntoVenta,
-    numeroComprobante: full.numeroComprobante,
-    fechaEmision: full.fechaEmision,
-    fechaVto: full.fechaVto,
-    estado: full.estado,
-    condicionVenta: full.condicionComprobante,
-    cae: full.cae,
-    vtoCae: isoToAfip(full.vtoCae),
-    fiscal: !!full.cae,
-    total: full.total,
-    subtotal: full.subtotal,
-    iva: full.iva,
-    qrCodeImage: full.qrCode ?? undefined,
-    receptor: {
-      razonSocial: full.razonSocial,
-      DocNro: full.numeroDocumento,
-      DocTipo: 80,
-      condicionIva: full.condicionIvaReceptor,
-      codigoReceptor: full.codigoReceptor,
-    },
-    detalles: (full.detalles || []).map((d) => ({
-      nombre: d.descripcion,
-      cantidad: d.cantidad,
-      precioUnitario: d.precioUnitario,
-      tasaIva: d.tasaIva,
-      subtotal:
-        d.subtotal ?? d.precioUnitario * d.cantidad - (d.descuento || 0),
-    })),
-    pagos: (full.pagos || []).map((p) => ({
-      metodo: p.tipoMetodoPago,
-      monto: p.monto,
-      referencia: p.referencia,
-      fechaPago: p.fechaPago,
-      codigoBancoDestino: p.codigoBancoDestino,
-    })),
-    ajustes: [],
-    cbtesAsoc: (full.comprobantesAsociados || []).map((a) => ({
-      tipo: a.codigoTipoComprobante ?? a.tipoRelacion,
-      ptoVta: 0,
-      nro: a.numeroComprobanteOrigen,
-      total: a.importeAplicado,
-    })),
-  };
-};
-
-const blobToBase64 = (blob) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result.split(",")[1]);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
+import { useAccionesComprobanteGenerado } from "../../../../Backend/Comprobantes/useAccionesComprobanteGenerado";
 
 const fmtNro = (pv, nro) =>
   `${String(pv || 0).padStart(5, "0")}-${String(nro || 0).padStart(8, "0")}`;
@@ -104,117 +14,43 @@ const NOMBRE_TIPO = {
 
 const ModalExitoComprobante = ({ comprobante, onClose }) => {
   const codigoReceptor = Number(comprobante?.codigoReceptor);
-  const usuario = useAuthStore((s) => s.usuario);
-  const [step, setStep] = useState("opciones"); // 'opciones' | 'email'
-  const [cargando, setCargando] = useState(false);
-  const [emailInput, setEmailInput] = useState("");
-  const [contactoSinEmail, setContactoSinEmail] = useState(false);
-  const [enviando, setEnviando] = useState(false);
-  const [enviado, setEnviado] = useState(false);
-  const [error, setError] = useState(null);
-  const [emailNuevo, setEmailNuevo] = useState("");
-  const [guardandoEmail, setGuardandoEmail] = useState(false);
 
   const nombreTipo =
     NOMBRE_TIPO[comprobante.tipoDescripcion] || comprobante.tipoDescripcion;
   const nroFmt = fmtNro(comprobante.puntoVenta, comprobante.numeroComprobante);
 
-  const obtenerPdfBlob = async () => {
-    const full = await obtenerComprobantePorCodigo(comprobante.codigo);
-    const adapted = adaptarParaDrawer(full);
-    return {
-      blob: await pdf(
-        <ComprobantePDF comprobante={adapted} usuario={usuario} />,
-      ).toBlob(),
-      adapted,
-    };
-  };
-
-  const handleVerPDF = async () => {
-    setCargando(true);
-    try {
-      const { blob } = await obtenerPdfBlob();
-      window.open(URL.createObjectURL(blob), "_blank");
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setCargando(false);
-    }
-  };
-
-  const handleImprimir = async () => {
-    setCargando(true);
-    try {
-      const { blob } = await obtenerPdfBlob();
-      window.open(URL.createObjectURL(blob), "_blank")?.print();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setCargando(false);
-    }
-  };
-
-  const handleAbrirEmail = async () => {
-    setCargando(true);
-    setError(null);
-    try {
-      const contacto = await ObtenerContactoApi(codigoReceptor);
-      if (contacto?.correoElectronico) {
-        setEmailInput(contacto.correoElectronico);
-        setContactoSinEmail(false);
-      } else {
-        setContactoSinEmail(true);
-        setEmailInput("");
-      }
-      setStep("email");
-    } catch (e) {
-      setError("No se pudo obtener el contacto.");
-    } finally {
-      setCargando(false);
-    }
-  };
-
-  const handleGuardarEmailContacto = async () => {
-    if (!emailNuevo) return;
-    setGuardandoEmail(true);
-    try {
-      await ActualizarContactoApi(comprobante.codigoReceptor, {
-        correoElectronico: emailNuevo,
-      });
-      setEmailInput(emailNuevo);
-      setContactoSinEmail(false);
-      setEmailNuevo("");
-    } catch (e) {
-      setError("No se pudo guardar el email en el contacto.");
-    } finally {
-      setGuardandoEmail(false);
-    }
-  };
-
-  const handleEnviarEmail = async () => {
-    if (!emailInput) return;
-    setEnviando(true);
-    setError(null);
-    try {
-      const { blob } = await obtenerPdfBlob();
-      const pdfBase64 = await blobToBase64(blob);
-      await enviarComprobanteEmailApi({
-        emailDestino: emailInput,
-        pdfBase64,
-        nombreComprobante: nombreTipo,
-        numeroComprobante: nroFmt,
-      });
-      setEnviado(true);
-    } catch (e) {
-      setError(e?.response?.data?.message || "Error al enviar el email.");
-    } finally {
-      setEnviando(false);
-    }
-  };
+  // Feature 30 (comprobante-reintentar-tesoreria-contabilidad), R43: la
+  // lógica de Ver PDF/Imprimir/Enviar por mail (antes inline acá) vive
+  // ahora en un hook reutilizable, también consumido por
+  // ModalReintentarComprobante.jsx. Comportamiento observable sin cambios.
+  const {
+    step,
+    setStep,
+    cargando,
+    emailInput,
+    setEmailInput,
+    contactoSinEmail,
+    enviando,
+    enviado,
+    error,
+    emailNuevo,
+    setEmailNuevo,
+    guardandoEmail,
+    handleVerPDF,
+    handleImprimir,
+    handleAbrirEmail,
+    handleGuardarEmailContacto,
+    handleEnviarEmail,
+  } = useAccionesComprobanteGenerado({
+    codigo: comprobante.codigo,
+    codigoReceptor,
+    nombreComprobante: nombreTipo,
+    numeroComprobanteFormateado: nroFmt,
+  });
 
   return createPortal(
     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-md shadow-2xl border border-gray-100 w-full max-w-md flex flex-col overflow-hidden">
+      <div className="bg-white rounded-xl shadow-2xl border border-gray-100 w-full max-w-md flex flex-col overflow-hidden animate-in fade-in zoom-in-95">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-emerald-50">
           <div className="flex items-center gap-3">
@@ -256,16 +92,14 @@ const ModalExitoComprobante = ({ comprobante, onClose }) => {
                 <Printer size={16} className="text-gray-600 shrink-0" />
                 Imprimir
               </button>
-              <TieneAccion accion="ENVIAR_EMAIL">
-                <button
-                  onClick={handleAbrirEmail}
-                  disabled={cargando}
-                  className="flex items-center gap-3 px-4 py-3 rounded-md border border-violet-200 hover:border-violet-400 hover:bg-violet-50 text-sm font-bold text-violet-800 transition cursor-pointer disabled:opacity-50"
-                >
-                  <Mail size={16} className="text-violet-600 shrink-0" />
-                  Enviar por mail
-                </button>
-              </TieneAccion>
+              <button
+                onClick={handleAbrirEmail}
+                disabled={cargando}
+                className="flex items-center gap-3 px-4 py-3 rounded-md border border-violet-200 hover:border-violet-400 hover:bg-violet-50 text-sm font-bold text-violet-800 transition cursor-pointer disabled:opacity-50"
+              >
+                <Mail size={16} className="text-violet-600 shrink-0" />
+                Enviar por mail
+              </button>
               {cargando && (
                 <p className="text-[11px] text-center text-gray-400 font-semibold">
                   Generando PDF...

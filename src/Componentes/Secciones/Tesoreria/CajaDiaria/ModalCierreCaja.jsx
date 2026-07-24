@@ -1,11 +1,11 @@
 import { useState } from "react";
 import ModalDetalleBase from "../../../UI/ModalDetalleBase/ModalDetalleBase";
 import ModalDetalle from "../../../UI/ModalDetalleBase/ModalDetalle";
-import { BilleteraIcono } from "../../../../assets/Icons";
+import { Lock } from "lucide-react";
 import { formatPrice } from "../../../../utils/formatters";
 
 const FieldLabel = ({ children }) => (
-  <span className="text-[12px] font-bold text-slate-500 uppercase tracking-widest ml-1 block mb-1.5">
+  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block mb-2">
     {children}
   </span>
 );
@@ -18,7 +18,7 @@ const ModalCierreCaja = ({ saldoTeorico, onConfirmar, onClose }) => {
 
   const colorDiferencia =
     diferencia === 0
-      ? "text-emerald-600"
+      ? "text-[#1FAE6D]"
       : diferencia < 0
         ? "text-rose-600"
         : "text-amber-600";
@@ -29,17 +29,17 @@ const ModalCierreCaja = ({ saldoTeorico, onConfirmar, onClose }) => {
   };
 
   const footer = (
-    <div className="flex justify-end gap-3 w-full pt-2">
+    <div className="flex justify-end gap-3 w-full pt-4 border-t border-gray-200 mt-2">
       <button
         type="button"
         onClick={onClose}
-        className="px-5 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+        className="px-5 py-2.5 text-xs font-bold text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors uppercase tracking-wider"
       >
         Cancelar
       </button>
       <button
         onClick={handleSubmit}
-        className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:opacity-90 text-white rounded-xl font-bold shadow-lg shadow-[var(--primary)]/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+        className="flex items-center gap-2 px-6 py-2.5 bg-gray-900 hover:bg-black text-white rounded-md text-xs font-bold uppercase tracking-wider shadow-sm transition-all"
       >
         Confirmar Cierre
       </button>
@@ -47,11 +47,11 @@ const ModalCierreCaja = ({ saldoTeorico, onConfirmar, onClose }) => {
   );
 
   const content = (
-    <form onSubmit={handleSubmit} className="space-y-5 py-2 px-1">
+    <form onSubmit={handleSubmit} className="space-y-6 py-4 px-2">
       <div>
         <FieldLabel>Efectivo Físico Contado</FieldLabel>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">
             $
           </span>
           <input
@@ -61,38 +61,38 @@ const ModalCierreCaja = ({ saldoTeorico, onConfirmar, onClose }) => {
             value={montoContadoStr}
             onChange={(e) => setMontoContadoStr(e.target.value)}
             placeholder="0.00"
-            className="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-lg font-black text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)] focus:bg-white transition-all placeholder:font-medium placeholder:text-slate-300"
+            className="w-full bg-white border border-gray-300 rounded-md pl-9 pr-4 py-3 text-2xl font-black text-gray-900 focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 transition-all placeholder:font-medium placeholder:text-gray-300"
             autoFocus
           />
         </div>
-        <p className="text-[11px] font-bold text-slate-400 mt-2 px-1">
+        <p className="text-[11px] font-bold text-gray-400 mt-2 px-1">
           Ingrese la suma total del efectivo físico presente en la caja.
         </p>
       </div>
 
-      <div className="border-t border-slate-100 pt-4 space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+      <div className="border border-gray-200 rounded-md bg-gray-50/50 p-4 space-y-3">
+        <div className="flex items-center justify-between border-b border-gray-200/60 pb-3">
+          <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">
             Saldo teórico esperado
           </span>
-          <span className="text-sm font-black text-slate-700">
+          <span className="text-sm font-black text-gray-800 tabular-nums">
             {formatPrice(saldoTeorico)}
           </span>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-            Total contado
+        <div className="flex items-center justify-between border-b border-gray-200/60 pb-3">
+          <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">
+            Total contado (Real)
           </span>
-          <span className="text-sm font-black text-slate-700">
+          <span className="text-sm font-black text-gray-900 tabular-nums">
             {formatPrice(totalContado)}
           </span>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-            Diferencia
+        <div className="flex items-center justify-between pt-1">
+          <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">
+            Diferencia (Arqueo)
           </span>
-          <span className={`text-sm font-black ${colorDiferencia}`}>
-            {formatPrice(diferencia)}
+          <span className={`text-base font-black tabular-nums tracking-tight ${colorDiferencia}`}>
+            {diferencia > 0 ? "+" : ""}{formatPrice(diferencia)}
           </span>
         </div>
       </div>
@@ -103,7 +103,7 @@ const ModalCierreCaja = ({ saldoTeorico, onConfirmar, onClose }) => {
     <ModalDetalleBase open onClose={onClose} width="max-w-[420px]">
       <ModalDetalle
         title="Cierre de Caja"
-        icon={<BilleteraIcono size={20} />}
+        icon={<Lock size={20} />}
         onClose={onClose}
         footer={footer}
       >

@@ -252,20 +252,20 @@ const SelectorArticuloModal = ({
       {/* Contenedor del Modal */}
       <div className="relative w-full  bg-white  flex flex-col my-8 overflow-hidden animate-in fade-in zoom-in-95 duration-200 w-full h-full">
         {/* Cabecera */}
-        <div className="p-5 border-b border-gray-150 flex justify-between items-center bg-[#f8fafc] shrink-0">
+        <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-md bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center font-black">
+            <div className="w-8 h-8 rounded-md bg-emerald-50 text-[#1FAE6D] border border-emerald-200/60 flex items-center justify-center font-black">
               <ShoppingBag size={18} />
             </div>
             <div>
-              <p className="text-md font-bold text-gray-700 uppercase tracking-wider mt-0.5">
+              <p className="text-xs font-black text-gray-900 uppercase tracking-widest">
                 Añadir
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center bg-white border border-gray-200 text-gray-700 hover:bg-rose-50 hover:text-rose-500 rounded-full transition-all group shadow-sm cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center bg-white border border-gray-200 text-gray-500 hover:text-gray-900 rounded-md transition-all group shadow-sm cursor-pointer"
           >
             <X
               size={18}
@@ -468,10 +468,17 @@ const SelectorArticuloModal = ({
                                 e.target.value,
                               )
                             }
+                            onFocus={(e) => e.target.select()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                handleAgregar(p);
+                              }
+                            }}
                             placeholder="0.00"
                             min="0"
                             step="0.01"
-                            className="w-24 mt-1 px-2 py-1.5 border border-gray-200 rounded-md text-sm font-black text-gray-900 focus:outline-none focus:border-[var(--primary)]"
+                            className="w-24 mt-1 px-2 py-1.5 border border-gray-300 rounded-md text-sm font-black text-gray-900 focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 shadow-sm"
                           />
                         </div>
 
@@ -594,6 +601,13 @@ const SelectorArticuloModal = ({
                               e.target.value,
                             )
                           }
+                          onFocus={(e) => e.target.select()}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              handleAgregar(p);
+                            }
+                          }}
                           className="w-10 bg-transparent border-none text-center font-black text-xs text-gray-800 focus:outline-none p-0"
                           min="1"
                         />

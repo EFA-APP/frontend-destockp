@@ -119,41 +119,41 @@ const TablaLibroDiario = () => {
   ];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-300">
       {/* FILTROS ELEGANTES */}
-      <div className="bg-white border border-slate-200 rounded-md shadow-sm">
-        <div className="p-4 border-b border-slate-50 bg-slate-50/30 flex items-center gap-2">
-          <Filter size={14} className="text-[var(--primary)]" />
-          <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[var(--primary)]/70">
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
+        <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center gap-2 rounded-t-xl">
+          <Filter size={14} className="text-[#1FAE6D]" />
+          <span className="text-[11px] font-black uppercase tracking-widest text-gray-500">
             Filtros del Diario
           </span>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 ml-1 flex items-center gap-2">
-                <Calendar size={12} /> Período
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                <Calendar size={12} className="text-[#1FAE6D]" /> Período
               </label>
               <div className="flex items-center gap-2">
                 <input
                   type="date"
                   value={fechaDesde}
                   onChange={(e) => setFechaDesde(e.target.value)}
-                  className="w-full px-4 py-2 bg-white border border-slate-200 rounded-md text-[13px] font-black focus:border-[var(--primary)] focus:outline-none transition-all shadow-sm"
+                  className="w-full h-11 px-3 border border-gray-300 rounded-md text-sm font-semibold bg-white focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 shadow-sm transition-all"
                 />
-                <span className="text-slate-300">→</span>
+                <span className="text-gray-400 font-bold">→</span>
                 <input
                   type="date"
                   value={fechaHasta}
                   onChange={(e) => setFechaHasta(e.target.value)}
-                  className="w-full px-4 py-2 bg-white border border-slate-200 rounded-md text-[13px] font-black focus:border-[var(--primary)] focus:outline-none transition-all shadow-sm"
+                  className="w-full h-11 px-3 border border-gray-300 rounded-md text-sm font-semibold bg-white focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 shadow-sm transition-all"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 ml-1 flex items-center gap-2">
-                <ArrowRightLeft size={12} /> Origen de Asientos
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                <ArrowRightLeft size={12} className="text-[#1FAE6D]" /> Origen de Asientos
               </label>
               <SearchableSelect
                 value={origen}
@@ -169,29 +169,29 @@ const TablaLibroDiario = () => {
 
             <div className="flex flex-col justify-end">
               <div
-                className={`p-4 rounded-md flex items-center justify-between border ${
+                className={`p-3.5 rounded-md flex items-center justify-between border ${
                   balanceado
-                    ? "bg-emerald-50 border-emerald-100 text-emerald-700"
-                    : "bg-rose-50 border-rose-100 text-rose-700"
+                    ? "bg-emerald-50 border-emerald-200/60 text-emerald-700"
+                    : "bg-rose-50 border-rose-200/60 text-rose-700"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    className={`w-9 h-9 rounded-md flex items-center justify-center ${
                       balanceado ? "bg-emerald-500/20" : "bg-rose-500/20"
                     }`}
                   >
                     {balanceado ? (
-                      <CheckCircle2 size={20} />
+                      <CheckCircle2 size={18} />
                     ) : (
-                      <AlertCircle size={20} />
+                      <AlertCircle size={18} />
                     )}
                   </div>
                   <div>
-                    <span className="text-[10px] font-black uppercase tracking-widest block opacity-70">
+                    <span className="text-[9px] font-black uppercase tracking-widest block opacity-70">
                       Estado del Diario
                     </span>
-                    <span className="text-xs font-black uppercase tracking-widest">
+                    <span className="text-[11px] font-black uppercase tracking-widest">
                       {balanceado ? "Totalmente Cuadrado" : "Fuera de Balance"}
                     </span>
                   </div>

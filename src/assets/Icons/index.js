@@ -86,3 +86,5 @@ export { default as NuevoIcono } from "./NuevoIcono";
 export { default as PaginaWebIcono } from "./PaginaWebIcono";
 export { default as FechaIcono } from "./FechaIcono";
 export { default as BilleteraIcono } from "./BilleteraIcono";
+export { default as HospitalIcono } from "./HospitalIcono";
+export { default as BancoIcono } from "./BancoIcono";

@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { cerrarSesion } from "../../../Backend/Autenticacion/store/cerrarSesion";
 import { useUIStore } from "../../../Backend/Config/ui.store";
+import { useArcaStore } from "../../../store/useArcaStore";
 import { Lock, Unlock, LogOut } from "lucide-react";
 
 import * as Icons from "../../../assets/Icons";
@@ -31,6 +32,7 @@ const BarraLateral = () => {
     toggleSidebarLock,
     setSidebarHovered,
   } = useUIStore();
+  const { conectado, verificarSesion, cargando } = useArcaStore();
   const [openItem, setOpenItem] = useState(null);
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
 
@@ -81,6 +83,13 @@ const BarraLateral = () => {
     }
   }, [menuFiltrado, hasAutoOpened, isExpanded]);
 
+  // Verificación automática de sesión ARCA (AFIP)
+  useEffect(() => {
+    if (usuario) {
+      verificarSesion(usuario);
+    }
+  }, [usuario, verificarSesion]);
+
   return (
     <div className="relative z-[100]">
       {/* Sidebar contenedor principal */}
@@ -117,12 +126,47 @@ const BarraLateral = () => {
                 <span className="text-[16px] font-black text-[var(--text-primary)] leading-none tracking-tight whitespace-nowrap">
                   {usuario?.nombreEmpresa || "SISTEMA"}
                 </span>
-                <div className="flex items-center gap-1.5 mt-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-[0.15em] whitespace-nowrap">
-                    En Línea
-                  </span>
-                </div>
+                {usuario?.conexionArca || usuario?.configuracionArca?.activo ? (
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (!cargando) verificarSesion(usuario);
+                    }}
+                    title={
+                      conectado
+                        ? "Sesión ARCA Activa"
+                        : "Sesión ARCA Inactiva / Error"
+                    }
+                    className={`flex items-center gap-1.5 mt-1 group ${cargando ? "cursor-default" : "cursor-pointer"}`}
+                  >
+                    <div className="relative flex items-center">
+                      {conectado && (
+                        <span className="absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
+                      )}
+                      <span
+                        className={`relative inline-flex h-2 w-2 rounded-full ${conectado ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-red-500"}`}
+                      ></span>
+                    </div>
+                    <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-[0.15em] whitespace-nowrap">
+                      ARCA{" "}
+                      <span className="opacity-70 font-medium">
+                        (
+                        {usuario?.datosFiscales?.esProduccion ? "PROD" : "HOMO"}
+                        )
+                      </span>
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-[0.15em] whitespace-nowrap">
+                      En Línea
+                    </span>
+                  </div>
+                )}
               </div>
             )}
           </Link>

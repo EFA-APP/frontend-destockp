@@ -1,12 +1,13 @@
-import { Plus } from "lucide-react";
+import { Plus, ArrowLeft, Landmark } from "lucide-react";
 import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { usePlanDeCuentas } from "../../../../Backend/hooks/Contabilidad/PlanDeCuenta/usePlanDeCuentas";
-import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import FormularioDinamico from "../../../UI/FormularioReutilizable/FormularioDinamico";
 import { useAlertas } from "../../../../store/useAlertas";
 import { useEmpresas } from "../../../../Backend/Autenticacion/queries/Empresa/useEmpresas.query";
 
 const CrearPlanDeCuenta = () => {
+  const navigate = useNavigate();
   const {
     agregarCuenta,
     rawCuentasNoImputables,
@@ -22,13 +23,16 @@ const CrearPlanDeCuenta = () => {
       value: emp.codigo,
       label: emp.razonSocial || emp.nombre || `Empresa ${emp.codigo}`,
     }));
-    return [{ value: "", label: "-- Global (Todas las empresas) --" }, ...options];
+    return [
+      { value: "", label: "-- Global (Todas las empresas) --" },
+      ...options,
+    ];
   }, [empresas]);
 
   // Opciones para el selector de cuenta padre (solo no imputables)
   const cuentasPadreOptions = useMemo(() => {
     const options = (rawCuentasNoImputables || []).map((node) => ({
-      value: node.codigo,
+      value: node.codigoSecuencial,
       label: `${node.codigo} - ${node.nombre}`,
     }));
 
@@ -109,7 +113,8 @@ const CrearPlanDeCuenta = () => {
       type: "select",
       section: "Clasificación",
       options: empresasOptions,
-      helpText: "Deje vacío (Global) para que la cuenta esté disponible en todas las empresas",
+      helpText:
+        "Deje vacío (Global) para que la cuenta esté disponible en todas las empresas",
     },
     {
       name: "codigoCuentaPadre",
@@ -145,9 +150,7 @@ const CrearPlanDeCuenta = () => {
         codigoCuentaPadre: data.codigoCuentaPadre
           ? Number(data.codigoCuentaPadre)
           : null,
-        codigoEmpresa: data.codigoEmpresa
-          ? Number(data.codigoEmpresa)
-          : null,
+        codigoEmpresa: data.codigoEmpresa ? Number(data.codigoEmpresa) : null,
       };
 
       await agregarCuenta(payload);
@@ -168,29 +171,43 @@ const CrearPlanDeCuenta = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col">
-      <EncabezadoSeccion
-        ruta="Crear Plan de Cuentas "
-        icono={
-          <div className="w-10 h-10 bg-black/40 rounded-md flex items-center justify-center text-black shadow-lg">
-            <Plus size={20} strokeWidth={2.5} />
+    <div className="w-full max-w-[1600px] mx-auto py-8 px-6 lg:px-8 space-y-8 bg-[#F8FAFC] min-h-[calc(100vh-64px)]">
+      {/* HEADER PREMIUM */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-gray-200/80">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+            <span>Contabilidad</span>
+            <span className="w-1 h-1 rounded-full bg-gray-300" />
+            <span>Plan de Cuentas</span>
           </div>
-        }
-        volver
-        redireccionAnterior="/panel/contabilidad/cuentas"
-      />
-
-      <div className="flex-1 px-8 pb-8">
-        <div className="p-4">
-          <FormularioDinamico
-            titulo="Nueva Cuenta"
-            subtitulo="Complete los datos de la cuenta"
-            campos={camposCuenta}
-            onSubmit={handleSubmit}
-            submitLabel={isCreando ? "Creando..." : "Crear Cuenta"}
-            disabled={isCreando}
-          />
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
+            <Landmark color="var(--primary)" size={28} strokeWidth={2.5} />
+            Crear Cuenta Contable
+          </h1>
+          <p className="text-sm font-medium text-gray-500 max-w-2xl">
+            Agregá una nueva cuenta al plan de cuentas contable de la empresa.
+          </p>
         </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/panel/contabilidad/cuentas")}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-white border border-gray-200 text-xs font-black uppercase tracking-widest text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all cursor-pointer shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
+          >
+            <ArrowLeft size={16} strokeWidth={2.5} />
+            Volver
+          </button>
+        </div>
+      </div>
+
+      <div className="p-4">
+        <FormularioDinamico
+          titulo="Nueva Cuenta"
+          subtitulo="Complete los datos de la cuenta"
+          campos={camposCuenta}
+          onSubmit={handleSubmit}
+          submitLabel={isCreando ? "Creando..." : "Crear Cuenta"}
+          disabled={isCreando}
+        />
       </div>
     </div>
   );

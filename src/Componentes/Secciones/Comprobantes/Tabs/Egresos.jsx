@@ -3,7 +3,9 @@ import { Save } from "lucide-react";
 import BuscadorDetalle from "../Componentes/BuscadorDetalle";
 import CabeceraComprobante from "../Componentes/CabeceraComprobante";
 import ModalExitoComprobante from "../Componentes/ModalExitoComprobante";
+import ModalReintentarComprobante from "../Componentes/ModalReintentarComprobante";
 import ModalError from "../../../Modales/ModalError";
+import ModalConfirmacion from "../../../UI/ModalConfirmacion/ModalConfirmacion";
 import { useCabeceraComprobante } from "../../../../Backend/Comprobantes/useCabeceraComprobante";
 import { useDetalleComprobante } from "../../../../Backend/Comprobantes/useDetalleComprobante";
 import { useGenerarComprobante } from "../../../../Backend/Ventas/queries/Comprobante/useGenerarComprobante.mutation";
@@ -72,6 +74,18 @@ const construirPayload = ({
     tipoFiscal: item.tipoFiscal || "GRAVADO",
     subtotal: item.precioUnitario * item.cantidad - (item.descuento || 0),
     devolverAStock: item.devolverAStock === true,
+    // Feature "egreso-distribucion-unidad-negocio" (R37): solo
+    // {codigoUnidadNegocio, porcentaje}, sin monto en pesos (Revisión 2) —
+    // la última unidad puede no traer porcentaje (R15), se manda tal cual.
+    ...(Array.isArray(item.repartoUnidadNegocio) &&
+      item.repartoUnidadNegocio.length > 0 && {
+        repartoUnidadNegocio: item.repartoUnidadNegocio.map((r) => ({
+          codigoUnidadNegocio: Number(r.codigoUnidadNegocio),
+          ...(r.porcentaje !== undefined &&
+            r.porcentaje !== null &&
+            r.porcentaje !== "" && { porcentaje: parseFloat(r.porcentaje) }),
+        })),
+      }),
   }));
 
   const detallePagos = pagos.map((p) => ({
@@ -81,6 +95,13 @@ const construirPayload = ({
     ...(p.tipoMetodoPago !== "EFECTIVO" &&
       p.codigoBancoDestino && {
         codigoBancoDestino: p.codigoBancoDestino,
+      }),
+    // Bugfix post-implementación #3 (feature "bancos", R24): sin este
+    // campo tesoreria-ms nunca crea el MovimientoBancario, aunque el
+    // usuario haya elegido una CuentaBancaria real en DetallePago.jsx.
+    ...(p.tipoMetodoPago !== "EFECTIVO" &&
+      p.codigoCuentaBancaria && {
+        codigoCuentaBancaria: p.codigoCuentaBancaria,
       }),
     ...(p.datosTarjeta && {
       datosTarjeta: {
@@ -99,12 +120,17 @@ const construirPayload = ({
       chequeTercero: {
         numero: p.chequeTercero.numero || "",
         banco: p.chequeTercero.banco || "",
+        // Ronda 7 (mismo fix que Ingresos.jsx — este archivo tenía el
+        // mismo bloque duplicado, ver progress/impl_cheques-terceros-tesoreria.md):
+        // código BCRA real del banco (catálogo tesoreria-ms).
+        codigoBancoBcra: p.chequeTercero.codigoBancoBcra || undefined,
         cuitEmisor: p.chequeTercero.cuitEmisor || "",
         titular: p.chequeTercero.titular || "",
         fechaEmision: p.chequeTercero.fechaEmision || "",
         fechaPago: p.chequeTercero.fechaPago || "",
         importe: p.monto,
-        estado: "RECIBIDO",
+        // `estado` eliminado (mismo motivo que Ingresos.jsx: campo
+        // vestigial que ningún lado del backend usaba).
       },
     }),
     ...(p.endosoChequeTercero && {
@@ -118,6 +144,8 @@ const construirPayload = ({
     tipoMetodoPago: v.tipoMetodoPago,
     monto: v.monto,
     ...(v.codigoBancoDestino && { codigoBancoDestino: v.codigoBancoDestino }),
+    // Bugfix post-implementación #3 (feature "bancos", R24).
+    ...(v.codigoCuentaBancaria && { codigoCuentaBancaria: v.codigoCuentaBancaria }),
   }));
 
   const comprobantesAsociados =
@@ -136,6 +164,15 @@ const construirPayload = ({
               cabecera.comprobanteAsociado.saldoPendiente ??
               cabecera.comprobanteAsociado.total,
             codigoUnidadNegocio: Number(cabecera.unidadNegocioSeleccionada),
+            // Comprobante cargado manualmente (no existe en la base, ver
+            // SelectorComprobanteModal.jsx): se manda `manual: true` y
+            // `puntoVenta` directo, porque el backend no tiene ningún
+            // comprobante real del cual resolverlo. Ver
+            // progress/impl_comprobante-asociado-manual.md.
+            ...(cabecera.comprobanteAsociado.manual && {
+              manual: true,
+              puntoVenta: cabecera.comprobanteAsociado.puntoVenta,
+            }),
           },
         ]
       : undefined;
@@ -192,14 +229,21 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
   const [pagos, setPagos] = useState([]);
   const [vueltos, setVueltos] = useState([]);
   const [comprobanteExito, setComprobanteExito] = useState(null);
+  // Feature 30 (comprobante-reintentar-tesoreria-contabilidad), R34.
+  const [comprobanteConError, setComprobanteConError] = useState(null);
+  const [confirmacionStock, setConfirmacionStock] = useState(null);
+  const [highlightStock, setHighlightStock] = useState(0);
   const [errorModalMsg, setErrorModalMsg] = useState("");
 
   const { mutate: crearComprobante, isPending } = useGenerarComprobante();
 
-  // Cuando se selecciona un comprobante para asociar, cargar todos sus datos
+  // Cuando se selecciona un comprobante para asociar, cargar todos sus datos.
+  // Si el comprobante fue cargado MANUALMENTE (no existe en la base, ver
+  // SelectorComprobanteModal.jsx / progress/impl_comprobante-asociado-manual.md)
+  // no hay `codigo` real que buscar — llamar a este endpoint fallaría.
   useEffect(() => {
     const comp = cabecera.comprobanteAsociado;
-    if (!comp) return;
+    if (!comp || comp.manual === true) return;
 
     (async () => {
       const full = await obtenerComprobantePorCodigo(comp.codigo);
@@ -217,6 +261,21 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
             descuento: d.descuento || 0,
             tasaIva: d.tasaIva || 0,
             codigoDeposito: d.codigoDeposito || 0,
+            // Feature "egreso-distribucion-unidad-negocio" (R42, decisión
+            // del humano post-implementación): al precargar una NC/ND desde
+            // la Factura asociada, cada línea hereda tal cual el reparto por
+            // unidad de negocio que tenía en la Factura original (mismo
+            // formato {codigoUnidadNegocio, porcentaje} que produce
+            // RepartirUnidadNegocioModal.jsx y que construirPayload ya sabe
+            // serializar). Si la línea no tenía reparto, `d.repartos` viene
+            // vacío/undefined y el ítem queda igual que hoy (sin reparto).
+            ...(Array.isArray(d.repartos) &&
+              d.repartos.length > 0 && {
+                repartoUnidadNegocio: d.repartos.map((r) => ({
+                  codigoUnidadNegocio: r.codigoUnidadNegocio,
+                  porcentaje: r.porcentaje,
+                })),
+              }),
           })),
         );
       }
@@ -276,6 +335,16 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
   }, [cabecera.comprobanteAsociado]);
 
   const codigoTipo = Number(cabecera.tipoComprobante);
+
+  // Feature "egreso-distribucion-unidad-negocio" (R2, R29, R41): elegible
+  // solo para Egreso FACTURA/NOTA_CREDITO/NOTA_DEBITO (Recibo/Orden de Pago
+  // quedan fuera, R2) Y con más de una Unidad de Negocio configurada (R41
+  // — con <=1 unidad no hay a dónde repartir, el botón no debe existir).
+  const tipoDescripcionActual = TIPO_DESCRIPCION_MAP[codigoTipo] || "FACTURA";
+  const permiteRepartoUnidadNegocio =
+    ["FACTURA", "NOTA_CREDITO", "NOTA_DEBITO"].includes(tipoDescripcionActual) &&
+    (cabecera.unidadesNegocio?.length || 0) > 1;
+
   const itemsGravadoSinIva = detalle.items.filter(
     (i) =>
       (!i.tipoFiscal || i.tipoFiscal === "GRAVADO") && (i.tasaIva || 0) === 0,
@@ -320,6 +389,24 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
       }
     }
 
+    if (tipoDescripcion === "NOTA_CREDITO") {
+      const tieneProductos = detalle.items.some((i) => i.tipoDetalle !== "CUENTA_CONTABLE");
+      
+      if (tieneProductos) {
+        const algunaDevolucion = detalle.items.some((i) => i.devolverAStock);
+        setConfirmacionStock({
+          tipo: algunaDevolucion ? "DEVOLVER" : "NO_DEVOLVER"
+        });
+        return;
+      }
+    }
+
+    ejecutarGuardado();
+  };
+
+  const ejecutarGuardado = () => {
+    setConfirmacionStock(null);
+
     const payload = construirPayload({
       cabecera,
       items: detalle.items,
@@ -356,6 +443,26 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
           setPagos([]);
           setVueltos([]);
         },
+        // Feature 30 (comprobante-reintentar-tesoreria-contabilidad), R34.
+        onError: (error) => {
+          const data = error?.response?.data;
+          if (
+            data?.code === "MOVIMIENTO_FINANCIERO_FALLIDO" ||
+            data?.code === "ASIENTO_CONTABLE_FALLIDO"
+          ) {
+            setComprobanteConError({
+              codigo: data.codigoComprobante,
+              numeroComprobante: data.numeroComprobante,
+              puntoVenta: data.puntoVenta,
+              tipoDescripcionComprobante: data.tipoDescripcionComprobante,
+              pasoFallido:
+                data.code === "MOVIMIENTO_FINANCIERO_FALLIDO"
+                  ? "TESORERIA"
+                  : "CONTABILIDAD",
+              codigoReceptor: payload.codigoReceptor,
+            });
+          }
+        },
       },
     );
   };
@@ -383,7 +490,10 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
         montosSugeridos={arcaData?.montosSugeridos ?? []}
         otrosTributos={cabecera.otrosTributos}
         setOtrosTributos={cabecera.setOtrosTributos}
+        highlightStock={highlightStock}
         condicionComprobante={cabecera.condicionComprobante}
+        permiteRepartoUnidadNegocio={permiteRepartoUnidadNegocio}
+        unidadesNegocio={cabecera.unidadesNegocio}
       />
 
       {/* BOTON GUARDAR */}
@@ -392,7 +502,7 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
           type="button"
           onClick={handleGuardar}
           disabled={isPending || detalle.items.length === 0 || requiereIva}
-          className="flex items-center gap-2 px-6 py-2.5 bg-[var(--color-brand-primary)] text-white text-[13px] font-bold uppercase tracking-wider rounded-[8px] hover:brightness-110 transition active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          className="flex items-center gap-2 px-6 py-2.5 bg-[#1FAE6D] hover:bg-[#178F58] text-white text-xs font-bold uppercase tracking-wider rounded-md transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
         >
           <Save size={16} />
           {isPending ? "Guardando..." : "Guardar Comprobante"}
@@ -405,11 +515,36 @@ const Egresos = ({ tipoOperacion, arcaData = null }) => {
           onClose={() => setComprobanteExito(null)}
         />
       )}
+      {comprobanteConError && (
+        <ModalReintentarComprobante
+          codigo={comprobanteConError.codigo}
+          numeroComprobante={comprobanteConError.numeroComprobante}
+          puntoVenta={comprobanteConError.puntoVenta}
+          tipoDescripcionComprobante={comprobanteConError.tipoDescripcionComprobante}
+          codigoReceptor={comprobanteConError.codigoReceptor}
+          pasoFallido={comprobanteConError.pasoFallido}
+          onClose={() => setComprobanteConError(null)}
+        />
+      )}
       <ModalError
         isOpen={!!errorModalMsg}
         onClose={() => setErrorModalMsg("")}
         titulo="Error de validación"
         mensaje={errorModalMsg}
+      />
+      
+      <ModalConfirmacion
+        open={!!confirmacionStock}
+        titulo={confirmacionStock?.tipo === "DEVOLVER" ? "¿Quieres devolver stock?" : "¿Estás seguro de no devolver stock?"}
+        mensaje={confirmacionStock?.tipo === "DEVOLVER" ? "Has indicado que algunos ítems deben devolver stock." : "Ningún ítem está marcado para devolver stock."}
+        textoConfirmar="Sí, guardar comprobante"
+        textoCancelar="No, revisar"
+        colorConfirmar={confirmacionStock?.tipo === "DEVOLVER" ? "primary" : "amber"}
+        onConfirm={ejecutarGuardado}
+        onClose={() => {
+          setConfirmacionStock(null);
+          setHighlightStock(Date.now());
+        }}
       />
     </div>
   );

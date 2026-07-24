@@ -8,6 +8,8 @@ import { ObtenerDeudasContactoApi } from "../../../../Backend/Ventas/api/Comprob
 import { useGenerarComprobante } from "../../../../Backend/Ventas/queries/Comprobante/useGenerarComprobante.mutation";
 import { formatNumber, parseCurrency } from "../../../../utils/formatters";
 import { ListaContactosConDeuda } from "../../../../Componentes/Secciones/Comprobantes/Componentes/ListaContactosConDeuda";
+import ModalExitoComprobante from "../Componentes/ModalExitoComprobante";
+import ModalReintentarComprobante from "../Componentes/ModalReintentarComprobante";
 
 const formatPrice = (n) =>
   new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(n ?? 0);
@@ -24,6 +26,11 @@ const OrdenPago = () => {
   const [seleccionados, setSeleccionados] = useState(new Set());
   const [importesRaw, setImportesRaw] = useState({});
   const [importeWarnings, setImporteWarnings] = useState({});
+  const [comprobanteExito, setComprobanteExito] = useState(null);
+  // Feature 30 (comprobante-reintentar-tesoreria-contabilidad), R34/T38:
+  // mismo criterio que Recibos.jsx (T37) — se agrega ÚNICAMENTE el aviso de
+  // error/reintento, sin tocar el flujo de éxito existente.
+  const [comprobanteConError, setComprobanteConError] = useState(null);
 
   const { mutate: crearComprobante, isPending } = useGenerarComprobante();
 
@@ -127,6 +134,12 @@ const OrdenPago = () => {
       ...(p.tipoMetodoPago !== "EFECTIVO" && p.codigoBancoDestino && {
         codigoBancoDestino: p.codigoBancoDestino,
       }),
+      // Bugfix post-implementación #3 (feature "bancos", R24): sin este
+      // campo tesoreria-ms nunca crea el MovimientoBancario, aunque el
+      // usuario haya elegido una CuentaBancaria real en DetallePago.jsx.
+      ...(p.tipoMetodoPago !== "EFECTIVO" && p.codigoCuentaBancaria && {
+        codigoCuentaBancaria: p.codigoCuentaBancaria,
+      }),
       ...(p.datosTarjeta && {
         datosTarjeta: {
           tipoTarjeta: p.tipoMetodoPago === "TARJETA_CREDITO" ? "CREDITO" : "DEBITO",
@@ -206,6 +219,41 @@ const OrdenPago = () => {
           })),
       },
       codigoUnidadNegocio: currentUnidadNegocio,
+    }, {
+      onSuccess: (data) => {
+        setComprobanteExito({
+          codigo: data?.comprobante?.codigo,
+          codigoReceptor: contactoSeleccionado.codigo,
+          tipoDescripcion: "ORDEN_PAGO",
+          puntoVenta: 1,
+          numeroComprobante: data?.comprobante?.numeroComprobante,
+        });
+        setPagos([]);
+        setVueltos([]);
+        setSeleccionados(new Set());
+      },
+      // Feature 30 (comprobante-reintentar-tesoreria-contabilidad), R34: el
+      // comprobante YA quedó persistido — no se limpia el formulario (a
+      // diferencia de onSuccess), mismo criterio que Ingresos/Egresos/Recibos.
+      onError: (error) => {
+        const data = error?.response?.data;
+        if (
+          data?.code === "MOVIMIENTO_FINANCIERO_FALLIDO" ||
+          data?.code === "ASIENTO_CONTABLE_FALLIDO"
+        ) {
+          setComprobanteConError({
+            codigo: data.codigoComprobante,
+            numeroComprobante: data.numeroComprobante,
+            puntoVenta: data.puntoVenta,
+            tipoDescripcionComprobante: data.tipoDescripcionComprobante,
+            pasoFallido:
+              data.code === "MOVIMIENTO_FINANCIERO_FALLIDO"
+                ? "TESORERIA"
+                : "CONTABILIDAD",
+            codigoReceptor: contactoSeleccionado.codigo,
+          });
+        }
+      },
     });
   };
 
@@ -399,13 +447,30 @@ const OrdenPago = () => {
               type="button"
               onClick={handleConfirmar}
               disabled={isPending || !contactoSeleccionado || pagos.length === 0 || seleccionados.size === 0}
-              className="flex items-center gap-2 px-6 py-2.5 bg-[var(--color-brand-primary)] text-white text-[13px] font-bold uppercase tracking-wider rounded-[8px] hover:brightness-110 transition active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              className="flex items-center gap-2 px-6 py-2.5 bg-[#1FAE6D] hover:bg-[#178F58] text-white text-xs font-bold uppercase tracking-wider rounded-md transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
               <Save size={16} />
               {isPending ? "Guardando..." : "Confirmar Orden de Pago"}
             </button>
           </div>
         </>
+      )}
+      {comprobanteExito && (
+        <ModalExitoComprobante
+          comprobante={comprobanteExito}
+          onClose={() => setComprobanteExito(null)}
+        />
+      )}
+      {comprobanteConError && (
+        <ModalReintentarComprobante
+          codigo={comprobanteConError.codigo}
+          numeroComprobante={comprobanteConError.numeroComprobante}
+          puntoVenta={comprobanteConError.puntoVenta}
+          tipoDescripcionComprobante={comprobanteConError.tipoDescripcionComprobante}
+          codigoReceptor={comprobanteConError.codigoReceptor}
+          pasoFallido={comprobanteConError.pasoFallido}
+          onClose={() => setComprobanteConError(null)}
+        />
       )}
     </div>
   );

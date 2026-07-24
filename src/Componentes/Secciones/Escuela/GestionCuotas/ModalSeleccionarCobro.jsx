@@ -53,10 +53,10 @@ const ModalSeleccionarCobro = ({ alumno, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white border border-[var(--border-subtle)] rounded-xl max-w-2xl w-full p-7 shadow-2xl flex flex-col gap-6 max-h-[85vh]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
+      <div className="bg-white border border-gray-200 rounded-md max-w-2xl w-full p-7 shadow-2xl flex flex-col gap-6 max-h-[85vh]">
         <div className="flex flex-col gap-1 pr-8 relative">
-          <h2 className="text-xl font-black tracking-tight text-gray-800">
+          <h2 className="text-xl font-black tracking-tight text-gray-900">
             Cobrar cuota
           </h2>
           <p className="text-xs font-semibold text-gray-500">
@@ -101,32 +101,32 @@ const ModalSeleccionarCobro = ({ alumno, onClose }) => {
             </p>
           </div>
         ) : (
-          <div className="overflow-y-auto flex-1 border border-[var(--border-subtle)] rounded-lg">
+          <div className="overflow-y-auto flex-1 border border-gray-200 rounded-md shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
             <table className="w-full border-collapse text-left">
-              <thead className="bg-gray-50/80 sticky top-0 border-b border-[var(--border-subtle)]">
+              <thead className="bg-gray-50 sticky top-0 border-b border-gray-200">
                 <tr>
-                  <th className="px-4 py-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                  <th className="px-5 py-3 text-[10px] font-black text-gray-500 uppercase tracking-widest">
                     Comprobante
                   </th>
-                  <th className="px-4 py-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-center">
+                  <th className="px-5 py-3 text-[10px] font-black text-gray-500 uppercase tracking-widest text-center">
                     Vto
                   </th>
-                  <th className="px-4 py-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-right">
+                  <th className="px-5 py-3 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right">
                     Saldo Pendiente
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--border-subtle)] bg-white">
+              <tbody className="divide-y divide-gray-100 bg-white">
                 {deudas.map((d) => (
-                  <tr key={d.codigo}>
-                    <td className="px-4 py-3 text-xs font-bold text-gray-800 uppercase">
+                  <tr key={d.codigo} className="hover:bg-gray-50/80 transition-colors">
+                    <td className="px-5 py-4 text-[11px] font-black text-gray-900 uppercase tracking-widest">
                       {d.tipoDescripcionComprobante} {String(d.puntoVenta ?? 0).padStart(5, "0")}-
                       {String(d.numeroComprobante ?? 0).padStart(8, "0")}
                     </td>
-                    <td className="px-4 py-3 text-xs text-center text-gray-500 font-semibold">
+                    <td className="px-5 py-4 text-xs text-center text-gray-500 font-semibold">
                       {d.fechaVto ? formatDate(d.fechaVto) : "—"}
                     </td>
-                    <td className="px-4 py-3 text-sm font-black text-right text-rose-600">
+                    <td className="px-5 py-4 text-sm font-black text-right text-rose-600 tracking-tight">
                       {formatearARS(d.saldoPendiente)}
                     </td>
                   </tr>
@@ -139,17 +139,17 @@ const ModalSeleccionarCobro = ({ alumno, onClose }) => {
         <div className="flex gap-3 justify-end mt-2">
           <button
             onClick={onClose}
-            className="px-5 py-2.5 rounded-md bg-white border border-[var(--border-subtle)] text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
+            className="px-5 py-2.5 rounded-md bg-white border border-gray-200 text-[11px] font-black uppercase tracking-widest text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer shadow-sm"
           >
             Cancelar
           </button>
           <button
             onClick={handleIrACobrar}
             disabled={deudas.length === 0}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-md bg-[var(--primary)] text-white text-xs font-bold hover:brightness-110 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-md shadow-[var(--primary)]/20"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-md bg-[#1FAE6D] text-white text-[11px] font-black uppercase tracking-widest hover:bg-[#178F58] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm"
           >
             <span>Ir a cobrar (Recibo)</span>
-            <ArrowRight size={16} />
+            <ArrowRight size={14} />
           </button>
         </div>
       </div>

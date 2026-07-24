@@ -38,7 +38,10 @@ const FormularioContacto = ({
     tipoDocumento: contacto?.tipoDocumento === 99 ? "" : (contacto?.tipoDocumento || ""),
     condicionIva: contacto?.condicionIva || "CF",
     atributos: contacto?.atributos || {},
-    relaciones: contacto?.relaciones || [],
+    // Feature 33 (contactos-relaciones-ui, R45): se deja de emitir
+    // `relaciones` desde este formulario (sección "4. Vínculos/Relaciones"
+    // retirada, ver más abajo). El mecanismo backend (`Contacto.relaciones`,
+    // `_sincronizarEspejos`) sigue intacto para cualquier otro emisor.
     enteFacturacion: contacto?.enteFacturacion || null,
   });
 
@@ -55,12 +58,19 @@ const FormularioContacto = ({
     (c) => c.entidadClave === form.tipoEntidad,
   );
 
-  const [nuevaRelacion, setNuevaRelacion] = useState({
-    tipo: "",
-    entidad: "",
-    codigo: "",
-    nombre: "",
-  });
+  const advertenciaDocumento = (() => {
+    const tipoDoc = Number(form.tipoDocumento);
+    const doc = (form.documento || "").trim();
+    if (!doc) return "";
+    const soloDigitos = /^\d+$/.test(doc);
+    if (tipoDoc === 80 && (!soloDigitos || doc.length !== 11)) {
+      return "El CUIT ingresado no tiene 11 dígitos numéricos. Verifique el dato antes de guardar (AFIP puede rechazar comprobantes con un CUIT inválido).";
+    }
+    if (tipoDoc === 96 && (!soloDigitos || doc.length < 7 || doc.length > 8)) {
+      return "El DNI ingresado no tiene entre 7 y 8 dígitos numéricos. Verifique el dato antes de guardar.";
+    }
+    return "";
+  })();
 
   const [busquedaEnte, setBusquedaEnte] = useState({
     entidad: "",
@@ -69,13 +79,7 @@ const FormularioContacto = ({
     mostrarDropdown: false,
   });
 
-  const [busquedaVinculo, setBusquedaVinculo] = useState({
-    query: "",
-    mostrarDropdown: false,
-  });
-
   const [debouncedQueryEnte, setDebouncedQueryEnte] = useState("");
-  const [debouncedQueryVinculo, setDebouncedQueryVinculo] = useState("");
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -84,19 +88,6 @@ const FormularioContacto = ({
     return () => clearTimeout(timer);
   }, [busquedaEnte.query]);
 
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedQueryVinculo(busquedaVinculo.query);
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [busquedaVinculo.query]);
-
-  const { contactos: listaVinculos, cargandoContactos: cargandoVinculos } =
-    useContactos({
-      tipoEntidad: nuevaRelacion.entidad,
-      busqueda: debouncedQueryVinculo,
-    });
-
   const { contactos: listaEntes, cargandoContactos: cargandoEntes } =
     useContactos({
       tipoEntidad: busquedaEnte.entidad,
@@ -104,7 +95,6 @@ const FormularioContacto = ({
     });
 
   const [highlightedIndexEnte, setHighlightedIndexEnte] = useState(-1);
-  const [highlightedIndexVinculo, setHighlightedIndexVinculo] = useState(-1);
 
   const enteActualNombre = Array.isArray(listaEntes)
     ? listaEntes.find(
@@ -389,6 +379,12 @@ const FormularioContacto = ({
                 </div>
               </div>
 
+              {advertenciaDocumento && (
+                <p className="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-2 mt-1">
+                  {advertenciaDocumento}
+                </p>
+              )}
+
               {/* Correo Electrónico */}
               <div className="space-y-1.5 mt-4">
                 <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
@@ -583,209 +579,16 @@ const FormularioContacto = ({
               </div>
             </TieneAccion>
 
-            {/* 4. Vínculos / Relaciones */}
-            <TieneAccion accion="VINCULOS_CONTACTO">
-              <div className="space-y-4 pt-6 border-t border-[var(--border-subtle)]">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-[12px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] whitespace-nowrap">
-                    Vínculos
-                  </span>
-                  <div className="h-px w-full bg-[var(--border-subtle)]" />
-                </div>
-
-                <div className="space-y-2.5">
-                  {form.relaciones.map((rel, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between p-3.5 bg-[var(--fill-secondary)] rounded-md border border-[var(--border-subtle)] group hover:border-[var(--primary)]/30 transition-all shadow-sm"
-                    >
-                      <div className="flex flex-col">
-                        <span className="text-[9px] font-black text-[var(--primary)] uppercase tracking-widest mb-0.5">
-                          {rel.tipo}
-                        </span>
-                        <span className="text-[12px] font-black text-[var(--text-primary)] uppercase">
-                          {rel.nombre}
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setForm((p) => ({
-                            ...p,
-                            relaciones: p.relaciones.filter(
-                              (_, i) => i !== idx,
-                            ),
-                          }))
-                        }
-                        className="p-2 text-[var(--text-muted)] hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
-                      >
-                        <BorrarIcono size={14} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="bg-[var(--surface-hover)] p-4 rounded-md border border-dashed border-[var(--border-subtle)] space-y-3 shadow-sm">
-                  <div className="grid grid-cols-2 gap-2">
-                    <input
-                      type="text"
-                      placeholder="VÍNCULO (EJ: PADRE)"
-                      value={nuevaRelacion.tipo}
-                      onChange={(e) =>
-                        setNuevaRelacion((p) => ({
-                          ...p,
-                          tipo: e.target.value.toUpperCase(),
-                        }))
-                      }
-                      className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[11px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] uppercase transition-all"
-                    />
-                    <div className="relative">
-                      <select
-                        value={nuevaRelacion.entidad}
-                        onChange={(e) =>
-                          setNuevaRelacion((p) => ({
-                            ...p,
-                            entidad: e.target.value,
-                          }))
-                        }
-                        className="w-full bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[11px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] appearance-none cursor-pointer uppercase transition-all"
-                      >
-                        <option value="">Entidad...</option>
-                        {entidades.map((ent) => (
-                          <option key={ent.clave} value={ent.clave}>
-                            {ent.nombre.toUpperCase()}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-[var(--text-muted)]">
-                        <svg
-                          width="10"
-                          height="10"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="3"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="m6 9 6 6 6-6" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--text-muted)]">
-                      <Search size={12} />
-                    </div>
-                    <input
-                      type="text"
-                      disabled={!nuevaRelacion.entidad}
-                      placeholder="Buscar contacto..."
-                      value={busquedaVinculo.query}
-                      onChange={(e) => {
-                        setBusquedaVinculo({
-                          query: e.target.value,
-                          mostrarDropdown: true,
-                        });
-                        setHighlightedIndexVinculo(-1);
-                      }}
-                      onFocus={() =>
-                        nuevaRelacion.entidad &&
-                        setBusquedaVinculo((p) => ({
-                          ...p,
-                          mostrarDropdown: true,
-                        }))
-                      }
-                      onBlur={() =>
-                        setTimeout(
-                          () =>
-                            setBusquedaVinculo((p) => ({
-                              ...p,
-                              mostrarDropdown: false,
-                            })),
-                          200,
-                        )
-                      }
-                      className="w-full bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md pl-9 pr-3 py-2 text-[11px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all disabled:opacity-50"
-                    />
-
-                    {busquedaVinculo.mostrarDropdown && (
-                      <div className="absolute top-full mt-1 left-0 right-0 max-h-48 overflow-y-auto custom-scrollbar bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md shadow-2xl z-50 p-1">
-                        {Array.isArray(listaVinculos) &&
-                        listaVinculos.length > 0 ? (
-                          listaVinculos.map((c, idx) => (
-                            <div
-                              key={c.codigo}
-                              onClick={() => {
-                                const nombre =
-                                  c.razonSocial ||
-                                  `${c.nombre || ""} ${c.apellido || ""}`.trim();
-                                setNuevaRelacion((p) => ({
-                                  ...p,
-                                  codigo: String(c.codigo),
-                                  nombre,
-                                }));
-                                setBusquedaVinculo({
-                                  query: nombre,
-                                  mostrarDropdown: false,
-                                });
-                              }}
-                              className={`px-4 py-2 flex flex-col cursor-pointer rounded-md transition-all ${idx === highlightedIndexVinculo ? "bg-[var(--primary)] text-white" : "hover:bg-[var(--primary-subtle)] hover:text-[var(--primary)]"}`}
-                            >
-                              <span className="text-[11px] font-black uppercase">
-                                {c.razonSocial || `${c.nombre} ${c.apellido}`}
-                              </span>
-                              <span className="text-[9px] font-bold opacity-60">
-                                DNI: {c.documento || "S/D"}
-                              </span>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="px-4 py-3 text-[11px] text-[var(--text-muted)] text-center font-bold uppercase italic">
-                            Sin resultados
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (
-                        !nuevaRelacion.tipo ||
-                        !nuevaRelacion.codigo
-                      )
-                        return;
-                      setForm((p) => ({
-                        ...p,
-                        relaciones: [
-                          ...p.relaciones,
-                          {
-                            ...nuevaRelacion,
-                            codigo: Number(
-                              nuevaRelacion.codigo,
-                            ),
-                            nombre: nuevaRelacion.nombre || "S/N",
-                          },
-                        ],
-                      }));
-                      setNuevaRelacion({
-                        tipo: "",
-                        entidad: "",
-                        codigo: "",
-                        nombre: "",
-                      });
-                      setBusquedaVinculo({ query: "", mostrarDropdown: false });
-                    }}
-                    className="w-full py-2 bg-[var(--surface)] hover:bg-[var(--primary)] hover:text-white border border-[var(--border-subtle)] hover:border-[var(--primary)] rounded-md text-[10px] font-black uppercase tracking-widest transition-all shadow-sm cursor-pointer"
-                  >
-                    AÑADIR VÍNCULO
-                  </button>
-                </div>
-              </div>
-            </TieneAccion>
+            {/* Feature 33 (contactos-relaciones-ui, R45): la sección
+                "4. Vínculos / Relaciones" (gateada por TieneAccion
+                accion="VINCULOS_CONTACTO") se retira de este formulario.
+                VisorRelaciones (embebido en la Ficha de ListaContactos.jsx)
+                cubre la misma necesidad de negocio de forma contextual, con
+                las validaciones de cardinalidad/tipo que este mecanismo
+                legacy nunca tuvo. Ver design.md §8 para la justificación
+                completa. El backend (Contacto.relaciones,
+                _sincronizarEspejos) sigue intacto (R43, R44); solo se
+                retira este único emisor. */}
 
             {/* 5. CAMPOS DINÁMICOS */}
             {configsEntidad.length > 0 && (

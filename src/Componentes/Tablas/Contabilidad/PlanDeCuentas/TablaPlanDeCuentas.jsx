@@ -62,7 +62,7 @@ const TablaPlanDeCuentas = () => {
           <TieneAccion accion="IMPORTAR_PLAN_DE_CUENTA">
             <button
               onClick={() => setIsModalImportarOpen(true)}
-              className="flex items-center gap-2 px-4 h-10 bg-black/40 border border-black/10 rounded-md text-[13px] font-black uppercase tracking-wider text-black hover:bg-black/10 transition-all active:scale-95"
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-md text-xs font-black uppercase tracking-widest text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all shadow-sm cursor-pointer"
             >
               <FileDown size={16} strokeWidth={2.5} />
               Importar Plan

@@ -5,7 +5,9 @@ import { pdf } from "@react-pdf/renderer";
 import BuscadorDetalle from "../Componentes/BuscadorDetalle";
 import CabeceraComprobante from "../Componentes/CabeceraComprobante";
 import ModalExitoComprobante from "../Componentes/ModalExitoComprobante";
+import ModalReintentarComprobante from "../Componentes/ModalReintentarComprobante";
 import ModalError from "../../../Modales/ModalError";
+import ModalConfirmacion from "../../../UI/ModalConfirmacion/ModalConfirmacion";
 import ComprobantePDF from "../../../Tablas/Ventas/Comprobantes/ComprobantePDF";
 import { useCabeceraComprobante } from "../../../../Backend/Comprobantes/useCabeceraComprobante";
 import { useDetalleComprobante } from "../../../../Backend/Comprobantes/useDetalleComprobante";
@@ -86,6 +88,13 @@ const construirPayload = ({
       p.codigoBancoDestino && {
         codigoBancoDestino: p.codigoBancoDestino,
       }),
+    // Bugfix post-implementación #3 (feature "bancos", R24): sin este
+    // campo tesoreria-ms nunca crea el MovimientoBancario, aunque el
+    // usuario haya elegido una CuentaBancaria real en DetallePago.jsx.
+    ...(p.tipoMetodoPago !== "EFECTIVO" &&
+      p.codigoCuentaBancaria && {
+        codigoCuentaBancaria: p.codigoCuentaBancaria,
+      }),
     ...(p.datosTarjeta && {
       datosTarjeta: {
         tipoTarjeta:
@@ -103,12 +112,17 @@ const construirPayload = ({
       chequeTercero: {
         numero: p.chequeTercero.numero || "",
         banco: p.chequeTercero.banco || "",
+        // Ronda 7: código BCRA real del banco (catálogo tesoreria-ms),
+        // capturado por el selector de ModalCheque en DetallePago.jsx.
+        codigoBancoBcra: p.chequeTercero.codigoBancoBcra || undefined,
         cuitEmisor: p.chequeTercero.cuitEmisor || "",
         titular: p.chequeTercero.titular || "",
         fechaEmision: p.chequeTercero.fechaEmision || "",
         fechaPago: p.chequeTercero.fechaPago || "",
         importe: p.monto,
-        estado: "RECIBIDO",
+        // `estado` (Ronda 7): eliminado. Era un campo vestigial que
+        // ningún lado del backend usaba (tesoreria-ms siempre fuerza
+        // EN_CARTERA en el alta, R10) — ver progress/impl_cheques-terceros-tesoreria.md.
       },
     }),
     ...(p.chequePropio && { chequePropio: p.chequePropio }),
@@ -119,6 +133,8 @@ const construirPayload = ({
     tipoMetodoPago: v.tipoMetodoPago,
     monto: v.monto,
     ...(v.codigoBancoDestino && { codigoBancoDestino: v.codigoBancoDestino }),
+    // Bugfix post-implementación #3 (feature "bancos", R24).
+    ...(v.codigoCuentaBancaria && { codigoCuentaBancaria: v.codigoCuentaBancaria }),
   }));
 
   const comprobantesAsociados =
@@ -137,6 +153,15 @@ const construirPayload = ({
               cabecera.comprobanteAsociado.saldoPendiente ??
               cabecera.comprobanteAsociado.total,
             codigoUnidadNegocio: Number(cabecera.unidadNegocioSeleccionada),
+            // Comprobante cargado manualmente (no existe en la base, ver
+            // SelectorComprobanteModal.jsx): se manda `manual: true` y
+            // `puntoVenta` directo, porque el backend no tiene ningún
+            // comprobante real del cual resolverlo. Ver
+            // progress/impl_comprobante-asociado-manual.md.
+            ...(cabecera.comprobanteAsociado.manual && {
+              manual: true,
+              puntoVenta: cabecera.comprobanteAsociado.puntoVenta,
+            }),
           },
         ]
       : undefined;
@@ -182,6 +207,12 @@ const Ingresos = ({ tipoOperacion }) => {
   const [pagos, setPagos] = useState([]);
   const [vueltos, setVueltos] = useState([]);
   const [comprobanteExito, setComprobanteExito] = useState(null);
+  // Feature 30 (comprobante-reintentar-tesoreria-contabilidad), R34: el
+  // comprobante SÍ se generó pero falló tesorería o contabilidad — abre
+  // ModalReintentarComprobante en vez del toast genérico (ver R32, hook).
+  const [comprobanteConError, setComprobanteConError] = useState(null);
+  const [confirmacionStock, setConfirmacionStock] = useState(null);
+  const [highlightStock, setHighlightStock] = useState(0);
   const [generandoPDF, setGenerandoPDF] = useState(false);
   const [errorModalMsg, setErrorModalMsg] = useState("");
 
@@ -208,10 +239,13 @@ const Ingresos = ({ tipoOperacion }) => {
     }
   }, [location.state]);
 
-  // Cuando se selecciona un comprobante para asociar, cargar todos sus datos
+  // Cuando se selecciona un comprobante para asociar, cargar todos sus datos.
+  // Si el comprobante fue cargado MANUALMENTE (no existe en la base, ver
+  // SelectorComprobanteModal.jsx / progress/impl_comprobante-asociado-manual.md)
+  // no hay `codigo` real que buscar — llamar a este endpoint fallaría.
   useEffect(() => {
     const comp = cabecera.comprobanteAsociado;
-    if (!comp) return;
+    if (!comp || comp.manual === true) return;
 
     (async () => {
       const full = await obtenerComprobantePorCodigo(comp.codigo);
@@ -332,6 +366,24 @@ const Ingresos = ({ tipoOperacion }) => {
       }
     }
 
+    if (tipoDescripcion === "NOTA_CREDITO") {
+      const tieneProductos = detalle.items.some((i) => i.tipoDetalle !== "CUENTA_CONTABLE");
+      
+      if (tieneProductos) {
+        const algunaDevolucion = detalle.items.some((i) => i.devolverAStock);
+        setConfirmacionStock({
+          tipo: algunaDevolucion ? "DEVOLVER" : "NO_DEVOLVER"
+        });
+        return;
+      }
+    }
+
+    ejecutarGuardado();
+  };
+
+  const ejecutarGuardado = () => {
+    setConfirmacionStock(null);
+
     const payload = construirPayload({
       cabecera,
       items: detalle.items,
@@ -368,6 +420,29 @@ const Ingresos = ({ tipoOperacion }) => {
           detalle.reset();
           setPagos([]);
           setVueltos([]);
+        },
+        // Feature 30 (comprobante-reintentar-tesoreria-contabilidad), R34:
+        // el comprobante YA quedó persistido (con esos datos) — el
+        // formulario NO se limpia acá (a diferencia de onSuccess) porque el
+        // usuario podría necesitar reintentar, y limpiar es cosmético.
+        onError: (error) => {
+          const data = error?.response?.data;
+          if (
+            data?.code === "MOVIMIENTO_FINANCIERO_FALLIDO" ||
+            data?.code === "ASIENTO_CONTABLE_FALLIDO"
+          ) {
+            setComprobanteConError({
+              codigo: data.codigoComprobante,
+              numeroComprobante: data.numeroComprobante,
+              puntoVenta: data.puntoVenta,
+              tipoDescripcionComprobante: data.tipoDescripcionComprobante,
+              pasoFallido:
+                data.code === "MOVIMIENTO_FINANCIERO_FALLIDO"
+                  ? "TESORERIA"
+                  : "CONTABILIDAD",
+              codigoReceptor: payload.codigoReceptor,
+            });
+          }
         },
       },
     );
@@ -463,6 +538,7 @@ const Ingresos = ({ tipoOperacion }) => {
         codigoTipoComprobante={cabecera.tipoComprobante}
         otrosTributos={cabecera.otrosTributos}
         setOtrosTributos={cabecera.setOtrosTributos}
+        highlightStock={highlightStock}
         condicionComprobante={cabecera.condicionComprobante}
       />
 
@@ -494,7 +570,7 @@ const Ingresos = ({ tipoOperacion }) => {
             type="button"
             onClick={handleGuardar}
             disabled={isPending || detalle.items.length === 0 || requiereIva}
-            className="flex items-center gap-2 px-6 py-2.5 bg-[var(--color-brand-primary)] text-white text-[13px] font-bold uppercase tracking-wider rounded-[8px] hover:brightness-110 transition active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            className="flex items-center gap-2 px-6 py-2.5 bg-[#1FAE6D] hover:bg-[#178F58] text-white text-xs font-bold uppercase tracking-wider rounded-md transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
             <Save size={16} />
             {isPending ? "Guardando..." : "Guardar Comprobante"}
@@ -508,11 +584,36 @@ const Ingresos = ({ tipoOperacion }) => {
           onClose={() => setComprobanteExito(null)}
         />
       )}
+      {comprobanteConError && (
+        <ModalReintentarComprobante
+          codigo={comprobanteConError.codigo}
+          numeroComprobante={comprobanteConError.numeroComprobante}
+          puntoVenta={comprobanteConError.puntoVenta}
+          tipoDescripcionComprobante={comprobanteConError.tipoDescripcionComprobante}
+          codigoReceptor={comprobanteConError.codigoReceptor}
+          pasoFallido={comprobanteConError.pasoFallido}
+          onClose={() => setComprobanteConError(null)}
+        />
+      )}
       <ModalError
         isOpen={!!errorModalMsg}
         onClose={() => setErrorModalMsg("")}
         titulo="Error de validación"
         mensaje={errorModalMsg}
+      />
+      
+      <ModalConfirmacion
+        open={!!confirmacionStock}
+        titulo={confirmacionStock?.tipo === "DEVOLVER" ? "¿Quieres devolver stock?" : "¿Estás seguro de no devolver stock?"}
+        mensaje={confirmacionStock?.tipo === "DEVOLVER" ? "Has indicado que algunos ítems deben devolver stock." : "Ningún ítem está marcado para devolver stock."}
+        textoConfirmar="Sí, guardar comprobante"
+        textoCancelar="No, revisar"
+        colorConfirmar={confirmacionStock?.tipo === "DEVOLVER" ? "primary" : "amber"}
+        onConfirm={ejecutarGuardado}
+        onClose={() => {
+          setConfirmacionStock(null);
+          setHighlightStock(Date.now());
+        }}
       />
     </div>
   );

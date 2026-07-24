@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { useDeudaAlumno } from "../../../../Backend/Escuela/hooks/useDeudaAlumno";
 import { formatearARS } from "../../../../utils/formatearMoneda";
 
@@ -42,6 +43,21 @@ const ModalDeudaAlumno = ({ alumno, codigoCuentaContable, onClose }) => {
     codigoContacto: alumno.codigo,
     codigoCuentaContable,
   });
+  const navigate = useNavigate();
+
+  const handleIrACobrar = () => {
+    navigate("/panel/comprobantes/crear", {
+      state: {
+        origen: "ESCUELA_CUOTAS",
+        tipoOperacion: "RECIBOS",
+        contacto: {
+          ...(alumno.enteFacturacion || alumno),
+          codigoUnidadNegocio: alumno.codigoUnidadNegocio
+        },
+      },
+    });
+    onClose();
+  };
 
   const nombreCompleto =
     alumno.razonSocial ||
@@ -83,14 +99,14 @@ const ModalDeudaAlumno = ({ alumno, codigoCuentaContable, onClose }) => {
   }, [comprobantesCuota]);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white border border-[var(--border-subtle)] rounded-xl max-w-2xl w-full p-7 shadow-2xl flex flex-col gap-6 max-h-[85vh]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
+      <div className="bg-white border border-gray-200 rounded-md max-w-2xl w-full p-7 shadow-2xl flex flex-col gap-6 max-h-[85vh]">
         <div className="flex flex-col gap-1 pr-8 relative">
-          <h2 className="text-xl font-black tracking-tight text-gray-800">
+          <h2 className="text-xl font-black tracking-tight text-gray-900">
             Historial de deudas
           </h2>
-          <p className="text-xs font-semibold text-gray-500 uppercase">
-            Alumno: <span className="text-gray-900">{nombreCompleto}</span>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">
+            Alumno: <span className="text-gray-900 font-bold">{nombreCompleto}</span>
           </p>
           <button
             onClick={onClose}
@@ -116,55 +132,85 @@ const ModalDeudaAlumno = ({ alumno, codigoCuentaContable, onClose }) => {
             </p>
           </div>
         ) : (
-          <div className="overflow-y-auto flex-1 border border-[var(--border-subtle)] rounded-lg">
+          <div className="overflow-y-auto flex-1 border border-gray-200 rounded-md shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
             <table className="w-full border-collapse text-left">
-              <thead className="bg-gray-50/80 sticky top-0 border-b border-[var(--border-subtle)]">
+              <thead className="bg-gray-50 sticky top-0 border-b border-gray-200">
                 <tr>
-                  <th className="px-4 py-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                  <th className="px-5 py-3 text-[10px] font-black text-gray-500 uppercase tracking-widest">
                     Período
                   </th>
-                  <th className="px-4 py-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-right">
+                  <th className="px-5 py-3 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right">
                     Total Emitido
                   </th>
-                  <th className="px-4 py-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-right">
+                  <th className="px-5 py-3 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right">
                     Saldo Pendiente
                   </th>
-                  <th className="px-4 py-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-center">
+                  <th className="px-5 py-3 text-[10px] font-black text-gray-500 uppercase tracking-widest text-center">
                     Estado
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--border-subtle)] bg-white">
+              <tbody className="divide-y divide-gray-100 bg-white">
                 {historialPeriodos.map((periodo) => {
-                  let badgeClass = "bg-sky-100 text-sky-700 border-sky-200";
+                  let badge = (
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-sky-50 text-sky-700 border border-sky-200/60">
+                      <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+                      {periodo.estado}
+                    </span>
+                  );
                   if (periodo.estado === "ABONADO") {
-                    badgeClass = "bg-emerald-100 text-emerald-700 border-emerald-200";
+                    badge = (
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        ABONADA
+                      </span>
+                    );
                   } else if (periodo.estado === "PARCIALMENTE_ABONADO") {
-                    badgeClass = "bg-amber-100 text-amber-700 border-amber-200";
+                    badge = (
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-amber-50 text-amber-700 border border-amber-200/60">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                        PARCIAL
+                      </span>
+                    );
                   } else if (periodo.estado === "VENCIDA") {
-                    badgeClass = "bg-rose-100 text-rose-700 border-rose-200";
+                    badge = (
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-rose-50 text-rose-700 border border-rose-200/60">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                        VENCIDA
+                      </span>
+                    );
                   } else if (periodo.estado === "ANULADO") {
-                    badgeClass = "bg-gray-200 text-gray-600 border-gray-300";
+                    badge = (
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-gray-100 text-gray-500 border border-gray-200">
+                        <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                        ANULADA
+                      </span>
+                    );
+                  } else if (periodo.estado === "EMITIDA") {
+                    badge = (
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        EMITIDA
+                      </span>
+                    );
                   }
 
                   return (
                     <tr
                       key={periodo.codigo}
-                      className="hover:bg-gray-50/50 transition-colors"
+                      className="hover:bg-gray-50/80 transition-colors"
                     >
-                      <td className="px-4 py-3 text-xs font-bold text-gray-800 uppercase">
+                      <td className="px-5 py-4 text-[11px] font-black text-gray-900 uppercase tracking-widest">
                         {periodo.periodoStr}
                       </td>
-                      <td className="px-4 py-3 text-xs font-semibold text-right text-gray-500">
+                      <td className="px-5 py-4 text-xs font-semibold text-right text-gray-500">
                         {formatearARS(periodo.totalEmitido)}
                       </td>
-                      <td className="px-4 py-3 text-sm font-black text-right text-gray-800">
+                      <td className="px-5 py-4 text-sm font-black text-right text-gray-900 tracking-tight">
                         {formatearARS(periodo.saldoPendiente)}
                       </td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest border ${badgeClass}`}>
-                          {periodo.estado}
-                        </span>
+                      <td className="px-5 py-4 text-center">
+                        {badge}
                       </td>
                     </tr>
                   );
@@ -174,12 +220,23 @@ const ModalDeudaAlumno = ({ alumno, codigoCuentaContable, onClose }) => {
           </div>
         )}
 
-        <button
-          onClick={onClose}
-          className="w-full py-3 mt-2 rounded-md bg-white border border-[var(--border-subtle)] text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer shadow-sm"
-        >
-          Cerrar panel
-        </button>
+        <div className="flex gap-3 mt-2">
+          <button
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-md bg-white border border-gray-200 text-xs font-black uppercase tracking-widest text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer shadow-sm"
+          >
+            Cerrar panel
+          </button>
+          {historialPeriodos.some(p => p.saldoPendiente > 0) && (
+            <button
+              onClick={handleIrACobrar}
+              className="flex-1 py-2.5 rounded-md bg-[#1FAE6D] text-white text-xs font-black uppercase tracking-widest hover:bg-[#178F58] transition-colors cursor-pointer shadow-sm flex items-center justify-center gap-2"
+            >
+              <span>Ir a cobrar (Recibo)</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

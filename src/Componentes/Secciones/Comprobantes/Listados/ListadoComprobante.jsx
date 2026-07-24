@@ -13,6 +13,7 @@ import {
   FileX,
   Filter,
   Eye,
+  AlertTriangle,
 } from "lucide-react";
 import { useObtenerComprobantesQuery } from "../../../../Backend/Ventas/queries/Comprobante/useObtenerComprobantes.query";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
@@ -20,6 +21,8 @@ import { obtenerComprobantePorCodigo } from "../../../../Backend/Ventas/api/Comp
 import { formatPrice } from "../../../../utils/formatters";
 import DetalleComprobanteDrawer from "../../../Tablas/Ventas/Comprobantes/DetalleComprobanteDrawer";
 import DateRangePicker from "../../../UI/DateRangePicker/DateRangePicker";
+import ModalReintentarComprobante from "../Componentes/ModalReintentarComprobante";
+import { ComprobanteIcono } from "../../../../assets/Icons";
 
 // ─────────────────────────────── constantes ───────────────────────────────
 
@@ -61,6 +64,11 @@ const ESTADO_LABEL = {
   ABONADO: "Abonado",
   ANULADO: "Anulado",
 };
+
+const ESTADOS_FILTRO = [
+  { value: "", label: "Todos los estados" },
+  ...Object.entries(ESTADO_LABEL).map(([value, label]) => ({ value, label })),
+];
 
 const TIPO_ICON = {
   FACTURA: FileCheck,
@@ -159,9 +167,15 @@ const adaptarParaDrawer = (full) => {
     })),
     ajustes: [],
     cbtesAsoc: (full.comprobantesAsociados || []).map((a) => ({
-      tipo: a.tipoDescripcionComprobanteOrigen ?? a.codigoTipoComprobanteAsociado ?? a.tipoRelacion,
+      tipo:
+        a.tipoDescripcionComprobanteOrigen ??
+        a.codigoTipoComprobanteAsociado ??
+        a.tipoRelacion,
       ptoVta: a.puntoVentaOrigen ?? a.puntoVenta ?? 0,
-      nro: a.numeroComprobanteOrigenDisplay ?? a.numeroComprobanteAsociado ?? a.numeroComprobanteOrigen,
+      nro:
+        a.numeroComprobanteOrigenDisplay ??
+        a.numeroComprobanteAsociado ??
+        a.numeroComprobanteOrigen,
       total: a.importeAplicado,
       codigo: a.numeroComprobanteOrigen,
     })),
@@ -246,7 +260,7 @@ const SkeletonFila = () => (
 
 // ─────────────────────────────── fila individual ──────────────────────────
 
-const FilaComprobante = ({ comp, onClick, isLoading }) => {
+const FilaComprobante = ({ comp, onClick, isLoading, onAbrirReintento }) => {
   const letra =
     comp.letraComprobante || LETRA_MAP[comp.codigoTipoComprobante] || "";
   const tieneAsociados = comp.comprobantesAsociados?.length > 0;
@@ -255,6 +269,15 @@ const FilaComprobante = ({ comp, onClick, isLoading }) => {
     comp.tipoOperacion === "ANULACION_INGRESO" ||
     comp.tipoOperacion === "ANULACION_EGRESO";
   const accent = TIPO_ACCENT[comp.tipoDescripcionComprobante] || "bg-gray-200";
+
+  // Feature 30 (comprobante-reintentar-tesoreria-contabilidad), R41/R42:
+  // indicador puramente aditivo — un comprobante sin pendientes no muestra
+  // nada distinto a hoy. `comp.movimientoFinancieroGenerado`/
+  // `comp.asientoContableGenerado` vienen del backend (R40), default
+  // `true` para comprobantes históricos (sin las columnas nuevas).
+  const tesoreriaPendiente = comp.movimientoFinancieroGenerado === false;
+  const contabilidadPendiente = comp.asientoContableGenerado === false;
+  const tienePendiente = tesoreriaPendiente || contabilidadPendiente;
 
   return (
     <div
@@ -339,6 +362,20 @@ const FilaComprobante = ({ comp, onClick, isLoading }) => {
                 Asoc.
               </span>
             )}
+            {tienePendiente && (
+              <button
+                type="button"
+                title="El comprobante se generó, pero falta completar este paso. Click para reintentar."
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAbrirReintento?.(comp);
+                }}
+                className="inline-flex items-center gap-0.5 text-[8px] font-black uppercase tracking-wider px-1 py-0.5 rounded border bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 transition cursor-pointer"
+              >
+                <AlertTriangle size={7} />
+                {tesoreriaPendiente ? "Tesorería pend." : "Contab. pend."}
+              </button>
+            )}
           </div>
         </div>
 
@@ -386,7 +423,10 @@ const ListadoComprobante = () => {
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
   const [fiscal, setFiscal] = useState("");
-  const [busqueda, setBusqueda] = useState(location.state?.busquedaInicial ?? "");
+  const [estado, setEstado] = useState("");
+  const [busqueda, setBusqueda] = useState(
+    location.state?.busquedaInicial ?? "",
+  );
   const [busquedaDebounced, setBusquedaDebounced] = useState(
     location.state?.busquedaInicial ?? "",
   );
@@ -397,6 +437,23 @@ const ListadoComprobante = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [comprobanteDetalle, setComprobanteDetalle] = useState(null);
   const [cargandoDetalle, setCargandoDetalle] = useState(null);
+
+  // Feature 30 (comprobante-reintentar-tesoreria-contabilidad), R41: modal
+  // de reintento reabierto desde el badge "pendiente" de la fila.
+  const [comprobanteReintento, setComprobanteReintento] = useState(null);
+  const handleAbrirReintento = (comp) => {
+    setComprobanteReintento({
+      codigo: comp.codigo,
+      numeroComprobante: comp.numeroComprobante,
+      puntoVenta: comp.puntoVenta,
+      tipoDescripcionComprobante: comp.tipoDescripcionComprobante,
+      codigoReceptor: comp.codigoReceptor,
+      pasoFallido:
+        comp.movimientoFinancieroGenerado === false
+          ? "TESORERIA"
+          : "CONTABILIDAD",
+    });
+  };
 
   useEffect(() => {
     if (unidadesNegocio.length > 0 && !unidadNegocio) {
@@ -413,6 +470,7 @@ const ListadoComprobante = () => {
     fechaDesde,
     fechaHasta,
     fiscal,
+    estado,
     busquedaDebounced,
   ]);
 
@@ -428,12 +486,18 @@ const ListadoComprobante = () => {
     ...(fechaDesde && { fechaDesde }),
     ...(fechaHasta && { fechaHasta }),
     ...(fiscal !== "" && { fiscal }),
+    ...(estado && { estado }),
     ...(busquedaDebounced && { busqueda: busquedaDebounced }),
     pagina,
     limite: LIMITE,
   };
 
-  const { data, isLoading, isFetching, refetch: refetchComprobantes } = useObtenerComprobantesQuery(filtros);
+  const {
+    data,
+    isLoading,
+    isFetching,
+    refetch: refetchComprobantes,
+  } = useObtenerComprobantesQuery(filtros);
 
   const comprobantes = Array.isArray(data) ? data : (data?.data ?? []);
   const totalPaginas = data?.totalPaginas ?? 1;
@@ -444,11 +508,12 @@ const ListadoComprobante = () => {
     setFechaDesde("");
     setFechaHasta("");
     setFiscal("");
+    setEstado("");
     setBusqueda("");
   };
 
   const hayFiltros =
-    tipo || fechaDesde || fechaHasta || fiscal !== "" || busqueda;
+    tipo || fechaDesde || fechaHasta || fiscal !== "" || estado || busqueda;
 
   const handleAbrirDetalle = async (comp) => {
     if (cargandoDetalle) return;
@@ -467,17 +532,36 @@ const ListadoComprobante = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--color-neutral-bg)] w-full p-3 md:p-6 text-[var(--color-neutral-text-main)] font-sans overflow-x-hidden">
+    <div className="w-full max-w-[1600px] mx-auto py-8 px-6 lg:px-8 space-y-8 bg-[#F8FAFC] min-h-[calc(100vh-64px)]">
+      {/* HEADER PREMIUM */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-gray-200/80">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+            <span>Comprobantes</span>
+            <span className="w-1 h-1 rounded-full bg-gray-300" />
+            <span>Listado General</span>
+          </div>
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
+            <ComprobanteIcono color="var(--primary)" size={28} />
+            Gestión de Comprobantes
+          </h1>
+          <p className="text-sm font-medium text-gray-500 max-w-2xl">
+            Consultá, filtrá e inspeccioná facturas, recibos, órdenes de pago y
+            notas de crédito/débito.
+          </p>
+        </div>
+      </div>
+
       {/* ── TABS ── */}
-      <div className="flex bg-white p-1.5 rounded-[12px] border border-[var(--color-neutral-border)] w-full sm:w-fit mb-5 shadow-sm">
+      <div className="flex bg-white p-1 rounded-md border border-gray-200 w-full sm:w-fit shadow-sm">
         {["INGRESO", "EGRESO"].map((tab) => (
           <button
             key={tab}
             onClick={() => setTipoOperacion(tab)}
-            className={`flex-1 sm:flex-initial px-6 py-2.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wide transition-colors duration-200 cursor-pointer ${
+            className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-md text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
               tipoOperacion === tab
-                ? "bg-[var(--color-brand-soft)] text-[var(--color-brand-primary)]"
-                : "text-[var(--color-neutral-text-muted)] hover:text-[var(--color-neutral-text-main)] hover:bg-gray-50"
+                ? "bg-gray-900 text-white shadow-sm"
+                : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
             }`}
           >
             {tab === "INGRESO" ? "Ventas (Ingresos)" : "Compras (Egresos)"}
@@ -486,7 +570,7 @@ const ListadoComprobante = () => {
       </div>
 
       {/* ── PANEL DE FILTROS ── */}
-      <div className="bg-white border border-[var(--color-neutral-border)] rounded-[16px] p-5 mb-4 shadow-sm">
+      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-3">
           <Filter size={13} className="text-[var(--primary)]" />
           <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
@@ -527,6 +611,13 @@ const ListadoComprobante = () => {
             options={TIPOS_DESCRIPCION}
           />
 
+          <SelectFiltro
+            label="Estado"
+            value={estado}
+            onChange={setEstado}
+            options={ESTADOS_FILTRO}
+          />
+
           <div>
             <FieldLabel>Naturaleza</FieldLabel>
             <select
@@ -542,13 +633,13 @@ const ListadoComprobante = () => {
 
           <div className="col-span-2 sm:col-span-1 lg:col-span-2">
             <FieldLabel>Rango de Fechas</FieldLabel>
-            <DateRangePicker 
-               fechaDesde={fechaDesde} 
-               fechaHasta={fechaHasta} 
-               onChange={(desde, hasta) => {
-                  setFechaDesde(desde);
-                  setFechaHasta(hasta);
-               }}
+            <DateRangePicker
+              fechaDesde={fechaDesde}
+              fechaHasta={fechaHasta}
+              onChange={(desde, hasta) => {
+                setFechaDesde(desde);
+                setFechaHasta(hasta);
+              }}
             />
           </div>
 
@@ -563,7 +654,7 @@ const ListadoComprobante = () => {
                 type="text"
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                placeholder="Razón social, DNI/CUIT, número..."
+                placeholder="Razón social, DNI/CUIT, número, descripción..."
                 className="w-full h-10 pl-8 pr-7 border border-[var(--color-neutral-border)] rounded-[8px] text-[13px] font-bold text-[var(--color-neutral-text-main)] focus:outline-none focus:border-[var(--color-brand-primary)] placeholder:font-normal placeholder:text-[var(--color-neutral-text-muted)]"
               />
               {busqueda && (
@@ -651,6 +742,7 @@ const ListadoComprobante = () => {
                 comp={comp}
                 onClick={() => handleAbrirDetalle(comp)}
                 isLoading={cargandoDetalle === comp.codigo}
+                onAbrirReintento={handleAbrirReintento}
               />
             ))}
           </div>
@@ -714,6 +806,26 @@ const ListadoComprobante = () => {
           usuario={usuario}
           onAnulado={() => {
             setDrawerOpen(false);
+            refetchComprobantes();
+          }}
+        />
+      )}
+
+      {/* Feature 30 (comprobante-reintentar-tesoreria-contabilidad),
+          R41/R42: al cerrar, se refresca el listado para que el badge
+          "pendiente" refleje el estado real tras un reintento exitoso. */}
+      {comprobanteReintento && (
+        <ModalReintentarComprobante
+          codigo={comprobanteReintento.codigo}
+          numeroComprobante={comprobanteReintento.numeroComprobante}
+          puntoVenta={comprobanteReintento.puntoVenta}
+          tipoDescripcionComprobante={
+            comprobanteReintento.tipoDescripcionComprobante
+          }
+          codigoReceptor={comprobanteReintento.codigoReceptor}
+          pasoFallido={comprobanteReintento.pasoFallido}
+          onClose={() => {
+            setComprobanteReintento(null);
             refetchComprobantes();
           }}
         />

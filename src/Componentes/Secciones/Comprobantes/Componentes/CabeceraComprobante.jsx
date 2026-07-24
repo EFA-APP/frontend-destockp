@@ -66,6 +66,7 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
     importeAplicadoManual,
     setImporteAplicadoManual,
     esNotaAsociada,
+    esNotaCredito,
     numeroComprobanteEgreso,
     setNumeroComprobanteEgreso,
     cae,
@@ -166,32 +167,35 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
     e.preventDefault();
     const allInputs = Array.from(
       document.querySelectorAll(
-        'input:not([type="hidden"]):not([disabled]), select:not([disabled])',
+        'input:not([type="hidden"]):not([disabled]), select:not([disabled]), button:not([disabled])',
       ),
     );
     const idx = allInputs.indexOf(e.target);
     if (idx >= 0 && idx < allInputs.length - 1) {
       allInputs[idx + 1].focus();
+      if (allInputs[idx + 1].select) {
+        allInputs[idx + 1].select();
+      }
     }
   };
 
   return (
-    <div className="flex flex-col gap-5 p-6 bg-white border border-[var(--color-neutral-border)] rounded-[16px] shadow-sm">
+    <div className="flex flex-col gap-5 p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
       {/* SECCIÓN 1: FECHAS */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 pb-5 border-b border-[var(--color-neutral-border)] w-full">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 pb-5 border-b border-gray-100 w-full">
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="datepicker-range-start"
-            className="flex items-center gap-2 text-md font-semibold uppercase tracking-wider text-gray-900"
+            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500"
           >
-            <FechaIcono size={20} className="text-[var(--primary)]" />
+            <FechaIcono size={16} className="text-[#1FAE6D]" />
             Fecha Inicio
           </label>
           <input
             id="datepicker-range-start"
             name="start"
             type="date"
-            className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md font-semibold shadow-sm transition-colors duration-200 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10"
+            className="block w-full h-11 px-3 border border-gray-300 rounded-md text-sm font-semibold bg-white focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 shadow-sm transition-all"
             value={fechaInicio}
             onChange={(e) => setFechaInicio(e.target.value)}
             onKeyDown={handleEnterNext}
@@ -201,16 +205,16 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="datepicker-range-end"
-            className="flex items-center gap-2 text-md font-semibold uppercase tracking-wider text-gray-900"
+            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500"
           >
-            <FechaIcono size={20} className="text-[var(--primary)]" />
+            <FechaIcono size={16} className="text-[#1FAE6D]" />
             Fecha Vencimiento
           </label>
           <input
             id="datepicker-range-end"
             name="end"
             type="date"
-            className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md font-semibold shadow-sm transition-colors duration-200 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10"
+            className="block w-full h-11 px-3 border border-gray-300 rounded-md text-sm font-semibold bg-white focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 shadow-sm transition-all"
             value={fechaVencimiento}
             onChange={(e) => setFechaVencimiento(e.target.value)}
             onKeyDown={handleEnterNext}
@@ -412,6 +416,14 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
                   <span className="text-sm font-black text-gray-900">
                     {`${String(comprobanteAsociado.puntoVenta || 0).padStart(5, "0")}-${String(comprobanteAsociado.numeroComprobante || 0).padStart(8, "0")}`}
                   </span>
+                  {comprobanteAsociado.manual && (
+                    <span
+                      title="Cargado manualmente: no existe un comprobante real en el sistema, solo se usa como referencia de la asociación."
+                      className="text-[10px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200"
+                    >
+                      Manual / Externo
+                    </span>
+                  )}
                 </div>
                 {(comprobanteAsociado.nombreCliente ||
                   comprobanteAsociado.razonSocial) && (
@@ -785,6 +797,7 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
         onClose={() => setModalComprobanteOpen(false)}
         onSeleccionar={setComprobanteAsociado}
         unidadesNegocio={unidadesNegocio}
+        permitirManual={esNotaCredito}
       />
 
       {modalCrearContacto && (

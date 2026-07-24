@@ -1,6 +1,9 @@
 import { BorrarIcono } from "../../../../assets/Icons";
 import { formatPrice } from "../../../../utils/formatters";
+import { useEffect, useState } from "react";
+import { Split } from "lucide-react";
 import { TASAS_IVA, TIPO_FISCAL_OPTIONS } from "../../../../Backend/Comprobantes/useDetalleComprobante";
+import RepartirUnidadNegocioModal from "./RepartirUnidadNegocioModal";
 
 const ETIQUETAS_TIPO = {
   PRODUCTO: "Producto",
@@ -38,8 +41,40 @@ const CarritoDetalle = ({
   esNotaCredito = false,
   otrosTributos = 0,
   setOtrosTributos,
+  highlightStock = 0,
+  // Feature "egreso-distribucion-unidad-negocio" (R29, R41): el botón
+  // "Repartir" solo se renderiza cuando el comprobante es elegible (Egreso
+  // FACTURA/NOTA_CREDITO/NOTA_DEBITO, R2) Y la empresa tiene más de una
+  // Unidad de Negocio configurada — con <=1 unidad, ninguna prop de reparto
+  // llega con datos útiles y el carrito queda idéntico al comportamiento
+  // anterior a esta feature.
+  permiteRepartoUnidadNegocio = false,
+  unidadesNegocio = [],
+  actualizarRepartoItem,
+  quitarRepartoItem,
 }) => {
   const mostrarSelectorFiscal = TIPOS_CON_SELECTOR_FISCAL.includes(Number(codigoTipoComprobante));
+  const mostrarBotonRepartir =
+    permiteRepartoUnidadNegocio && unidadesNegocio.length > 1;
+
+  const [itemRepartiendo, setItemRepartiendo] = useState(null);
+
+  const [animatingStock, setAnimatingStock] = useState(false);
+  useEffect(() => {
+    if (highlightStock) {
+      setAnimatingStock(true);
+      
+      // Intentar scrollear al primer botón de devolver a stock
+      setTimeout(() => {
+        const btn = document.querySelector(".btn-devolver-stock");
+        if (btn) btn.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+      
+      const t = setTimeout(() => setAnimatingStock(false), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [highlightStock]);
+
   if (!items || items.length === 0) {
     return (
       <div className="mx-4 mb-3 py-10 text-center border-2 border-dashed border-gray-100 rounded-md">
@@ -206,15 +241,36 @@ const CarritoDetalle = ({
                           !item.devolverAStock,
                         )
                       }
-                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      className={`btn-devolver-stock relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-all duration-300 ease-in-out focus:outline-none ${
                         item.devolverAStock ? "bg-[var(--primary)]" : "bg-gray-300"
-                      }`}
+                      } ${animatingStock ? "ring-4 ring-amber-500 animate-pulse scale-110 shadow-lg" : ""}`}
                     >
                       <span
                         className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
                           item.devolverAStock ? "translate-x-5" : "translate-x-0"
                         }`}
                       />
+                    </button>
+                  </div>
+                )}
+
+                {/* Repartir por Unidad de Negocio (R29, R35, R41) */}
+                {mostrarBotonRepartir && (
+                  <div>
+                    <FieldLabel>Unidad de Negocio</FieldLabel>
+                    <button
+                      type="button"
+                      onClick={() => setItemRepartiendo(item)}
+                      className={`h-[30px] px-2.5 flex items-center gap-1.5 rounded-md text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                        item.repartoUnidadNegocio?.length > 0
+                          ? "bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/30"
+                          : "border border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                      }`}
+                    >
+                      <Split size={12} />
+                      {item.repartoUnidadNegocio?.length > 0
+                        ? `Repartido (${item.repartoUnidadNegocio.length})`
+                        : "Repartir"}
                     </button>
                   </div>
                 )}
@@ -233,26 +289,26 @@ const CarritoDetalle = ({
       </div>
 
       {/* Totales */}
-      <div className="border border-gray-100 rounded-md bg-white shadow-sm">
-        <div className="px-4 py-3 space-y-1.5">
+      <div className="border border-gray-200 rounded-xl bg-white shadow-sm p-5">
+        <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
               Subtotal sin IVA
             </span>
-            <span className="text-md font-bold text-gray-700">
+            <span className="text-sm font-bold text-gray-900 font-mono">
               {formatPrice(subtotalSinIva)}
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
               IVA
             </span>
-            <span className="text-md font-bold text-gray-700">
+            <span className="text-sm font-bold text-gray-900 font-mono">
               {formatPrice(totalIva)}
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
               Otros Tributos
             </span>
             <input
@@ -261,30 +317,44 @@ const CarritoDetalle = ({
               onChange={(e) => setOtrosTributos && setOtrosTributos(parseFloat(e.target.value) || 0)}
               min={0}
               step="0.01"
-              className="w-24 px-2 py-1 border border-gray-200 rounded-md text-sm font-bold text-gray-700 text-right focus:outline-none focus:border-[var(--primary)]"
+              className="w-28 h-9 px-2 border border-gray-300 rounded-md text-sm font-semibold text-gray-900 text-right focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 transition-all font-mono"
             />
           </div>
           {totalRecargo > 0 && (
             <div className="flex justify-between items-center">
-              <span className="text-[10px] font-bold text-orange-500 uppercase tracking-wider">
+              <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest">
                 Recargo tarjeta
               </span>
-              <span className="text-md font-bold text-orange-500">
+              <span className="text-sm font-bold text-amber-600 font-mono">
                 +{formatPrice(totalRecargo)}
               </span>
             </div>
           )}
-          <div className="h-px bg-gray-100" />
+          <div className="h-px bg-gray-100 my-2" />
           <div className="flex justify-between items-center">
-            <span className="text-md font-black text-gray-900 uppercase tracking-wider">
+            <span className="text-xs font-black text-gray-900 uppercase tracking-widest">
               Total General
             </span>
-            <span className="text-base font-black text-[var(--primary)]">
+            <span className="text-xl font-black text-gray-900 font-mono">
               {formatPrice(subtotalSinIva + totalIva + (otrosTributos || 0) + totalRecargo)}
             </span>
           </div>
         </div>
       </div>
+
+      {mostrarBotonRepartir && (
+        <RepartirUnidadNegocioModal
+          isOpen={!!itemRepartiendo}
+          onClose={() => setItemRepartiendo(null)}
+          item={itemRepartiendo}
+          unidadesNegocio={unidadesNegocio}
+          onGuardar={(repartos) =>
+            itemRepartiendo &&
+            actualizarRepartoItem?.(itemRepartiendo.codigo, repartos)
+          }
+          onQuitar={() => itemRepartiendo && quitarRepartoItem?.(itemRepartiendo.codigo)}
+        />
+      )}
     </div>
   );
 };

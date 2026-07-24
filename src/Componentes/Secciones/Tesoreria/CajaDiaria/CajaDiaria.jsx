@@ -7,6 +7,8 @@ import {
   Lock,
   Unlock,
   AlertTriangle,
+  ArrowDownToLine,
+  ArrowUpFromLine,
 } from "lucide-react";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
 import { useAlertas } from "../../../../store/useAlertas";
@@ -14,7 +16,6 @@ import { useObtenerUnidadesNegocio } from "../../../../Backend/Autenticacion/que
 import { useMovimientosTesoreriaQuery } from "../../../../Backend/Tesoreria/queries/useMovimientosTesoreria.query";
 import { formatPrice } from "../../../../utils/formatters";
 import { BilleteraIcono } from "../../../../assets/Icons";
-import EncabezadoSeccion from "../../../UI/EncabezadoSeccion/EncabezadoSeccion";
 import ModalAperturaCaja from "./ModalAperturaCaja";
 import ModalCierreCaja from "./ModalCierreCaja";
 import HistorialCajasDiarias from "./HistorialCajasDiarias";
@@ -36,18 +37,37 @@ const fmtFecha = (iso) =>
       })
     : "—";
 
-const ResumenCard = ({ titulo, monto, icono, colorFondo, colorIcono }) => (
-  <div className="bg-white rounded-[16px] p-5 xl:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all flex flex-col justify-between h-[130px] relative">
-    <div className="flex justify-between items-start w-full">
-      <p className="text-[13px] font-medium text-[#6B7472] max-w-[70%] leading-tight">
-        {titulo}
-      </p>
-      <div className={`p-2 rounded-xl ${colorFondo} ${colorIcono} shrink-0`}>
+const ResumenCard = ({
+  titulo,
+  monto,
+  icono,
+  isDark = false,
+  highlightColor = "",
+}) => (
+  <div
+    className={`rounded-md p-6 border ${isDark ? "bg-gray-900 border-gray-800 shadow-xl" : "bg-white border-gray-200 shadow-[0_2px_8px_rgba(0,0,0,0.02)]"} relative overflow-hidden group flex flex-col justify-between h-[140px]`}
+  >
+    {isDark && (
+      <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
         {icono}
       </div>
+    )}
+    <div className="flex justify-between items-start w-full relative z-10">
+      <p
+        className={`text-[11px] font-bold uppercase tracking-widest ${isDark ? "text-gray-400" : "text-gray-500"}`}
+      >
+        {titulo}
+      </p>
+      {!isDark && (
+        <div className={`p-2 rounded-md ${highlightColor} shrink-0`}>
+          {icono}
+        </div>
+      )}
     </div>
-    <div>
-      <p className="text-[24px] xl:text-[28px] font-bold text-[#1A1D1C] leading-none tracking-tight">
+    <div className="relative z-10 mt-2">
+      <p
+        className={`text-3xl lg:text-4xl font-black leading-none tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
+      >
         {formatPrice(monto)}
       </p>
     </div>
@@ -59,7 +79,7 @@ const CajaDiaria = () => {
   const hoy = hoyISO();
 
   const [filtroUnidadNegocio, setFiltroUnidadNegocio] = useState(
-    unidadActiva?.codigo || ""
+    unidadActiva?.codigo || "",
   );
 
   useEffect(() => {
@@ -70,8 +90,11 @@ const CajaDiaria = () => {
 
   const [modalAperturaAbierto, setModalAperturaAbierto] = useState(false);
   const [modalCierreAbierto, setModalCierreAbierto] = useState(false);
-  const [modalMovimiento, setModalMovimiento] = useState({ isOpen: false, tipoOperacion: "INGRESO" });
-  
+  const [modalMovimiento, setModalMovimiento] = useState({
+    isOpen: false,
+    tipoOperacion: "INGRESO",
+  });
+
   const agregarAlerta = useAlertas((state) => state.agregarAlerta);
 
   const { data: unidades = [] } = useObtenerUnidadesNegocio({
@@ -84,11 +107,12 @@ const CajaDiaria = () => {
   const codUnidad = Number(filtroUnidadNegocio) || 0;
 
   const { data: cajaAbiertaData } = useCajaDiariaAbiertaQuery(
-    usuario?.codigoEmpresa ? codUnidad : null
+    usuario?.codigoEmpresa ? codUnidad : null,
   );
-  
+
   const cajaObj = cajaAbiertaData?.data ?? cajaAbiertaData;
-  const cajaAbierta = !!cajaObj && typeof cajaObj === 'object' && Object.keys(cajaObj).length > 0;
+  const cajaAbierta =
+    !!cajaObj && typeof cajaObj === "object" && Object.keys(cajaObj).length > 0;
   const fondoInicial = cajaObj?.fondoInicial || 0;
 
   const { data: historialData } = useHistorialCajaDiariaQuery({
@@ -144,20 +168,39 @@ const CajaDiaria = () => {
 
   const mapaCuentasImputadas = useMemo(() => {
     const cuentas = cuentasImputadasData?.data ?? cuentasImputadasData ?? [];
-    return new Map(cuentas.map((c) => [c.codigo, c]));
+    // mov.codigoCuentaImputada guarda el codigoSecuencial (PK numerica) de
+    // la cuenta, no el codigo contable (string, ej. "5.1.03") -- la clave
+    // del mapa debe coincidir con eso para que el lookup funcione.
+    return new Map(cuentas.map((c) => [c.codigoSecuencial, c]));
   }, [cuentasImputadasData]);
 
   return (
-    <div className="w-full py-6 px-6 space-y-6">
-      <EncabezadoSeccion
-        ruta="Tesorería / Caja Diaria"
-        icono={<BilleteraIcono size={20} />}
-      >
-        <div className="flex gap-3 items-center">
+    <div className="w-full max-w-[1600px] mx-auto py-8 px-6 lg:px-8 space-y-8 bg-[#F8FAFC] min-h-[calc(100vh-64px)]">
+      {/* HEADER PREMIUM */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-gray-200/80">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+            <span>Tesorería</span>
+            <span className="w-1 h-1 rounded-full bg-gray-300" />
+            <span className={cajaAbierta ? "text-[#1FAE6D]" : "text-rose-500"}>
+              {cajaAbierta ? "CAJA ABIERTA" : "CAJA CERRADA"}
+            </span>
+          </div>
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
+            <BilleteraIcono size={28} color="var(--primary)" />
+            Caja Diaria en Efectivo
+          </h1>
+          <p className="text-sm font-medium text-gray-500 max-w-2xl">
+            Control de ingresos, egresos y arqueo de la caja física del día en
+            curso.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-4">
           <select
             value={filtroUnidadNegocio}
             onChange={(e) => setFiltroUnidadNegocio(e.target.value)}
-            className="h-10 px-4 rounded-[10px] border border-[#E9EDEC] bg-[#F5F7F6] text-[#1A1D1C] text-[13px] font-medium focus:outline-none focus:border-[#1FAE6D] focus:ring-1 focus:ring-[#1FAE6D] cursor-pointer mr-2"
+            className="h-11 px-4 rounded-md border border-gray-300 bg-white text-sm font-semibold text-gray-700 focus:outline-none focus:border-gray-900 shadow-sm cursor-pointer"
           >
             <option value="">Seleccione Unidad de Negocio</option>
             {unidades.map((u) => (
@@ -167,55 +210,256 @@ const CajaDiaria = () => {
             ))}
           </select>
 
-          {cajaAbierta && (
-            <>
-              <button
-                onClick={() => setModalMovimiento({ isOpen: true, tipoOperacion: "INGRESO" })}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#E8F7EF] text-[#178F58] text-sm font-semibold hover:bg-[#1FAE6D] hover:text-white transition-colors cursor-pointer"
-              >
-                <TrendingUp size={18} />
-                Ingreso
-              </button>
-              <button
-                onClick={() => setModalMovimiento({ isOpen: true, tipoOperacion: "EGRESO" })}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-[#E9EDEC] text-[#1A1D1C] text-sm font-semibold hover:bg-[#F5F7F6] transition-colors cursor-pointer"
-              >
-                <TrendingDown size={18} />
-                Egreso
-              </button>
-              <div className="w-px bg-[#E9EDEC] mx-2 my-1"></div>
-            </>
-          )}
-
-          {!cajaAbierta ? (
+          {cajaAbierta ? (
             <button
-              onClick={() => setModalAperturaAbierto(true)}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1FAE6D] text-white text-sm font-semibold shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:bg-[#178F58] transition-colors cursor-pointer"
+              onClick={() => setModalCierreAbierto(true)}
+              className="flex items-center gap-2 h-11 px-6 rounded-md bg-gray-900 text-white text-xs font-bold uppercase tracking-wider shadow-[0_2px_12px_rgba(0,0,0,0.15)] hover:bg-black transition-all cursor-pointer"
             >
-              <Unlock size={18} />
-              Abrir Caja
+              <Lock size={16} strokeWidth={2.5} />
+              Cerrar Caja
             </button>
           ) : (
             <button
-              onClick={() => setModalCierreAbierto(true)}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-[#E9EDEC] text-[#EF5A5A] text-sm font-semibold hover:bg-red-50 transition-colors cursor-pointer"
+              onClick={() => setModalAperturaAbierto(true)}
+              className="flex items-center gap-2 h-11 px-6 rounded-md bg-[#1FAE6D] hover:bg-[#178F58] text-white text-xs font-bold uppercase tracking-wider shadow-lg shadow-[#1FAE6D]/20 transition-all cursor-pointer"
             >
-              <Lock size={18} />
-              Cerrar Caja
+              <Unlock size={16} strokeWidth={2.5} />
+              Abrir Caja
             </button>
           )}
         </div>
-      </EncabezadoSeccion>
+      </div>
 
       {!cajaAbierta && (
-        <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-[#F5B944]/10 border border-[#F5B944]/20 text-[#1A1D1C]">
-          <AlertTriangle size={20} className="shrink-0 text-[#F5B944]" />
-          <span className="text-sm font-medium">
-            La caja del día no fue abierta. Ingrese el fondo inicial para
-            poder realizar el cierre de caja.
-          </span>
+        <div className="flex items-center gap-3 px-6 py-5 rounded-md bg-amber-50 border border-amber-200/60 shadow-sm animate-in fade-in slide-in-from-top-2">
+          <div className="p-2 bg-amber-100 rounded-md shrink-0">
+            <AlertTriangle
+              size={20}
+              className="text-amber-600"
+              strokeWidth={2.5}
+            />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-amber-900">
+              Apertura Requerida
+            </h4>
+            <p className="text-[13px] font-medium text-amber-700 mt-0.5">
+              La caja del día no fue abierta. Ingresá el fondo inicial para
+              poder operar y realizar el cierre.
+            </p>
+          </div>
         </div>
       )}
+
+      {/* KPI CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <ResumenCard
+          titulo="Saldo Teórico Esperado"
+          monto={saldoTeorico}
+          icono={<Scale size={100} />}
+          isDark={true}
+        />
+        <ResumenCard
+          titulo="Fondo Inicial"
+          monto={fondoInicial}
+          icono={<Wallet size={20} />}
+          highlightColor="bg-gray-100 text-gray-500"
+        />
+        <ResumenCard
+          titulo="Ingresos"
+          monto={ingresosEfectivo}
+          icono={<ArrowDownToLine size={20} />}
+          highlightColor="bg-emerald-50 text-emerald-600"
+        />
+        <ResumenCard
+          titulo="Egresos"
+          monto={egresosEfectivo}
+          icono={<ArrowUpFromLine size={20} />}
+          highlightColor="bg-rose-50 text-rose-600"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* PANEL DE MOVIMIENTOS */}
+        <div className="lg:col-span-8 flex flex-col gap-6">
+          <div className="bg-white border border-gray-200 rounded-md shadow-[0_4px_12px_rgba(0,0,0,0.03)] flex-1 flex flex-col overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 bg-gray-50/50 flex items-center justify-between">
+              <h2 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                Movimientos del Día{" "}
+                <span className="text-gray-400 font-normal">
+                  ({fmtFecha(hoy)})
+                </span>
+              </h2>
+
+              {cajaAbierta && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() =>
+                      setModalMovimiento({
+                        isOpen: true,
+                        tipoOperacion: "INGRESO",
+                      })
+                    }
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-200 text-[10px] font-bold text-gray-700 uppercase tracking-widest hover:bg-gray-50 transition-colors cursor-pointer shadow-sm"
+                  >
+                    <ArrowDownToLine size={14} className="text-emerald-600" />+
+                    Ingreso
+                  </button>
+                  <button
+                    onClick={() =>
+                      setModalMovimiento({
+                        isOpen: true,
+                        tipoOperacion: "EGRESO",
+                      })
+                    }
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-200 text-[10px] font-bold text-gray-700 uppercase tracking-widest hover:bg-gray-50 transition-colors cursor-pointer shadow-sm"
+                  >
+                    <ArrowUpFromLine size={14} className="text-rose-600" />-
+                    Egreso
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[800px]">
+                <thead>
+                  <tr className="bg-white border-b border-gray-200">
+                    {["Hora/Fecha", "Tipo", "Concepto", "Ref.", "Importe"].map(
+                      (col, i) => (
+                        <th
+                          key={i}
+                          className={`px-6 py-4 text-[10px] font-black text-gray-500 uppercase tracking-widest whitespace-nowrap bg-gray-50/30 ${i === 4 ? "text-right" : ""}`}
+                        >
+                          {col}
+                        </th>
+                      ),
+                    )}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-24 text-center">
+                        <div className="flex flex-col items-center justify-center text-gray-400 gap-4">
+                          <div className="w-8 h-8 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin" />
+                          <p className="font-bold text-sm tracking-wide text-gray-500">
+                            CARGANDO...
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : movimientosEfectivo.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-24 text-center">
+                        <div className="flex flex-col items-center justify-center text-gray-400 gap-3">
+                          <BilleteraIcono
+                            size={40}
+                            className="text-gray-300 mb-2 opacity-50"
+                          />
+                          <p className="font-bold text-gray-600">
+                            Caja sin movimientos
+                          </p>
+                          <p className="text-sm text-gray-500 max-w-sm mx-auto">
+                            Aún no se han registrado ingresos o egresos de
+                            efectivo en el día de hoy.
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    movimientosEfectivo.map((mov) => (
+                      <tr
+                        key={mov.codigo}
+                        className="hover:bg-gray-50/80 transition-colors group cursor-default"
+                      >
+                        <td className="px-6 py-4">
+                          <span className="text-sm font-bold text-gray-700 whitespace-nowrap font-mono">
+                            {fmtFecha(mov.fecha)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border ${
+                              mov.tipoOperacion === "INGRESO"
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200/60"
+                                : "bg-rose-50 text-rose-700 border-rose-200/60"
+                            }`}
+                          >
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full ${mov.tipoOperacion === "INGRESO" ? "bg-emerald-500" : "bg-rose-500"}`}
+                            />
+                            {mov.tipoOperacion === "INGRESO"
+                              ? "Ingreso"
+                              : "Egreso"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-sm font-bold text-gray-900 truncate max-w-[250px] block">
+                            {mov._comprobante?.razonSocial ??
+                              mov.descripcion ??
+                              mov.tipoMovimiento?.nombre ??
+                              "—"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          {mov._comprobante ? (
+                            <div className="flex flex-col">
+                              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                {mov._comprobante.tipoDescripcionComprobante?.substring(
+                                  0,
+                                  3,
+                                )}
+                              </span>
+                              <span className="text-sm font-bold text-gray-600 font-mono">
+                                {mov._comprobante.puntoVenta &&
+                                mov._comprobante.numeroComprobante
+                                  ? `${String(mov._comprobante.puntoVenta).padStart(4, "0")}-${String(mov._comprobante.numeroComprobante).padStart(8, "0")}`
+                                  : `#${mov.codigoComprobante}`}
+                              </span>
+                            </div>
+                          ) : mov.codigoComprobante ? (
+                            <span className="text-sm font-bold text-gray-600 font-mono">
+                              #{mov.codigoComprobante}
+                            </span>
+                          ) : mov.codigoCuentaImputada &&
+                            mapaCuentasImputadas.get(mov.codigoCuentaImputada) ? (
+                            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                              {
+                                mapaCuentasImputadas.get(mov.codigoCuentaImputada)
+                                  .nombre
+                              }
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">—</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <span
+                            className={`text-base font-black whitespace-nowrap tabular-nums tracking-tight ${
+                              mov.tipoOperacion === "INGRESO"
+                                ? "text-[#1FAE6D]"
+                                : "text-gray-900"
+                            }`}
+                          >
+                            {mov.tipoOperacion === "EGRESO" ? "− " : "+ "}
+                            {formatPrice(mov.importe)}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* COLUMNA DERECHA: HISTORIAL */}
+        <div className="lg:col-span-4 flex flex-col gap-6">
+          <HistorialCajasDiarias historial={historial} />
+        </div>
+      </div>
 
       {modalAperturaAbierto && (
         <ModalAperturaCaja
@@ -235,9 +479,12 @@ const CajaDiaria = () => {
                   agregarAlerta("Caja abierta exitosamente", "success");
                 },
                 onError: (error) => {
-                  agregarAlerta(error?.message || "Error al abrir la caja", "error");
-                }
-              }
+                  agregarAlerta(
+                    error?.message || "Error al abrir la caja",
+                    "error",
+                  );
+                },
+              },
             );
           }}
         />
@@ -262,9 +509,12 @@ const CajaDiaria = () => {
                   agregarAlerta("Caja cerrada exitosamente", "success");
                 },
                 onError: (error) => {
-                  agregarAlerta(error?.message || "Error al cerrar la caja", "error");
-                }
-              }
+                  agregarAlerta(
+                    error?.message || "Error al cerrar la caja",
+                    "error",
+                  );
+                },
+              },
             );
           }}
         />
@@ -273,178 +523,11 @@ const CajaDiaria = () => {
       {modalMovimiento.isOpen && (
         <ModalIngresoEgresoCaja
           tipoOperacion={modalMovimiento.tipoOperacion}
-          onClose={() => setModalMovimiento({ isOpen: false, tipoOperacion: "INGRESO" })}
+          onClose={() =>
+            setModalMovimiento({ isOpen: false, tipoOperacion: "INGRESO" })
+          }
         />
       )}
-
-      {/* Tarjetas de Resumen */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <ResumenCard
-          titulo="Fondo Inicial"
-          monto={fondoInicial}
-          icono={<Wallet size={20} />}
-          colorFondo="bg-[#F5F7F6]"
-          colorIcono="text-[#6B7472]"
-        />
-        <ResumenCard
-          titulo="Ingresos Efectivo"
-          monto={ingresosEfectivo}
-          icono={<TrendingUp size={20} />}
-          colorFondo="bg-[#E8F7EF]"
-          colorIcono="text-[#1FAE6D]"
-        />
-        <ResumenCard
-          titulo="Egresos Efectivo"
-          monto={egresosEfectivo}
-          icono={<TrendingDown size={20} />}
-          colorFondo="bg-[#EF5A5A]/10"
-          colorIcono="text-[#EF5A5A]"
-        />
-        <ResumenCard
-          titulo="Saldo Teórico Esperado"
-          monto={saldoTeorico}
-          icono={<Scale size={20} />}
-          colorFondo={saldoTeorico >= 0 ? "bg-[#E8F7EF]" : "bg-[#EF5A5A]/10"}
-          colorIcono={saldoTeorico >= 0 ? "text-[#1FAE6D]" : "text-[#EF5A5A]"}
-        />
-      </div>
-
-      {/* Panel Principal: Tabla de movimientos en efectivo del día */}
-      <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] flex-1 flex flex-col overflow-hidden">
-        <div className="px-6 py-5 border-b border-[#E9EDEC]">
-          <span className="text-[15px] font-semibold text-[#1A1D1C]">
-            Movimientos en Efectivo — {fmtFecha(hoy)}
-          </span>
-        </div>
-
-        <div className="overflow-x-auto overflow-y-visible">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr>
-                {[
-                  "Fecha",
-                  "Tipo",
-                  "Descripción movimiento",
-                  "Comprobante",
-                  "Importe",
-                ].map((col) => (
-                  <th
-                    key={col}
-                    className="px-6 py-4 text-[13px] font-medium text-[#6B7472] whitespace-nowrap border-b border-[#E9EDEC]"
-                  >
-                    {col}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-6 py-12 text-center text-sm font-medium text-[#6B7472]"
-                  >
-                    Cargando movimientos…
-                  </td>
-                </tr>
-              ) : movimientosEfectivo.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-6 py-12 text-center text-sm font-medium text-[#6B7472]"
-                  >
-                    No se encontraron movimientos en efectivo hoy
-                  </td>
-                </tr>
-              ) : (
-                movimientosEfectivo.map((mov) => (
-                  <tr
-                    key={mov.codigo}
-                    className="border-b border-[#E9EDEC] hover:bg-[#F5F7F6] transition-colors cursor-default"
-                  >
-                    <td className="px-6 py-4 text-sm font-normal text-[#1A1D1C] whitespace-nowrap">
-                      {fmtFecha(mov.fecha)}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border ${
-                          mov.tipoOperacion === "INGRESO"
-                            ? "bg-[#E8F7EF] text-[#178F58] border-transparent"
-                            : "bg-[#EF5A5A]/10 text-[#EF5A5A] border-transparent"
-                        }`}
-                      >
-                        {mov.tipoOperacion === "INGRESO" ? (
-                          <TrendingUp size={14} />
-                        ) : (
-                          <TrendingDown size={14} />
-                        )}
-                        <span className="capitalize">{mov.tipoOperacion.toLowerCase()}</span>
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-[#1A1D1C]">
-                      <div>
-                        {mov._comprobante?.razonSocial ??
-                          mov.descripcion ??
-                          mov.tipoMovimiento?.nombre ??
-                          "—"}
-                      </div>
-                      {mov.codigoCuentaImputada &&
-                        mapaCuentasImputadas.get(mov.codigoCuentaImputada) && (
-                          <div className="text-xs text-[#6B7472] mt-0.5">
-                            Cuenta:{" "}
-                            {
-                              mapaCuentasImputadas.get(mov.codigoCuentaImputada)
-                                .nombre
-                            }
-                          </div>
-                        )}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-[#6B7472] whitespace-nowrap">
-                      {mov._comprobante ? (
-                        <span className="flex items-center gap-1.5">
-                          <span className="uppercase text-xs font-medium">
-                            {mov._comprobante.tipoDescripcionComprobante?.substring(
-                              0,
-                              3,
-                            )}
-                          </span>
-                          <span className="tabular-nums">
-                            {mov._comprobante.puntoVenta &&
-                            mov._comprobante.numeroComprobante
-                              ? `${String(mov._comprobante.puntoVenta).padStart(4, "0")}-${String(mov._comprobante.numeroComprobante).padStart(8, "0")}`
-                              : `#${mov.codigoComprobante}`}
-                          </span>
-                        </span>
-                      ) : mov.codigoComprobante ? (
-                        <span className="tabular-nums">
-                          #{mov.codigoComprobante}
-                        </span>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-[15px] font-semibold whitespace-nowrap tabular-nums">
-                      <span
-                        className={
-                          mov.tipoOperacion === "INGRESO"
-                            ? "text-[#1FAE6D]"
-                            : "text-[#EF5A5A]"
-                        }
-                      >
-                        {mov.tipoOperacion === "EGRESO" ? "−" : "+"}
-                        {formatPrice(mov.importe)}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Historial de Cajas Anteriores */}
-      <HistorialCajasDiarias historial={historial} />
     </div>
   );
 };

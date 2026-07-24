@@ -196,41 +196,52 @@ const LibroMayor = () => {
   const contactoSeleccionadoLabel = null;
 
   return (
-    <div className="w-full flex flex-col gap-6 p-6 md:p-8 animate-fade-in bg-slate-50/50 min-h-screen">
-      <EncabezadoSeccion
-        ruta="Libro Mayor"
-        icono={<LibroMayorIcono size={22} className="text-[var(--primary)]" />}
-        titulo="Libro Mayor"
-        descripcion="Explorá el saldo acumulado y el detalle de movimientos por cuenta contable."
-        acciones={
+    <div className="w-full max-w-[1600px] mx-auto py-8 px-6 lg:px-8 space-y-8 bg-[#F8FAFC] min-h-[calc(100vh-64px)]">
+      {/* HEADER PREMIUM */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-gray-200/80">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+            <span>Contabilidad</span>
+            <span className="w-1 h-1 rounded-full bg-gray-300" />
+            <span>Libro Mayor</span>
+          </div>
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
+            <FileText color="var(--primary)" size={28} strokeWidth={2.5} />
+            Libro Mayor
+          </h1>
+          <p className="text-sm font-medium text-gray-500 max-w-2xl">
+            Explorá el saldo acumulado y el detalle de movimientos por cuenta
+            contable.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
           <Link
             to="/panel/contabilidad/libro-menor"
-            className="flex items-center gap-2 bg-indigo-50 text-indigo-600 px-4 py-2 rounded-md text-[10px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-all border border-indigo-100"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-white border border-gray-200 text-xs font-black uppercase tracking-widest text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all cursor-pointer shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
           >
             <User size={14} />
             Ver Libro Menor
           </Link>
-        }
-      />
-
-      {/* FILTROS ELEGANTES */}
-      <div className="bg-white border border-[var(--border-subtle)] rounded-xl shadow-sm mb-2">
-        <div className="p-4 border-b border-slate-50 bg-slate-50/30 flex items-center gap-2 rounded-t-xl">
-          <FiltroIcono size={14} className="text-[var(--primary)]" />
-          <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[var(--primary)]/60">
+        </div>
+      </div>
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
+        <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center gap-2 rounded-t-xl">
+          <FiltroIcono size={14} className="text-[#1FAE6D]" />
+          <span className="text-[11px] font-black uppercase tracking-widest text-gray-500">
             Parámetros de Consulta
           </span>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 ml-1 flex items-center gap-2">
-                <Layers size={12} className="text-[var(--primary)]" /> Unidad de Negocio
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                <Layers size={12} className="text-[#1FAE6D]" /> Unidad de
+                Negocio
               </label>
               <select
                 value={codigoUnidadNegocio}
                 onChange={(e) => setCodigoUnidadNegocio(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white border border-[var(--border-subtle)] rounded-xl text-[12px] font-black uppercase tracking-wider focus:border-[var(--primary)] focus:outline-none transition-all shadow-sm"
+                className="w-full h-11 px-3 border border-gray-300 rounded-md text-sm font-semibold bg-white focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 shadow-sm transition-all"
               >
                 <option value="">Todas las Unidades</option>
                 {usuario?.unidadesNegocio?.map((u) => (
@@ -241,23 +252,24 @@ const LibroMayor = () => {
               </select>
             </div>
 
-            <div className="space-y-2 lg:col-span-2">
-              <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 ml-1 flex items-center gap-2">
-                <Calendar size={12} className="text-[var(--primary)]" /> Rango de Fechas
+            <div className="space-y-1.5 lg:col-span-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                <Calendar size={12} className="text-[#1FAE6D]" /> Rango de
+                Fechas
               </label>
               <div className="flex items-center gap-2">
                 <input
                   type="date"
                   value={fechaDesde || ""}
                   onChange={(e) => setFechaDesde(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-white border border-[var(--border-subtle)] rounded-xl text-[13px] font-black focus:border-[var(--primary)] focus:outline-none transition-all shadow-sm"
+                  className="w-full h-11 px-3 border border-gray-300 rounded-md text-sm font-semibold bg-white focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 shadow-sm transition-all"
                 />
-                <div className="text-slate-300">→</div>
+                <div className="text-gray-400 font-bold">→</div>
                 <input
                   type="date"
                   value={fechaHasta || ""}
                   onChange={(e) => setFechaHasta(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-white border border-[var(--border-subtle)] rounded-xl text-[13px] font-black focus:border-[var(--primary)] focus:outline-none transition-all shadow-sm"
+                  className="w-full h-11 px-3 border border-gray-300 rounded-md text-sm font-semibold bg-white focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 shadow-sm transition-all"
                 />
               </div>
             </div>
@@ -267,13 +279,13 @@ const LibroMayor = () => {
 
       {!codigoCuenta ? (
         // VISTA 1: LISTADO DE CUENTAS CON MOVIMIENTOS
-        <div className="bg-white border border-[var(--border-subtle)] rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col">
-          <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col">
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-600">
+              <div className="w-8 h-8 bg-gray-900 text-white rounded-md flex items-center justify-center">
                 <Layers size={16} />
               </div>
-              <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest">
+              <h4 className="text-xs font-black text-gray-900 uppercase tracking-widest">
                 Cuentas con Movimientos
               </h4>
             </div>
@@ -283,27 +295,47 @@ const LibroMayor = () => {
               {
                 key: "codigoCuentaContable",
                 etiqueta: "Código",
-                renderizar: (val) => <span className="font-mono text-slate-500 text-[12px]">{val}</span>,
+                renderizar: (val) => (
+                  <span className="font-mono text-gray-500 text-[12px] font-bold">
+                    {val}
+                  </span>
+                ),
               },
               {
                 key: "nombreCuentaContable",
                 etiqueta: "Cuenta Contable",
-                renderizar: (val) => <span className="font-bold text-[13px] text-slate-800">{val}</span>,
+                renderizar: (val) => (
+                  <span className="font-bold text-[13px] text-gray-800">
+                    {val}
+                  </span>
+                ),
               },
               {
                 key: "totalDebe",
                 etiqueta: "Total Debe",
-                renderizar: (val) => <span className="font-mono text-emerald-600 text-[13px] font-black">{formatPrice(val)}</span>,
+                renderizar: (val) => (
+                  <span className="font-mono text-emerald-700 text-[13px] font-black">
+                    {formatPrice(val)}
+                  </span>
+                ),
               },
               {
                 key: "totalHaber",
                 etiqueta: "Total Haber",
-                renderizar: (val) => <span className="font-mono text-rose-600 text-[13px] font-black">{formatPrice(val)}</span>,
+                renderizar: (val) => (
+                  <span className="font-mono text-rose-700 text-[13px] font-black">
+                    {formatPrice(val)}
+                  </span>
+                ),
               },
               {
                 key: "saldo",
                 etiqueta: "Saldo (Variación)",
-                renderizar: (val) => <span className="font-mono font-black text-[13px]">{formatPrice(val)}</span>,
+                renderizar: (val) => (
+                  <span className="font-mono font-black text-[13px] text-gray-900">
+                    {formatPrice(val)}
+                  </span>
+                ),
               },
               {
                 key: "acciones",
@@ -311,7 +343,7 @@ const LibroMayor = () => {
                 renderizar: (_, row) => (
                   <button
                     onClick={() => setCodigoCuenta(row.codigoCuentaContable)}
-                    className="text-[11px] font-black uppercase text-[var(--primary)] bg-[var(--primary)]/10 px-4 py-2 rounded-lg hover:bg-[var(--primary)]/20 transition-colors"
+                    className="px-3 py-1.5 rounded-md border border-gray-200 hover:bg-gray-100 text-[10px] uppercase font-bold text-gray-700 transition-colors cursor-pointer"
                   >
                     Ver Detalle
                   </button>
@@ -327,35 +359,34 @@ const LibroMayor = () => {
       ) : (
         // VISTA 2: DETALLE DEL LIBRO MAYOR
         <>
-          <div className="flex items-center gap-2 mb-2">
-             <button
-                onClick={() => setCodigoCuenta(null)}
-                className="text-[11px] font-black uppercase tracking-wider text-slate-500 bg-white border border-[var(--border-subtle)] px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors"
-              >
-                ← Volver al Listado
-             </button>
-             <div className="text-[14px] font-black text-slate-800 ml-4 flex items-center gap-2">
-                <span className="text-slate-400 font-mono text-[12px]">{datosMayor?.cuenta?.codigoSecuencial}</span>
-                {datosMayor?.cuenta?.nombre || "Cargando..."}
-             </div>
+          <div className="flex items-center gap-3 mb-2">
+            <button
+              onClick={() => setCodigoCuenta(null)}
+              className="px-4 py-2 rounded-md bg-white border border-gray-200 text-xs font-black uppercase tracking-widest text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all cursor-pointer shadow-sm"
+            >
+              ← Volver al Listado
+            </button>
+            <div className="text-sm font-black text-gray-900 flex items-center gap-2">
+              <span className="text-gray-400 font-mono text-xs">
+                {datosMayor?.cuenta?.codigoSecuencial}
+              </span>
+              {datosMayor?.cuenta?.nombre || "Cargando..."}
+            </div>
           </div>
 
           {loading ? (
-            <div className="flex flex-col justify-center items-center py-32 bg-white rounded-xl border border-[var(--border-subtle)] shadow-sm">
-              <div className="relative">
-                <div className="absolute inset-0 animate-ping rounded-full h-12 w-12 bg-emerald-500/20"></div>
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500 relative"></div>
-              </div>
-              <p className="text-[11px] font-black uppercase tracking-[0.3em] text-emerald-900/40 mt-8 animate-pulse">
-                Consultando Movimientos
+            <div className="flex flex-col justify-center items-center py-32 bg-white rounded-xl border border-gray-200 shadow-sm">
+              <div className="w-8 h-8 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin mb-4" />
+              <p className="text-[11px] font-black uppercase tracking-widest text-gray-400">
+                Consultando Movimientos...
               </p>
             </div>
           ) : datosMayor && Array.isArray(datosMayor.movimientos) ? (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="space-y-6 animate-in fade-in duration-300">
               {/* TOOLBAR DE ACCIONES */}
-              <div className="flex justify-end items-center gap-4 bg-white/50 p-4 rounded-xl border border-[var(--border-subtle)] shadow-sm backdrop-blur-sm">
+              <div className="flex justify-end items-center gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                 <div className="flex-1">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
                     Reportes Disponibles
                   </p>
                 </div>
@@ -369,7 +400,7 @@ const LibroMayor = () => {
                     />
                   }
                   fileName={`Libro_Mayor_${datosMayor?.cuenta?.nombre || "reporte"}.pdf`}
-                  className="flex items-center gap-2 bg-[var(--primary)] text-white px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-[#178F58] transition-all shadow-md active:scale-95 no-underline"
+                  className="flex items-center gap-2 bg-[#1FAE6D] text-white px-5 py-2.5 rounded-md text-xs font-bold uppercase tracking-wider hover:bg-[#178F58] transition-all shadow-sm no-underline"
                 >
                   {({ loading }) => (
                     <>
@@ -382,62 +413,51 @@ const LibroMayor = () => {
 
               {/* STAT CARDS PREMIUM */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white p-6 rounded-xl border border-[var(--border-subtle)] shadow-sm group hover:border-emerald-200 transition-all">
+                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
+                    <div className="w-10 h-10 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center">
                       <ArrowDownLeft size={20} />
                     </div>
-                    <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                       Débitos Totales
                     </span>
                   </div>
-                  <p className="text-2xl font-black text-slate-900 font-mono tracking-tighter">
+                  <p className="text-2xl font-black text-gray-900 font-mono tracking-tight">
                     {formatPrice(totalDebe)}
                   </p>
-                  <div className="w-full h-1 bg-slate-50 mt-4 rounded-full">
-                    <div className="h-full bg-emerald-500 w-full opacity-20 rounded-full" />
-                  </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl border border-[var(--border-subtle)] shadow-sm group hover:border-rose-200 transition-all">
+                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center text-rose-600 group-hover:scale-110 transition-transform">
+                    <div className="w-10 h-10 rounded-md bg-rose-50 text-rose-600 flex items-center justify-center">
                       <ArrowUpRight size={20} />
                     </div>
-                    <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                       Créditos Totales
                     </span>
                   </div>
-                  <p className="text-2xl font-black text-slate-900 font-mono tracking-tighter">
+                  <p className="text-2xl font-black text-gray-900 font-mono tracking-tight">
                     {formatPrice(totalHaber)}
                   </p>
-                  <div className="w-full h-1 bg-slate-50 mt-4 rounded-full">
-                    <div className="h-full bg-rose-500 w-full opacity-20 rounded-full" />
-                  </div>
                 </div>
 
-                <div
-                  className={`p-6 rounded-xl border shadow-sm group transition-all ${
-                    saldoFinal >= 0
-                      ? "bg-emerald-600 border-emerald-500"
-                      : "bg-rose-600 border-rose-500"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white backdrop-blur-sm group-hover:rotate-12 transition-transform">
+                {/* KPI HERO NEGRO */}
+                <div className="bg-gray-900 p-6 rounded-xl border border-gray-800 shadow-xl relative overflow-hidden text-white">
+                  <div className="flex items-center justify-between mb-4 relative z-10">
+                    <div className="w-10 h-10 rounded-md bg-white/10 text-white flex items-center justify-center">
                       <Wallet size={20} />
                     </div>
-                    <span className="text-[11px] font-black uppercase tracking-widest text-white/70">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                       Saldo Final
                     </span>
                   </div>
-                  <p className="text-3xl font-black text-white font-mono tracking-tighter drop-shadow-sm">
+                  <p className="text-3xl font-black text-white font-mono tracking-tight relative z-10">
                     {formatPrice(saldoFinal)}
                   </p>
-                  <div className="flex items-center gap-2 mt-4">
-                    <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                    <span className="text-[10px] font-black text-white uppercase tracking-widest opacity-80">
-                      Cuenta Conciliada
+                  <div className="flex items-center gap-2 mt-4 relative z-10">
+                    <span className="w-2 h-2 rounded-full bg-[#1FAE6D]" />
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                      {saldoFinal >= 0 ? "Saldo Deudor" : "Saldo Acreedor"}
                     </span>
                   </div>
                 </div>

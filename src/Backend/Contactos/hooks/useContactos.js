@@ -4,18 +4,28 @@ import {
   CrearContactoApi,
   ActualizarContactoApi,
   EliminarContactoApi,
+  HabilitarUsuarioMasivoContactoApi,
 } from "../api/contactos.api";
 
 export const useContactos = (filtros = {}) => {
   const queryClient = useQueryClient();
+
+  // Bugfix 2026-07-19 (ModalVincularContacto, paso "origen" muestra
+  // contactos antes de buscar): `enabled` es un flag opcional de control de
+  // la query, no un filtro de negocio — se extrae aparte para no formar
+  // parte de `queryKey`/del payload enviado a `ListarContactosApi`. Default
+  // `true` preserva el comportamiento de fetch inmediato para todos los
+  // callers existentes que no lo pasan.
+  const { enabled = true, ...filtrosQuery } = filtros;
 
   const {
     data: dataPaginada = { items: [], total: 0, paginas: 1, paginaActual: 1 },
     isLoading: cargandoContactos,
     refetch,
   } = useQuery({
-    queryKey: ["contactos", filtros],
-    queryFn: () => ListarContactosApi(filtros),
+    queryKey: ["contactos", filtrosQuery],
+    queryFn: () => ListarContactosApi(filtrosQuery),
+    enabled,
   });
 
   const mutationCrear = useMutation({
@@ -39,6 +49,19 @@ export const useContactos = (filtros = {}) => {
     },
   });
 
+  // Feature 34 (contactos-habilitar-usuario-masivo). La mutación individual
+  // (`mutationHabilitarUsuario`/`habilitarUsuarioContacto`) fue eliminada en
+  // la feature 35 (contactos-tabs-usuarios-relaciones-globales, R4): quedó
+  // sin ningún consumidor en el frontend tras retirar la card "Acceso al
+  // Sistema" de ListaContactos.jsx. El endpoint backend individual sigue
+  // intacto (R3), solo se retiró este wrapper de UI sin llamador.
+  const mutationHabilitarUsuarioMasivo = useMutation({
+    mutationFn: (dto) => HabilitarUsuarioMasivoContactoApi(dto),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contactos"] });
+    },
+  });
+
   return {
     contactos: dataPaginada.items || [],
     total: dataPaginada.total || 0,
@@ -48,6 +71,7 @@ export const useContactos = (filtros = {}) => {
     crearContacto: mutationCrear.mutateAsync,
     actualizarContacto: mutationActualizar.mutateAsync,
     eliminarContacto: mutationEliminar.mutateAsync,
+    habilitarUsuarioMasivoContacto: mutationHabilitarUsuarioMasivo.mutateAsync,
     refetch,
   };
 };

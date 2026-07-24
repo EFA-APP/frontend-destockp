@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   Banknote,
   ArrowLeftRight,
@@ -17,10 +17,11 @@ import {
   parseCurrency,
 } from "../../../../utils/formatters";
 import { BorrarIcono } from "../../../../assets/Icons";
-import { useObtenerCuentasImputablesQuery } from "../../../../Backend/Contabilidad/queries/useCuentas.query";
-import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
+import { useBancosQuery } from "../../../../Backend/Tesoreria/queries/useBancos.query";
 import { obtenerMetodosPermitidos } from "../utils/condicionMetodoPago.js";
 import SelectorChequeEndosoModal from "./SelectorChequeEndosoModal";
+import SearchableSelect from "../../../UI/Select/SearchableSelect";
+import CuentaBancariaAutocomplete from "../../../UI/Select/CuentaBancariaAutocomplete";
 
 const METODOS = [
   {
@@ -101,6 +102,9 @@ const datosTarjetaInit = {
 };
 const chequeTerceroInit = {
   banco: "",
+  // Ronda 7: código BCRA del banco elegido en el catálogo real de
+  // tesoreria-ms (`model Banco`), capturado junto con el nombre.
+  codigoBancoBcra: null,
   numero: "",
   cuitEmisor: "",
   titular: "",
@@ -118,108 +122,30 @@ const chequesPropioInit = {
 };
 
 const FieldLabel = ({ children }) => (
-  <span className="text-md font-bold text-gray-400 uppercase tracking-widest leading-none mb-1 block">
+  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest leading-none mb-1 block">
     {children}
   </span>
 );
 
-const BancoAutocomplete = ({ value, onChange }) => {
-  const { usuario } = useAuthStore();
-  const codigoEmpresa = usuario?.codigoEmpresa;
-
-  const [busqueda, setBusqueda] = useState("");
-  const [busquedaDebounced, setBusquedaDebounced] = useState("");
-  const [abierto, setAbierto] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const t = setTimeout(() => setBusquedaDebounced(busqueda), 300);
-    return () => clearTimeout(t);
-  }, [busqueda]);
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setAbierto(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  const { data: cuentas = [], isFetching } = useObtenerCuentasImputablesQuery(
-    busquedaDebounced ? "ACTIVO" : null,
-    busquedaDebounced || undefined,
-    codigoEmpresa,
-  );
-
-  const seleccionar = (cuenta) => {
-    onChange(cuenta);
-    setBusqueda("");
-    setBusquedaDebounced("");
-    setAbierto(false);
-  };
-
-  return (
-    <div ref={ref} className="flex-1 min-w-[180px] relative">
-      <FieldLabel>Banco destino</FieldLabel>
-      {value ? (
-        <div className="flex items-center gap-1.5 px-2 py-1.5 border border-[var(--primary)]/30 bg-[var(--primary)]/5 rounded-md min-h-[30px]">
-          <span className="flex-1 text-md font-bold text-gray-900 truncate leading-tight">
-            {value.nombre}
-          </span>
-          <button
-            type="button"
-            onClick={() => onChange(null)}
-            className="text-gray-400 hover:text-red-500 cursor-pointer shrink-0"
-          >
-            <X size={11} />
-          </button>
-        </div>
-      ) : (
-        <>
-          <input
-            type="text"
-            value={busqueda}
-            onChange={(e) => {
-              setBusqueda(e.target.value);
-              setAbierto(true);
-            }}
-            onFocus={() => setAbierto(true)}
-            placeholder="Escribí para buscar..."
-            className="w-full px-2 py-1.5 border border-gray-200 rounded-md text-md font-bold text-gray-900 focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/20 placeholder:font-normal"
-          />
-          {abierto && busqueda && (
-            <div className="absolute z-[200] left-0 right-0 mt-0.5 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
-              {isFetching ? (
-                <div className="px-3 py-2 text-md font-semibold text-gray-400 uppercase tracking-wider">
-                  Buscando...
-                </div>
-              ) : cuentas.length === 0 ? (
-                <div className="px-3 py-2 text-md font-semibold text-gray-400 uppercase tracking-wider">
-                  Sin resultados
-                </div>
-              ) : (
-                cuentas.map((c) => (
-                  <button
-                    key={c.codigo}
-                    type="button"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      seleccionar(c);
-                    }}
-                    className="w-full text-left px-3 py-2 text-md hover:bg-[var(--primary)]/10 border-b border-gray-100 last:border-0 cursor-pointer"
-                  >
-                    <div className="font-bold text-gray-900">{c.nombre}</div>
-                    <div className="text-md text-gray-400">{c.codigo}</div>
-                  </button>
-                ))
-              )}
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  );
-};
+// Feature "bancos" (T48, R70): reemplaza a `BancoAutocomplete`. Antes
+// elegía directamente una cuenta del plan de cuentas de `contabilidad-ms`
+// (`useObtenerCuentasImputablesQuery`); ahora elige una `CuentaBancaria`
+// real de `tesoreria-ms` (`useCuentasBancariasQuery`). El valor entregado a
+// `onChange` pasa a ser esa `CuentaBancaria` (con `banco`, `alias`,
+// `numeroCuenta`, `codigoCuentaContable`), no una cuenta contable.
+//
+// Cambio de UX Cheque Propio (2026-07-22): reutilizado también dentro del
+// modal "Completar Datos del Cheque" para Cheque Propio (ver `ModalCheque`),
+// reemplazando ahí un `<input type="text">` de banco libre desconectado de
+// cualquier `CuentaBancaria` real. `label` permite reetiquetar el campo
+// según el contexto ("Banco destino" en la fila principal, "Banco" dentro
+// del modal) sin duplicar el componente.
+//
+// Feature "cheques-terceros-integracion-bancos" (R36): extraído a
+// `frontend/src/Componentes/UI/Select/CuentaBancariaAutocomplete.jsx` para
+// reutilizarse también en `ModalDestinoCheque.jsx`/`ModalAccionAvanzadaCheque.jsx`
+// sin duplicar su lógica — mismo componente, mismas props, sin cambios de
+// comportamiento en los 3 usos de este archivo.
 
 const InputField = ({ label, ...props }) => (
   <div>
@@ -364,8 +290,68 @@ const ModalTarjeta = ({
 };
 
 // ── MODAL CHEQUE ──
-const ModalCheque = ({ onClose, onConfirm, cheque, setCheque, tipoPago }) => {
+// Cambio de UX Cheque Propio (2026-07-22): `cuentaBancaria`/`setCuentaBancaria`
+// son el mismo estado `bancoSeleccionado` que antes alimentaba el selector
+// "Banco destino" de la fila principal (`DetallePago`). Para Cheque Propio
+// ese selector se oculta arriba y se muestra acá adentro en su lugar — sigue
+// siendo la única fuente de `codigoCuentaBancaria` en el payload final
+// (`handleAgregarPago`), solo cambió el lugar de la pantalla donde se elige.
+const ModalCheque = ({
+  onClose,
+  onConfirm,
+  cheque,
+  setCheque,
+  tipoPago,
+  cuentaBancaria,
+  setCuentaBancaria,
+}) => {
   const esPropio = tipoPago === "CHEQUE_PROPIO";
+
+  // Al elegir (o limpiar) la CuentaBancaria real dentro del modal, además de
+  // actualizar `bancoSeleccionado` (vía `setCuentaBancaria`), se refleja un
+  // texto de banco/sucursal/cuenta en `cheque` para no perder la vista previa
+  // del cheque ni el label del botón "Cheque: {banco} #{numero}" que ya
+  // leían `cheque.banco` como texto simple.
+  const seleccionarCuentaBancaria = (cuenta) => {
+    setCuentaBancaria(cuenta);
+    setCheque((p) => ({
+      ...p,
+      banco: cuenta ? cuenta.alias || cuenta.banco?.nombre || "" : "",
+      sucursal: cuenta?.sucursal || "",
+      cuenta: cuenta?.numeroCuenta || "",
+    }));
+  };
+
+  // Ronda 7 (feature cheques-terceros-tesoreria): selector real de banco
+  // (catálogo BCRA de tesoreria-ms) para cheques de tercero, en vez del
+  // input de texto libre. Cheque propio NO se toca (no forma parte del
+  // catálogo/ciclo de vida de ChequeTercero).
+  const [busquedaBanco, setBusquedaBanco] = useState("");
+  const [busquedaBancoDebounced, setBusquedaBancoDebounced] = useState("");
+
+  useEffect(() => {
+    const t = setTimeout(() => setBusquedaBancoDebounced(busquedaBanco), 300);
+    return () => clearTimeout(t);
+  }, [busquedaBanco]);
+
+  const { data: bancos = [], isLoading: isLoadingBancos } = useBancosQuery(
+    busquedaBancoDebounced,
+  );
+
+  const opcionesBanco = bancos.map((b) => ({
+    value: String(b.codigoBcra),
+    label: b.nombre,
+  }));
+
+  const seleccionarBanco = (e) => {
+    const codigoBcra = Number(e.target.value);
+    const bancoElegido = bancos.find((b) => b.codigoBcra === codigoBcra);
+    setCheque((p) => ({
+      ...p,
+      banco: bancoElegido?.nombre || "",
+      codigoBancoBcra: bancoElegido?.codigoBcra ?? null,
+    }));
+  };
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -450,14 +436,29 @@ const ModalCheque = ({ onClose, onConfirm, cheque, setCheque, tipoPago }) => {
           )}
 
           <div className="grid grid-cols-2 gap-4">
-            <InputField
-              label="Banco"
-              type="text"
-              value={cheque.banco}
-              onChange={(e) =>
-                setCheque((p) => ({ ...p, banco: e.target.value }))
-              }
-            />
+            {esPropio ? (
+              // Cambio de UX Cheque Propio (2026-07-22): selector real de
+              // CuentaBancaria (mismo componente/hook que "Banco destino" en
+              // la fila principal), reemplaza el input de texto libre
+              // desconectado de cualquier cuenta real.
+              <CuentaBancariaAutocomplete
+                label="Banco"
+                value={cuentaBancaria}
+                onChange={seleccionarCuentaBancaria}
+              />
+            ) : (
+              <div>
+                <FieldLabel>Banco</FieldLabel>
+                <SearchableSelect
+                  options={opcionesBanco}
+                  value={cheque.codigoBancoBcra != null ? String(cheque.codigoBancoBcra) : ""}
+                  onChange={seleccionarBanco}
+                  onSearchChange={setBusquedaBanco}
+                  placeholder={isLoadingBancos ? "Cargando bancos..." : "Seleccione un banco"}
+                  disabled={isLoadingBancos && bancos.length === 0}
+                />
+              </div>
+            )}
             <InputField
               label="Nro. cheque"
               type="text"
@@ -488,23 +489,34 @@ const ModalCheque = ({ onClose, onConfirm, cheque, setCheque, tipoPago }) => {
               />
             </div>
           ) : (
+            // Cambio de UX Cheque Propio (2026-07-22): Sucursal/Cuenta ya no
+            // se piden como texto libre — se autocompletan (solo lectura) a
+            // partir de la CuentaBancaria elegida arriba, que ya tiene esos
+            // datos reales (`sucursal`/`numeroCuenta`). Sin selección
+            // todavía, quedan vacíos.
             <div className="grid grid-cols-2 gap-4">
-              <InputField
-                label="Sucursal"
-                type="text"
-                value={cheque.sucursal}
-                onChange={(e) =>
-                  setCheque((p) => ({ ...p, sucursal: e.target.value }))
-                }
-              />
-              <InputField
-                label="Cuenta"
-                type="text"
-                value={cheque.cuenta}
-                onChange={(e) =>
-                  setCheque((p) => ({ ...p, cuenta: e.target.value }))
-                }
-              />
+              <div>
+                <FieldLabel>Sucursal</FieldLabel>
+                <input
+                  type="text"
+                  value={cheque.sucursal}
+                  readOnly
+                  disabled
+                  placeholder="Según cuenta elegida"
+                  className="w-full px-2 py-1.5 border border-gray-200 rounded-md text-md font-bold text-gray-500 bg-gray-100 cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <FieldLabel>Cuenta</FieldLabel>
+                <input
+                  type="text"
+                  value={cheque.cuenta}
+                  readOnly
+                  disabled
+                  placeholder="Según cuenta elegida"
+                  className="w-full px-2 py-1.5 border border-gray-200 rounded-md text-md font-bold text-gray-500 bg-gray-100 cursor-not-allowed"
+                />
+              </div>
             </div>
           )}
 
@@ -665,13 +677,31 @@ export const DetallePago = ({
     const monto = parseCurrency(montoPago) || 0;
     if (monto <= 0) return;
 
+    // Ronda 7: validaciones mínimas de un cheque de tercero nuevo (alta,
+    // no endoso) — mismo criterio de "silent return" ya usado arriba para
+    // el monto, este archivo no usa alert()/toast. Los duplicados de
+    // banco+serie+número ya los rechaza el backend con un mensaje claro
+    // (constraint de la Ronda 6), no hace falta resolverlos acá.
+    if (tipoPago === "CHEQUE_TERCERO" && tipoOperacion === "INGRESO") {
+      if (!chequeTercero.numero) return;
+      if (!chequeTercero.banco) return;
+    }
+
     const pago = {
       id: Date.now(),
       tipoMetodoPago: tipoPago,
       monto,
       referencia,
-      codigoBancoDestino: bancoSeleccionado?.codigoSecuencial || 0,
-      nombreBanco: bancoSeleccionado?.nombre || "",
+      // Feature "bancos" (T48, R70): `codigoCuentaBancaria` referencia la
+      // CuentaBancaria real elegida (tesoreria-ms). `codigoBancoDestino` se
+      // conserva por compatibilidad hacia atrás (comprobantes-ms/
+      // contabilidad-ms siguen usándolo tal cual para armar el asiento,
+      // design.md §3.1) — ahora se resuelve automáticamente desde
+      // `codigoCuentaContable` de la cuenta elegida en vez de tipearse/
+      // elegirse a mano contra el plan de cuentas.
+      codigoBancoDestino: bancoSeleccionado?.codigoCuentaContable || 0,
+      codigoCuentaBancaria: bancoSeleccionado?.codigo || undefined,
+      nombreBanco: bancoSeleccionado?.alias || bancoSeleccionado?.banco?.nombre || "",
       ...(["TARJETA_DEBITO", "TARJETA_CREDITO"].includes(tipoPago) && {
         datosTarjeta: {
           ...tarjeta,
@@ -690,7 +720,13 @@ export const DetallePago = ({
           monto: endosoChequeTercero._chequeOriginal?.importe || monto,
         }),
       ...(tipoPago === "CHEQUE_PROPIO" && {
-        chequePropio: { ...chequePropio, importe: monto },
+        // R47, R50: la CuentaBancaria elegida arriba es también la cuenta
+        // propia sobre la que se emite el cheque.
+        chequePropio: {
+          ...chequePropio,
+          importe: monto,
+          codigoCuentaBancaria: bancoSeleccionado?.codigo || undefined,
+        },
       }),
     };
 
@@ -707,8 +743,10 @@ export const DetallePago = ({
         id: Date.now(),
         tipoMetodoPago: tipoVuelto,
         monto,
-        codigoBancoDestino: bancoVueltoSeleccionado?.codigoSecuencial || 0,
-        nombreBanco: bancoVueltoSeleccionado?.nombre || "",
+        // Feature "bancos" (T48, R70): ver misma nota en handleAgregarPago.
+        codigoBancoDestino: bancoVueltoSeleccionado?.codigoCuentaContable || 0,
+        codigoCuentaBancaria: bancoVueltoSeleccionado?.codigo || undefined,
+        nombreBanco: bancoVueltoSeleccionado?.alias || bancoVueltoSeleccionado?.banco?.nombre || "",
       },
     ]);
     setMontoVuelto("");
@@ -721,15 +759,15 @@ export const DetallePago = ({
     <div className="flex flex-col gap-4 px-4 pb-4">
       {/* ────────── HEADER ────────── */}
       <div className="flex items-center gap-2 pt-1">
-        <Banknote size={16} className="text-[var(--primary)]" />
-        <span className="text-md font-black uppercase tracking-wider text-gray-700">
+        <Banknote size={16} className="text-[#1FAE6D]" />
+        <span className="text-xs font-black uppercase tracking-widest text-gray-900">
           Forma de Pago
         </span>
       </div>
 
       {sinMetodoDisponible ? (
         /* ────────── SIN MÉTODO DE PAGO (R15) ────────── */
-        <div className="bg-amber-50 border border-amber-200 rounded-md p-4 text-md font-semibold text-amber-700">
+        <div className="bg-amber-50 border border-amber-200/60 rounded-md p-4 text-xs font-bold text-amber-800">
           Esta condición de comprobante no requiere método de pago.
         </div>
       ) : (
@@ -739,7 +777,7 @@ export const DetallePago = ({
             <select
               value={tipoPago}
               onChange={(e) => setTipoPago(e.target.value)}
-              className="w-full px-2 py-3 border border-gray-200 uppercase rounded-md text-md font-bold text-gray-900 focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/20 bg-white cursor-pointer"
+              className="w-full h-11 px-3 border border-gray-300 uppercase rounded-md text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 bg-white cursor-pointer shadow-sm transition-all"
             >
               {metodosDisponibles.map(({ value, label }) => (
                 <option key={value} value={value} className="h-10 uppercase">
@@ -750,7 +788,7 @@ export const DetallePago = ({
           </div>
 
           {/* ────────── FORMULARIO CONTEXTUAL ────────── */}
-          <div className="bg-gray-50 border border-gray-100 rounded-md p-4 flex flex-col gap-3">
+          <div className="bg-gray-50/50 border border-gray-200 rounded-xl p-4 flex flex-col gap-3">
             {/* Campos comunes: monto */}
             <div className="flex flex-wrap gap-3 items-end">
               <div className="w-28">
@@ -766,21 +804,47 @@ export const DetallePago = ({
                         ? formatNumber(montoPago)
                         : ""
                   }
-                  onFocus={() => setMontoPagoFocused(true)}
+                  onFocus={(e) => {
+                    setMontoPagoFocused(true);
+                    e.target.select();
+                  }}
                   onBlur={() => setMontoPagoFocused(false)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAgregarPago();
+                    }
+                  }}
                   onChange={(e) => setMontoPago(e.target.value)}
                   placeholder="0,00"
-                  className="w-full px-2 py-1.5 border border-gray-200 rounded-md text-md font-black text-gray-900 focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/20"
+                  className="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm font-black text-gray-900 focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 transition-all shadow-sm"
                 />
               </div>
 
-              {/* Banco destino: todos los métodos excepto EFECTIVO */}
-              {tipoPago !== "EFECTIVO" && (
-                <BancoAutocomplete
-                  value={bancoSeleccionado}
-                  onChange={setBancoSeleccionado}
-                />
-              )}
+              {/* Banco destino: todos los métodos excepto EFECTIVO.
+                  Cambio de UX Cheque Propio (2026-07-22): para
+                  CHEQUE_PROPIO este selector se oculta acá — se elige
+                  dentro del modal "Completar Datos del Cheque" en su
+                  lugar (mismo estado `bancoSeleccionado`, ver
+                  `ModalCheque`), para no tener dos campos de banco
+                  desconectados entre sí.
+                  CHEQUE_TERCERO (2026-07-22): también se oculta — verificado
+                  que `codigoBancoDestino`/`codigoCuentaBancaria` no se usan
+                  en ningún lado real para este método (IngresarChequeTercero
+                  no arma `payloadMovimiento` con `codigoBancoDestino`, y
+                  ConstruirMovimientosPorMetodoPago usa una cuenta contable
+                  fija `CuentasEspecificas.CHEQUE_DE_TERCERO`), es puro ruido
+                  de UI. El banco real del cheque se elige dentro de
+                  `ModalCheque` vía `chequeTercero.banco`/`codigoBancoBcra`
+                  (catálogo BCRA), no vía este selector. */}
+              {tipoPago !== "EFECTIVO" &&
+                tipoPago !== "CHEQUE_PROPIO" &&
+                tipoPago !== "CHEQUE_TERCERO" && (
+                  <CuentaBancariaAutocomplete
+                    value={bancoSeleccionado}
+                    onChange={setBancoSeleccionado}
+                  />
+                )}
 
               {/* Referencia: solo TRANSFERENCIA */}
               {tipoPago === "TRANSFERENCIA" && (
@@ -903,6 +967,8 @@ export const DetallePago = ({
                     : setChequeTercero
                 }
                 tipoPago={tipoPago}
+                cuentaBancaria={bancoSeleccionado}
+                setCuentaBancaria={setBancoSeleccionado}
               />
             )}
           </div>
@@ -1104,7 +1170,7 @@ export const DetallePago = ({
               />
             </div>
             {tipoVuelto === "TRANSFERENCIA" && (
-              <BancoAutocomplete
+              <CuentaBancariaAutocomplete
                 value={bancoVueltoSeleccionado}
                 onChange={setBancoVueltoSeleccionado}
               />

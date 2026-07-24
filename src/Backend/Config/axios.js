@@ -6,7 +6,6 @@ import { useAuthStore } from "../Autenticacion/store/authenticacion.store";
 const createAxiosInstance = (baseURL) => {
   const instance = axios.create({
     baseURL,
-    mode: "no-cors",
     timeout: 0,
     headers: {
       "Content-Type": "application/json",

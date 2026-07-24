@@ -1,0 +1,1 @@
+import{t as s}from"./index-CLp5hz_-.js";import{l as o}from"./tesoreria.api-BCpA8HZI.js";const n=(r="",e={})=>s({queryKey:["tesoreria-bancos",r],queryFn:()=>o(r),staleTime:1e3*60*10,...e});export{n as u};

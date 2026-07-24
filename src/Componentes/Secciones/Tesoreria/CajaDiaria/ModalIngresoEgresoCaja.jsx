@@ -4,11 +4,11 @@ import { useAlertas } from "../../../../store/useAlertas";
 import { useCrearMovimientoManualMutation } from "../../../../Backend/Tesoreria/queries/useCrearMovimientoManual.mutation";
 import ModalDetalleBase from "../../../UI/ModalDetalleBase/ModalDetalleBase";
 import ModalDetalle from "../../../UI/ModalDetalleBase/ModalDetalle";
-import { BilleteraIcono, GuardarIcono } from "../../../../assets/Icons";
+import { ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
 import { SelectorCuentaImputable } from "../../../Modales/Tesoreria/SelectorCuentaImputable";
 
 const FieldLabel = ({ children }) => (
-  <span className="text-[12px] font-bold text-slate-500 uppercase tracking-widest ml-1 block mb-1.5">
+  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block mb-2">
     {children}
   </span>
 );
@@ -51,8 +51,8 @@ const ModalIngresoEgresoCaja = ({ tipoOperacion, onClose }) => {
       fecha: form.fecha,
       tipoOperacion,
       monto: Number(form.monto),
-      descripcion: form.descripcion.trim(),
-      codigoCuentaImputada: form.cuentaImputada.codigo,
+      descripcion: form.descripcion.trim() || `${tipoOperacion} - ${form.cuentaImputada?.nombre || ''}`,
+      codigoCuentaImputada: form.cuentaImputada.codigoSecuencial || form.cuentaImputada.codigo,
     };
 
     crearMovimientoManual(
@@ -84,31 +84,30 @@ const ModalIngresoEgresoCaja = ({ tipoOperacion, onClose }) => {
   };
 
   const footer = (
-    <div className="flex justify-end gap-3 w-full pt-2">
+    <div className="flex justify-end gap-3 w-full pt-4 border-t border-gray-200 mt-2">
       <button
         type="button"
         onClick={onClose}
-        className="px-5 py-2.5 text-sm font-bold text-[#6B7472] hover:text-[#1A1D1C] hover:bg-[#F5F7F6] rounded-xl transition-colors cursor-pointer"
+        className="px-5 py-2.5 text-xs font-bold text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors uppercase tracking-wider"
       >
         Cancelar
       </button>
       <button
         onClick={handleSubmit}
         disabled={isPending}
-        className={`flex items-center gap-2 px-6 py-2.5 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold shadow-[0_2px_12px_rgba(0,0,0,0.05)] transition-all cursor-pointer ${
+        className={`flex items-center gap-2 px-6 py-2.5 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-md text-xs font-bold uppercase tracking-wider shadow-sm transition-all ${
           tipoOperacion === "INGRESO"
             ? "bg-[#1FAE6D] hover:bg-[#178F58]"
-            : "bg-[#EF5A5A] hover:bg-red-600"
+            : "bg-rose-600 hover:bg-rose-700"
         }`}
       >
-        <GuardarIcono size={18} />
-        {isPending ? "Guardando..." : "Guardar"}
+        {isPending ? "Guardando..." : "Confirmar Movimiento"}
       </button>
     </div>
   );
 
   const content = (
-    <div className="space-y-5 py-2 px-1">
+    <div className="space-y-6 py-4 px-2">
       <div className="grid grid-cols-2 gap-4">
         <div>
           <FieldLabel>Fecha</FieldLabel>
@@ -118,10 +117,10 @@ const ModalIngresoEgresoCaja = ({ tipoOperacion, onClose }) => {
             onChange={(e) =>
               setForm((prev) => ({ ...prev, fecha: e.target.value }))
             }
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)] focus:bg-white transition-all"
+            className="w-full h-11 bg-white border border-gray-300 rounded-md px-4 text-sm font-bold text-gray-900 focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 transition-all shadow-sm"
           />
           {errores.fecha && (
-            <p className="text-[11px] font-bold text-rose-500 mt-1.5 ml-1">
+            <p className="text-[10px] font-bold text-rose-500 mt-2 ml-1">
               {errores.fecha}
             </p>
           )}
@@ -129,7 +128,7 @@ const ModalIngresoEgresoCaja = ({ tipoOperacion, onClose }) => {
         <div>
           <FieldLabel>Monto</FieldLabel>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
             <input
               type="number"
               min="0"
@@ -139,34 +138,18 @@ const ModalIngresoEgresoCaja = ({ tipoOperacion, onClose }) => {
                 setForm((prev) => ({ ...prev, monto: e.target.value }))
               }
               placeholder="0.00"
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-4 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)] focus:bg-white transition-all"
+              className="w-full h-11 bg-white border border-gray-300 rounded-md pl-9 pr-4 text-sm font-black text-gray-900 focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 transition-all shadow-sm placeholder:font-medium placeholder:text-gray-300"
             />
           </div>
           {errores.monto && (
-            <p className="text-[11px] font-bold text-rose-500 mt-1.5 ml-1">
+            <p className="text-[10px] font-bold text-rose-500 mt-2 ml-1">
               {errores.monto}
             </p>
           )}
         </div>
       </div>
-      <div>
-        <FieldLabel>Descripción</FieldLabel>
-        <input
-          type="text"
-          value={form.descripcion}
-          onChange={(e) =>
-            setForm((prev) => ({ ...prev, descripcion: e.target.value }))
-          }
-          placeholder="Motivo del movimiento..."
-          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)] focus:bg-white placeholder:text-slate-400 transition-all"
-        />
-        {errores.descripcion && (
-          <p className="text-[11px] font-bold text-rose-500 mt-1.5 ml-1">
-            {errores.descripcion}
-          </p>
-        )}
-      </div>
-      <div>
+      
+      <div className="pt-2">
         <SelectorCuentaImputable
           tipoOperacion={tipoOperacion}
           value={form.cuentaImputada}
@@ -176,8 +159,26 @@ const ModalIngresoEgresoCaja = ({ tipoOperacion, onClose }) => {
           codigoEmpresa={usuario?.codigoEmpresa}
         />
         {errores.cuentaImputada && (
-          <p className="text-[11px] font-bold text-rose-500 mt-1.5 ml-1">
+          <p className="text-[10px] font-bold text-rose-500 mt-2 ml-1">
             {errores.cuentaImputada}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <FieldLabel>Descripción (Opcional)</FieldLabel>
+        <input
+          type="text"
+          value={form.descripcion}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, descripcion: e.target.value }))
+          }
+          placeholder="Motivo del movimiento..."
+          className="w-full h-11 bg-white border border-gray-300 rounded-md px-4 text-sm font-semibold text-gray-800 focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 transition-all shadow-sm placeholder:font-medium placeholder:text-gray-400"
+        />
+        {errores.descripcion && (
+          <p className="text-[10px] font-bold text-rose-500 mt-2 ml-1">
+            {errores.descripcion}
           </p>
         )}
       </div>
@@ -185,10 +186,10 @@ const ModalIngresoEgresoCaja = ({ tipoOperacion, onClose }) => {
   );
 
   return (
-    <ModalDetalleBase open onClose={onClose} allowOverflow={true}>
+    <ModalDetalleBase open onClose={onClose} allowOverflow={true} width="max-w-[480px]">
       <ModalDetalle
         title={`Registrar ${tipoOperacion === "INGRESO" ? "Ingreso" : "Egreso"} Manual`}
-        icon={<BilleteraIcono size={20} />}
+        icon={tipoOperacion === "INGRESO" ? <ArrowDownToLine size={20} className="text-emerald-600" /> : <ArrowUpFromLine size={20} className="text-rose-600" />}
         onClose={onClose}
         footer={footer}
         allowOverflow={true}

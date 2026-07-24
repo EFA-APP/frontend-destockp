@@ -61,6 +61,12 @@ export const useCabeceraComprobante = (initialValues = {}) => {
   const TIPOS_CON_ASOCIADO = [2, 3, 7, 8, 12, 13, 994, 995];
   const esNotaAsociada = TIPOS_CON_ASOCIADO.includes(Number(tipoComprobante));
 
+  // Solo Nota de Crédito (no Nota de Débito) habilita la carga manual del
+  // comprobante asociado en SelectorComprobanteModal — alcance confirmado,
+  // ver progress/impl_comprobante-asociado-manual.md.
+  const TIPOS_NOTA_CREDITO = [3, 8, 13, 994];
+  const esNotaCredito = TIPOS_NOTA_CREDITO.includes(Number(tipoComprobante));
+
   useEffect(() => {
     const hoy = new Date();
     const vencimiento = new Date();
@@ -173,6 +179,7 @@ export const useCabeceraComprobante = (initialValues = {}) => {
     importeAplicadoManual,
     setImporteAplicadoManual,
     esNotaAsociada,
+    esNotaCredito,
     condicionComprobante,
     setCondicionComprobante,
     unidadNegocioSeleccionada,

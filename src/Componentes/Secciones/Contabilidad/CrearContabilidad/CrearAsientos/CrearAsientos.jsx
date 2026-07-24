@@ -16,14 +16,17 @@ import {
   Hash,
   Tag,
   ArrowRightLeft,
+  ArrowLeft,
+  BookOpen,
 } from "lucide-react";
-import EncabezadoSeccion from "../../../../UI/EncabezadoSeccion/EncabezadoSeccion";
+import { useNavigate } from "react-router-dom";
 import { useAsientos } from "../../../../../Backend/hooks/Contabilidad/Asientos/useAsientos";
 import { usePlanDeCuentas } from "../../../../../Backend/hooks/Contabilidad/PlanDeCuenta/usePlanDeCuentas";
 import SearchableSelect from "../../../../UI/Select/SearchableSelect";
 import { formatPrice } from "../../../../../utils/formatters";
 
 const CrearAsiento = () => {
+  const navigate = useNavigate();
   const { agregarAsiento, isCreando } = useAsientos();
   const { cuentasImputables, isLoading: isLoadingCuentas } = usePlanDeCuentas();
 
@@ -141,19 +144,35 @@ const CrearAsiento = () => {
   }
 
   return (
-    <div className="w-full h-full flex flex-col bg-slate-100/50">
-      <EncabezadoSeccion
-        ruta="Crear Asiento Manual"
-        icono={
-          <div className="w-10 h-10 bg-[var(--primary)]/10 rounded-md flex items-center justify-center text-[var(--primary)] shadow-inner">
-            <CalculadoraIcono size={20} strokeWidth={2.5} />
+    <div className="w-full max-w-[1600px] mx-auto py-8 px-6 lg:px-8 space-y-8 bg-[#F8FAFC] min-h-[calc(100vh-64px)]">
+      {/* HEADER PREMIUM */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-gray-200/80">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+            <span>Contabilidad</span>
+            <span className="w-1 h-1 rounded-full bg-gray-300" />
+            <span>Nuevo Asiento</span>
           </div>
-        }
-        volver
-        redireccionAnterior="/panel/contabilidad/asientos"
-      />
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
+            <BookOpen className="text-gray-900" size={28} strokeWidth={2.5} />
+            Crear Asiento Manual
+          </h1>
+          <p className="text-sm font-medium text-gray-500 max-w-2xl">
+            Registrá un nuevo asiento contable con partidas de Debe y Haber balanceadas.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/panel/contabilidad/asientos")}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-md bg-white border border-gray-200 text-xs font-black uppercase tracking-widest text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all cursor-pointer shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
+          >
+            <ArrowLeft size={16} strokeWidth={2.5} />
+            Volver
+          </button>
+        </div>
+      </div>
 
-      <div className="flex-1 px-8 pb-12">
+      <div>
         <div className="max-w-[1400px] mx-auto">
           <div className="grid grid-cols-12 gap-8 items-start">
             {/* COLUMNA IZQUIERDA: MOVIMIENTOS */}

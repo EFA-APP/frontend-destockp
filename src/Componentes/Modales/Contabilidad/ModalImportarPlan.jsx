@@ -125,46 +125,42 @@ const ModalImportarPlan = ({ isOpen, onClose }) => {
   const isCargando = isImportando || procesandoExcel;
 
   return (
-    <ModalDetalleBase open={isOpen} onClose={onClose} width="max-w-3xl">
-      <div className="relative w-full bg-[var(--surface)] p-8 flex flex-col gap-8">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-md bg-blue-700/10 text-blue-700 flex items-center justify-center border border-blue-700/20 shadow-[0_0_20px_rgba(37,99,235,0.1)]">
-              <FileDown size={24} strokeWidth={2.5} />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-200">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between rounded-t-xl">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
+              <FileDown size={20} strokeWidth={2.5} />
             </div>
             <div>
-              <h2 className="text-[20px] font-black text-black uppercase tracking-tight">
+              <h2 className="text-lg font-black tracking-tight text-gray-800">
                 Importar Plan de Cuentas
               </h2>
-              <p className="text-[14px] text-black/40 font-medium">
-                Suba su propio archivo Excel para cargar la estructura
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                Subí tu archivo Excel (.xlsx / .csv)
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            disabled={isCargando}
-            className="w-10 h-10 rounded-md flex items-center justify-center text-black/40 hover:text-black hover:bg-black/10 transition-all"
-          >
-            <X size={20} strokeWidth={2.5} />
+          <button onClick={onClose} disabled={isCargando} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+            <X size={18} />
           </button>
         </div>
 
-        <div className="flex flex-col gap-4">
+        <div className="p-6 overflow-y-auto space-y-6">
           <button
             onClick={() => fileInputRef.current.click()}
             disabled={isCargando}
-            className="flex flex-col items-center justify-center p-12 bg-black/40 border-2 border-black/10 rounded-md hover:border-amber-600/50 hover:bg-amber-600/5 transition-all group relative overflow-hidden"
+            className="w-full flex flex-col items-center justify-center p-8 bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-500 hover:bg-blue-50/30 transition-all group cursor-pointer"
           >
-            <div className="w-20 h-20 bg-amber-600/10 rounded-md flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <FileSpreadsheet size={48} className="text-amber-600" />
+            <div className="w-16 h-16 bg-blue-100/50 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <FileSpreadsheet size={36} className="text-blue-600" />
             </div>
-            <span className="font-black text-[18px] text-black uppercase tracking-wider">
-              Subir Archivo Excel
+            <span className="font-black text-sm text-gray-800 uppercase tracking-wider">
+              Seleccionar Archivo Excel
             </span>
-            <span className="text-[12px] text-black/40 mt-4 text-center font-bold leading-relaxed max-w-sm">
-              SOPORTA FORMATOS .XLSX / .CSV CON ESTRUCTURA ALBOR O ESTÁNDAR
+            <span className="text-[11px] text-gray-400 mt-2 text-center font-bold max-w-sm uppercase tracking-widest">
+              Soporta estructura Albor o Estándar (.xlsx / .csv)
             </span>
             <input
               type="file"
@@ -174,27 +170,36 @@ const ModalImportarPlan = ({ isOpen, onClose }) => {
               className="hidden"
             />
           </button>
+
+          {isCargando && (
+            <div className="flex flex-col items-center gap-3 py-2 animate-pulse">
+              <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-full bg-blue-600 animate-[loading_1.5s_infinite]"></div>
+              </div>
+              <span className="text-[11px] font-black text-blue-600 uppercase tracking-widest">
+                {procesandoExcel ? "Procesando archivo..." : "Importando estructura..."}
+              </span>
+            </div>
+          )}
+
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <p className="text-[11px] text-gray-500 font-medium leading-relaxed italic text-center">
+              Nota: El Excel debe contener las columnas: <span className="font-bold text-gray-700">codigo, nombre, tipo, imputable</span> y opcionalmente <span className="font-bold text-gray-700">padre</span>.
+            </p>
+          </div>
         </div>
 
-        {isCargando && (
-          <div className="flex flex-col items-center gap-3 py-4 animate-pulse">
-            <div className="w-full h-1 bg-black/10 rounded-full overflow-hidden">
-              <div className="h-full bg-blue-700 animate-[loading_1.5s_infinite]"></div>
-            </div>
-            <span className="text-[12px] font-black text-blue-700 uppercase tracking-widest">
-              {procesandoExcel ? "Procesando archivo..." : "Importando estructura..."}
-            </span>
-          </div>
-        )}
-
-        <div className="bg-black/5 rounded-md p-4 border border-black/5">
-          <p className="text-[12px] text-black/40 font-medium leading-relaxed italic text-center">
-            Nota: El Excel debe contener las columnas: <span className="font-bold">codigo, nombre, tipo, imputable</span> y opcionalmente <span className="font-bold">padre</span>.
-            La importación reemplazará cualquier estructura existente sin movimientos.
-          </p>
+        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 rounded-b-xl">
+          <button
+            onClick={onClose}
+            disabled={isCargando}
+            className="px-4 py-2 text-sm font-bold text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
+          >
+            Cancelar
+          </button>
         </div>
       </div>
-    </ModalDetalleBase>
+    </div>
   );
 };
 
