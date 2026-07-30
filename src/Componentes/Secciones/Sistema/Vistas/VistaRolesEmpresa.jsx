@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useObtenerRoles } from "../../../../Backend/Autenticacion/queries/Rol/useObtenerRoles.query";
-import { useObtenerPermisos } from "../../../../Backend/Autenticacion/queries/Permiso/useObtenerPermisos.query";
+import { useObtenerAcciones } from "../../../../Backend/Autenticacion/queries/Accion/useObtenerAcciones.query";
 import { useObtenerSeccionesQuery } from "../../../../Backend/Autenticacion/queries/Secciones/useObtenerSecciones.query";
 import { useEliminarSeccion } from "../../../../Backend/Autenticacion/queries/Secciones/useEliminarSeccion.mutation";
+import { useEliminarAccion } from "../../../../Backend/Autenticacion/queries/Accion/useEliminarAccion.mutation";
 
 import TablaRoles from "../../../Tablas/Sistema/TablaRoles";
 import TablaPermisos from "../../../Tablas/Sistema/TablaPermisos";
@@ -15,36 +16,46 @@ import ModalGestionarUsuariosRol from "../../../Modales/Sistema/ModalGestionarUs
 import ModalVincularPermisosRol from "../../../Modales/Sistema/ModalVincularPermisosRol";
 import { useEliminarRol } from "../../../../Backend/Autenticacion/queries/Rol/useEliminarRol.mutation";
 
+// rbac-normalizacion-secciones-permisos (R18, R19): la pestaña PERMISOS se
+// renombra a ACCIONES (catálogo global Accion, sin filtroEmpresa); la
+// pestaña SECCIONES tampoco filtra por empresa; la pestaña ROLES conserva
+// filtroEmpresa sin cambios (Rol es multi-tenant, R11).
 const VistaRolesEmpresa = ({ empresa, onClose }) => {
   const [busqueda, setBusqueda] = useState("");
   const [pestañaActiva, setPestañaActiva] = useState("ROLES");
-  
+
   // Estados para modales
   const [isModalCrearSeccionOpen, setIsModalCrearSeccionOpen] = useState(false);
   const [seccionAEditar, setSeccionAEditar] = useState(null);
   const [isModalAccionesOpen, setIsModalAccionesOpen] = useState(false);
-  const [permisoAGestionar, setPermisoAGestionar] = useState(null);
+  const [accionAGestionar, setAccionAGestionar] = useState(null);
+  // feature accion-vinculada-a-submenu: separa "alta" (accion=null),
+  // "editar" (edición real de nombre/descripcion/codigoSubMenu) y
+  // "restriccion" (whitelist por usuario, comportamiento previo) -- antes
+  // "editar" una fila de ACCIONES abría siempre "restriccion" por error.
+  const [modoModalAcciones, setModoModalAcciones] = useState("alta");
   const [isModalCrearRolOpen, setIsModalCrearRolOpen] = useState(false);
   const [rolAEditar, setRolAEditar] = useState(null);
   const [isModalGestionarUsuariosOpen, setIsModalGestionarUsuariosOpen] = useState(false);
   const [rolAGestionarUsuarios, setRolAGestionarUsuarios] = useState(null);
   const [isModalVincularPermisosOpen, setIsModalVincularPermisosOpen] = useState(false);
   const [rolAVincularPermisos, setRolAVincularPermisos] = useState(null);
-  
-  // Parametros comunes
+
+  // Parametros comunes (solo aplica a ROLES, R19)
   const filtroEmpresa = { codigoEmpresa: empresa.codigo || empresa.codigo };
 
   // --- FETCHING DATOS ---
   const queryRoles = useObtenerRoles(filtroEmpresa);
-  const queryPermisos = useObtenerPermisos(filtroEmpresa);
-  const querySecciones = useObtenerSeccionesQuery(filtroEmpresa);
+  const queryAcciones = useObtenerAcciones();
+  const querySecciones = useObtenerSeccionesQuery();
   const { mutateAsync: eliminarSeccion } = useEliminarSeccion();
   const { mutateAsync: eliminarRol } = useEliminarRol();
+  const { mutateAsync: eliminarAccion } = useEliminarAccion();
 
   // Extraemos arreglos
   const rolesEmpresa = Array.isArray(queryRoles.data) ? queryRoles.data : queryRoles.data?.data || [];
-  const permisosEmpresa = Array.isArray(queryPermisos.data) ? queryPermisos.data : queryPermisos.data?.data || [];
-  const seccionesEmpresa = Array.isArray(querySecciones.data) ? querySecciones.data : querySecciones.data?.data || [];
+  const accionesCatalogo = Array.isArray(queryAcciones.data) ? queryAcciones.data : queryAcciones.data?.data || [];
+  const seccionesCatalogo = Array.isArray(querySecciones.data) ? querySecciones.data : querySecciones.data?.data || [];
 
   // --- MANEJADORES DE ACCIONES ---
   const handleAccionEnDesarrollo = async (accion, fila) => {
@@ -56,6 +67,11 @@ const VistaRolesEmpresa = ({ empresa, onClose }) => {
       if (pestañaActiva === "ROLES") {
         setRolAEditar(null);
         setIsModalCrearRolOpen(true);
+      }
+      if (pestañaActiva === "ACCIONES") {
+        setAccionAGestionar(null);
+        setModoModalAcciones("alta");
+        setIsModalAccionesOpen(true);
       }
       return;
     }
@@ -87,12 +103,9 @@ const VistaRolesEmpresa = ({ empresa, onClose }) => {
     }
 
     if (accion === "ELIMINAR_SECCION") {
-      if (window.confirm(`¿Estás seguro de eliminar la sección "${fila.nombre}"? Esto también eliminará su permiso asociado.`)) {
+      if (window.confirm(`¿Estás seguro de desactivar la sección "${fila.nombre}"? Es un catálogo global, afecta a todas las empresas.`)) {
         try {
-          await eliminarSeccion({
-            codigoEmpresa: filtroEmpresa.codigoEmpresa,
-            codigo: fila.codigo
-          });
+          await eliminarSeccion({ codigo: fila.codigo });
         } catch (error) {
           console.error("Error al eliminar", error);
         }
@@ -113,8 +126,30 @@ const VistaRolesEmpresa = ({ empresa, onClose }) => {
     }
 
     if (accion === "GESTIONAR_ACCIONES") {
-      setPermisoAGestionar(fila);
+      setAccionAGestionar(fila);
+      setModoModalAcciones("restriccion");
       setIsModalAccionesOpen(true);
+      return;
+    }
+
+    if (accion === "EDITAR_ACCION") {
+      setAccionAGestionar(fila);
+      setModoModalAcciones("editar");
+      setIsModalAccionesOpen(true);
+      return;
+    }
+
+    // AMPLIACIÓN feature accion-vinculada-a-submenu (2026-07-29), punto 1:
+    // borrado FÍSICO real (no lógico) -- se desvinculan en cascada los
+    // permisos de Rol/usuario que la tuvieran asignada.
+    if (accion === "ELIMINAR_ACCION") {
+      if (window.confirm(`¿Estás seguro de eliminar la acción "${fila.nombre}"? Esta acción es irreversible (borrado físico) y desvinculará los permisos de Roles/usuarios que la tuvieran asignada.`)) {
+        try {
+          await eliminarAccion({ codigo: fila.codigo });
+        } catch (error) {
+          console.error("Error al eliminar acción", error);
+        }
+      }
       return;
     }
 
@@ -123,7 +158,7 @@ const VistaRolesEmpresa = ({ empresa, onClose }) => {
 
   return (
     <div className="bg-white rounded-md border border-black/10 shadow-lg animate-in slide-in-from-top-4 duration-300 overflow-hidden">
-      
+
       {/* CABECERA Y BOTÓN CERRAR */}
       <div className="flex items-center justify-between p-4 border-b border-black/5 bg-black/[0.02]">
         <div>
@@ -144,7 +179,7 @@ const VistaRolesEmpresa = ({ empresa, onClose }) => {
 
       {/* NAVEGACIÓN POR PESTAÑAS (TABS) */}
       <div className="flex px-4 border-b border-black/5 bg-black/[0.01]">
-        {["ROLES", "PERMISOS", "SECCIONES"].map((tab) => (
+        {["ROLES", "ACCIONES", "SECCIONES"].map((tab) => (
           <button
             key={tab}
             onClick={() => setPestañaActiva(tab)}
@@ -160,7 +195,7 @@ const VistaRolesEmpresa = ({ empresa, onClose }) => {
       </div>
 
       <div className="p-4 bg-black/[0.01] min-h-[400px]">
-        
+
         {/* BARRA DE HERRAMIENTAS CENTRAL */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
           <div className="relative group w-full md:w-96">
@@ -179,7 +214,7 @@ const VistaRolesEmpresa = ({ empresa, onClose }) => {
             />
           </div>
 
-          <button 
+          <button
             onClick={() => handleAccionEnDesarrollo("CREAR", null)}
             className="px-4 py-2.5 bg-black text-white rounded-md text-[12px] font-black uppercase tracking-widest hover:bg-black/80 transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap"
           >
@@ -191,7 +226,7 @@ const VistaRolesEmpresa = ({ empresa, onClose }) => {
         </div>
 
         {/* RENDERIZADO CONDICIONAL DE PESTAÑAS */}
-        
+
         {pestañaActiva === "ROLES" && (
           <div className="animate-in fade-in duration-300">
             <TablaRoles
@@ -207,15 +242,15 @@ const VistaRolesEmpresa = ({ empresa, onClose }) => {
           </div>
         )}
 
-        {pestañaActiva === "PERMISOS" && (
+        {pestañaActiva === "ACCIONES" && (
           <div className="animate-in fade-in duration-300">
              <TablaPermisos
-              permisos={permisosEmpresa}
-              cargando={queryPermisos.isLoading}
+              permisos={accionesCatalogo}
+              cargando={queryAcciones.isLoading}
               busqueda={busqueda}
-              onRefrescar={queryPermisos.refetch}
-              handleEditarClick={(fila) => handleAccionEnDesarrollo("EDITAR_PERMISO", fila)}
-              handleEliminarClick={(fila) => handleAccionEnDesarrollo("ELIMINAR_PERMISO", fila)}
+              onRefrescar={queryAcciones.refetch}
+              handleEditarClick={(fila) => handleAccionEnDesarrollo("EDITAR_ACCION", fila)}
+              handleEliminarClick={(fila) => handleAccionEnDesarrollo("ELIMINAR_ACCION", fila)}
               handleGestionarAcciones={(fila) => handleAccionEnDesarrollo("GESTIONAR_ACCIONES", fila)}
             />
           </div>
@@ -224,7 +259,7 @@ const VistaRolesEmpresa = ({ empresa, onClose }) => {
         {pestañaActiva === "SECCIONES" && (
           <div className="animate-in fade-in duration-300">
              <TablaSecciones
-              secciones={seccionesEmpresa}
+              secciones={seccionesCatalogo}
               cargando={querySecciones.isLoading}
               busqueda={busqueda}
               onRefrescar={querySecciones.refetch}
@@ -235,7 +270,7 @@ const VistaRolesEmpresa = ({ empresa, onClose }) => {
         )}
 
       </div>
-      <ModalCrearSeccion 
+      <ModalCrearSeccion
         isOpen={isModalCrearSeccionOpen}
         onClose={() => setIsModalCrearSeccionOpen(false)}
         empresa={empresa}
@@ -245,9 +280,9 @@ const VistaRolesEmpresa = ({ empresa, onClose }) => {
       <ModalGestionarAcciones
         isOpen={isModalAccionesOpen}
         onClose={() => setIsModalAccionesOpen(false)}
-        permiso={permisoAGestionar}
-        rolesEmpresa={rolesEmpresa}
+        accion={accionAGestionar}
         empresa={empresa}
+        modo={modoModalAcciones}
       />
 
       <ModalCrearRol

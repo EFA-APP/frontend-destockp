@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { CerrarIcono, ConfiguracionEmpresaIcono } from "../../../assets/Icons";
 import { useActualizarEmpresa } from "../../../Backend/Autenticacion/queries/Empresa/useActualizarEmpresa.mutation";
+import { useObtenerEmpresaPorCodigo } from "../../../Backend/Autenticacion/queries/Empresa/useObtenerEmpresaPorCodigo.query";
+import { useSubirLogoEmpresa } from "../../../Backend/Autenticacion/queries/Empresa/useSubirLogoEmpresa.mutation";
+import { useAuthStore } from "../../../Backend/Autenticacion/store/authenticacion.store";
 import { useAlertas } from "../../../store/useAlertas";
 import ModalConfiguracionFiscal from "./ModalConfiguracionFiscal";
 
@@ -32,7 +35,20 @@ const ModalEditarEmpresa = ({ isOpen, onClose, empresaAEditar }) => {
   
   const { agregarAlerta } = useAlertas();
 
-  const { mutateAsync: actualizarEmpresa, isPending } = useActualizarEmpresa();
+  const { mutateAsync: actualizarEmpresa, isPending: isPendingDatos } =
+    useActualizarEmpresa();
+  const { mutateAsync: subirLogoEmpresa, isPending: isPendingLogo } =
+    useSubirLogoEmpresa();
+  const isPending = isPendingDatos || isPendingLogo;
+  const usuario = useAuthStore((state) => state.usuario);
+  const setUsuario = useAuthStore((state) => state.setUsuario);
+
+  // R4: el listado masivo (empresaAEditar) ya no trae configuracionVisual
+  // (R1) — se piden los datos completos de la empresa al abrir el modal.
+  const { data: empresaCompleta } = useObtenerEmpresaPorCodigo(
+    empresaAEditar?.codigo,
+    { enabled: isOpen && !!empresaAEditar?.codigo },
+  );
 
   useEffect(() => {
     if (empresaAEditar) {
@@ -62,11 +78,18 @@ const ModalEditarEmpresa = ({ isOpen, onClose, empresaAEditar }) => {
           ? JSON.stringify(empresaAEditar.configuracion, null, 2)
           : "",
       });
-      setPreviewUrl(empresaAEditar.configuracionVisual?.logoUrl || "");
       setLogoBase64("");
       setJsonError(null);
     }
   }, [empresaAEditar]);
+
+  useEffect(() => {
+    // R4: la vista previa del logo se inicializa con los datos completos
+    // (GET /empresas/por-codigo), no con la fila del listado masivo.
+    if (empresaCompleta) {
+      setPreviewUrl(empresaCompleta.configuracionVisual?.logoUrl || "");
+    }
+  }, [empresaCompleta]);
 
   if (!isOpen) return null;
 
@@ -110,12 +133,9 @@ const ModalEditarEmpresa = ({ isOpen, onClose, empresaAEditar }) => {
         configuracion: parsedConfig,
       };
 
-      if (logoBase64) {
-        payload.configuracionVisual = {
-          ...(empresaAEditar.configuracionVisual || {}),
-          logoUrl: logoBase64
-        };
-      }
+      // R8/R12: el logo ya no viaja dentro de `configuracionVisual` del
+      // payload de datos fiscales; se sube aparte (ver más abajo) y
+      // `ActualizarConfiguracionVisualCasoDeUso` (auth-ms) lo mergea.
 
       // Convertir fecha a ISO si existe, o eliminarla si está vacía
       if (payload.inicioActividades) {
@@ -127,9 +147,39 @@ const ModalEditarEmpresa = ({ isOpen, onClose, empresaAEditar }) => {
       }
 
       await actualizarEmpresa(payload);
+
+      if (logoBase64) {
+        const resultado = await subirLogoEmpresa({
+          codigoEmpresa: empresaAEditar.codigo,
+          archivoBase64: logoBase64,
+        });
+
+        // Refleja el logo nuevo en la barra lateral sin recargar la página
+        // cuando la empresa editada es la del usuario logueado.
+        if (
+          resultado?.logoUrl &&
+          usuario &&
+          usuario.codigoEmpresa === empresaAEditar.codigo
+        ) {
+          setUsuario({
+            ...usuario,
+            configuracionVisual: {
+              ...(usuario.configuracionVisual || {}),
+              logoUrl: resultado.logoUrl,
+            },
+          });
+        }
+      }
+
       onClose();
     } catch (error) {
       console.error("Error al actualizar empresa", error);
+      agregarAlerta({
+        type: "error",
+        message:
+          error?.response?.data?.message ||
+          "Ocurrió un error al intentar actualizar la empresa.",
+      });
     }
   };
 

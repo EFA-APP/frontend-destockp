@@ -27,6 +27,11 @@ const BuscadorDetalle = ({
   // default `false`/`[]`, no rompe nada existente).
   permiteRepartoUnidadNegocio = false,
   unidadesNegocio = [],
+  // Feature 7 (comprobante-pago-desacoplado, R1): oculta el bloque de
+  // <DetallePago/> por completo, sin importar `condicionComprobante` —
+  // usado por Ingresos.jsx/Egresos.jsx cuando el comprobante en curso es
+  // FACTURA (el pago se registra después, vía Recibo/Orden de Pago).
+  ocultarDetallePago = false,
 }) => {
   const {
     tipoDetalle,
@@ -130,15 +135,17 @@ const BuscadorDetalle = ({
       />
 
       {/* PAGO */}
-      <DetallePago
-        totalComprobante={totalGeneral + (otrosTributos || 0)}
-        tipoOperacion={tipoOperacion}
-        pagos={pagos}
-        setPagos={setPagos}
-        vueltos={vueltos}
-        setVueltos={setVueltos}
-        condicionComprobante={condicionComprobante}
-      />
+      {!ocultarDetallePago && (
+        <DetallePago
+          totalComprobante={totalGeneral + (otrosTributos || 0)}
+          tipoOperacion={tipoOperacion}
+          pagos={pagos}
+          setPagos={setPagos}
+          vueltos={vueltos}
+          setVueltos={setVueltos}
+          condicionComprobante={condicionComprobante}
+        />
+      )}
 
       {/* MODAL */}
       <SelectorArticuloModal

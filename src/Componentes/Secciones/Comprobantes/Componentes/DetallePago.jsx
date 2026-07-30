@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   RotateCcw,
   X,
+  Pencil,
 } from "lucide-react";
 import {
   formatPrice,
@@ -152,7 +153,7 @@ const InputField = ({ label, ...props }) => (
     <FieldLabel>{label}</FieldLabel>
     <input
       {...props}
-      className="w-full px-2 py-1.5 border border-gray-200 rounded-md text-md font-bold text-gray-900 focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/20"
+      className="w-full h-11 px-3 border border-gray-300 rounded-md text-sm font-semibold text-gray-800 focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 transition-all bg-white shadow-sm"
     />
   </div>
 );
@@ -177,77 +178,93 @@ const ModalTarjeta = ({
   tarjeta,
   setTarjeta,
   tipoPago,
+  montoPago,
+  setMontoPago,
 }) => {
+  const isFormValid = 
+    montoPago && parseCurrency(montoPago) > 0 &&
+    tarjeta.marca && 
+    tarjeta.cantidadCuotas && 
+    tarjeta.recargo !== "" && 
+    tarjeta.cupon && 
+    tarjeta.lote;
+
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white border border-[var(--border-subtle)] rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden flex flex-col relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-white/80 hover:text-white z-10 transition-colors"
-        >
-          <X size={20} />
-        </button>
-
-        {/* Diseño visual de Tarjeta */}
-        <div
-          className={`p-6 pb-8 relative overflow-hidden bg-gradient-to-br ${
-            tipoPago === "TARJETA_CREDITO"
-              ? "from-orange-500 to-rose-600"
-              : "from-violet-500 to-purple-700"
-          }`}
-        >
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
-          <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-black/10 rounded-full blur-2xl" />
-
-          <div className="flex justify-between items-start mb-8 relative z-10">
-            <div className="w-12 h-8 bg-gradient-to-r from-amber-200 to-yellow-400 rounded-md opacity-90 shadow-sm" />
-            <span className="text-white/90 font-black tracking-widest uppercase text-xs">
-              {tipoPago === "TARJETA_CREDITO" ? "Crédito" : "Débito"}
-            </span>
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
+      <div className="bg-white border border-gray-200 rounded-md max-w-sm w-full shadow-2xl overflow-hidden flex flex-col relative">
+        {/* Cabecera Corporativa */}
+        <div className="bg-gray-900 p-5 relative">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+          >
+            <X size={20} />
+          </button>
+          
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex items-center gap-2">
+              <CreditCard className="text-[var(--primary)]" size={24} />
+              <span className="text-white font-black tracking-widest uppercase text-xs">
+                {tipoPago === "TARJETA_CREDITO" ? "Datos de Tarjeta (Crédito)" : "Datos de Tarjeta (Débito)"}
+              </span>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-1 relative z-10">
-            <p className="text-white/60 text-[10px] uppercase font-black tracking-widest">
+          <div className="flex flex-col gap-1">
+            <p className="text-gray-400 text-[10px] uppercase font-bold tracking-widest">
               Marca / Entidad
             </p>
-            <p className="text-2xl font-black text-white tracking-widest uppercase drop-shadow-md">
+            <p className="text-xl font-black text-white tracking-widest uppercase">
               {tarjeta.marca || "SELECCIONAR..."}
             </p>
           </div>
         </div>
 
-        {/* Formulario */}
-        <div className="p-6 flex flex-col gap-4 bg-gray-50/50">
-          <div>
-            <FieldLabel>Marca</FieldLabel>
-            <select
-              value={tarjeta.marca}
-              onChange={(e) =>
-                setTarjeta((p) => ({ ...p, marca: e.target.value }))
-              }
-              className="w-full h-[38px] px-3 border border-gray-200 rounded-lg text-sm font-bold text-gray-700 bg-white focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 cursor-pointer shadow-sm transition-all"
-            >
-              <option value="">— Seleccioná —</option>
-              {(MARCAS_TARJETA[tipoPago] ?? []).map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
+        <div className="p-6 flex flex-col gap-4 bg-[#F8FAFC]">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <FieldLabel>Monto *</FieldLabel>
+              <input
+                type="text"
+                value={typeof montoPago === "string" ? montoPago.replace(".", ",") : montoPago}
+                onChange={(e) => setMontoPago(e.target.value)}
+                onFocus={(e) => e.target.select()}
+                placeholder="0,00"
+                className="w-full h-11 px-3 border border-gray-300 rounded-md text-sm font-semibold text-gray-800 bg-white focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 cursor-pointer shadow-sm transition-all"
+              />
+            </div>
+            <div>
+              <FieldLabel>Marca *</FieldLabel>
+              <select
+                value={tarjeta.marca}
+                onChange={(e) =>
+                  setTarjeta((p) => ({ ...p, marca: e.target.value }))
+                }
+                className="w-full h-11 px-3 border border-gray-300 rounded-md text-sm font-semibold text-gray-800 bg-white focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 cursor-pointer shadow-sm transition-all"
+              >
+                <option value="">— Seleccioná —</option>
+                {(MARCAS_TARJETA[tipoPago] ?? []).map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <InputField
-              label="Cuotas"
+              label="Cuotas *"
               type="number"
               min="1"
               value={tarjeta.cantidadCuotas}
               onChange={(e) =>
                 setTarjeta((p) => ({ ...p, cantidadCuotas: e.target.value }))
               }
+              onFocus={(e) => e.target.select()}
             />
             <InputField
-              label="Recargo %"
+              label="Recargo % *"
               type="number"
               min="0"
               step="0.01"
@@ -255,31 +272,35 @@ const ModalTarjeta = ({
               onChange={(e) =>
                 setTarjeta((p) => ({ ...p, recargo: e.target.value }))
               }
+              onFocus={(e) => e.target.select()}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <InputField
-              label="Cupón"
+              label="Cupón *"
               type="text"
               value={tarjeta.cupon}
               onChange={(e) =>
                 setTarjeta((p) => ({ ...p, cupon: e.target.value }))
               }
+              onFocus={(e) => e.target.select()}
             />
             <InputField
-              label="Lote"
+              label="Lote *"
               type="text"
               value={tarjeta.lote}
               onChange={(e) =>
                 setTarjeta((p) => ({ ...p, lote: e.target.value }))
               }
+              onFocus={(e) => e.target.select()}
             />
           </div>
 
           <button
             onClick={onConfirm}
-            className="w-full py-3 mt-2 rounded-lg bg-[var(--primary)] text-white text-xs font-black uppercase tracking-widest hover:brightness-110 transition-all cursor-pointer shadow-md shadow-[var(--primary)]/20"
+            disabled={!isFormValid}
+            className="w-full py-3 mt-2 rounded-md bg-[#1FAE6D] text-white text-[11px] font-black uppercase tracking-widest hover:bg-[#178F58] disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm"
           >
             Confirmar Datos
           </button>
@@ -304,6 +325,8 @@ const ModalCheque = ({
   tipoPago,
   cuentaBancaria,
   setCuentaBancaria,
+  montoPago,
+  setMontoPago,
 }) => {
   const esPropio = tipoPago === "CHEQUE_PROPIO";
 
@@ -353,41 +376,34 @@ const ModalCheque = ({
     }));
   };
 
+  const isFormValid = esPropio
+    ? montoPago && parseCurrency(montoPago) > 0 && cheque.tipoCheque && cheque.banco && cheque.numero && cheque.fechaEmision && cheque.fechaPago
+    : montoPago && parseCurrency(montoPago) > 0 && cheque.banco && cheque.numero && cheque.cuitEmisor && cheque.titular && cheque.fechaEmision && cheque.fechaPago;
+
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white border border-[var(--border-subtle)] rounded-xl max-w-lg w-full shadow-2xl overflow-hidden flex flex-col relative">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
+      <div className="bg-white border border-gray-200 rounded-md max-w-lg w-full shadow-2xl overflow-hidden flex flex-col relative">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-rose-500 z-10 transition-colors"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-900 z-10 transition-colors"
         >
           <X size={20} />
         </button>
 
-        {/* Diseño visual de Cheque */}
-        <div className="p-6 pb-6 relative overflow-hidden bg-[#faf8f0] border-b border-gray-200">
-          {/* Marcas de agua estilo cheque */}
-          <div className="absolute inset-0 opacity-[0.03] flex items-center justify-center pointer-events-none">
-            <div
-              className="w-full h-full"
-              style={{
-                backgroundImage:
-                  "repeating-linear-gradient(45deg, transparent, transparent 10px, #000 10px, #000 11px)",
-              }}
-            />
-          </div>
-
+        {/* Cabecera Corporativa de Cheque */}
+        <div className="p-6 pb-6 relative overflow-hidden bg-gray-50 border-b border-gray-200">
           <div className="flex justify-between items-start mb-6 relative z-10">
             <div className="flex items-center gap-2">
-              <FileText className="text-amber-700" size={24} />
-              <span className="text-amber-900 font-black tracking-widest uppercase text-sm">
+              <FileCheck className="text-[var(--primary)]" size={24} />
+              <span className="text-gray-900 font-black tracking-widest uppercase text-sm">
                 {esPropio ? "Cheque Propio" : "Cheque de Tercero"}
               </span>
             </div>
             <div className="text-right">
-              <p className="text-amber-800/60 text-[10px] uppercase font-black tracking-widest mb-0.5">
+              <p className="text-gray-500 text-[10px] uppercase font-bold tracking-widest mb-0.5">
                 Nro. Cheque
               </p>
-              <p className="text-lg font-mono font-bold text-amber-900 tracking-wider">
+              <p className="text-lg font-mono font-bold text-gray-900 tracking-wider">
                 {cheque.numero || "00000000"}
               </p>
             </div>
@@ -395,19 +411,19 @@ const ModalCheque = ({
 
           <div className="flex justify-between items-end relative z-10">
             <div className="flex flex-col gap-1">
-              <p className="text-amber-800/60 text-[10px] uppercase font-black tracking-widest">
+              <p className="text-gray-500 text-[10px] uppercase font-bold tracking-widest">
                 Banco / Entidad
               </p>
-              <p className="text-xl font-black text-amber-900 uppercase drop-shadow-sm">
+              <p className="text-xl font-black text-gray-900 uppercase">
                 {cheque.banco || "___________"}
               </p>
             </div>
             {cheque.fechaPago && (
               <div className="text-right">
-                <p className="text-amber-800/60 text-[10px] uppercase font-black tracking-widest">
+                <p className="text-gray-500 text-[10px] uppercase font-bold tracking-widest">
                   Fecha de Pago
                 </p>
-                <p className="text-sm font-bold text-amber-900">
+                <p className="text-sm font-bold text-gray-900 font-mono tabular-nums">
                   {new Date(cheque.fechaPago).toLocaleDateString("es-AR", {
                     timeZone: "UTC",
                   })}
@@ -418,103 +434,110 @@ const ModalCheque = ({
         </div>
 
         {/* Formulario */}
-        <div className="p-6 flex flex-col gap-4 bg-white">
-          {esPropio && (
+        <div className="p-6 flex flex-col gap-4 bg-[#F8FAFC]">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <FieldLabel>Tipo de Cheque</FieldLabel>
-              <select
-                value={cheque.tipoCheque}
-                onChange={(e) =>
-                  setCheque((p) => ({ ...p, tipoCheque: e.target.value }))
-                }
-                className="w-full h-[38px] px-3 border border-gray-200 rounded-lg text-sm font-bold text-gray-700 bg-white focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 cursor-pointer shadow-sm transition-all"
-              >
-                <option value="CORRIENTE">Corriente</option>
-                <option value="DIFERIDO">Diferido (Pago diferido)</option>
-              </select>
+              <FieldLabel>Monto *</FieldLabel>
+              <input
+                type="text"
+                value={typeof montoPago === "string" ? montoPago.replace(".", ",") : montoPago}
+                onChange={(e) => setMontoPago(e.target.value)}
+                onFocus={(e) => e.target.select()}
+                placeholder="0,00"
+                className="w-full h-11 px-3 border border-gray-300 rounded-md text-sm font-semibold text-gray-800 bg-white focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 cursor-pointer shadow-sm transition-all"
+              />
             </div>
-          )}
+            {esPropio && (
+              <div>
+                <FieldLabel>Tipo de Cheque *</FieldLabel>
+                <select
+                  value={cheque.tipoCheque}
+                  onChange={(e) =>
+                    setCheque((p) => ({ ...p, tipoCheque: e.target.value }))
+                  }
+                  className="w-full h-11 px-3 border border-gray-300 rounded-md text-sm font-semibold text-gray-800 bg-white focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 cursor-pointer shadow-sm transition-all"
+                >
+                  <option value="CORRIENTE">Corriente</option>
+                  <option value="DIFERIDO">Diferido (Pago diferido)</option>
+                </select>
+              </div>
+            )}
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             {esPropio ? (
-              // Cambio de UX Cheque Propio (2026-07-22): selector real de
-              // CuentaBancaria (mismo componente/hook que "Banco destino" en
-              // la fila principal), reemplaza el input de texto libre
-              // desconectado de cualquier cuenta real.
               <CuentaBancariaAutocomplete
-                label="Banco"
+                label="Banco *"
                 value={cuentaBancaria}
                 onChange={seleccionarCuentaBancaria}
               />
             ) : (
               <div>
-                <FieldLabel>Banco</FieldLabel>
+                <FieldLabel>Banco *</FieldLabel>
                 <SearchableSelect
                   options={opcionesBanco}
                   value={cheque.codigoBancoBcra != null ? String(cheque.codigoBancoBcra) : ""}
                   onChange={seleccionarBanco}
                   onSearchChange={setBusquedaBanco}
-                  placeholder={isLoadingBancos ? "Cargando bancos..." : "Seleccione un banco"}
+                  placeholder={isLoadingBancos ? "Cargando..." : "Seleccione un banco"}
                   disabled={isLoadingBancos && bancos.length === 0}
                 />
               </div>
             )}
             <InputField
-              label="Nro. cheque"
+              label="Nro. cheque *"
               type="text"
               value={cheque.numero}
               onChange={(e) =>
                 setCheque((p) => ({ ...p, numero: e.target.value }))
               }
+              onFocus={(e) => e.target.select()}
             />
           </div>
 
           {!esPropio ? (
             <div className="grid grid-cols-2 gap-4">
               <InputField
-                label="CUIT emisor"
+                label="CUIT emisor *"
                 type="text"
                 value={cheque.cuitEmisor}
                 onChange={(e) =>
                   setCheque((p) => ({ ...p, cuitEmisor: e.target.value }))
                 }
+                onFocus={(e) => e.target.select()}
               />
               <InputField
-                label="Titular"
+                label="Titular *"
                 type="text"
                 value={cheque.titular}
                 onChange={(e) =>
                   setCheque((p) => ({ ...p, titular: e.target.value }))
                 }
+                onFocus={(e) => e.target.select()}
               />
             </div>
           ) : (
-            // Cambio de UX Cheque Propio (2026-07-22): Sucursal/Cuenta ya no
-            // se piden como texto libre — se autocompletan (solo lectura) a
-            // partir de la CuentaBancaria elegida arriba, que ya tiene esos
-            // datos reales (`sucursal`/`numeroCuenta`). Sin selección
-            // todavía, quedan vacíos.
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <FieldLabel>Sucursal</FieldLabel>
+                <FieldLabel>Sucursal *</FieldLabel>
                 <input
                   type="text"
                   value={cheque.sucursal}
                   readOnly
                   disabled
                   placeholder="Según cuenta elegida"
-                  className="w-full px-2 py-1.5 border border-gray-200 rounded-md text-md font-bold text-gray-500 bg-gray-100 cursor-not-allowed"
+                  className="w-full h-11 px-3 border border-gray-200 rounded-md text-sm font-semibold text-gray-500 bg-gray-100 cursor-not-allowed"
                 />
               </div>
               <div>
-                <FieldLabel>Cuenta</FieldLabel>
+                <FieldLabel>Cuenta *</FieldLabel>
                 <input
                   type="text"
                   value={cheque.cuenta}
                   readOnly
                   disabled
                   placeholder="Según cuenta elegida"
-                  className="w-full px-2 py-1.5 border border-gray-200 rounded-md text-md font-bold text-gray-500 bg-gray-100 cursor-not-allowed"
+                  className="w-full h-11 px-3 border border-gray-200 rounded-md text-sm font-semibold text-gray-500 bg-gray-100 cursor-not-allowed"
                 />
               </div>
             </div>
@@ -522,7 +545,7 @@ const ModalCheque = ({
 
           <div className="grid grid-cols-2 gap-4">
             <InputField
-              label="Fecha emisión"
+              label="Fecha emisión *"
               type="date"
               value={cheque.fechaEmision}
               onChange={(e) =>
@@ -530,7 +553,7 @@ const ModalCheque = ({
               }
             />
             <InputField
-              label="Fecha pago"
+              label="Fecha pago *"
               type="date"
               value={cheque.fechaPago}
               onChange={(e) =>
@@ -541,7 +564,8 @@ const ModalCheque = ({
 
           <button
             onClick={onConfirm}
-            className="w-full py-3 mt-2 rounded-lg bg-[var(--primary)] text-white text-xs font-black uppercase tracking-widest hover:brightness-110 transition-all cursor-pointer shadow-md shadow-[var(--primary)]/20"
+            disabled={!isFormValid}
+            className="w-full py-3 mt-2 rounded-md bg-[#1FAE6D] text-white text-[11px] font-black uppercase tracking-widest hover:bg-[#178F58] disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm"
           >
             Confirmar Datos del Cheque
           </button>
@@ -565,10 +589,16 @@ export const DetallePago = ({
   const metodosPermitidos = obtenerMetodosPermitidos(condicionComprobante);
   const sinMetodoDisponible =
     metodosPermitidos !== null && metodosPermitidos.length === 0;
-  const metodosDisponibles =
+  let metodosDisponibles =
     metodosPermitidos === null
       ? METODOS
       : METODOS.filter((m) => metodosPermitidos.includes(m.value));
+      
+  if (tipoOperacion === "INGRESO") {
+    metodosDisponibles = metodosDisponibles.filter(
+      (m) => m.value !== "CHEQUE_PROPIO"
+    );
+  }
 
   // ── Form nuevo pago ──
   const [tipoPago, setTipoPago] = useState("EFECTIVO");
@@ -734,6 +764,70 @@ export const DetallePago = ({
     resetForm();
   };
 
+  const handleEditarPago = (pago) => {
+    // 1. Quitar de la lista
+    setPagos((prev) => prev.filter((p) => p.id !== pago.id));
+    
+    // 2. Restaurar estado base
+    setTipoPago(pago.tipoMetodoPago);
+    setMontoPago(pago.monto.toString());
+    setReferencia(pago.referencia || "");
+
+    // Restaurar banco
+    if (pago.codigoBancoDestino || pago.codigoCuentaBancaria) {
+      setBancoSeleccionado({
+        codigoCuentaContable: pago.codigoBancoDestino,
+        codigo: pago.codigoCuentaBancaria,
+        alias: pago.nombreBanco,
+        banco: { nombre: pago.nombreBanco }
+      });
+    } else {
+      setBancoSeleccionado(null);
+    }
+
+    // 3. Restaurar estados específicos y abrir modales
+    if (["TARJETA_DEBITO", "TARJETA_CREDITO"].includes(pago.tipoMetodoPago)) {
+      setTarjeta({
+        marca: pago.datosTarjeta?.marca || "",
+        cantidadCuotas: pago.datosTarjeta?.cantidadCuotas || 1,
+        recargo: pago.datosTarjeta?.recargo || 0,
+        cupon: pago.datosTarjeta?.cupon || "",
+        lote: pago.datosTarjeta?.lote || "",
+      });
+      setModalTarjetaAbierto(true);
+    } else if (pago.tipoMetodoPago === "CHEQUE_PROPIO") {
+      setChequePropio({
+        tipoCheque: pago.chequePropio?.tipoCheque || "CORRIENTE",
+        banco: pago.chequePropio?.banco || "",
+        sucursal: pago.chequePropio?.sucursal || "",
+        numero: pago.chequePropio?.numero || "",
+        cuenta: pago.chequePropio?.cuenta || "",
+        fechaEmision: pago.chequePropio?.fechaEmision || "",
+        fechaPago: pago.chequePropio?.fechaPago || "",
+      });
+      setModalChequeAbierto(true);
+    } else if (pago.tipoMetodoPago === "CHEQUE_TERCERO") {
+      if (pago.chequeTercero) {
+        setChequeTercero({
+          banco: pago.chequeTercero.banco || "",
+          codigoBancoBcra: pago.chequeTercero.codigoBancoBcra || null,
+          numero: pago.chequeTercero.numero || "",
+          cuitEmisor: pago.chequeTercero.cuitEmisor || "",
+          titular: pago.chequeTercero.titular || "",
+          fechaEmision: pago.chequeTercero.fechaEmision || "",
+          fechaPago: pago.chequeTercero.fechaPago || "",
+        });
+      } else if (pago.endosoChequeTercero) {
+         setEndosoChequeTercero(pago.endosoChequeTercero);
+         // El endoso se maneja desde el modal de endoso en EGRESO, no en ModalCheque
+         // No se abriría ModalCheque acá
+      }
+      if (tipoOperacion === "INGRESO") {
+        setModalChequeAbierto(true);
+      }
+    }
+  };
+
   const handleAgregarVuelto = () => {
     const monto = parseCurrency(montoVuelto) || 0;
     if (monto <= 0) return;
@@ -863,7 +957,7 @@ export const DetallePago = ({
               <button
                 type="button"
                 onClick={handleAgregarPago}
-                disabled={!montoPago || parseCurrency(montoPago) <= 0}
+                disabled={!montoPago || parseCurrency(montoPago) <= 0 || (tipoPago !== "EFECTIVO" && tipoPago !== "CHEQUE_PROPIO" && tipoPago !== "CHEQUE_TERCERO" && !bancoSeleccionado)}
                 className="h-[30px] px-4 rounded-md bg-[var(--primary)] text-white text-md font-black uppercase tracking-wider flex items-center gap-1.5 hover:bg-[var(--primary)]/90 transition active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Plus size={13} strokeWidth={3} />
@@ -902,10 +996,15 @@ export const DetallePago = ({
             {modalTarjetaAbierto && (
               <ModalTarjeta
                 onClose={() => setModalTarjetaAbierto(false)}
-                onConfirm={() => setModalTarjetaAbierto(false)}
+                onConfirm={() => {
+                  handleAgregarPago();
+                  setModalTarjetaAbierto(false);
+                }}
                 tarjeta={tarjeta}
                 setTarjeta={setTarjeta}
                 tipoPago={tipoPago}
+                montoPago={montoPago}
+                setMontoPago={setMontoPago}
               />
             )}
 
@@ -957,7 +1056,10 @@ export const DetallePago = ({
             {modalChequeAbierto && (
               <ModalCheque
                 onClose={() => setModalChequeAbierto(false)}
-                onConfirm={() => setModalChequeAbierto(false)}
+                onConfirm={() => {
+                  handleAgregarPago();
+                  setModalChequeAbierto(false);
+                }}
                 cheque={
                   tipoPago === "CHEQUE_PROPIO" ? chequePropio : chequeTercero
                 }
@@ -969,6 +1071,8 @@ export const DetallePago = ({
                 tipoPago={tipoPago}
                 cuentaBancaria={bancoSeleccionado}
                 setCuentaBancaria={setBancoSeleccionado}
+                montoPago={montoPago}
+                setMontoPago={setMontoPago}
               />
             )}
           </div>
@@ -1031,10 +1135,19 @@ export const DetallePago = ({
                 </span>
                 <button
                   type="button"
+                  onClick={() => handleEditarPago(pago)}
+                  className="p-1 rounded-md text-gray-500 hover:text-sky-500 hover:bg-sky-50 transition cursor-pointer"
+                  title="Editar"
+                >
+                  <Pencil size={14} />
+                </button>
+                <button
+                  type="button"
                   onClick={() =>
                     setPagos((prev) => prev.filter((p) => p.id !== pago.id))
                   }
                   className="p-1 rounded-md text-gray-500 hover:text-red-500 hover:bg-red-50 transition cursor-pointer"
+                  title="Eliminar"
                 >
                   <BorrarIcono size={14} />
                 </button>

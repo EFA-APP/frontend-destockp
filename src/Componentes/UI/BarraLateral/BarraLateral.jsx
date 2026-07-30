@@ -37,7 +37,7 @@ const BarraLateral = () => {
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
 
   const { secciones: seccionesApi } = useSeccionesUI();
-  const { codigosSeccionPermitidos } = usePermisosDeUsuario();
+  const { codigosSeccionPermitidos, nombresSubMenuPermitidos } = usePermisosDeUsuario();
 
   const isExpanded = sidebarLocked || sidebarHovered;
 
@@ -46,13 +46,15 @@ const BarraLateral = () => {
     const menu = seccionesApi
       .filter(
         (seccion) =>
+          // R37: permisoRequerido se elimina junto con Permiso; se
+          // compara directamente contra seccion.codigo.
           seccion.activo &&
-          codigosSeccionPermitidos.includes(seccion.permisoRequerido),
+          codigosSeccionPermitidos.includes(seccion.codigo),
       )
       .map((seccion) => {
         const submenu =
           seccion.subMenus
-            ?.filter((sm) => sm.activo)
+            ?.filter((sm) => sm.activo && nombresSubMenuPermitidos.includes(sm.nombre))
             .map((sm) => ({
               nombre: sm.nombre,
               redireccion: sm.redireccion,
@@ -68,7 +70,7 @@ const BarraLateral = () => {
       });
 
     return menu;
-  }, [seccionesApi, codigosSeccionPermitidos]);
+  }, [seccionesApi, codigosSeccionPermitidos, nombresSubMenuPermitidos]);
 
   // Abrir el primer item con submenú por defecto al cargar
   useEffect(() => {

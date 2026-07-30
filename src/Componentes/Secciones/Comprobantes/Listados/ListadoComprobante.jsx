@@ -14,6 +14,8 @@ import {
   Filter,
   Eye,
   AlertTriangle,
+  AlertOctagon,
+  Split,
 } from "lucide-react";
 import { useObtenerComprobantesQuery } from "../../../../Backend/Ventas/queries/Comprobante/useObtenerComprobantes.query";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
@@ -135,6 +137,9 @@ const adaptarParaDrawer = (full) => {
     fechaEmision: full.fechaEmision,
     fechaVto: full.fechaVto,
     estado: full.estado,
+    // Feature 7 (comprobante-pago-desacoplado, R28): habilita el botón
+    // "Marcar como ajustado en tesorería" en el drawer.
+    ajusteTesoreriaPendiente: full.ajusteTesoreriaPendiente,
     condicionVenta: full.condicionComprobante,
     cae: full.cae,
     vtoCae: isoToAfip(full.vtoCae), // PDF espera YYYYMMDD
@@ -157,6 +162,7 @@ const adaptarParaDrawer = (full) => {
       tasaIva: d.tasaIva,
       subtotal:
         d.subtotal ?? d.precioUnitario * d.cantidad - (d.descuento || 0),
+      repartoUnidadNegocio: d.repartos || d.repartoUnidadNegocio || [],
     })),
     pagos: (full.pagos || []).map((p) => ({
       metodo: p.tipoMetodoPago, // campo real en DB
@@ -362,6 +368,30 @@ const FilaComprobante = ({ comp, onClick, isLoading, onAbrirReintento }) => {
                 Asoc.
               </span>
             )}
+            {/* Extensión post-implementación de "egreso-distribucion-unidad-negocio"
+                (id 6): marca siempre visible (sin texto) para comprobantes de
+                Egreso con al menos una línea repartida entre unidades de
+                negocio. `comp.tieneRepartoUnidadNegocio` viene del backend. */}
+            {comp.tieneRepartoUnidadNegocio && (
+              <span
+                title="Detalle repartido entre unidades de negocio"
+                className="inline-flex items-center justify-center px-1 py-0.5 rounded border bg-indigo-50 text-indigo-700 border-indigo-100"
+              >
+                <Split size={7} />
+              </span>
+            )}
+            {/* Feature 7 (comprobante-pago-desacoplado, R26): marca de que
+                este RECIBO/ORDEN_PAGO fue anulado y su MovimientoFinanciero/
+                MovimientoBancario en tesoreria-ms no se revirtió — mismo
+                patrón visual que el badge de reparto de arriba. */}
+            {comp.ajusteTesoreriaPendiente && (
+              <span
+                title="Este pago fue anulado; verificar el movimiento de tesorería asociado"
+                className="inline-flex items-center justify-center px-1 py-0.5 rounded border bg-rose-50 text-rose-700 border-rose-100"
+              >
+                <AlertOctagon size={7} />
+              </span>
+            )}
             {tienePendiente && (
               <button
                 type="button"
@@ -424,6 +454,10 @@ const ListadoComprobante = () => {
   const [fechaHasta, setFechaHasta] = useState("");
   const [fiscal, setFiscal] = useState("");
   const [estado, setEstado] = useState("");
+  // Feature 7 (comprobante-pago-desacoplado, R27): filtro "Solo ajuste de
+  // tesorería pendiente" (comprobantes con `ajusteTesoreriaPendiente: true`).
+  const [soloAjusteTesoreriaPendiente, setSoloAjusteTesoreriaPendiente] =
+    useState(false);
   const [busqueda, setBusqueda] = useState(
     location.state?.busquedaInicial ?? "",
   );
@@ -472,6 +506,7 @@ const ListadoComprobante = () => {
     fiscal,
     estado,
     busquedaDebounced,
+    soloAjusteTesoreriaPendiente,
   ]);
 
   useEffect(() => {
@@ -488,6 +523,7 @@ const ListadoComprobante = () => {
     ...(fiscal !== "" && { fiscal }),
     ...(estado && { estado }),
     ...(busquedaDebounced && { busqueda: busquedaDebounced }),
+    ...(soloAjusteTesoreriaPendiente && { ajusteTesoreriaPendiente: true }),
     pagina,
     limite: LIMITE,
   };
@@ -510,10 +546,17 @@ const ListadoComprobante = () => {
     setFiscal("");
     setEstado("");
     setBusqueda("");
+    setSoloAjusteTesoreriaPendiente(false);
   };
 
   const hayFiltros =
-    tipo || fechaDesde || fechaHasta || fiscal !== "" || estado || busqueda;
+    tipo ||
+    fechaDesde ||
+    fechaHasta ||
+    fiscal !== "" ||
+    estado ||
+    busqueda ||
+    soloAjusteTesoreriaPendiente;
 
   const handleAbrirDetalle = async (comp) => {
     if (cargandoDetalle) return;
@@ -666,6 +709,26 @@ const ListadoComprobante = () => {
                 </button>
               )}
             </div>
+          </div>
+
+          {/* Feature 7 (comprobante-pago-desacoplado, R27): filtro "Solo
+              ajuste de tesorería pendiente" — working default confirmado
+              por el humano (filtro sobre esta pantalla, no pantalla
+              dedicada). */}
+          <div className="col-span-2 sm:col-span-1 flex items-end pb-1">
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={soloAjusteTesoreriaPendiente}
+                onChange={(e) =>
+                  setSoloAjusteTesoreriaPendiente(e.target.checked)
+                }
+                className="w-4 h-4 cursor-pointer accent-rose-600"
+              />
+              <span className="text-[11px] font-bold text-gray-700">
+                Solo ajuste de tesorería pendiente
+              </span>
+            </label>
           </div>
         </div>
       </div>

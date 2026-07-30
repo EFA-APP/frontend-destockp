@@ -25,6 +25,8 @@ import {
   AlertCircle,
   CheckCircle,
   Ban,
+  Split,
+  AlertOctagon,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { pdf } from "@react-pdf/renderer";
@@ -34,6 +36,7 @@ import {
   enviarComprobanteEmailApi,
   obtenerComprobantePorCodigo,
   anularComprobanteApi,
+  resolverAjusteTesoreriaApi,
 } from "../../../../Backend/Ventas/api/Comprobante/comprobante.api";
 import {
   ObtenerContactoApi,
@@ -96,6 +99,7 @@ const adaptarComprobante = (full) => {
       tasaIva: d.tasaIva,
       subtotal:
         d.subtotal ?? d.precioUnitario * d.cantidad - (d.descuento || 0),
+      repartoUnidadNegocio: d.repartos || d.repartoUnidadNegocio || [],
     })),
     pagos: (full.pagos || []).map((p) => ({
       metodo: p.tipoMetodoPago,
@@ -377,6 +381,11 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) =
   const [motivoAnular, setMotivoAnular] = useState("");
   const [anulando, setAnulando] = useState(false);
   const [errorAnular, setErrorAnular] = useState(null);
+  // Feature 7 (comprobante-pago-desacoplado, R28): acción manual "marcar
+  // como ajustado en tesorería" (apaga `ajusteTesoreriaPendiente`).
+  const [resolviendoAjuste, setResolviendoAjuste] = useState(false);
+  const [errorResolverAjuste, setErrorResolverAjuste] = useState(null);
+  const [ajusteResuelto, setAjusteResuelto] = useState(false);
   const [caeCopiado, setCaeCopiado] = useState(false);
   const [stepEmail, setStepEmail] = useState(null); // null | 'cargando' | 'form' | 'enviado'
   const [emailInput, setEmailInput] = useState("");
@@ -577,6 +586,24 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) =
     }
   };
 
+  const handleResolverAjusteTesoreria = async () => {
+    if (!data?.codigo) return;
+    setResolviendoAjuste(true);
+    setErrorResolverAjuste(null);
+    try {
+      await resolverAjusteTesoreriaApi(data.codigo);
+      setAjusteResuelto(true);
+      queryClient.invalidateQueries({ queryKey: ["comprobantes"] });
+    } catch (e) {
+      setErrorResolverAjuste(
+        e?.response?.data?.message ||
+          "No se pudo marcar el comprobante como ajustado.",
+      );
+    } finally {
+      setResolviendoAjuste(false);
+    }
+  };
+
   const nroFmt = `${String(data.puntoVenta || 0).padStart(5, "0")}-${String(data.numeroComprobante || 0).padStart(8, "0")}`;
   const titulo = getFullTitle(data.tipoDocumento, data.letraComprobante);
   const { Icon: TipoIcon } = tipoConfig;
@@ -756,6 +783,41 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) =
           </div>
         )}
 
+        {/* Feature 7 (comprobante-pago-desacoplado, R28, R29): aviso +
+            acción manual "marcar como ajustado en tesorería" — solo visible
+            para RECIBO(992)/ORDEN_PAGO(993) con `ajusteTesoreriaPendiente`
+            todavía en `true` (limitación aceptada: la anulación de este
+            comprobante no revirtió su movimiento en tesorería, ver
+            AnularRecibo.casodeuso.ts). */}
+        {[992, 993].includes(Number(data.tipoDocumento)) &&
+          data.ajusteTesoreriaPendiente &&
+          !ajusteResuelto && (
+            <div className="px-5 py-3 border-b border-slate-100 bg-rose-50/50 flex flex-col gap-2">
+              <p className="text-[11px] font-bold text-rose-800 flex items-center gap-1">
+                <AlertOctagon size={12} /> Este pago fue anulado y su
+                movimiento en tesorería NO se revirtió automáticamente.
+                Verificalo manualmente y marcalo como ajustado.
+              </p>
+              <div className="flex gap-2 items-center">
+                <button
+                  onClick={handleResolverAjusteTesoreria}
+                  disabled={resolviendoAjuste}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-black uppercase rounded-md bg-rose-600 text-white hover:bg-rose-700 disabled:opacity-50 cursor-pointer"
+                >
+                  <CheckCircle size={13} />
+                  {resolviendoAjuste
+                    ? "..."
+                    : "Marcar como ajustado en tesorería"}
+                </button>
+              </div>
+              {errorResolverAjuste && (
+                <p className="text-[10px] text-rose-600 font-bold">
+                  {errorResolverAjuste}
+                </p>
+              )}
+            </div>
+          )}
+
         {/* ── EMAIL PANEL ── */}
         {stepEmail === "form" && (
           <div className="px-5 py-3 border-b border-slate-100 bg-violet-50/50 flex flex-col gap-3">
@@ -934,6 +996,25 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) =
                                 <p className="text-[11px] text-slate-500 font-semibold mt-0.5">
                                   IVA {item.tasaIva}%
                                 </p>
+                              )}
+                              {Array.isArray(item.repartoUnidadNegocio) && item.repartoUnidadNegocio.length > 0 && (
+                                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                                  {item.repartoUnidadNegocio.map((r, iR) => {
+                                    const un = usuario?.unidadesNegocio?.find(
+                                      (u) => Number(u.codigo) === Number(r.codigoUnidadNegocio)
+                                    );
+                                    return (
+                                      <span
+                                        key={iR}
+                                        title={`Reparto de línea: ${r.porcentaje}%`}
+                                        className="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded px-1.5 py-0.5 shadow-sm"
+                                      >
+                                        <Split size={10} />
+                                        {un ? un.nombre : `UN ${r.codigoUnidadNegocio}`} ({r.porcentaje}%)
+                                      </span>
+                                    );
+                                  })}
+                                </div>
                               )}
                               {typeof item.nombre === "string" &&
                                 item.nombre.startsWith("Pago período") &&

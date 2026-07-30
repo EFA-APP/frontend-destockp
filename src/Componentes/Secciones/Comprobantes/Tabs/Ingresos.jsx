@@ -8,6 +8,7 @@ import ModalExitoComprobante from "../Componentes/ModalExitoComprobante";
 import ModalReintentarComprobante from "../Componentes/ModalReintentarComprobante";
 import ModalError from "../../../Modales/ModalError";
 import ModalConfirmacion from "../../../UI/ModalConfirmacion/ModalConfirmacion";
+import ModalPagoRapido from "../Componentes/ModalPagoRapido";
 import ComprobantePDF from "../../../Tablas/Ventas/Comprobantes/ComprobantePDF";
 import { useCabeceraComprobante } from "../../../../Backend/Comprobantes/useCabeceraComprobante";
 import { useDetalleComprobante } from "../../../../Backend/Comprobantes/useDetalleComprobante";
@@ -175,7 +176,15 @@ const construirPayload = ({
     codigoReceptor: receptor?.codigo,
     entidadReceptor: receptor?.tipoEntidad || "CLIE",
     codigoTipoComprobante: codigoTipo,
-    condicionComprobante: cabecera.condicionComprobante,
+    // Feature 7 (comprobante-pago-desacoplado, R6, R7): puertas adentro,
+    // una FACTURA CONTADO se persiste/contabiliza siempre como
+    // CUENTA_CORRIENTE (el pago llega después vía Recibo rápido) — ver
+    // design.md §1 sobre por qué esto no rompe el asiento contable. El
+    // resto de las condiciones (y el resto de los tipos) viajan sin cambios.
+    condicionComprobante:
+      tipoDescripcion === "FACTURA" && cabecera.condicionComprobante === "CONTADO"
+        ? "CUENTA_CORRIENTE"
+        : cabecera.condicionComprobante,
     ...(cabecera.observaciones && { observaciones: cabecera.observaciones }),
     subtotal: subtotalSinIva,
     iva: totalIva,
@@ -215,6 +224,10 @@ const Ingresos = ({ tipoOperacion }) => {
   const [highlightStock, setHighlightStock] = useState(0);
   const [generandoPDF, setGenerandoPDF] = useState(false);
   const [errorModalMsg, setErrorModalMsg] = useState("");
+  // Feature 7 (comprobante-pago-desacoplado, R8, R10, R12): factura
+  // FACTURA/CONTADO recién guardada, pendiente de cobro rápido vía
+  // <ModalPagoRapido/>. `null` = modal cerrado.
+  const [facturaParaPagoRapido, setFacturaParaPagoRapido] = useState(null);
 
   const { mutate: crearComprobante, isPending } = useGenerarComprobante();
 
@@ -322,6 +335,9 @@ const Ingresos = ({ tipoOperacion }) => {
   }, [cabecera.comprobanteAsociado]);
 
   const codigoTipo = Number(cabecera.tipoComprobante);
+  // Feature 7 (comprobante-pago-desacoplado, R1, R2): FACTURA desacopla el
+  // pago del guardado — mismo `TIPO_DESCRIPCION_MAP` que `construirPayload`.
+  const tipoDescripcionActual = TIPO_DESCRIPCION_MAP[codigoTipo] || "FACTURA";
   const itemsGravadoSinIva = detalle.items.filter(
     (i) =>
       (!i.tipoFiscal || i.tipoFiscal === "GRAVADO") && (i.tasaIva || 0) === 0,
@@ -338,7 +354,15 @@ const Ingresos = ({ tipoOperacion }) => {
       return;
     }
 
-    if (requierePago(condicion) && pagos.length === 0) {
+    // Feature 7 (comprobante-pago-desacoplado, R2): FACTURA desacopla el
+    // pago del guardado (se registra después vía Recibo rápido, R10) — este
+    // gate ya no aplica para ese tipo, sin importar la condición elegida
+    // (R3 sigue exigiendo pago para NOTA_CREDITO/NOTA_DEBITO).
+    if (
+      tipoDescripcionActual !== "FACTURA" &&
+      requierePago(condicion) &&
+      pagos.length === 0
+    ) {
       setErrorModalMsg(
         "Esta condición de comprobante requiere al menos un método de pago.",
       );
@@ -354,9 +378,16 @@ const Ingresos = ({ tipoOperacion }) => {
 
     const tipoDescripcion = TIPO_DESCRIPCION_MAP[codigoTipo] || "FACTURA";
     if (tipoDescripcion === "NOTA_CREDITO" && cabecera.comprobanteAsociado) {
+      // Feature 7 (comprobante-pago-desacoplado, R23): un comprobante
+      // ABONADO (pagado vía Recibo/Orden de Pago) tiene `saldoPendiente: 0`
+      // por diseño — eso NO significa que no se le pueda emitir una Nota de
+      // Crédito, así que el máximo permitido pasa a ser el `total` en ese
+      // caso (en vez de `saldoPendiente ?? total`, que bloqueaba siempre).
       const maximo =
-        cabecera.comprobanteAsociado.saldoPendiente ??
-        cabecera.comprobanteAsociado.total;
+        cabecera.comprobanteAsociado.estado === "ABONADO"
+          ? cabecera.comprobanteAsociado.total
+          : (cabecera.comprobanteAsociado.saldoPendiente ??
+            cabecera.comprobanteAsociado.total);
       const importe = cabecera.importeAplicadoManual ?? maximo;
       if (importe <= 0 || importe > maximo) {
         setErrorModalMsg(
@@ -384,6 +415,12 @@ const Ingresos = ({ tipoOperacion }) => {
   const ejecutarGuardado = () => {
     setConfirmacionStock(null);
 
+    // Feature 7 (comprobante-pago-desacoplado, R8): condición ORIGINALMENTE
+    // elegida por el usuario, leída ANTES del remapeo de `construirPayload`
+    // (R6) y del reset de `cabecera` en `onSuccess` — determina si
+    // corresponde abrir el modal de Recibo rápido (R10/R12).
+    const condicionOriginal = cabecera.condicionComprobante || "CONTADO";
+
     const payload = construirPayload({
       cabecera,
       items: detalle.items,
@@ -403,7 +440,18 @@ const Ingresos = ({ tipoOperacion }) => {
       {
         onSuccess: (data) => {
           const tipo = payload.tipoDescripcionComprobante;
-          if (tipo === "FACTURA" || tipo === "RECIBO") {
+          // Feature 7 (comprobante-pago-desacoplado, R10, R12): una FACTURA
+          // guardada con CONTADO originalmente elegido dispara el modal de
+          // Recibo rápido EN VEZ DEL flujo de éxito existente (Ver PDF/
+          // Imprimir/Enviar) — el cobro es la acción inmediata prioritaria.
+          // Con CUENTA_CORRIENTE/CREDITO_X_DIAS (R12) no se abre nada nuevo,
+          // se preserva el comportamiento actual.
+          if (tipo === "FACTURA" && condicionOriginal === "CONTADO") {
+            setFacturaParaPagoRapido({
+              ...data?.comprobante,
+              tipoOperacion,
+            });
+          } else if (tipo === "FACTURA" || tipo === "RECIBO") {
             setComprobanteExito({
               codigo: data?.comprobante?.codigo,
               codigoReceptor:
@@ -540,6 +588,7 @@ const Ingresos = ({ tipoOperacion }) => {
         setOtrosTributos={cabecera.setOtrosTributos}
         highlightStock={highlightStock}
         condicionComprobante={cabecera.condicionComprobante}
+        ocultarDetallePago={tipoDescripcionActual === "FACTURA"}
       />
 
       {/* BOTON GUARDAR / PRESUPUESTO */}
@@ -578,12 +627,28 @@ const Ingresos = ({ tipoOperacion }) => {
         )}
       </div>
 
+      {isPending && (
+        <div className="fixed inset-0 z-[9999] bg-slate-900/50 backdrop-blur-sm flex flex-col items-center justify-center transition-all">
+          <div className="bg-white p-6 rounded-[16px] shadow-2xl flex flex-col items-center gap-4 animate-in zoom-in-95 duration-200">
+            <div className="w-10 h-10 border-4 border-emerald-100 border-t-emerald-500 rounded-full animate-spin" />
+            <div className="text-center">
+              <p className="text-sm font-black text-slate-800 uppercase tracking-wider">Generando Comprobante</p>
+              <p className="text-[11px] font-semibold text-slate-500 mt-1">Aguarde un momento por favor...</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {comprobanteExito && (
         <ModalExitoComprobante
           comprobante={comprobanteExito}
           onClose={() => setComprobanteExito(null)}
         />
       )}
+      <ModalPagoRapido
+        factura={facturaParaPagoRapido}
+        onClose={() => setFacturaParaPagoRapido(null)}
+      />
       {comprobanteConError && (
         <ModalReintentarComprobante
           codigo={comprobanteConError.codigo}

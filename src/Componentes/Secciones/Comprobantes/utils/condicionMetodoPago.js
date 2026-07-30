@@ -14,14 +14,11 @@ export const METODOS_POR_CONDICION = {
     "CHEQUE_PROPIO",
     "CHEQUE_TERCERO",
   ],
-  CUENTA_CORRIENTE: [
-    "EFECTIVO",
-    "TRANSFERENCIA",
-    "TARJETA_DEBITO",
-    "TARJETA_CREDITO",
-    "CHEQUE_PROPIO",
-    "CHEQUE_TERCERO",
-  ],
+  // Feature 7 (comprobante-pago-desacoplado, R5): CUENTA_CORRIENTE deja de
+  // admitir pago inline, mismo criterio que CREDITO_30/60/90_DIAS — el
+  // cobro/pago de una factura CUENTA_CORRIENTE pasa a hacerse siempre vía
+  // Recibo/Orden de Pago (pestaña dedicada o modal rápido post-guardado).
+  CUENTA_CORRIENTE: [],
   CREDITO_30_DIAS: [],
   CREDITO_60_DIAS: [],
   CREDITO_90_DIAS: [],
@@ -31,7 +28,7 @@ export const METODOS_POR_CONDICION = {
  * Devuelve true si la condición admite agregar más de un método de pago.
  */
 export const permiteMultiplesPagos = (condicionComprobante) => {
-  return condicionComprobante === 'CONTADO' || condicionComprobante === 'CUENTA_CORRIENTE';
+  return condicionComprobante === 'CONTADO';
 };
 
 /**

@@ -41,8 +41,10 @@ const NavbarMovil = () => {
     const seccionesFiltradas = seccionesApi
       .filter(
         (seccion) =>
+          // R37: permisoRequerido se elimina junto con Permiso; se
+          // compara directamente contra seccion.codigo.
           seccion.activo &&
-          codigosSeccionPermitidos.includes(seccion.permisoRequerido),
+          codigosSeccionPermitidos.includes(seccion.codigo),
       )
       .map((seccion) => ({
         id: seccion.id_seccion,

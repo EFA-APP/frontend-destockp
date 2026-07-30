@@ -41,8 +41,8 @@ const TablaPermisos = ({
         })}
         datos={permisos || []}
         cargando={cargando}
-        titulo="Gestión de Permisos"
-        subtitulo="Listado de permisos y accesos granulares"
+        titulo="Catálogo de Acciones"
+        subtitulo="Acciones globales disponibles para conceder a Roles"
         busqueda={busqueda}
         onRefrescar={onRefrescar}
         alturaFija={600}

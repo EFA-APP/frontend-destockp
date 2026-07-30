@@ -291,43 +291,43 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
           >
             {esFiscal ? (
               <>
-                <TieneAccion accion="FACTURA_A">
+                <TieneAccion accion={tipoOperacion === 'EGRESO' ? 'EGRESO_FACTURA_A' : 'FACTURA_A'}>
                   <option value="1">Factura A</option>
                 </TieneAccion>
-                <TieneAccion accion="FACTURA_B">
+                <TieneAccion accion={tipoOperacion === 'EGRESO' ? 'EGRESO_FACTURA_B' : 'FACTURA_B'}>
                   <option value="6">Factura B</option>
                 </TieneAccion>
-                <TieneAccion accion="FACTURA_C">
+                <TieneAccion accion={tipoOperacion === 'EGRESO' ? 'EGRESO_FACTURA_C' : 'FACTURA_C'}>
                   <option value="11">Factura C</option>
                 </TieneAccion>
-                <TieneAccion accion="NOTA_CREDITO_A">
+                <TieneAccion accion={tipoOperacion === 'EGRESO' ? 'EGRESO_NOTA_CREDITO_A' : 'NOTA_CREDITO_A'}>
                   <option value="3">Nota Credito A</option>
                 </TieneAccion>
-                <TieneAccion accion="NOTA_CREDITO_B">
+                <TieneAccion accion={tipoOperacion === 'EGRESO' ? 'EGRESO_NOTA_CREDITO_B' : 'NOTA_CREDITO_B'}>
                   <option value="8">Nota Credito B</option>
                 </TieneAccion>
-                <TieneAccion accion="NOTA_CREDITO_C">
+                <TieneAccion accion={tipoOperacion === 'EGRESO' ? 'EGRESO_NOTA_CREDITO_C' : 'NOTA_CREDITO_C'}>
                   <option value="13">Nota Credito C</option>
                 </TieneAccion>
-                <TieneAccion accion="NOTA_DEBITO_A">
+                <TieneAccion accion={tipoOperacion === 'EGRESO' ? 'EGRESO_NOTA_DEBITO_A' : 'NOTA_DEBITO_A'}>
                   <option value="2">Nota Debito A</option>
                 </TieneAccion>
-                <TieneAccion accion="NOTA_DEBITO_B">
+                <TieneAccion accion={tipoOperacion === 'EGRESO' ? 'EGRESO_NOTA_DEBITO_B' : 'NOTA_DEBITO_B'}>
                   <option value="7">Nota Debito B</option>
                 </TieneAccion>
-                <TieneAccion accion="NOTA_DEBITO_C">
+                <TieneAccion accion={tipoOperacion === 'EGRESO' ? 'EGRESO_NOTA_DEBITO_C' : 'NOTA_DEBITO_C'}>
                   <option value="12">Nota Debito C</option>
                 </TieneAccion>
               </>
             ) : (
               <>
-                <TieneAccion accion="FACTURA_INTERNA">
+                <TieneAccion accion={tipoOperacion === 'EGRESO' ? 'EGRESO_FACTURA_INTERNA' : 'FACTURA_INTERNA'}>
                   <option value="991">Factura Interna</option>
                 </TieneAccion>
-                <TieneAccion accion="NOTA_CREDITO_INTERNA">
+                <TieneAccion accion={tipoOperacion === 'EGRESO' ? 'EGRESO_NOTA_CREDITO_INTERNA' : 'NOTA_CREDITO_INTERNA'}>
                   <option value="994">Nota Credito Interna</option>
                 </TieneAccion>
-                <TieneAccion accion="NOTA_DEBITO_INTERNA">
+                <TieneAccion accion={tipoOperacion === 'EGRESO' ? 'EGRESO_NOTA_DEBITO_INTERNA' : 'NOTA_DEBITO_INTERNA'}>
                   <option value="995">Nota Debito Interna</option>
                 </TieneAccion>
               </>
@@ -798,6 +798,7 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
         onSeleccionar={setComprobanteAsociado}
         unidadesNegocio={unidadesNegocio}
         permitirManual={esNotaCredito}
+        tipoOperacion={tipoOperacion}
       />
 
       {modalCrearContacto && (

@@ -18,6 +18,7 @@ import ModalEmitirLote from "./ModalEmitirLote";
 import ModalReglasCuota from "./ModalReglasCuota";
 import ModalProgresoLoteCuotas from "./ModalProgresoLoteCuotas";
 import BannerLoteCuotas from "./BannerLoteCuotas";
+import { useConfiguracionContactos } from "../../../../Backend/Contactos/hooks/useConfiguracionContactos";
 
 const MESES = [
   "Enero",
@@ -62,6 +63,7 @@ const GestionCuotas = () => {
   const [codigoLoteDetalle, setCodigoLoteDetalle] = useState(null);
   const [loteDescartadoCodigo, setLoteDescartadoCodigo] = useState(null);
   const [filtroEstado, setFiltroEstado] = useState("TODOS");
+  const [filtroTipo, setFiltroTipo] = useState("TODOS");
   // R16: dashboard oculto por defecto en cada montaje.
   const [verMetricas, setVerMetricas] = useState(false);
 
@@ -75,6 +77,12 @@ const GestionCuotas = () => {
   const [busqueda, setBusqueda] = useState("");
   const [busquedaDebounced, setBusquedaDebounced] = useState("");
 
+  const { configs } = useConfiguracionContactos();
+  const opcionesTipoAlumno = useMemo(() => {
+    const config = configs.find((c) => c.claveCampo === "tipo_alumno" && c.entidadClave === "ALUM");
+    return config?.opciones || [];
+  }, [configs]);
+
   useEffect(() => {
     const t = setTimeout(() => setBusquedaDebounced(busqueda), 300);
     return () => clearTimeout(t);
@@ -87,6 +95,7 @@ const GestionCuotas = () => {
     anioSeleccionado,
     codigoUnidadNegocio,
     filtroEstado,
+    filtroTipo,
     busquedaDebounced,
   ]);
 
@@ -118,6 +127,7 @@ const GestionCuotas = () => {
       // resuelve el backend (universo completo, filtra y RECIÉN AHÍ pagina) —
       // ya no se filtra en memoria en TablaCuotas.jsx (ver comentario ahí).
       filtroEstado,
+      filtroTipo,
     });
 
   // KPIs del dashboard (universo completo, no varía con `pagina`/`busqueda`
@@ -130,6 +140,7 @@ const GestionCuotas = () => {
     mes: mesSeleccionado,
     anio: anioSeleccionado,
     codigoUnidadNegocio,
+    filtroTipo,
   });
 
   // Historial de lotes del scope exacto (R48), para no perder el
@@ -351,6 +362,28 @@ const GestionCuotas = () => {
               </select>
             </div>
           )}
+
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor="cuotas-tipo"
+              className="text-[10px] font-black uppercase tracking-widest text-gray-500"
+            >
+              Tipo de Alumno
+            </label>
+            <select
+              id="cuotas-tipo"
+              value={filtroTipo}
+              onChange={(e) => setFiltroTipo(e.target.value)}
+              className="h-11 px-3 border border-gray-300 rounded-md text-sm font-semibold bg-white focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 shadow-sm cursor-pointer outline-none transition-all text-gray-800 uppercase"
+            >
+              <option value="TODOS">Todos</option>
+              {opcionesTipoAlumno.map((opcion, idx) => (
+                <option key={idx} value={opcion}>
+                  {opcion}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div className="flex flex-col gap-2">
             <label

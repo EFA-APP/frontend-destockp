@@ -33,6 +33,7 @@ const SelectorComprobanteModal = ({
   onSeleccionar,
   unidadesNegocio = [],
   permitirManual = false,
+  tipoOperacion,
 }) => {
   const firstUnidad = unidadesNegocio[0]?.codigo
     ? String(unidadesNegocio[0].codigo)
@@ -96,6 +97,7 @@ const SelectorComprobanteModal = ({
 
   const filtros = {
     codigoUnidadNegocio: unidadNegocio || undefined,
+    ...(tipoOperacion && { tipoOperacion: tipoOperacion }),
     ...(tipoDescripcion && { tipo: tipoDescripcion }),
     ...(fechaInicio && { fechaDesde: fechaInicio }),
     ...(fechaFin && { fechaHasta: fechaFin }),

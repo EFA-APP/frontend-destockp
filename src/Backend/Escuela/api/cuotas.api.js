@@ -20,6 +20,7 @@ export const listarCuotasApi = async ({
   limite,
   busqueda,
   filtroEstado,
+  filtroTipo,
 }) => {
   const params = { codigoCuentaContable, tipoEntidadObligado, mes, anio };
   if (codigoUnidadNegocio != null && codigoUnidadNegocio !== "") {
@@ -35,6 +36,9 @@ export const listarCuotasApi = async ({
   if (filtroEstado != null && filtroEstado !== "" && filtroEstado !== "TODOS") {
     params.filtroEstado = filtroEstado;
   }
+  if (filtroTipo != null && filtroTipo !== "" && filtroTipo !== "TODOS") {
+    params.filtroTipo = filtroTipo;
+  }
   const { data } = await axios.get("/escuela/cuotas", { params });
   return data;
 };
@@ -49,10 +53,14 @@ export const resumenCuotasApi = async ({
   mes,
   anio,
   codigoUnidadNegocio,
+  filtroTipo,
 }) => {
   const params = { codigoCuentaContable, tipoEntidadObligado, mes, anio };
   if (codigoUnidadNegocio != null && codigoUnidadNegocio !== "") {
     params.codigoUnidadNegocio = codigoUnidadNegocio;
+  }
+  if (filtroTipo != null && filtroTipo !== "" && filtroTipo !== "TODOS") {
+    params.filtroTipo = filtroTipo;
   }
   const { data } = await axios.get("/escuela/cuotas/resumen", { params });
   return data;

@@ -1,10 +1,13 @@
 import React from "react";
 import { Highlight } from "../../../UI/DataTable/DataTable";
 
+// rbac-normalizacion-secciones-permisos (R38): resignificado para listar
+// el catálogo global Accion (codigo, nombre, descripcion, activo) en vez
+// de Permiso (que ya no existe).
 export const columnasPermisos = (busqueda) => [
   {
     key: "nombre",
-    etiqueta: "Permiso",
+    etiqueta: "Acción",
     renderizar: (valor, fila) => (
       <div className="flex items-center gap-3 py-1">
         <div className="w-8 h-8 rounded-md bg-blue-500/10 flex items-center justify-center border border-blue-500/20 shadow-sm">
@@ -30,7 +33,7 @@ export const columnasPermisos = (busqueda) => [
           </span>
           {fila.descripcion && (
             <span
-              className="text-[10px] font-bold text-[var(--text-muted)] mt-0.5 max-w-[200px] truncate"
+              className="text-[10px] font-bold text-[var(--text-muted)] mt-0.5 max-w-[280px] truncate"
               title={fila.descripcion}
             >
               {fila.descripcion}
@@ -41,30 +44,21 @@ export const columnasPermisos = (busqueda) => [
     ),
   },
   {
-    key: "acciones",
-    etiqueta: "Acciones Granulares",
-    renderizar: (valor) => {
-      // El valor puede ser un array JSON con las acciones (CREAR_X, ELIMINAR_X)
-      const accionesArray = Array.isArray(valor) ? valor : [];
-      return (
-        <div className="flex flex-wrap gap-1 max-w-[200px]">
-          {accionesArray.length > 0 ? (
-            accionesArray.map((acc, i) => (
-              <span
-                key={i}
-                className="px-2 py-0.5 bg-black/5 border border-black/10 rounded-md text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]"
-              >
-                {acc.nombre || acc}
-              </span>
-            ))
-          ) : (
-            <span className="text-[9px] font-bold text-[var(--text-muted)]/40 italic">
-              SOLO LECTURA
-            </span>
-          )}
-        </div>
-      );
-    },
+    // feature accion-vinculada-a-submenu: visibilidad rápida de qué
+    // Acciones todavía no tienen SubMenu asignado (las 59 existentes
+    // arrancan en NULL, el humano las asigna una por una desde "Editar").
+    key: "codigoSubMenu",
+    etiqueta: "SubMenú",
+    renderizar: (valor) =>
+      valor ? (
+        <span className="px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border bg-blue-700/10 text-blue-500 border-blue-700/20">
+          Asignado
+        </span>
+      ) : (
+        <span className="px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border bg-amber-700/10 text-amber-600 border-amber-700/20">
+          Sin asignar
+        </span>
+      ),
   },
   {
     key: "activo",

@@ -8,9 +8,19 @@ import { formatPrice } from "../../../../utils/formatters";
 import DateRangePicker from "../../../UI/DateRangePicker/DateRangePicker";
 import ModalAjusteMovimiento from "./ModalAjusteMovimiento";
 
+// Fix off-by-one: `fecha` viaja desde el backend como medianoche UTC
+// (ver ImportarExtractoExcel.casodeuso.ts, parsearFecha -> Date.UTC).
+// Sin `timeZone: "UTC"`, toLocaleDateString convierte primero a la hora
+// local del navegador (UTC-3 en Argentina) y corre la fecha un día hacia
+// atrás.
 const fmtFecha = (iso) =>
   iso
-    ? new Date(iso).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" })
+    ? new Date(iso).toLocaleDateString("es-AR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        timeZone: "UTC",
+      })
     : "—";
 
 const ESTADOS_CONCILIACION = [

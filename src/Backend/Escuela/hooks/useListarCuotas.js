@@ -39,6 +39,7 @@ export const useListarCuotas = ({
   pagina = 1,
   busqueda = "",
   filtroEstado = "TODOS",
+  filtroTipo = "TODOS",
 }) => {
   const {
     data,
@@ -57,6 +58,7 @@ export const useListarCuotas = ({
       pagina,
       busqueda,
       filtroEstado,
+      filtroTipo,
     ],
     queryFn: () =>
       listarCuotasApi({
@@ -68,6 +70,7 @@ export const useListarCuotas = ({
         pagina,
         busqueda,
         filtroEstado,
+        filtroTipo,
       }),
     // GestionCuotas.jsx ya no ofrece la opción "Todas las Unidades" (siempre
     // autoselecciona la primera unidad del usuario) — se espera un

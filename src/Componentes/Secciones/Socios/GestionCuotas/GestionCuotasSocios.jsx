@@ -17,6 +17,7 @@ import ModalEmitirLote from "../../Escuela/GestionCuotas/ModalEmitirLote";
 import ModalReglasCuota from "../../Escuela/GestionCuotas/ModalReglasCuota";
 import ModalProgresoLoteCuotas from "../../Escuela/GestionCuotas/ModalProgresoLoteCuotas";
 import BannerLoteCuotas from "../../Escuela/GestionCuotas/BannerLoteCuotas";
+import { useConfiguracionContactos } from "../../../../Backend/Contactos/hooks/useConfiguracionContactos";
 
 const MESES = [
   "Enero",
@@ -75,6 +76,7 @@ const GestionCuotasSocios = () => {
   const [codigoLoteDetalle, setCodigoLoteDetalle] = useState(null);
   const [loteDescartadoCodigo, setLoteDescartadoCodigo] = useState(null);
   const [filtroEstado, setFiltroEstado] = useState("TODOS");
+  const [filtroTipo, setFiltroTipo] = useState("TODOS");
   // R16: dashboard oculto por defecto en cada montaje.
   const [verMetricas, setVerMetricas] = useState(false);
 
@@ -85,6 +87,12 @@ const GestionCuotasSocios = () => {
   const [pagina, setPagina] = useState(1);
   const [busqueda, setBusqueda] = useState("");
   const [busquedaDebounced, setBusquedaDebounced] = useState("");
+
+  const { configs } = useConfiguracionContactos();
+  const opcionesTipoSocio = useMemo(() => {
+    const config = configs.find((c) => c.claveCampo === "tipo_socio" && c.entidadClave === "SOCI");
+    return config?.opciones || [];
+  }, [configs]);
 
   useEffect(() => {
     const t = setTimeout(() => setBusquedaDebounced(busqueda), 300);
@@ -98,6 +106,7 @@ const GestionCuotasSocios = () => {
     anioSeleccionado,
     codigoUnidadNegocio,
     filtroEstado,
+    filtroTipo,
     busquedaDebounced,
   ]);
 
@@ -128,6 +137,7 @@ const GestionCuotasSocios = () => {
       // resuelve el backend (universo completo, filtra y RECIÉN AHÍ pagina) —
       // ya no se filtra en memoria en TablaCuotasSocios.jsx.
       filtroEstado,
+      filtroTipo,
     });
 
   // KPIs del dashboard (universo completo, no varía con `pagina`/`busqueda`
@@ -140,6 +150,7 @@ const GestionCuotasSocios = () => {
     mes: mesSeleccionado,
     anio: anioSeleccionado,
     codigoUnidadNegocio,
+    filtroTipo,
   });
 
   // Historial de lotes del scope exacto, para no perder el progreso/
@@ -356,6 +367,28 @@ const GestionCuotasSocios = () => {
               </select>
             </div>
           )}
+
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="cuotas-socios-tipo"
+              className="text-[10px] font-black uppercase tracking-widest text-gray-500"
+            >
+              Tipo de Socio
+            </label>
+            <select
+              id="cuotas-socios-tipo"
+              value={filtroTipo}
+              onChange={(e) => setFiltroTipo(e.target.value)}
+              className="text-sm font-semibold text-gray-900 bg-white border border-gray-300 rounded-md px-3 py-2.5 outline-none cursor-pointer focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 shadow-sm transition-all"
+            >
+              <option value="TODOS">Todos</option>
+              {opcionesTipoSocio.map((opcion, idx) => (
+                <option key={idx} value={opcion}>
+                  {opcion}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div className="flex flex-col gap-1.5">
             <label

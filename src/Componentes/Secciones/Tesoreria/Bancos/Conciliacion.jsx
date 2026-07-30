@@ -10,11 +10,41 @@ import {
   useConciliarMovimientosManualMutation,
 } from "../../../../Backend/Tesoreria/queries/useConciliacion.query";
 import { formatPrice } from "../../../../utils/formatters";
+import ModalAjusteMovimiento from "./ModalAjusteMovimiento";
 
+// Fix off-by-one: `fecha` viaja desde el backend como medianoche UTC
+// (ver ImportarExtractoExcel.casodeuso.ts, parsearFecha -> Date.UTC).
+// Sin `timeZone: "UTC"`, toLocaleDateString convierte primero a la hora
+// local del navegador (UTC-3 en Argentina) y corre la fecha un día hacia
+// atrás.
 const fmtFecha = (iso) =>
-  iso ? new Date(iso).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" }) : "—";
+  iso
+    ? new Date(iso).toLocaleDateString("es-AR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        timeZone: "UTC",
+      })
+    : "—";
 
 const hoyISO = () => new Date().toISOString().slice(0, 10);
+
+// R28-R30 (feature clasificacion-conceptos-bancarios): formatea la
+// categoría sugerida (ej. "COMISION_BANCARIA" -> "Comision Bancaria") para
+// mostrarla como etiqueta. Si no hay categoría (null/undefined) devuelve
+// null, sin inventar un texto por defecto (R30).
+const formatearCategoria = (categoria) => {
+  if (!categoria) return null;
+  return categoria
+    .toLowerCase()
+    .split("_")
+    .map((palabra) => palabra.charAt(0).toUpperCase() + palabra.slice(1))
+    .join(" ");
+};
+
+// R18-R19: `fechaInicial` del modal de ajuste se prellena con la fecha
+// tal como figura en el extracto (no la fecha actual de la acción).
+const fechaISO = (valor) => (valor ? new Date(valor).toISOString().slice(0, 10) : hoyISO());
 
 const leerArchivoComoBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -36,6 +66,10 @@ const Conciliacion = () => {
   const [seleccionados, setSeleccionados] = useState([]);
   const [resultadoExcel, setResultadoExcel] = useState(null);
   const [archivo, setArchivo] = useState(null);
+  // R18-R21: línea de `diferencias` seleccionada para dar de alta como
+  // MovimientoBancario de ajuste (abre ModalAjusteMovimiento.jsx con
+  // prellenado, design.md §3.9).
+  const [lineaParaAjuste, setLineaParaAjuste] = useState(null);
 
   const { data, isLoading } = useMovimientosBancariosQuery(codigo, {
     estadoConciliacion: "PENDIENTE",
@@ -68,6 +102,34 @@ const Conciliacion = () => {
         onSuccess: () => {
           agregarAlerta({ type: "success", message: `${seleccionados.length} movimiento(s) conciliado(s)` });
           setSeleccionados([]);
+        },
+        onError: (err) =>
+          agregarAlerta({ type: "error", message: err?.response?.data?.message || err.message }),
+      },
+    );
+  };
+
+  // Fix 2 (gap-fill R44): confirma manualmente un candidato puntual de
+  // `sinMatch` reusando la misma mutación de conciliación manual
+  // (`mConciliarManual`), con un único `codigo` de movimiento. `resultadoExcel`
+  // es estado local (no se re-consulta solo), así que además de invalidar
+  // la query de movimientos sacamos la entrada de `sinMatch` para que no
+  // vuelva a aparecer.
+  const handleConfirmarCandidato = (indiceEntrada, candidato) => {
+    mConciliarManual.mutate(
+      {
+        codigoCuenta: codigo,
+        payload: { fechaCorte, codigosMovimientos: [candidato.codigo] },
+        contexto: { codigoEmpresa },
+      },
+      {
+        onSuccess: () => {
+          agregarAlerta({ type: "success", message: "Movimiento conciliado" });
+          setResultadoExcel((prev) =>
+            prev
+              ? { ...prev, sinMatch: prev.sinMatch.filter((_, i) => i !== indiceEntrada) }
+              : prev,
+          );
         },
         onError: (err) =>
           agregarAlerta({ type: "error", message: err?.response?.data?.message || err.message }),
@@ -155,11 +217,11 @@ const Conciliacion = () => {
               </div>
               
               <div>
-                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Archivo Excel (.xlsx, .xls)</label>
+                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Archivo Excel o CSV (.xlsx, .xls, .csv)</label>
                 <div className="relative">
                   <input
                     type="file"
-                    accept=".xlsx,.xls"
+                    accept=".xlsx,.xls,.csv"
                     onChange={(e) => setArchivo(e.target.files?.[0] || null)}
                     className="w-full h-11 px-3 py-2.5 border border-gray-700 rounded-md text-xs font-semibold text-gray-300 bg-gray-800 file:mr-4 file:py-1.5 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[#1FAE6D] file:text-white hover:file:bg-[#178F58] file:cursor-pointer file:transition-colors focus:outline-none"
                   />
@@ -206,7 +268,100 @@ const Conciliacion = () => {
                   </span>
                   <span className="text-xl font-black text-rose-700">{resultadoExcel.diferencias?.length || 0}</span>
                 </div>
+                {/* R24 (UX de transparencia): conteo de filas excluidas por
+                    "Tipo de Movimiento" (sin acción de conciliación posible). */}
+                <div className="flex items-center justify-between p-3 rounded-md bg-gray-50 border border-gray-200">
+                  <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Excluidas (Tipo de Movimiento)</span>
+                  <span className="text-xl font-black text-gray-500">{resultadoExcel.excluidas?.length || 0}</span>
+                </div>
               </div>
+
+              {resultadoExcel.diferencias?.length > 0 && (
+                <div className="border-t border-gray-200">
+                  <div className="px-5 py-3 bg-gray-50/50 border-b border-gray-100">
+                    <h4 className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Detalle de Diferencias</h4>
+                  </div>
+                  <ul className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
+                    {resultadoExcel.diferencias.map((linea, indice) => {
+                      const categoriaFormateada = formatearCategoria(linea.categoria);
+                      return (
+                      <li key={indice} className="px-5 py-3 flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-gray-900 truncate">{linea.descripcion || "Sin descripción"}</p>
+                          <p className="text-[11px] text-gray-500 font-mono">
+                            {fmtFecha(linea.fecha)} · {formatPrice(linea.importe)}
+                          </p>
+                          {/* R28-R30: etiqueta de categoría sugerida, ausencia
+                              silenciosa si no hay categoría asignada (R30). */}
+                          {categoriaFormateada && (
+                            <span className="inline-flex mt-1 text-[10px] font-bold text-indigo-700 uppercase tracking-wider bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md">
+                              {categoriaFormateada}
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setLineaParaAjuste(linea)}
+                          className="shrink-0 px-3 py-1.5 rounded-md bg-gray-900 hover:bg-black text-white text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+                        >
+                          Agregar como movimiento
+                        </button>
+                      </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+
+              {/* R44 (gap-fill): lista de líneas inciertas del extracto con
+                  sus MovimientoBancario candidatos, para confirmar o
+                  descartar la conciliación manualmente. */}
+              {resultadoExcel.sinMatch?.length > 0 && (
+                <div className="border-t border-gray-200">
+                  <div className="px-5 py-3 bg-gray-50/50 border-b border-gray-100">
+                    <h4 className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Candidatos (Inciertos)</h4>
+                  </div>
+                  <ul className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
+                    {resultadoExcel.sinMatch.map((entrada, indiceEntrada) => (
+                      <li key={indiceEntrada} className="px-5 py-3 space-y-2">
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-gray-900 truncate">
+                            {entrada.linea.descripcion || "Sin descripción"}
+                          </p>
+                          <p className="text-[11px] text-gray-500 font-mono">
+                            {fmtFecha(entrada.linea.fecha)} · {formatPrice(entrada.linea.importe)}
+                          </p>
+                        </div>
+                        <ul className="space-y-1.5 pl-3 border-l-2 border-amber-200">
+                          {entrada.candidatos.map((candidato) => (
+                            <li
+                              key={candidato.codigo}
+                              className="flex items-center justify-between gap-3 bg-amber-50/60 border border-amber-100 rounded-md px-3 py-2"
+                            >
+                              <div className="min-w-0">
+                                <p className="text-xs font-bold text-gray-800 truncate">
+                                  {candidato.concepto || "Sin concepto"}
+                                </p>
+                                <p className="text-[11px] text-gray-500 font-mono">
+                                  {fmtFecha(candidato.fecha)} · {formatPrice(candidato.importe)}
+                                </p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleConfirmarCandidato(indiceEntrada, candidato)}
+                                disabled={mConciliarManual.isPending}
+                                className="shrink-0 px-3 py-1.5 rounded-md bg-gray-900 hover:bg-black text-white text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                              >
+                                Confirmar
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -322,6 +477,17 @@ const Conciliacion = () => {
           </div>
         </div>
       </div>
+
+      {lineaParaAjuste && cuenta && (
+        <ModalAjusteMovimiento
+          cuenta={cuenta}
+          onClose={() => setLineaParaAjuste(null)}
+          signoInicial={lineaParaAjuste.importe >= 0 ? "INGRESO" : "EGRESO"}
+          importeInicial={Math.abs(lineaParaAjuste.importe)}
+          descripcionInicial={lineaParaAjuste.descripcion}
+          fechaInicial={fechaISO(lineaParaAjuste.fecha)}
+        />
+      )}
     </div>
   );
 };

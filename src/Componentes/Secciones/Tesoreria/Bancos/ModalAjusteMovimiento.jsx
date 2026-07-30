@@ -11,16 +11,35 @@ const FieldLabel = ({ children }) => (
   </span>
 );
 
+const hoyISO = () => new Date().toISOString().slice(0, 10);
+
 // Feature "bancos" (T47, R18): alta manual de un MovimientoBancario de
 // ajuste (ingreso o egreso), mismo patrón que ModalMovimientoManual.jsx.
-const ModalAjusteMovimiento = ({ cuenta, onClose }) => {
+// Feature "conciliacion-extracto-csv-galicia" (R18-R21, design.md §3.9):
+// props opcionales de prellenado (`signoInicial`/`importeInicial`/
+// `descripcionInicial`/`fechaInicial`) para el uso nuevo desde
+// `Conciliacion.jsx` (alta de ajuste a partir de una línea de diferencia,
+// con la fecha vista en el extracto). Sin estas props (uso actual desde
+// `LibroBanco.jsx`), el comportamiento es idéntico al anterior: sin campo
+// de fecha, sin `fecha` en el payload.
+const ModalAjusteMovimiento = ({
+  cuenta,
+  onClose,
+  signoInicial,
+  importeInicial,
+  descripcionInicial,
+  fechaInicial,
+}) => {
   const { usuario, unidadActiva } = useAuthStore();
   const agregarAlerta = useAlertas((s) => s.agregarAlerta);
 
-  const [signo, setSigno] = useState("INGRESO");
-  const [importe, setImporte] = useState("");
-  const [descripcion, setDescripcion] = useState("");
+  const [signo, setSigno] = useState(signoInicial ?? "INGRESO");
+  const [importe, setImporte] = useState(
+    importeInicial !== undefined && importeInicial !== null ? String(importeInicial) : "",
+  );
+  const [descripcion, setDescripcion] = useState(descripcionInicial ?? "");
   const [cuentaImputada, setCuentaImputada] = useState(null);
+  const [fecha, setFecha] = useState(fechaInicial ?? hoyISO());
 
   const mAjuste = useCrearMovimientoBancarioAjusteMutation();
 
@@ -63,6 +82,12 @@ const ModalAjusteMovimiento = ({ cuenta, onClose }) => {
           importe: montoNumerico,
           descripcion: descripcion.trim(),
           codigoCuentaImputada: cuentaImputada.codigoSecuencial || cuentaImputada.codigo,
+          // R18-R21: solo se envía `fecha` cuando el modal se abrió con
+          // prellenado (`fechaInicial`, uso nuevo desde Conciliacion.jsx).
+          // Sin `fechaInicial` (uso actual desde LibroBanco.jsx), el
+          // payload no incluye `fecha` — comportamiento idéntico al
+          // anterior (el backend resuelve `new Date()`).
+          ...(fechaInicial ? { fecha } : {}),
         },
         contexto: {
           codigoEmpresa: usuario?.codigoEmpresa,
@@ -155,6 +180,18 @@ const ModalAjusteMovimiento = ({ cuenta, onClose }) => {
               className="w-full h-11 px-3 border border-gray-300 rounded-md text-sm font-black text-gray-900 bg-white focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 shadow-sm transition-all"
             />
           </div>
+
+          {fechaInicial && (
+            <div>
+              <FieldLabel>Fecha (según extracto)</FieldLabel>
+              <input
+                type="date"
+                value={fecha}
+                onChange={(e) => setFecha(e.target.value)}
+                className="w-full h-11 px-3 border border-gray-300 rounded-md text-sm font-black text-gray-900 bg-white focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 shadow-sm transition-all"
+              />
+            </div>
+          )}
 
           <div>
             <FieldLabel>Descripción</FieldLabel>

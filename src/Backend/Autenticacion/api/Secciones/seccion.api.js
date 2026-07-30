@@ -1,14 +1,15 @@
 import { axiosInitial } from "../../../Config";
- 
- export const fetchObtenerSeccionesApi = async (filtros) => {
-     const respuesta = await axiosInitial.get("/secciones/obtener", { params: filtros, showLoader: false });
-     return respuesta.data;
- };
 
- export const crearSeccionApi = async ({ codigoEmpresa, ...data }) => {
-    const respuesta = await axiosInitial.post("/secciones/crear", data, { 
-        params: { codigoEmpresa },
-        showLoader: false 
+// Seccion es un catálogo GLOBAL desde rbac-normalizacion-secciones-permisos
+// (R6, R18, R20): ya no se filtra ni se envía codigoEmpresa.
+export const fetchObtenerSeccionesApi = async () => {
+    const respuesta = await axiosInitial.get("/secciones/obtener", { showLoader: false });
+    return respuesta.data;
+};
+
+export const crearSeccionApi = async (data) => {
+    const respuesta = await axiosInitial.post("/secciones/crear", data, {
+        showLoader: false
     });
     return respuesta.data;
 };
@@ -18,18 +19,17 @@ export const fetchObtenerSeccionesGlobalesApi = async () => {
     return respuesta.data;
 };
 
-export const editarSeccionApi = async ({ codigoEmpresa, ...data }) => {
-    const respuesta = await axiosInitial.patch("/secciones/editar", data, { 
-        params: { codigoEmpresa },
-        showLoader: false 
+export const editarSeccionApi = async (data) => {
+    const respuesta = await axiosInitial.patch("/secciones/editar", data, {
+        showLoader: false
     });
     return respuesta.data;
 };
 
-export const eliminarSeccionApi = async ({ codigoEmpresa, codigo }) => {
-    const respuesta = await axiosInitial.delete("/secciones/eliminar", { 
-        params: { codigoEmpresa, codigo },
-        showLoader: false 
+export const eliminarSeccionApi = async ({ codigo }) => {
+    const respuesta = await axiosInitial.delete("/secciones/eliminar", {
+        params: { codigo },
+        showLoader: false
     });
     return respuesta.data;
 };

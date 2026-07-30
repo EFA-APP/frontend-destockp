@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuthStore } from "../../../../Backend/Autenticacion/store/authenticacion.store";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Save, Search, X } from "lucide-react";
 import { DetallePago } from "../../../../Componentes/Secciones/Comprobantes/Componentes/DetallePago";
 import { ListarContactosApi } from "../../../../Backend/Contactos/api/contactos.api";
@@ -19,6 +19,7 @@ const formatPrice = (n) =>
 const hoy = () => new Date().toISOString().split("T")[0];
 
 const Recibos = () => {
+  const queryClient = useQueryClient();
   const [busqueda, setBusqueda] = useState("");
   const [mostrarResultados, setMostrarResultados] = useState(false);
   const [contactoSeleccionado, setContactoSeleccionado] = useState(null);
@@ -26,6 +27,7 @@ const Recibos = () => {
   const [pagos, setPagos] = useState([]);
   const [vueltos, setVueltos] = useState([]);
   const [seleccionados, setSeleccionados] = useState(new Set());
+  const [fecha, setFecha] = useState(hoy());
   const [importesRaw, setImportesRaw] = useState({});
   const [importeWarnings, setImporteWarnings] = useState({});
   // R20-R22: mora opcional como ítem adicional del Recibo (nunca en la
@@ -157,7 +159,7 @@ const Recibos = () => {
     const detallePagos = pagos.map((p) => ({
       metodoPago: p.tipoMetodoPago,
       monto: p.monto,
-      fechaPago: hoy(),
+      fechaPago: fecha,
       ...(p.tipoMetodoPago !== "EFECTIVO" && p.codigoBancoDestino && {
         codigoBancoDestino: p.codigoBancoDestino,
       }),
@@ -188,8 +190,8 @@ const Recibos = () => {
         dto: {
           tipoDescripcionComprobante: "RECIBO",
           tipoOperacion: "INGRESO",
-          fechaEmision: hoy(),
-          fechaVto: hoy(),
+          fechaEmision: fecha,
+          fechaVto: fecha,
           puntoVenta: 1,
           codigoReceptor: contactoSeleccionado.codigo,
           entidadReceptor: contactoSeleccionado.tipoEntidad,
@@ -270,6 +272,8 @@ const Recibos = () => {
           setVueltos([]);
           setCodigoCuentaMora("");
           setMontoMoraRaw("");
+          setSeleccionados(new Set());
+          queryClient.invalidateQueries({ queryKey: ["deudas-recibo"] });
         },
         // Feature 30 (comprobante-reintentar-tesoreria-contabilidad), R34:
         // el comprobante YA quedó persistido — no se limpia el formulario
@@ -503,6 +507,18 @@ const Recibos = () => {
             </div>
           </div>
 
+          <div className="flex flex-col gap-1.5 mt-4">
+            <label className="text-xs font-black uppercase tracking-wider text-gray-500">
+              Fecha de Pago / Emisión
+            </label>
+            <input
+              type="date"
+              value={fecha}
+              onChange={(e) => setFecha(e.target.value)}
+              className="w-full sm:w-64 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            />
+          </div>
+
           {/* DETALLE DE PAGO */}
           <DetallePago
             totalComprobante={totalAplicado + parseCurrency(montoMoraRaw || "0")}
@@ -526,6 +542,18 @@ const Recibos = () => {
             </button>
           </div>
         </>
+      )}
+
+      {isPending && (
+        <div className="fixed inset-0 z-[9999] bg-slate-900/50 backdrop-blur-sm flex flex-col items-center justify-center transition-all">
+          <div className="bg-white p-6 rounded-[16px] shadow-2xl flex flex-col items-center gap-4 animate-in zoom-in-95 duration-200">
+            <div className="w-10 h-10 border-4 border-emerald-100 border-t-emerald-500 rounded-full animate-spin" />
+            <div className="text-center">
+              <p className="text-sm font-black text-slate-800 uppercase tracking-wider">Generando Comprobante</p>
+              <p className="text-[11px] font-semibold text-slate-500 mt-1">Aguarde un momento por favor...</p>
+            </div>
+          </div>
+        </div>
       )}
       {comprobanteExito && (
         <ModalExitoComprobante

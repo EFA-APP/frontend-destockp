@@ -59,8 +59,14 @@ const RutaProtegida = ({ permisoRequerido }) => {
   };
 
   secciones.forEach((seccion) => {
-    // Solo procesamos las secciones a las que el usuario tiene acceso
-    if (codigosSeccionPermitidos.includes(seccion.permisoRequerido)) {
+    // Solo procesamos las secciones a las que el usuario tiene acceso.
+    // rbac-normalizacion-secciones-permisos (R37): permisoRequerido se
+    // elimina junto con Permiso; se compara directamente contra
+    // seccion.codigo (hallazgo de esta implementación: R28 asumía que
+    // este archivo no necesitaba cambios de lógica, pero sí usaba
+    // permisoRequerido acá — mismo criterio ya aplicado en
+    // BarraLateral.jsx/NavbarMovil.jsx, R37).
+    if (codigosSeccionPermitidos.includes(seccion.codigo)) {
       addRutaYBase(seccion.redireccion);
       
       if (seccion.subMenus) {

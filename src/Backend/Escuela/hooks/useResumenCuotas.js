@@ -27,6 +27,7 @@ export const useResumenCuotas = ({
   mes,
   anio,
   codigoUnidadNegocio,
+  filtroTipo = "TODOS",
 }) => {
   const {
     data,
@@ -42,6 +43,7 @@ export const useResumenCuotas = ({
       mes,
       anio,
       codigoUnidadNegocio,
+      filtroTipo,
     ],
     queryFn: () =>
       resumenCuotasApi({
@@ -50,6 +52,7 @@ export const useResumenCuotas = ({
         mes,
         anio,
         codigoUnidadNegocio,
+        filtroTipo,
       }),
     // Mismo criterio `enabled` que `useListarCuotas.js`.
     enabled: !!codigoCuentaContable && !!codigoUnidadNegocio,

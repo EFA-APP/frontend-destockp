@@ -50,3 +50,32 @@ export const crearEmpresaApi = async (data) => {
   });
   return respuesta.data;
 };
+
+/**
+ * Obtiene los datos completos de una única empresa por su código (incluye
+ * configuracionVisual/preferenciasTabla/configuracion, que el listado masivo
+ * de /empresas/todas ya no trae).
+ */
+export const obtenerEmpresaPorCodigoApi = async (codigo) => {
+  const respuesta = await axiosInitial.get("/empresas/por-codigo", {
+    params: { codigo },
+  });
+  return respuesta.data;
+};
+
+/**
+ * Sube el logo de una empresa como archivo (base64 en el body, sin
+ * multipart/form-data) y devuelve la URL pública nueva.
+ */
+export const subirLogoEmpresaApi = async ({
+  codigoEmpresa,
+  archivoBase64,
+  nombreArchivo,
+}) => {
+  const respuesta = await axiosInitial.post(
+    "/archivos/empresas/logo",
+    { codigoEmpresa, archivoBase64, nombreArchivo },
+    { showLoader: true },
+  );
+  return respuesta.data;
+};

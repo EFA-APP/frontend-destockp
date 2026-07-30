@@ -414,6 +414,7 @@ const ListaContactos = ({
   const { configs } = useConfiguracionContactos();
   const { actualizarContactoInline: handleActualizarContactoInline } =
     useActualizarContactoInline();
+  const { agregarAlerta } = useAlertas();
 
   // Filtrar los atributos que corresponden a esta entidad
   const configsEntidad = React.useMemo(() => {
@@ -447,7 +448,18 @@ const ListaContactos = ({
       setContactoAEliminar(null);
     } catch (error) {
       console.error("Error al eliminar contacto:", error);
-      alert("No se pudo eliminar el contacto. Intente nuevamente.");
+      // Feature 15 (validar-deuda-antes-desactivar-contacto): el backend
+      // (contacto-ms) ahora puede rechazar la baja con un mensaje concreto
+      // ("No se puede dar de baja: el contacto tiene $X de saldo pendiente
+      // en Y comprobante(s).") -- se muestra tal cual en vez del genérico.
+      agregarAlerta({
+        type: "error",
+        title: "No se pudo eliminar el contacto",
+        message:
+          error?.response?.data?.message ||
+          "No se pudo eliminar el contacto. Intente nuevamente.",
+        autoDismiss: false,
+      });
     } finally {
       setEliminando(false);
     }

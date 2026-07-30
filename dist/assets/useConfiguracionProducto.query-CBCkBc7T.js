@@ -1,1 +1,0 @@
-import{t as u}from"./index-CLp5hz_-.js";import{L as i}from"./producto.api-PRCEyoDN.js";const n=(o={},r={})=>u({queryKey:["configuracion_producto",o],queryFn:()=>i("PRODUCTO",o),staleTime:1e3*60*5,...r});export{n as u};

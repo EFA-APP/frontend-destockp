@@ -1,25 +1,29 @@
-import React, { useState, useMemo } from "react";
-import { CerrarIcono, ConfiguracionIcono, VincularRolUsuarioIcono, BorrarIcono } from "../../../assets/Icons";
+import React, { useState } from "react";
+import { CerrarIcono, ConfiguracionIcono, BorrarIcono } from "../../../assets/Icons";
 import { useCrearSeccion } from "../../../Backend/Autenticacion/queries/Secciones/useCrearSeccion.mutation";
 import { useEditarSeccion } from "../../../Backend/Autenticacion/queries/Secciones/useEditarSeccion.mutation";
-import { useObtenerSeccionesGlobales } from "../../../Backend/Autenticacion/queries/Secciones/useObtenerSeccionesGlobales.query";
-import { useObtenerPermisos } from "../../../Backend/Autenticacion/queries/Permiso/useObtenerPermisos.query";
 
+// rbac-normalizacion-secciones-permisos (R20, R21, R22): Seccion es un
+// catálogo GLOBAL, sin codigoEmpresa. Se elimina el selector "Permiso
+// Requerido" (ya no existe Permiso) y el panel "Catálogo Global" de
+// plantillas por-empresa (la Sección editada acá YA ES el catálogo
+// global, no hay copias por-empresa que crear).
+//
+// Revisión 3 (R51, R58): agrega input numérico `orden` (Sección y cada
+// SubMenu) y valida que `subMenus` no quede vacío antes de permitir el
+// submit (espejo de la validación de servidor R49/R50, que sigue siendo
+// la autoridad final).
 const ModalCrearSeccion = ({ isOpen, onClose, empresa, seccionAEditar = null }) => {
-  const [busquedaGlobal, setBusquedaGlobal] = useState("");
   const [formData, setFormData] = useState({
     id_seccion: "",
     nombre: "",
     icono: "",
     redireccion: "",
-    permisoRequerido: "",
+    orden: 0,
     subMenus: [],
   });
+  const [errorSubMenus, setErrorSubMenus] = useState("");
 
-  const filtroEmpresa = { codigoEmpresa: empresa.codigo || empresa.codigo };
-  const { data: seccionesGlobales, isLoading: isLoadingGlobal } = useObtenerSeccionesGlobales();
-  const { data: permisosExistentes, isLoading: isLoadingPermisos } = useObtenerPermisos(filtroEmpresa);
-  
   const { mutateAsync: crearSeccion, isPending: isPendingCrear } = useCrearSeccion();
   const { mutateAsync: editarSeccion, isPending: isPendingEditar } = useEditarSeccion();
 
@@ -35,25 +39,14 @@ const ModalCrearSeccion = ({ isOpen, onClose, empresa, seccionAEditar = null }) 
         nombre: seccionAEditar.nombre || "",
         icono: seccionAEditar.icono || "",
         redireccion: seccionAEditar.redireccion || "",
-        permisoRequerido: seccionAEditar.permisoRequerido || "",
-        subMenus: seccionAEditar.subMenus?.map(sm => ({ nombre: sm.nombre, redireccion: sm.redireccion })) || [],
+        orden: seccionAEditar.orden ?? 0,
+        subMenus: seccionAEditar.subMenus?.map(sm => ({ nombre: sm.nombre, redireccion: sm.redireccion, orden: sm.orden ?? 0 })) || [],
       });
     } else {
-      setFormData({ id_seccion: "", nombre: "", icono: "", redireccion: "", permisoRequerido: "", subMenus: [] });
+      setFormData({ id_seccion: "", nombre: "", icono: "", redireccion: "", orden: 0, subMenus: [] });
     }
+    setErrorSubMenus("");
   }, [seccionAEditar, isOpen]);
-
-  // Extraer permisos correctamente
-  const listaPermisos = Array.isArray(permisosExistentes) ? permisosExistentes : permisosExistentes?.data || [];
-
-  // Filtrado de catálogo global
-  const catalogoFiltrado = useMemo(() => {
-    if (!seccionesGlobales) return [];
-    return seccionesGlobales.filter(s => 
-      s.nombre.toLowerCase().includes(busquedaGlobal.toLowerCase()) ||
-      s.id_seccion.toLowerCase().includes(busquedaGlobal.toLowerCase())
-    );
-  }, [seccionesGlobales, busquedaGlobal]);
 
   if (!isOpen) return null;
 
@@ -62,23 +55,13 @@ const ModalCrearSeccion = ({ isOpen, onClose, empresa, seccionAEditar = null }) 
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSeleccionarPlantilla = (plantilla) => {
-    setFormData({
-      id_seccion: plantilla.id_seccion.toUpperCase(),
-      nombre: plantilla.nombre,
-      icono: plantilla.icono || "",
-      redireccion: plantilla.redireccion || "",
-      permisoRequerido: plantilla.permisoRequerido || "",
-      subMenus: plantilla.subMenus?.map(sm => ({ nombre: sm.nombre, redireccion: sm.redireccion })) || [],
-    });
-  };
-
   // --- LOGICA SUBMENUS ---
   const handleAddSubMenu = () => {
     setFormData(prev => ({
       ...prev,
-      subMenus: [...prev.subMenus, { nombre: "", redireccion: "" }]
+      subMenus: [...prev.subMenus, { nombre: "", redireccion: "", orden: prev.subMenus.length }]
     }));
+    setErrorSubMenus("");
   };
 
   const handleRemoveSubMenu = (index) => {
@@ -100,15 +83,23 @@ const ModalCrearSeccion = ({ isOpen, onClose, empresa, seccionAEditar = null }) 
     e.preventDefault();
     try {
       const subMenusLimpios = formData.subMenus
-        .filter(sm => sm.nombre.trim() !== "" && sm.redireccion.trim() !== "");
+        .filter(sm => sm.nombre.trim() !== "" && sm.redireccion.trim() !== "")
+        .map(sm => ({ ...sm, orden: Number(sm.orden) || 0 }));
 
-      const { permisoRequerido, codigoSecuencial, ...restoData } = formData;
+      // R51: espejo de R49/R50 -- toda Sección debe conservar al menos 1
+      // SubMenu. No reemplaza la validación de servidor, que sigue siendo
+      // la autoridad final.
+      if (subMenusLimpios.length === 0) {
+        setErrorSubMenus("La Sección debe tener al menos 1 SubMenú con nombre y redirección completos.");
+        return;
+      }
+      setErrorSubMenus("");
+
       const payload = {
-        codigoEmpresa: Number(empresa.codigo || empresa.codigo),
-        ...restoData,
+        ...formData,
         id_seccion: formData.id_seccion.trim().toUpperCase(),
+        orden: Number(formData.orden) || 0,
         subMenus: subMenusLimpios,
-        permisoRequerido: permisoRequerido ? Number(permisoRequerido) : undefined
       };
 
       if (modoEdicion) {
@@ -116,7 +107,7 @@ const ModalCrearSeccion = ({ isOpen, onClose, empresa, seccionAEditar = null }) 
       } else {
         await crearSeccion(payload);
       }
-      
+
       onClose();
     } catch (error) {
       console.error("Error al procesar sección", error);
@@ -125,8 +116,8 @@ const ModalCrearSeccion = ({ isOpen, onClose, empresa, seccionAEditar = null }) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-md shadow-2xl w-full max-w-4xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
-        
+      <div className="bg-white rounded-md shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
+
         {/* HEADER */}
         <div className="flex items-center justify-between p-5 border-b border-black/10 bg-black/[0.02]">
           <div className="flex items-center gap-3">
@@ -138,7 +129,7 @@ const ModalCrearSeccion = ({ isOpen, onClose, empresa, seccionAEditar = null }) 
                 Administrador de Secciones
               </h2>
               <p className="text-[11px] font-bold text-[var(--text-muted)] tracking-widest uppercase">
-                Crea o importa módulos para {empresa.nombre}
+                Catálogo global de secciones y submenús
               </p>
             </div>
           </div>
@@ -147,184 +138,147 @@ const ModalCrearSeccion = ({ isOpen, onClose, empresa, seccionAEditar = null }) 
           </button>
         </div>
 
-        <div className="flex flex-1 overflow-hidden">
-          
-          {/* PANEL IZQUIERDO: CATALOGO */}
-          <div className="w-1/3 border-r border-black/10 bg-black/[0.01] flex flex-col">
-            <div className="p-4 border-b border-black/5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-black/50 mb-2 block">
-                Catálogo Global
-              </label>
-              <input 
-                type="text" 
-                placeholder="Buscar plantilla..."
-                value={busquedaGlobal}
-                onChange={(e) => setBusquedaGlobal(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-black/10 rounded-md text-[12px] font-bold focus:outline-none focus:border-black/20 transition-all"
-              />
-            </div>
-            <div className="flex-1 overflow-y-auto p-2 flex flex-col gap-1">
-              {isLoadingGlobal ? (
-                <div className="p-4 text-center text-[11px] font-bold text-black/40 italic">Cargando catálogo...</div>
-              ) : catalogoFiltrado.length > 0 ? (
-                catalogoFiltrado.map(plantilla => (
-                  <button
-                    key={plantilla.id_seccion}
-                    onClick={() => handleSeleccionarPlantilla(plantilla)}
-                    className="flex flex-col p-3 text-left hover:bg-black/5 rounded-md border border-transparent hover:border-black/10 transition-all group"
-                  >
-                    <span className="text-[12px] font-black uppercase text-black group-hover:text-emerald-600">{plantilla.nombre}</span>
-                    <span className="text-[10px] font-bold text-black/40">{plantilla.id_seccion}</span>
-                  </button>
-                ))
-              ) : (
-                <div className="p-4 text-center text-[11px] font-bold text-black/40 italic">No se encontraron plantillas.</div>
-              )}
-            </div>
-          </div>
+        <div className="flex-1 overflow-y-auto p-8">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-8">
 
-          {/* PANEL DERECHO: FORMULARIO */}
-          <div className="flex-1 overflow-y-auto p-8">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-              
-              {/* DATOS BASICOS */}
-              <div className="grid grid-cols-2 gap-6">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-black/70 ml-1">ID Técnico</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.id_seccion}
-                    onChange={(e) => setFormData(prev => ({...prev, id_seccion: e.target.value.toUpperCase()}))}
-                    placeholder="VENTAS"
-                    className="w-full px-4 py-2.5 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:bg-white transition-all"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-black/70 ml-1">Nombre Visible</label>
-                  <input
-                    type="text"
-                    required
-                    name="nombre"
-                    value={formData.nombre}
-                    onChange={handleChange}
-                    placeholder="Gestión de Ventas"
-                    className="w-full px-4 py-2.5 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:bg-white transition-all"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-black/70 ml-1">Icono</label>
-                  <input
-                    type="text"
-                    name="icono"
-                    value={formData.icono}
-                    onChange={handleChange}
-                    placeholder="VentasIcono"
-                    className="w-full px-4 py-2.5 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:bg-white transition-all"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-black/70 ml-1">Redirección</label>
-                  <input
-                    type="text"
-                    name="redireccion"
-                    value={formData.redireccion}
-                    onChange={handleChange}
-                    placeholder="/ventas"
-                    className="w-full px-4 py-2.5 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:bg-white transition-all"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-black/70 ml-1">Permiso Requerido</label>
-                  <select
-                    name="permisoRequerido"
-                    value={formData.permisoRequerido}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:bg-white transition-all appearance-none"
-                  >
-                    <option value="">-- GENERAR AUTOMÁTICAMENTE --</option>
-                    {listaPermisos.map(p => (
-                      <option key={p.codigo} value={p.codigo}>
-                        {p.nombre} ({p.codigo})
-                      </option>
-                    ))}
-                  </select>
-                  <p className="text-[9px] font-bold text-black/40 uppercase ml-1 italic">
-                    Si no eliges uno, se creará uno nuevo con el nombre de la sección.
-                  </p>
-                </div>
+            {/* DATOS BASICOS */}
+            <div className="grid grid-cols-2 gap-6">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[11px] font-black uppercase tracking-widest text-black/70 ml-1">ID Técnico</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.id_seccion}
+                  onChange={(e) => setFormData(prev => ({...prev, id_seccion: e.target.value.toUpperCase()}))}
+                  placeholder="VENTAS"
+                  className="w-full px-4 py-2.5 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:bg-white transition-all"
+                />
               </div>
-
-              {/* GESTIÓN DE SUBMENÚS */}
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between border-b border-black/10 pb-2">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-black">SubMenús Habilitados</label>
-                  <button
-                    type="button"
-                    onClick={handleAddSubMenu}
-                    className="text-[10px] font-black uppercase tracking-widest px-3 py-1 bg-black text-white rounded-sm hover:bg-black/80 transition-all"
-                  >
-                    + Añadir SubMenú
-                  </button>
-                </div>
-                
-                <div className="flex flex-col gap-3">
-                  {formData.subMenus.length > 0 ? (
-                    formData.subMenus.map((sm, index) => (
-                      <div key={index} className="flex items-center gap-3 animate-in slide-in-from-left-2 duration-200">
-                        <input
-                          type="text"
-                          required
-                          placeholder="Nombre SubMenú"
-                          value={sm.nombre}
-                          onChange={(e) => handleSubMenuChange(index, "nombre", e.target.value)}
-                          className="flex-1 px-3 py-2 bg-black/5 border border-black/5 rounded-md text-[12px] font-bold focus:bg-white focus:outline-none"
-                        />
-                        <input
-                          type="text"
-                          required
-                          placeholder="/ruta/destino"
-                          value={sm.redireccion}
-                          onChange={(e) => handleSubMenuChange(index, "redireccion", e.target.value)}
-                          className="flex-1 px-3 py-2 bg-black/5 border border-black/5 rounded-md text-[12px] font-bold focus:bg-white focus:outline-none"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveSubMenu(index)}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-md transition-colors"
-                        >
-                          <BorrarIcono size={16} />
-                        </button>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="py-4 text-center border-2 border-dashed border-black/5 rounded-md">
-                      <p className="text-[11px] font-bold text-black/30 italic uppercase tracking-tighter">No hay submenús definidos</p>
-                    </div>
-                  )}
-                </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[11px] font-black uppercase tracking-widest text-black/70 ml-1">Nombre Visible</label>
+                <input
+                  type="text"
+                  required
+                  name="nombre"
+                  value={formData.nombre}
+                  onChange={handleChange}
+                  placeholder="Gestión de Ventas"
+                  className="w-full px-4 py-2.5 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:bg-white transition-all"
+                />
               </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[11px] font-black uppercase tracking-widest text-black/70 ml-1">Icono</label>
+                <input
+                  type="text"
+                  name="icono"
+                  value={formData.icono}
+                  onChange={handleChange}
+                  placeholder="VentasIcono"
+                  className="w-full px-4 py-2.5 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:bg-white transition-all"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[11px] font-black uppercase tracking-widest text-black/70 ml-1">Redirección</label>
+                <input
+                  type="text"
+                  name="redireccion"
+                  value={formData.redireccion}
+                  onChange={handleChange}
+                  placeholder="/ventas"
+                  className="w-full px-4 py-2.5 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:bg-white transition-all"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[11px] font-black uppercase tracking-widest text-black/70 ml-1">Orden</label>
+                <input
+                  type="number"
+                  name="orden"
+                  value={formData.orden}
+                  onChange={handleChange}
+                  placeholder="0"
+                  className="w-full px-4 py-2.5 bg-black/5 border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:bg-white transition-all"
+                />
+              </div>
+            </div>
 
-              {/* BOTON GUARDAR */}
-              <div className="flex justify-end gap-3 mt-4">
+            {/* GESTIÓN DE SUBMENÚS */}
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between border-b border-black/10 pb-2">
+                <label className="text-[11px] font-black uppercase tracking-widest text-black">SubMenús Habilitados</label>
                 <button
                   type="button"
-                  onClick={onClose}
-                  className="px-6 py-2.5 bg-white border border-black/20 rounded-md text-[12px] font-black uppercase tracking-widest text-black hover:bg-black/5 transition-all"
+                  onClick={handleAddSubMenu}
+                  className="text-[10px] font-black uppercase tracking-widest px-3 py-1 bg-black text-white rounded-sm hover:bg-black/80 transition-all"
                 >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="px-8 py-2.5 bg-emerald-600 rounded-md text-[12px] font-black uppercase tracking-widest text-white shadow-md hover:bg-emerald-700 hover:-translate-y-0.5 transition-all flex items-center gap-2"
-                >
-                  {isPending ? "Procesando..." : "Guardar Sección"}
+                  + Añadir SubMenú
                 </button>
               </div>
-            </form>
-          </div>
+
+              <div className="flex flex-col gap-3">
+                {formData.subMenus.length > 0 ? (
+                  formData.subMenus.map((sm, index) => (
+                    <div key={index} className="flex items-center gap-3 animate-in slide-in-from-left-2 duration-200">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Nombre SubMenú"
+                        value={sm.nombre}
+                        onChange={(e) => handleSubMenuChange(index, "nombre", e.target.value)}
+                        className="flex-1 px-3 py-2 bg-black/5 border border-black/5 rounded-md text-[12px] font-bold focus:bg-white focus:outline-none"
+                      />
+                      <input
+                        type="text"
+                        required
+                        placeholder="/ruta/destino"
+                        value={sm.redireccion}
+                        onChange={(e) => handleSubMenuChange(index, "redireccion", e.target.value)}
+                        className="flex-1 px-3 py-2 bg-black/5 border border-black/5 rounded-md text-[12px] font-bold focus:bg-white focus:outline-none"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Orden"
+                        value={sm.orden ?? 0}
+                        onChange={(e) => handleSubMenuChange(index, "orden", e.target.value)}
+                        className="w-24 px-3 py-2 bg-black/5 border border-black/5 rounded-md text-[12px] font-bold focus:bg-white focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSubMenu(index)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-md transition-colors"
+                      >
+                        <BorrarIcono size={16} />
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-4 text-center border-2 border-dashed border-black/5 rounded-md">
+                    <p className="text-[11px] font-bold text-black/30 italic uppercase tracking-tighter">No hay submenús definidos</p>
+                  </div>
+                )}
+                {errorSubMenus && (
+                  <p className="text-[11px] font-bold text-red-500 uppercase tracking-tight ml-1">{errorSubMenus}</p>
+                )}
+              </div>
+            </div>
+
+            {/* BOTON GUARDAR */}
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-6 py-2.5 bg-white border border-black/20 rounded-md text-[12px] font-black uppercase tracking-widest text-black hover:bg-black/5 transition-all"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={isPending}
+                className="px-8 py-2.5 bg-emerald-600 rounded-md text-[12px] font-black uppercase tracking-widest text-white shadow-md hover:bg-emerald-700 hover:-translate-y-0.5 transition-all flex items-center gap-2"
+              >
+                {isPending ? "Procesando..." : "Guardar Sección"}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
