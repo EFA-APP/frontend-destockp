@@ -88,7 +88,9 @@ const ModalEmitirLote = ({
         anio,
         codigoTipoComprobante,
         puntoVenta,
-        codigoUnidadNegocio: codigoUnidadNegocio ? Number(codigoUnidadNegocio) : undefined,
+        codigoUnidadNegocio: codigoUnidadNegocio
+          ? Number(codigoUnidadNegocio)
+          : undefined,
       });
       setCodigoLote(respuesta.codigoLote);
     } catch (err) {
@@ -124,52 +126,61 @@ const ModalEmitirLote = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm"
+        onClick={onClose}
+      />
       <div className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-200">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between rounded-t-xl">
           <h2 className="text-lg font-black tracking-tight text-gray-800">
             Generar cuotas — {nombreMes} {anio}
           </h2>
-          <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+          <button
+            onClick={onClose}
+            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+          >
             <X size={18} />
           </button>
         </div>
 
         <div className="p-6 overflow-y-auto space-y-6">
           <p className="text-xs font-semibold text-gray-500">
-            Cuenta: <span className="font-bold text-gray-700">{cuenta?.nombre}</span>. Verificá la cantidad antes de emitir masivamente.
+            Cuenta:{" "}
+            <span className="font-bold text-gray-700">{cuenta?.nombre}</span>.
+            Verificá la cantidad antes de emitir masivamente.
           </p>
 
-        <div className="flex flex-col gap-2 text-xs font-bold text-gray-600">
-          <p className="flex items-center justify-between border-b border-gray-100 pb-2">
-            <span>Alumnos a emitir</span>
-            <span className="text-gray-900 font-black text-sm">{pendientes}</span>
-          </p>
-          {yaEmitidos > 0 && (
-            <p className="text-amber-600 font-bold flex items-center justify-between pb-1">
-              <span>Con cuota ya emitida (se omitirán)</span>
-              <span>{yaEmitidos}</span>
+          <div className="flex flex-col gap-2 text-xs font-bold text-gray-600">
+            <p className="flex items-center justify-between border-b border-gray-100 pb-2">
+              <span>Alumnos a emitir</span>
+              <span className="text-gray-900 font-black text-sm">
+                {pendientes}
+              </span>
             </p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-            Tipo de comprobante a emitir
-          </span>
-          <SelectorTipoComprobanteCuota
-            value={codigoTipoComprobante}
-            onChange={setCodigoTipoComprobante}
-            disabled={emitiendo}
-          />
-        </div>
-
-        {error && (
-          <div className="bg-rose-50 border border-rose-200 rounded-md p-4 text-sm font-semibold text-rose-700">
-            {error}
+            {yaEmitidos > 0 && (
+              <p className="text-amber-600 font-bold flex items-center justify-between pb-1">
+                <span>Con cuota ya emitida (se omitirán)</span>
+                <span>{yaEmitidos}</span>
+              </p>
+            )}
           </div>
-        )}
 
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+              Tipo de comprobante a emitir
+            </span>
+            <SelectorTipoComprobanteCuota
+              value={codigoTipoComprobante}
+              onChange={setCodigoTipoComprobante}
+              disabled={emitiendo}
+            />
+          </div>
+
+          {error && (
+            <div className="bg-rose-50 border border-rose-200 rounded-md p-4 text-sm font-semibold text-rose-700">
+              {error}
+            </div>
+          )}
         </div>
 
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 rounded-b-xl">
@@ -183,7 +194,7 @@ const ModalEmitirLote = ({
           <button
             onClick={() => setConfirmando(true)}
             disabled={emitiendo || pendientes === 0 || !codigoTipoComprobante}
-            className="flex items-center gap-2 px-5 py-2 text-sm font-bold text-white rounded-lg shadow-sm bg-[#1FAE6D] hover:bg-[#178F58] disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+            className="flex items-center gap-2 px-5 py-2 text-sm font-bold text-white rounded-md shadow-sm bg-[#1FAE6D] hover:bg-[#178F58] disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
           >
             Confirmar emisión
           </button>

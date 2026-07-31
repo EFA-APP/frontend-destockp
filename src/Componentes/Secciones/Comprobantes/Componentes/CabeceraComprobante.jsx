@@ -36,7 +36,7 @@ const getNombreCompleto = (contacto) => {
   return `${contacto.nombre || ""} ${contacto.apellido || ""}`.trim();
 };
 
-const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
+const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null, importeAplicarCalculado = 0 }) => {
   const {
     fechaInicio,
     setFechaInicio,
@@ -63,8 +63,6 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
     setTipoComprobante,
     comprobanteAsociado,
     setComprobanteAsociado,
-    importeAplicadoManual,
-    setImporteAplicadoManual,
     esNotaAsociada,
     esNotaCredito,
     numeroComprobanteEgreso,
@@ -444,23 +442,11 @@ const CabeceraComprobante = ({ tipoOperacion, cabecera, arcaData = null }) => {
                   <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">
                     Importe a aplicar
                   </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={
-                      comprobanteAsociado.saldoPendiente ??
-                      comprobanteAsociado.total
-                    }
-                    value={
-                      importeAplicadoManual ??
-                      (comprobanteAsociado.saldoPendiente ??
-                        comprobanteAsociado.total)
-                    }
-                    onChange={(e) =>
-                      setImporteAplicadoManual(parseFloat(e.target.value) || 0)
-                    }
-                    className="w-32 px-2 py-1 text-sm font-bold text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
-                  />
+                  <span
+                    className="w-32 px-2 py-1 text-sm font-bold text-gray-900 border border-gray-200 rounded-md bg-gray-50 flex items-center"
+                  >
+                    {formatPrice(importeAplicarCalculado)}
+                  </span>
                 </div>
               </div>
               <button

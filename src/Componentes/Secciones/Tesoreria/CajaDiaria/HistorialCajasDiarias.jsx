@@ -55,19 +55,30 @@ const HistorialCajasDiarias = ({ historial }) => {
                     {formatPrice(entrada.fondoInicial)}
                   </td>
                   <td className="px-6 py-4 text-sm font-normal text-[#1FAE6D] whitespace-nowrap">
-                    {entrada.ingresos !== null && entrada.ingresos !== undefined ? formatPrice(entrada.ingresos) : "—"}
+                    {entrada.ingresos !== null && entrada.ingresos !== undefined
+                      ? formatPrice(entrada.ingresos)
+                      : "—"}
                   </td>
                   <td className="px-6 py-4 text-sm font-normal text-[#EF5A5A] whitespace-nowrap">
-                    {entrada.egresos !== null && entrada.egresos !== undefined ? formatPrice(entrada.egresos) : "—"}
+                    {entrada.egresos !== null && entrada.egresos !== undefined
+                      ? formatPrice(entrada.egresos)
+                      : "—"}
                   </td>
                   <td className="px-6 py-4 text-sm text-[#1A1D1C] whitespace-nowrap">
-                    {entrada.saldoEsperado !== null && entrada.saldoEsperado !== undefined ? formatPrice(entrada.saldoEsperado) : "—"}
+                    {entrada.saldoEsperado !== null &&
+                    entrada.saldoEsperado !== undefined
+                      ? formatPrice(entrada.saldoEsperado)
+                      : "—"}
                   </td>
                   <td className="px-6 py-4 text-sm text-[#1A1D1C] whitespace-nowrap">
-                    {entrada.saldoContado !== null && entrada.saldoContado !== undefined ? formatPrice(entrada.saldoContado) : "—"}
+                    {entrada.saldoContado !== null &&
+                    entrada.saldoContado !== undefined
+                      ? formatPrice(entrada.saldoContado)
+                      : "—"}
                   </td>
                   <td className="px-6 py-4 text-[15px] font-semibold whitespace-nowrap">
-                    {entrada.diferencia !== null && entrada.diferencia !== undefined ? (
+                    {entrada.diferencia !== null &&
+                    entrada.diferencia !== undefined ? (
                       <span
                         className={
                           entrada.diferencia === 0
@@ -79,15 +90,17 @@ const HistorialCajasDiarias = ({ historial }) => {
                       >
                         {formatPrice(entrada.diferencia)}
                       </span>
-                    ) : "—"}
+                    ) : (
+                      "—"
+                    )}
                   </td>
                   <td className="px-6 py-4">
                     {entrada.estado === "cerrada" ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-[#E8F7EF] text-[#178F58]">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-[#E8F7EF] text-[#178F58]">
                         Cerrada
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-[#F5B944]/10 text-[#F5B944]">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-[#F5B944]/10 text-[#F5B944]">
                         Abierta
                       </span>
                     )}

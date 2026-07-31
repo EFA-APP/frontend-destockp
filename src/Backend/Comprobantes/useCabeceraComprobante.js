@@ -22,13 +22,12 @@ export const useCabeceraComprobante = (initialValues = {}) => {
   );
 
   const [comprobanteAsociado, _setComprobanteAsociado] = useState(null);
-  const [importeAplicadoManual, setImporteAplicadoManual] = useState(null);
+
 
   // `null` = "usar el default saldoPendiente ?? total". Se resetea cada vez
   // que se selecciona o se quita un comprobante asociado.
   const setComprobanteAsociado = (cbte) => {
     _setComprobanteAsociado(cbte);
-    setImporteAplicadoManual(null);
   };
 
   // Campos controlados para el payload
@@ -129,7 +128,6 @@ export const useCabeceraComprobante = (initialValues = {}) => {
       iv.codigoTipo != null ? String(iv.codigoTipo) : conexionArca ? "11" : "991"
     );
     _setComprobanteAsociado(null);
-    setImporteAplicadoManual(null);
     setCondicionComprobante("CONTADO");
 
     const unidadInicial =
@@ -176,8 +174,7 @@ export const useCabeceraComprobante = (initialValues = {}) => {
     setTipoComprobante,
     comprobanteAsociado,
     setComprobanteAsociado,
-    importeAplicadoManual,
-    setImporteAplicadoManual,
+
     esNotaAsociada,
     esNotaCredito,
     condicionComprobante,

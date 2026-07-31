@@ -25,10 +25,7 @@ import {
   AlertCircle,
   CheckCircle,
   Ban,
-  Split,
-  AlertOctagon,
 } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { pdf } from "@react-pdf/renderer";
 import ComprobantePDF from "./ComprobantePDF";
 import { ComprobanteIcono } from "../../../../assets/Icons";
@@ -36,13 +33,14 @@ import {
   enviarComprobanteEmailApi,
   obtenerComprobantePorCodigo,
   anularComprobanteApi,
-  resolverAjusteTesoreriaApi,
 } from "../../../../Backend/Ventas/api/Comprobante/comprobante.api";
 import {
   ObtenerContactoApi,
   ActualizarContactoApi,
 } from "../../../../Backend/Contactos/api/contactos.api";
 import { TieneAccion } from "../../../UI/TieneAccion/TieneAccion";
+import { cuentasCorrientesAPI } from "../../../../Backend/CuentasCorrientes/api";
+import { ModalAplicarSaldoAFavor } from "./ModalAplicarSaldoAFavor";
 
 const LETRA_MAP = {
   1: "A",
@@ -99,7 +97,6 @@ const adaptarComprobante = (full) => {
       tasaIva: d.tasaIva,
       subtotal:
         d.subtotal ?? d.precioUnitario * d.cantidad - (d.descuento || 0),
-      repartoUnidadNegocio: d.repartos || d.repartoUnidadNegocio || [],
     })),
     pagos: (full.pagos || []).map((p) => ({
       metodo: p.tipoMetodoPago,
@@ -119,11 +116,16 @@ const adaptarComprobante = (full) => {
         a.tipoDescripcionComprobanteOrigen ??
         (a.tipoRelacion === "NOTA_CREDITO"
           ? "NOTA_CREDITO"
-          : (a.codigoTipoComprobanteAsociado ?? a.codigoTipoComprobante ?? a.tipoRelacion));
+          : (a.codigoTipoComprobanteAsociado ??
+            a.codigoTipoComprobante ??
+            a.tipoRelacion));
       return {
         tipo: tipoVisual,
         ptoVta: a.puntoVentaOrigen ?? a.puntoVenta ?? 0,
-        nro: a.numeroComprobanteOrigenDisplay ?? a.numeroComprobanteAsociado ?? a.numeroComprobanteOrigen,
+        nro:
+          a.numeroComprobanteOrigenDisplay ??
+          a.numeroComprobanteAsociado ??
+          a.numeroComprobanteOrigen,
         total: a.importeAplicado,
         codigo: a.codigoComprobante,
       };
@@ -134,7 +136,7 @@ const adaptarComprobante = (full) => {
 // ─── formatters ──────────────────────────────────────────────────────────────
 
 const fmt = (n) =>
-  `$ ${new Intl.NumberFormat("es-AR", {
+  ` ${new Intl.NumberFormat("es-AR", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(Number(n) || 0)}`;
@@ -374,18 +376,18 @@ const blobToBase64 = (blob) =>
     reader.readAsDataURL(blob);
   });
 
-const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) => {
-  const queryClient = useQueryClient();
+const DetalleComprobanteDrawer = ({
+  open,
+  onClose,
+  data,
+  usuario,
+  onAnulado,
+}) => {
   const [isVisible, setIsVisible] = useState(false);
   const [mostrarAnular, setMostrarAnular] = useState(false);
   const [motivoAnular, setMotivoAnular] = useState("");
   const [anulando, setAnulando] = useState(false);
   const [errorAnular, setErrorAnular] = useState(null);
-  // Feature 7 (comprobante-pago-desacoplado, R28): acción manual "marcar
-  // como ajustado en tesorería" (apaga `ajusteTesoreriaPendiente`).
-  const [resolviendoAjuste, setResolviendoAjuste] = useState(false);
-  const [errorResolverAjuste, setErrorResolverAjuste] = useState(null);
-  const [ajusteResuelto, setAjusteResuelto] = useState(false);
   const [caeCopiado, setCaeCopiado] = useState(false);
   const [stepEmail, setStepEmail] = useState(null); // null | 'cargando' | 'form' | 'enviado'
   const [emailInput, setEmailInput] = useState("");
@@ -397,6 +399,36 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) =
 
   const [seleccionadosAsoc, setSeleccionadosAsoc] = useState({});
   const [cargandoAsoc, setCargandoAsoc] = useState(false);
+
+  const [comprobantesAFavor, setComprobantesAFavor] = useState([]);
+  const [mostrarModalSaldo, setMostrarModalSaldo] = useState(false);
+  const [cargandoSaldo, setCargandoSaldo] = useState(false);
+
+  useEffect(() => {
+    if (open && data?.codigoReceptor && Number(data?.saldoPendiente) > 0) {
+      const fetchSaldo = async () => {
+        try {
+          setCargandoSaldo(true);
+          const response =
+            await cuentasCorrientesAPI.listarComprobantesPorContacto(
+              data.codigoReceptor,
+              { estado: "TODOS" },
+            );
+          const aFavor = (response.comprobantes || []).filter(
+            (c) => Number(c.montoDisponible) > 0,
+          );
+          setComprobantesAFavor(aFavor);
+        } catch (e) {
+          console.error("Error al obtener saldo a favor", e);
+        } finally {
+          setCargandoSaldo(false);
+        }
+      };
+      fetchSaldo();
+    } else {
+      setComprobantesAFavor([]);
+    }
+  }, [open, data]);
 
   useEffect(() => {
     if (data?.cbtesAsoc) {
@@ -446,7 +478,7 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) =
   const makePdfBlob = async () => {
     const list = [data];
     const elegidos = (data.cbtesAsoc || []).filter(
-      (cb) => cb.codigo && seleccionadosAsoc[cb.codigo]
+      (cb) => cb.codigo && seleccionadosAsoc[cb.codigo],
     );
 
     if (elegidos.length > 0) {
@@ -466,7 +498,10 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) =
     }
 
     return await pdf(
-      <ComprobantePDF comprobante={list.length === 1 ? list[0] : list} usuario={usuario} />
+      <ComprobantePDF
+        comprobante={list.length === 1 ? list[0] : list}
+        usuario={usuario}
+      />,
     ).toBlob();
   };
 
@@ -568,14 +603,6 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) =
       await anularComprobanteApi(data.codigo, motivoAnular.trim());
       setMostrarAnular(false);
       setMotivoAnular("");
-      
-      // Invalidar todos los listados de comprobantes y deudas para que reflejen
-      // instantáneamente la anulación del comprobante/recibo
-      queryClient.invalidateQueries({ queryKey: ["deuda-alumno"] });
-      queryClient.invalidateQueries({ queryKey: ["cuotas-listar"] });
-      queryClient.invalidateQueries({ queryKey: ["deudas-cobro-cuota"] });
-      queryClient.invalidateQueries({ queryKey: ["comprobantes"] });
-      
       onAnulado?.();
     } catch (e) {
       setErrorAnular(
@@ -583,24 +610,6 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) =
       );
     } finally {
       setAnulando(false);
-    }
-  };
-
-  const handleResolverAjusteTesoreria = async () => {
-    if (!data?.codigo) return;
-    setResolviendoAjuste(true);
-    setErrorResolverAjuste(null);
-    try {
-      await resolverAjusteTesoreriaApi(data.codigo);
-      setAjusteResuelto(true);
-      queryClient.invalidateQueries({ queryKey: ["comprobantes"] });
-    } catch (e) {
-      setErrorResolverAjuste(
-        e?.response?.data?.message ||
-          "No se pudo marcar el comprobante como ajustado.",
-      );
-    } finally {
-      setResolviendoAjuste(false);
     }
   };
 
@@ -712,25 +721,29 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) =
               >
                 <Printer size={14} />
               </button>
-              <button
-                onClick={handleAbrirEmail}
-                disabled={stepEmail === "cargando"}
-                title="Enviar por email"
-                className="p-1.5 rounded-md text-slate-600 hover:text-violet-600 hover:bg-violet-50 transition-colors active:scale-95 cursor-pointer disabled:opacity-50"
-              >
-                <Mail size={14} />
-              </button>
+              <TieneAccion accion="ENVIAR_EMAIL">
+                <button
+                  onClick={handleAbrirEmail}
+                  disabled={stepEmail === "cargando"}
+                  title="Enviar por email"
+                  className="p-1.5 rounded-md text-slate-600 hover:text-violet-600 hover:bg-violet-50 transition-colors active:scale-95 cursor-pointer disabled:opacity-50"
+                >
+                  <Mail size={14} />
+                </button>
+              </TieneAccion>
             </div>
-            {esAnulable(data.tipoDocumento) && data.estado !== "ANULADO" && data.codigo && (
-              <button
-                onClick={() => setMostrarAnular((v) => !v)}
-                title="Anular comprobante"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wider bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-all shadow-sm active:scale-95 cursor-pointer"
-              >
-                <Ban size={14} />
-                <span className="hidden md:inline">Anular</span>
-              </button>
-            )}
+            {esAnulable(data.tipoDocumento) &&
+              data.estado !== "ANULADO" &&
+              data.codigo && (
+                <button
+                  onClick={() => setMostrarAnular((v) => !v)}
+                  title="Anular comprobante"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wider bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition-all shadow-sm active:scale-95 cursor-pointer"
+                >
+                  <Ban size={14} />
+                  <span className="hidden md:inline">Anular</span>
+                </button>
+              )}
             <button
               onClick={onClose}
               className="w-8 h-8 flex items-center justify-center rounded-md bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors group active:scale-95 cursor-pointer"
@@ -778,45 +791,12 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) =
               </button>
             </div>
             {errorAnular && (
-              <p className="text-[10px] text-rose-600 font-bold">{errorAnular}</p>
+              <p className="text-[10px] text-rose-600 font-bold">
+                {errorAnular}
+              </p>
             )}
           </div>
         )}
-
-        {/* Feature 7 (comprobante-pago-desacoplado, R28, R29): aviso +
-            acción manual "marcar como ajustado en tesorería" — solo visible
-            para RECIBO(992)/ORDEN_PAGO(993) con `ajusteTesoreriaPendiente`
-            todavía en `true` (limitación aceptada: la anulación de este
-            comprobante no revirtió su movimiento en tesorería, ver
-            AnularRecibo.casodeuso.ts). */}
-        {[992, 993].includes(Number(data.tipoDocumento)) &&
-          data.ajusteTesoreriaPendiente &&
-          !ajusteResuelto && (
-            <div className="px-5 py-3 border-b border-slate-100 bg-rose-50/50 flex flex-col gap-2">
-              <p className="text-[11px] font-bold text-rose-800 flex items-center gap-1">
-                <AlertOctagon size={12} /> Este pago fue anulado y su
-                movimiento en tesorería NO se revirtió automáticamente.
-                Verificalo manualmente y marcalo como ajustado.
-              </p>
-              <div className="flex gap-2 items-center">
-                <button
-                  onClick={handleResolverAjusteTesoreria}
-                  disabled={resolviendoAjuste}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-black uppercase rounded-md bg-rose-600 text-white hover:bg-rose-700 disabled:opacity-50 cursor-pointer"
-                >
-                  <CheckCircle size={13} />
-                  {resolviendoAjuste
-                    ? "..."
-                    : "Marcar como ajustado en tesorería"}
-                </button>
-              </div>
-              {errorResolverAjuste && (
-                <p className="text-[10px] text-rose-600 font-bold">
-                  {errorResolverAjuste}
-                </p>
-              )}
-            </div>
-          )}
 
         {/* ── EMAIL PANEL ── */}
         {stepEmail === "form" && (
@@ -997,25 +977,6 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) =
                                   IVA {item.tasaIva}%
                                 </p>
                               )}
-                              {Array.isArray(item.repartoUnidadNegocio) && item.repartoUnidadNegocio.length > 0 && (
-                                <div className="mt-1.5 flex flex-wrap gap-1.5">
-                                  {item.repartoUnidadNegocio.map((r, iR) => {
-                                    const un = usuario?.unidadesNegocio?.find(
-                                      (u) => Number(u.codigo) === Number(r.codigoUnidadNegocio)
-                                    );
-                                    return (
-                                      <span
-                                        key={iR}
-                                        title={`Reparto de línea: ${r.porcentaje}%`}
-                                        className="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded px-1.5 py-0.5 shadow-sm"
-                                      >
-                                        <Split size={10} />
-                                        {un ? un.nombre : `UN ${r.codigoUnidadNegocio}`} ({r.porcentaje}%)
-                                      </span>
-                                    );
-                                  })}
-                                </div>
-                              )}
                               {typeof item.nombre === "string" &&
                                 item.nombre.startsWith("Pago período") &&
                                 Array.isArray(data.cbtesAsoc) &&
@@ -1023,7 +984,9 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) =
                                   <p className="text-[11px] text-slate-500 font-semibold mt-0.5">
                                     Vinculado a:{" "}
                                     {data.cbtesAsoc
-                                      .map((cb) => formatComprobanteAsociadoResumen(cb))
+                                      .map((cb) =>
+                                        formatComprobanteAsociadoResumen(cb),
+                                      )
                                       .join(", ")}
                                   </p>
                                 )}
@@ -1048,18 +1011,29 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) =
               {/* Comprobantes asociados */}
               {Array.isArray(data.cbtesAsoc) && data.cbtesAsoc.length > 0 && (
                 <div className="bg-white rounded-[16px] border border-[var(--color-neutral-border)] p-5 shadow-sm">
-                  <SecTitle icon={Building2}>Comprobantes Asociados {cargandoAsoc && <span className="text-xs text-[var(--primary)] font-bold animate-pulse">(Preparando PDFs...)</span>}</SecTitle>
+                  <SecTitle icon={Building2}>
+                    Comprobantes Asociados{" "}
+                    {cargandoAsoc && (
+                      <span className="text-xs text-[var(--primary)] font-bold animate-pulse">
+                        (Preparando PDFs...)
+                      </span>
+                    )}
+                  </SecTitle>
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-3">
                     Selecciona cuáles incluir en la descarga, impresión o envío:
                   </p>
                   <div className="space-y-2">
                     {data.cbtesAsoc.map((cb, i) => {
                       const tieneCodigo = !!cb.codigo;
-                      const seleccionado = tieneCodigo ? !!seleccionadosAsoc[cb.codigo] : false;
+                      const seleccionado = tieneCodigo
+                        ? !!seleccionadosAsoc[cb.codigo]
+                        : false;
                       return (
                         <div
                           key={i}
-                          onClick={() => tieneCodigo && toggleAsociado(cb.codigo)}
+                          onClick={() =>
+                            tieneCodigo && toggleAsociado(cb.codigo)
+                          }
                           className={`flex items-center justify-between px-3 py-2.5 rounded-md border gap-3 select-none transition-all ${
                             tieneCodigo ? "cursor-pointer" : ""
                           } ${
@@ -1282,10 +1256,54 @@ const DetalleComprobanteDrawer = ({ open, onClose, data, usuario, onAnulado }) =
                   </p>
                 </div>
               )}
+
+              {/* Saldo a Favor UI */}
+              {comprobantesAFavor.length > 0 &&
+                Number(data?.saldoPendiente) > 0 && (
+                  <div className="bg-white rounded-[16px] border border-blue-200 p-5 shadow-sm bg-blue-50/30">
+                    <SecTitle icon={Banknote}>
+                      Saldo a Favor Disponible
+                    </SecTitle>
+                    <p className="text-xs text-slate-600 mb-4">
+                      Este contacto tiene {comprobantesAFavor.length}{" "}
+                      comprobante(s) a favor con saldo disponible.
+                    </p>
+                    <div className="flex items-center justify-between mb-4 px-4 py-3 bg-white rounded-md border border-blue-100 shadow-sm">
+                      <span className="text-xs font-bold text-slate-500 uppercase">
+                        Total A Favor
+                      </span>
+                      <span className="text-lg font-black text-green-600 tabular-nums font-mono">
+                        {fmt(
+                          comprobantesAFavor.reduce(
+                            (acc, c) => acc + Number(c.montoDisponible),
+                            0,
+                          ),
+                        )}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setMostrarModalSaldo(true)}
+                      className="w-full py-2.5 px-4 bg-[var(--color-brand-primary)] text-white text-sm font-bold uppercase tracking-wider rounded-md hover:brightness-110 active:scale-95 transition-all shadow-sm"
+                    >
+                      Aplicar Saldo a Favor
+                    </button>
+                  </div>
+                )}
             </div>
           </div>
         </div>
       </div>
+
+      <ModalAplicarSaldoAFavor
+        open={mostrarModalSaldo}
+        onClose={() => setMostrarModalSaldo(false)}
+        factura={data}
+        comprobantesAFavor={comprobantesAFavor}
+        onSuccess={() => {
+          setMostrarModalSaldo(false);
+          if (onAnulado) onAnulado(); // Recargar datos de la tabla u otro callback
+        }}
+      />
     </div>,
     document.body,
   );

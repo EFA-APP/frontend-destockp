@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X, Save, HandCoins } from "lucide-react";
 import DetallePago from "./DetallePago";
 import { useGenerarComprobante } from "../../../../Backend/Ventas/queries/Comprobante/useGenerarComprobante.mutation";
+import { cuentasCorrientesAPI } from "../../../../Backend/CuentasCorrientes/api";
+import { ModalAplicarSaldoAFavor } from "../../../Tablas/Ventas/Comprobantes/ModalAplicarSaldoAFavor";
 
 const hoy = () => new Date().toISOString().split("T")[0];
 
@@ -21,6 +23,25 @@ const ModalPagoRapido = ({ factura, onClose }) => {
   const [vueltos, setVueltos] = useState([]);
   const [fecha, setFecha] = useState(hoy());
   const { mutate: crearComprobante, isPending } = useGenerarComprobante();
+
+  const [comprobantesAFavor, setComprobantesAFavor] = useState([]);
+  const [mostrarModalSaldo, setMostrarModalSaldo] = useState(false);
+
+  useEffect(() => {
+    if (factura?.codigoReceptor) {
+      cuentasCorrientesAPI
+        .listarComprobantesPorContacto(factura.codigoReceptor, {
+          estado: "TODOS",
+        })
+        .then((res) => {
+          const aFavor = (res.comprobantes || []).filter(
+            (c) => Number(c.montoDisponible) > 0,
+          );
+          setComprobantesAFavor(aFavor);
+        })
+        .catch((e) => console.error("Error obteniendo saldo a favor:", e));
+    }
+  }, [factura]);
 
   if (!factura) return null;
 
@@ -79,7 +100,8 @@ const ModalPagoRapido = ({ factura, onClose }) => {
             {
               tipoDetalle: "CUENTA_CONTABLE",
               codigoDetalle: 0,
-              descripcion: `Pago Factura Nro ${factura.numeroComprobante ?? ""}`.trim(),
+              descripcion:
+                `Pago Factura Nro ${factura.numeroComprobante ?? ""}`.trim(),
               cantidad: 1,
               precioUnitario: totalPagado,
               iva: 0,
@@ -149,6 +171,31 @@ const ModalPagoRapido = ({ factura, onClose }) => {
             />
           </div>
 
+          {/* Banner de Saldo a Favor */}
+          {comprobantesAFavor.length > 0 && (
+            <div className="flex items-center justify-between px-4 py-3 bg-blue-50 border border-blue-200 rounded-md shadow-sm">
+              <div>
+                <p className="text-xs font-bold text-blue-900 uppercase">
+                  Saldo a Favor Disponible
+                </p>
+                <p className="text-[10px] font-semibold text-blue-700 mt-0.5">
+                  El cliente tiene $
+                  {comprobantesAFavor
+                    .reduce((s, c) => s + Number(c.montoDisponible), 0)
+                    .toLocaleString("es-AR")}{" "}
+                  a favor.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMostrarModalSaldo(true)}
+                className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md border bg-blue-600 text-white hover:bg-blue-700 transition cursor-pointer shadow-sm"
+              >
+                Aplicar
+              </button>
+            </div>
+          )}
+
           <DetallePago
             totalComprobante={factura.total}
             tipoOperacion={esIngreso ? "INGRESO" : "EGRESO"}
@@ -182,6 +229,20 @@ const ModalPagoRapido = ({ factura, onClose }) => {
           </div>
         </div>
       </div>
+
+      <ModalAplicarSaldoAFavor
+        open={mostrarModalSaldo}
+        onClose={() => setMostrarModalSaldo(false)}
+        factura={{
+          ...factura,
+          saldoPendiente: factura.saldoPendiente ?? factura.total,
+        }}
+        comprobantesAFavor={comprobantesAFavor}
+        onSuccess={() => {
+          setMostrarModalSaldo(false);
+          onClose(); // Cierra el modal de pago rápido para que refresque el listado si corresponde
+        }}
+      />
     </div>,
     document.body,
   );

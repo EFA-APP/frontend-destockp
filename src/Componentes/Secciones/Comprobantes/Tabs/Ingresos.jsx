@@ -150,9 +150,7 @@ const construirPayload = ({
             codigoTipoComprobante:
               cabecera.comprobanteAsociado.codigoTipoComprobante,
             importeAplicado:
-              cabecera.importeAplicadoManual ??
-              cabecera.comprobanteAsociado.saldoPendiente ??
-              cabecera.comprobanteAsociado.total,
+              Number((subtotalSinIva + totalIva + (otrosTributos || 0)).toFixed(2)),
             codigoUnidadNegocio: Number(cabecera.unidadNegocioSeleccionada),
             // Comprobante cargado manualmente (no existe en la base, ver
             // SelectorComprobanteModal.jsx): se manda `manual: true` y
@@ -388,10 +386,10 @@ const Ingresos = ({ tipoOperacion }) => {
           ? cabecera.comprobanteAsociado.total
           : (cabecera.comprobanteAsociado.saldoPendiente ??
             cabecera.comprobanteAsociado.total);
-      const importe = cabecera.importeAplicadoManual ?? maximo;
+      const importe = Number((detalle.subtotalSinIva + detalle.totalIva + (cabecera.otrosTributos || 0)).toFixed(2));
       if (importe <= 0 || importe > maximo) {
         setErrorModalMsg(
-          `El importe a aplicar debe ser mayor a 0 y no puede superar el saldo pendiente ($${maximo}).`,
+          `El total de la Nota de Crédito ($${importe}) debe ser mayor a 0 y no puede superar el saldo pendiente del comprobante asociado ($${maximo}).`,
         );
         return;
       }
@@ -575,7 +573,11 @@ const Ingresos = ({ tipoOperacion }) => {
 
   return (
     <div className="h-full w-full">
-      <CabeceraComprobante tipoOperacion={tipoOperacion} cabecera={cabecera} />
+      <CabeceraComprobante 
+        tipoOperacion={tipoOperacion} 
+        cabecera={cabecera} 
+        importeAplicarCalculado={Number((detalle.subtotalSinIva + detalle.totalIva + (cabecera.otrosTributos || 0)).toFixed(2))}
+      />
       <BuscadorDetalle
         tipoOperacion={tipoOperacion}
         detalle={detalle}

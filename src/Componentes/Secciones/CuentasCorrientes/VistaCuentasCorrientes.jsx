@@ -78,7 +78,9 @@ const VistaCuentasCorrientes = () => {
       key: "documento",
       etiqueta: "Documento",
       renderizar: (valor, fila) => (
-        <span className="text-sm font-bold text-gray-800 font-mono tracking-tight">{fila.documento || "-"}</span>
+        <span className="text-sm font-bold text-gray-800 font-mono tracking-tight">
+          {fila.documento || "-"}
+        </span>
       ),
     },
     {
@@ -86,15 +88,21 @@ const VistaCuentasCorrientes = () => {
       etiqueta: "Saldo",
       renderizar: (valor, fila) => {
         const saldo = Number(fila.saldo || 0);
-        const color =
-          saldo < 0
-            ? "text-rose-600"
-            : "text-gray-900";
+        const saldoAFavor = Number(fila.saldoAFavor || 0);
+        const color = saldo < 0 ? "text-rose-600" : "text-gray-900";
         return (
-          <span className={`text-base font-black tabular-nums ${color}`}>
-            {formatearMoneda(Math.abs(saldo))}
-            {saldo < 0 ? " (A Favor)" : ""}
-          </span>
+          <div className="flex flex-col">
+            {saldo > 0 && (
+              <span className={`text-base font-black tabular-nums ${color}`}>
+                {formatearMoneda(Math.abs(saldo))}
+              </span>
+            )}
+            {saldoAFavor > 0 && (
+              <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider mt-0.5">
+                {formatearMoneda(saldoAFavor)} (A favor)
+              </span>
+            )}
+          </div>
         );
       },
     },
@@ -115,7 +123,7 @@ const VistaCuentasCorrientes = () => {
             Cuentas Corrientes
           </h1>
           <p className="text-sm font-medium text-gray-500 max-w-2xl">
-            {tipo === "INGRESO" 
+            {tipo === "INGRESO"
               ? `Visualiza y gestiona saldos a cobrar de clientes. Actualmente hay ${total} cuentas activas.`
               : `Visualiza y gestiona obligaciones de pago a proveedores. Actualmente hay ${total} cuentas activas.`}
           </p>
@@ -125,10 +133,8 @@ const VistaCuentasCorrientes = () => {
       <DashboardCuentaCorriente tipo={tipo} />
 
       <div className="bg-white rounded-md shadow-[0_2px_8px_rgba(0,0,0,0.02)] border border-gray-200 overflow-hidden flex flex-col flex-1">
-        
         {/* TOOLBAR */}
         <div className="p-4 border-b border-gray-200 bg-gray-50/50 flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center">
-          
           <div className="flex bg-white border border-gray-200 p-1 rounded-md self-start shadow-sm">
             <button
               onClick={() => handleTabChange("INGRESO")}

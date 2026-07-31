@@ -86,7 +86,9 @@ const ModalEmitirIndividual = ({
         codigoTipoComprobante,
         puntoVenta,
         codigoContacto: fila.codigo,
-        codigoUnidadNegocio: codigoUnidadNegocio ? Number(codigoUnidadNegocio) : undefined,
+        codigoUnidadNegocio: codigoUnidadNegocio
+          ? Number(codigoUnidadNegocio)
+          : undefined,
         montoOverride: montoEditable,
       });
 
@@ -94,7 +96,7 @@ const ModalEmitirIndividual = ({
         throw new Error(
           res.motivo === "ya_emitido"
             ? `La cuota ya había sido emitida previamente (Comprobante #${res.codigoComprobanteExistente}).`
-            : "La cuota fue omitida por el sistema."
+            : "La cuota fue omitida por el sistema.",
         );
       }
 
@@ -128,13 +130,19 @@ const ModalEmitirIndividual = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm"
+        onClick={onClose}
+      />
       <div className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-200">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between rounded-t-xl">
           <h2 className="text-lg font-black tracking-tight text-gray-800">
             Emitir a {nombreCompleto}
           </h2>
-          <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+          <button
+            onClick={onClose}
+            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+          >
             <X size={18} />
           </button>
         </div>
@@ -142,15 +150,22 @@ const ModalEmitirIndividual = ({
         <div className="p-6 overflow-y-auto space-y-6">
           <p className="text-xs font-semibold text-gray-500">
             Se emitirá la cuota de{" "}
-            <span className="font-bold text-gray-700">{nombreMes} {anio}</span> para la cuenta{" "}
+            <span className="font-bold text-gray-700">
+              {nombreMes} {anio}
+            </span>{" "}
+            para la cuenta{" "}
             <span className="font-bold text-gray-700">{cuenta.nombre}</span>.
           </p>
 
           <div className="flex flex-col gap-3 text-xs font-bold text-gray-600">
             <div className="flex flex-col gap-1.5 pt-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Monto cuota</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                Monto cuota
+              </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">
+                  $
+                </span>
                 <input
                   type="number"
                   min="0"
@@ -163,7 +178,8 @@ const ModalEmitirIndividual = ({
               </div>
               {fila.montoSugerido == null && (
                 <p className="text-[11px] text-amber-600 font-bold">
-                  No hay ninguna regla de monto configurada para este alumno; cargá un monto manual.
+                  No hay ninguna regla de monto configurada para este alumno;
+                  cargá un monto manual.
                 </p>
               )}
             </div>
@@ -204,7 +220,7 @@ const ModalEmitirIndividual = ({
           <button
             onClick={() => setConfirmando(true)}
             disabled={yaEmitida || emitiendo || !codigoTipoComprobante}
-            className="flex items-center gap-2 px-5 py-2 text-sm font-bold text-white rounded-lg shadow-sm bg-[#1FAE6D] hover:bg-[#178F58] disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+            className="flex items-center gap-2 px-5 py-2 text-sm font-bold text-white rounded-md shadow-sm bg-[#1FAE6D] hover:bg-[#178F58] disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
           >
             {emitiendo ? "Emitiendo..." : "Confirmar emisión"}
           </button>

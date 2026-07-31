@@ -23,6 +23,7 @@ const ESTADO_LABELS = {
   CONFIRMADO: "Confirmado",
   PENDIENTE_PAGO: "Pendiente de pago",
   PARCIALMENTE_ABONADO: "Parcialmente abonado",
+  ANULACION_PARCIAL: "Anulación parcial",
   ABONADO: "Abonado",
   ANULADO: "Anulado",
 };
@@ -136,7 +137,7 @@ const DrawerComprobantesContacto = ({
           color = "bg-emerald-50 text-emerald-700 border-emerald-200/60";
           dotColor = "bg-emerald-500";
         }
-        if (est === "PENDIENTE_PAGO" || est === "PARCIALMENTE_ABONADO") {
+        if (est === "PENDIENTE_PAGO" || est === "PARCIALMENTE_ABONADO" || est === "ANULACION_PARCIAL") {
           color = "bg-amber-50 text-amber-700 border-amber-200/60";
           dotColor = "bg-amber-500";
         }
@@ -189,7 +190,7 @@ const DrawerComprobantesContacto = ({
   if (!isOpen) return null;
 
   const saldoActual = Number(contacto?.saldo || 0);
-  const isAFavor = saldoActual < 0;
+  const saldoAFavor = Number(contacto?.saldoAFavor || 0);
 
   const nombreContacto =
     contacto?.razonSocial || contacto?.nombre || "Contacto";
@@ -219,19 +220,23 @@ const DrawerComprobantesContacto = ({
                 </span>
                 <span
                   className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-md border shadow-sm ${
-                    isAFavor
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-200/60"
-                      : saldoActual > 0
+                    saldoActual > 0
                         ? "bg-rose-50 text-rose-700 border-rose-200/60"
                         : "bg-gray-50 text-gray-700 border-gray-200"
                   }`}
                 >
                   <Wallet
-                    className={`w-3.5 h-3.5 ${isAFavor ? "text-emerald-500" : saldoActual > 0 ? "text-rose-500" : "text-gray-500"}`}
+                    className={`w-3.5 h-3.5 ${saldoActual > 0 ? "text-rose-500" : "text-gray-500"}`}
                   />
-                  Saldo: {formatearMoneda(Math.abs(saldoActual))}{" "}
-                  {isAFavor ? "(A Favor)" : ""}
+                  Saldo: {formatearMoneda(saldoActual)}
                 </span>
+                
+                {saldoAFavor > 0 && (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-md border shadow-sm bg-emerald-50 text-emerald-700 border-emerald-200/60">
+                    <Wallet className="w-3.5 h-3.5 text-emerald-500" />
+                    Saldo a Favor: {formatearMoneda(saldoAFavor)}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -262,6 +267,9 @@ const DrawerComprobantesContacto = ({
               </option>
               <option value="PARCIALMENTE_ABONADO">
                 {ESTADO_LABELS.PARCIALMENTE_ABONADO}
+              </option>
+              <option value="ANULACION_PARCIAL">
+                {ESTADO_LABELS.ANULACION_PARCIAL}
               </option>
               <option value="ABONADO">{ESTADO_LABELS.ABONADO}</option>
               <option value="ANULADO">{ESTADO_LABELS.ANULADO}</option>

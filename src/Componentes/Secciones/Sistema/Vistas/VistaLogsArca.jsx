@@ -30,28 +30,35 @@ const VistaLogsArca = ({ empresa, onClose }) => {
             onClick={onClose}
             className="p-2 hover:bg-black/5 rounded-full transition-all group"
           >
-            <VolverIcono size={20} className="group-hover:-translate-x-1 transition-transform" />
+            <VolverIcono
+              size={20}
+              className="group-hover:-translate-x-1 transition-transform"
+            />
           </button>
           <div className="flex flex-col">
             <h1 className="text-2xl font-black tracking-tighter text-black uppercase leading-none">
               Historial ARCA
             </h1>
             <p className="text-[11px] font-bold text-[var(--text-muted)] tracking-widest uppercase mt-1">
-              Transacciones de <span className="text-black">{empresa.nombre}</span>
+              Transacciones de{" "}
+              <span className="text-black">{empresa.nombre}</span>
             </p>
           </div>
         </div>
       </div>
 
       {/* FILTROS */}
-      <div className="mb-6 bg-black/5 p-4 rounded-lg flex flex-wrap gap-4 items-end">
+      <div className="mb-6 bg-black/5 p-4 rounded-md flex flex-wrap gap-4 items-end">
         <div className="flex flex-col gap-1.5 flex-1 min-w-[150px]">
           <label className="text-[10px] font-black tracking-widest uppercase text-black/60">
             Categoría
           </label>
-          <select 
-            value={categoria} 
-            onChange={(e) => { setCategoria(e.target.value); setPagina(1); }}
+          <select
+            value={categoria}
+            onChange={(e) => {
+              setCategoria(e.target.value);
+              setPagina(1);
+            }}
             className="w-full px-3 py-2 bg-white border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:border-black/30"
           >
             <option value="">Todas</option>
@@ -65,9 +72,12 @@ const VistaLogsArca = ({ empresa, onClose }) => {
           <label className="text-[10px] font-black tracking-widest uppercase text-black/60">
             Estado
           </label>
-          <select 
-            value={estado} 
-            onChange={(e) => { setEstado(e.target.value); setPagina(1); }}
+          <select
+            value={estado}
+            onChange={(e) => {
+              setEstado(e.target.value);
+              setPagina(1);
+            }}
             className="w-full px-3 py-2 bg-white border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:border-black/30"
           >
             <option value="">Todos</option>
@@ -80,10 +90,13 @@ const VistaLogsArca = ({ empresa, onClose }) => {
           <label className="text-[10px] font-black tracking-widest uppercase text-black/60">
             Fecha Desde
           </label>
-          <input 
-            type="date" 
-            value={fechaDesde} 
-            onChange={(e) => { setFechaDesde(e.target.value); setPagina(1); }}
+          <input
+            type="date"
+            value={fechaDesde}
+            onChange={(e) => {
+              setFechaDesde(e.target.value);
+              setPagina(1);
+            }}
             className="w-full px-3 py-2 bg-white border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:border-black/30"
           />
         </div>
@@ -92,16 +105,25 @@ const VistaLogsArca = ({ empresa, onClose }) => {
           <label className="text-[10px] font-black tracking-widest uppercase text-black/60">
             Fecha Hasta
           </label>
-          <input 
-            type="date" 
-            value={fechaHasta} 
-            onChange={(e) => { setFechaHasta(e.target.value); setPagina(1); }}
+          <input
+            type="date"
+            value={fechaHasta}
+            onChange={(e) => {
+              setFechaHasta(e.target.value);
+              setPagina(1);
+            }}
             className="w-full px-3 py-2 bg-white border border-black/10 rounded-md text-[13px] font-bold focus:outline-none focus:border-black/30"
           />
         </div>
 
-        <button 
-          onClick={() => { setCategoria(""); setEstado(""); setFechaDesde(""); setFechaHasta(""); setPagina(1); }}
+        <button
+          onClick={() => {
+            setCategoria("");
+            setEstado("");
+            setFechaDesde("");
+            setFechaHasta("");
+            setPagina(1);
+          }}
           className="px-4 py-2 bg-black/10 hover:bg-black/20 text-black rounded-md text-[12px] font-black uppercase tracking-widest transition-colors h-[38px]"
         >
           Limpiar

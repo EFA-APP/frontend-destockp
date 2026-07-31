@@ -6,19 +6,23 @@ import { formatPrice } from "../../../../utils/formatters";
 const SelectorChequeEndosoModal = ({ onClose, onConfirm }) => {
   const [busqueda, setBusqueda] = useState("");
   const [chequeSeleccionado, setChequeSeleccionado] = useState(null);
-  
+
   const [endoso, setEndoso] = useState({
     cuitEndosado: "",
     receptorEndosado: "",
     fechaEndoso: new Date().toISOString().split("T")[0],
   });
 
-  const { data: chequesData, isLoading } = useChequeTerceroDisponiblesQuery(busqueda);
-  const cheques = Array.isArray(chequesData) ? chequesData : (chequesData?.data || []);
+  const { data: chequesData, isLoading } =
+    useChequeTerceroDisponiblesQuery(busqueda);
+  const cheques = Array.isArray(chequesData)
+    ? chequesData
+    : chequesData?.data || [];
 
   const handleConfirm = () => {
     if (!chequeSeleccionado) return;
-    if (!endoso.cuitEndosado || !endoso.receptorEndosado || !endoso.fechaEndoso) return;
+    if (!endoso.cuitEndosado || !endoso.receptorEndosado || !endoso.fechaEndoso)
+      return;
 
     onConfirm({
       codigoChequeTercero: chequeSeleccionado.codigo,
@@ -41,14 +45,20 @@ const SelectorChequeEndosoModal = ({ onClose, onConfirm }) => {
               Seleccionar Cheque para Endoso
             </h2>
           </div>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center bg-white border border-gray-200 text-gray-500 hover:text-gray-900 rounded-md transition-all group shadow-sm cursor-pointer">
+          <button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center bg-white border border-gray-200 text-gray-500 hover:text-gray-900 rounded-md transition-all group shadow-sm cursor-pointer"
+          >
             <X size={18} />
           </button>
         </div>
 
         <div className="p-4 bg-gray-50 border-b border-gray-100">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              size={16}
+            />
             <input
               type="text"
               value={busqueda}
@@ -61,9 +71,13 @@ const SelectorChequeEndosoModal = ({ onClose, onConfirm }) => {
 
         <div className="flex-1 overflow-y-auto p-4 space-y-2 min-h-[200px]">
           {isLoading ? (
-            <p className="text-center text-gray-500 font-semibold py-8 text-sm">Cargando cheques...</p>
+            <p className="text-center text-gray-500 font-semibold py-8 text-sm">
+              Cargando cheques...
+            </p>
           ) : cheques.length === 0 ? (
-            <p className="text-center text-gray-500 font-semibold py-8 text-sm">No hay cheques disponibles para endoso.</p>
+            <p className="text-center text-gray-500 font-semibold py-8 text-sm">
+              No hay cheques disponibles para endoso.
+            </p>
           ) : (
             cheques.map((ch) => (
               <div
@@ -77,10 +91,16 @@ const SelectorChequeEndosoModal = ({ onClose, onConfirm }) => {
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-sm font-bold text-gray-800">{ch.banco} - #{ch.numero}</p>
-                    <p className="text-xs text-gray-500">Titular: {ch.titular} (CUIT: {ch.cuit})</p>
+                    <p className="text-sm font-bold text-gray-800">
+                      {ch.banco} - #{ch.numero}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Titular: {ch.titular} (CUIT: {ch.cuit})
+                    </p>
                   </div>
-                  <p className="text-base font-black text-emerald-700">{formatPrice(ch.importe)}</p>
+                  <p className="text-base font-black text-emerald-700">
+                    {formatPrice(ch.importe)}
+                  </p>
                 </div>
               </div>
             ))
@@ -89,32 +109,49 @@ const SelectorChequeEndosoModal = ({ onClose, onConfirm }) => {
 
         {chequeSeleccionado && (
           <div className="p-4 bg-gray-50 border-t border-gray-100">
-            <h3 className="text-xs font-black uppercase tracking-widest text-gray-500 mb-3">Datos del Endosatario</h3>
+            <h3 className="text-xs font-black uppercase tracking-widest text-gray-500 mb-3">
+              Datos del Endosatario
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
-                <label className="text-[10px] font-bold text-gray-500 uppercase">CUIT Endosado</label>
+                <label className="text-[10px] font-bold text-gray-500 uppercase">
+                  CUIT Endosado
+                </label>
                 <input
                   type="text"
                   value={endoso.cuitEndosado}
-                  onChange={(e) => setEndoso((p) => ({ ...p, cuitEndosado: e.target.value }))}
+                  onChange={(e) =>
+                    setEndoso((p) => ({ ...p, cuitEndosado: e.target.value }))
+                  }
                   className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm focus:border-amber-400 outline-none"
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold text-gray-500 uppercase">Receptor (Nombre)</label>
+                <label className="text-[10px] font-bold text-gray-500 uppercase">
+                  Receptor (Nombre)
+                </label>
                 <input
                   type="text"
                   value={endoso.receptorEndosado}
-                  onChange={(e) => setEndoso((p) => ({ ...p, receptorEndosado: e.target.value }))}
+                  onChange={(e) =>
+                    setEndoso((p) => ({
+                      ...p,
+                      receptorEndosado: e.target.value,
+                    }))
+                  }
                   className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm focus:border-amber-400 outline-none"
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold text-gray-500 uppercase">Fecha Endoso</label>
+                <label className="text-[10px] font-bold text-gray-500 uppercase">
+                  Fecha Endoso
+                </label>
                 <input
                   type="date"
                   value={endoso.fechaEndoso}
-                  onChange={(e) => setEndoso((p) => ({ ...p, fechaEndoso: e.target.value }))}
+                  onChange={(e) =>
+                    setEndoso((p) => ({ ...p, fechaEndoso: e.target.value }))
+                  }
                   className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm focus:border-amber-400 outline-none"
                 />
               </div>
@@ -123,13 +160,20 @@ const SelectorChequeEndosoModal = ({ onClose, onConfirm }) => {
         )}
 
         <div className="px-6 py-4 bg-white border-t border-gray-100 flex justify-end gap-3">
-          <button onClick={onClose} className="px-4 py-2 text-sm font-bold text-gray-600 hover:text-gray-900">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-bold text-gray-600 hover:text-gray-900"
+          >
             Cancelar
           </button>
           <button
             onClick={handleConfirm}
-            disabled={!chequeSeleccionado || !endoso.cuitEndosado || !endoso.receptorEndosado}
-            className="flex items-center gap-2 px-5 py-2 text-sm font-bold text-white bg-amber-600 rounded-lg hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            disabled={
+              !chequeSeleccionado ||
+              !endoso.cuitEndosado ||
+              !endoso.receptorEndosado
+            }
+            className="flex items-center gap-2 px-5 py-2 text-sm font-bold text-white bg-amber-600 rounded-md hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             Confirmar Endoso <CheckCircle size={16} />
           </button>

@@ -54,6 +54,7 @@ const ESTADO_STYLE = {
   CONFIRMADO: "bg-blue-50 text-blue-700 border-blue-200",
   PENDIENTE_PAGO: "bg-amber-50 text-amber-700 border-amber-200",
   PARCIALMENTE_ABONADO: "bg-orange-50 text-orange-700 border-orange-200",
+  ANULACION_PARCIAL: "bg-purple-50 text-purple-700 border-purple-200",
   ABONADO: "bg-emerald-50 text-emerald-700 border-emerald-200",
   ANULADO: "bg-red-50 text-red-600 border-red-200",
 };
@@ -63,6 +64,7 @@ const ESTADO_LABEL = {
   CONFIRMADO: "Confirmado",
   PENDIENTE_PAGO: "Pendiente",
   PARCIALMENTE_ABONADO: "Parcial",
+  ANULACION_PARCIAL: "Anul. Parcial",
   ABONADO: "Abonado",
   ANULADO: "Anulado",
 };
@@ -147,6 +149,8 @@ const adaptarParaDrawer = (full) => {
     total: full.total,
     subtotal: full.subtotal,
     iva: full.iva,
+    saldoPendiente: full.saldoPendiente,
+    codigoReceptor: full.codigoReceptor,
     qrCodeImage: full.qrCode ?? undefined,
     receptor: {
       razonSocial: full.razonSocial,

@@ -467,7 +467,7 @@ const LibroMayor = () => {
               <div className="bg-white border border-[var(--border-subtle)] rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col">
                 <div className="p-5 border-b border-slate-100 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-600">
+                    <div className="w-8 h-8 bg-emerald-500/10 rounded-md flex items-center justify-center text-emerald-600">
                       <ArrowRightLeft size={16} />
                     </div>
                     <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest">

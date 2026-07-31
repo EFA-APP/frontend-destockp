@@ -29,34 +29,6 @@ export const anularComprobanteApi = async (codigo, motivo) => {
   return data;
 };
 
-/**
- * Feature 7 (comprobante-pago-desacoplado), R28: acción manual "marcar como
- * ajustado en tesorería" — `POST /comprobantes/:codigo/resolver-ajuste-tesoreria`,
- * apaga `ajusteTesoreriaPendiente` en un RECIBO/ORDEN_PAGO dado. Mismo
- * patrón que `anularComprobanteApi` (sin body).
- */
-export const resolverAjusteTesoreriaApi = async (codigo) => {
-  const { data } = await axiosInitial.post(
-    `/comprobantes/${codigo}/resolver-ajuste-tesoreria`,
-  );
-  return data;
-};
-
-/**
- * Feature 30 (comprobante-reintentar-tesoreria-contabilidad), R35:
- * `POST /comprobantes/:codigo/reintentar`, reintenta ÚNICAMENTE el paso
- * (`TESORERIA` | `CONTABILIDAD`) que falló sobre un comprobante ya
- * persistido.
- */
-export const reintentarPasoComprobanteApi = async (codigo, paso) => {
-  const { data } = await axiosInitial.post(
-    `/comprobantes/${codigo}/reintentar`,
-    { paso },
-    { showLoader: false },
-  );
-  return data;
-};
-
 export const generarComprobante = async ({ dto, codigoUnidadNegocio }) => {
   const { data } = await axiosInitial.post(
     "/comprobantes/generar-comprobante",
@@ -132,5 +104,21 @@ export const obtenerImportacionObraSocialApi = async (codigo) => {
     `/comprobantes/obras-sociales/importaciones/${codigo}`,
     { showLoader: false }
   );
+  return data;
+};
+
+export const aplicarSaldoAFavorApi = async (payload) => {
+  const { data } = await axiosInitial.post(
+    "/comprobantes/aplicar-saldo-a-favor",
+    payload,
+    { showLoader: true }
+  );
+  return data;
+};
+
+export const reintentarPasoComprobanteApi = async (codigo, paso) => {
+  const { data } = await axiosInitial.post(`/comprobantes/${codigo}/reintentar`, {
+    paso,
+  });
   return data;
 };
