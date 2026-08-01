@@ -165,20 +165,20 @@ const ModalRelacionesDisponibles = ({ open, onClose, entidad }) => {
         className="absolute inset-0 bg-gray-950/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-lg bg-[var(--surface)] rounded-[16px] shadow-2xl border border-[var(--border-subtle)] flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        <div className="p-5 border-b border-[var(--border-subtle)] flex justify-between items-center bg-[var(--fill-secondary)]/30">
+      <div className="relative w-full max-w-lg bg-white rounded-md shadow-2xl border border-gray-200 flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="p-5 border-b border-gray-200 flex justify-between items-center bg-gray-50/50">
           <div>
-            <h3 className="text-[13px] font-black uppercase text-[var(--text-primary)] tracking-widest flex items-center gap-2">
-              <Eye size={16} className="text-[var(--primary)]" />
+            <h3 className="text-[13px] font-black uppercase text-gray-900 tracking-widest flex items-center gap-2">
+              <Eye size={16} className="text-[#1FAE6D]" />
               Relaciones de {entidad?.nombre || "la entidad"}
             </h3>
-            <p className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mt-0.5">
+            <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mt-0.5">
               Vínculos configurados con otras entidades
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-[var(--text-muted)] hover:text-rose-500 hover:bg-rose-50 rounded-md transition-all cursor-pointer"
+            className="p-2 text-gray-500 hover:text-rose-500 hover:bg-rose-50 rounded-md transition-all cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -196,13 +196,13 @@ const ModalRelacionesDisponibles = ({ open, onClose, entidad }) => {
               Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-16 bg-[var(--fill-secondary)]/50 rounded-md animate-pulse"
+                  className="h-16 bg-gray-100 rounded-md animate-pulse"
                 />
               ))
             ) : relacionesDeEntidad.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 text-[var(--text-muted)]">
+              <div className="flex flex-col items-center justify-center py-10 text-gray-400">
                 <Link2 size={32} className="mb-2 opacity-20" />
-                <span className="text-[11px] font-black uppercase tracking-widest">
+                <span className="text-[11px] font-black uppercase tracking-widest text-gray-500">
                   Sin relaciones configuradas
                 </span>
               </div>
@@ -217,13 +217,13 @@ const ModalRelacionesDisponibles = ({ open, onClose, entidad }) => {
                 return (
                   <div
                     key={config.codigo}
-                    className="flex items-center justify-between px-4 py-3 bg-[var(--surface-hover)] rounded-[10px] border border-[var(--border-subtle)] shadow-sm"
+                    className="flex items-center justify-between px-4 py-3 bg-white rounded-md border border-gray-200 hover:bg-gray-50 shadow-sm"
                   >
                     <div className="flex flex-col min-w-0">
-                      <span className="text-[13px] font-black text-[var(--text-primary)] uppercase tracking-wide">
+                      <span className="text-[13px] font-black text-gray-900 uppercase tracking-wide">
                         {nombreRelacion}
                       </span>
-                      <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mt-0.5 flex items-center gap-1">
+                      <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mt-0.5 flex items-center gap-1">
                         <ArrowRight size={11} className="opacity-50" />
                         {nombreEntidad(otraClave)}
                       </span>
@@ -234,7 +234,7 @@ const ModalRelacionesDisponibles = ({ open, onClose, entidad }) => {
                       type="button"
                       onClick={() => setRelacionAEliminar(config)}
                       title="Eliminar relación"
-                      className="p-2 text-[var(--text-muted)] hover:text-rose-600 hover:bg-rose-50 rounded-[8px] transition-all cursor-pointer shrink-0"
+                      className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-all cursor-pointer shrink-0"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -246,8 +246,8 @@ const ModalRelacionesDisponibles = ({ open, onClose, entidad }) => {
 
           {/* Selector de "otra entidad" para crear-o-reusar (R1-R5). Sin
               gateo de permiso nuevo (R11). */}
-          <div className="space-y-2 pt-3 border-t border-[var(--border-subtle)]">
-            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
+          <div className="space-y-2 pt-3 border-t border-gray-200">
+            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
               Vincular con otra entidad
             </span>
             <div className="grid grid-cols-2 gap-1.5">
@@ -261,14 +261,14 @@ const ModalRelacionesDisponibles = ({ open, onClose, entidad }) => {
                     type="button"
                     disabled={Boolean(entidadEnProceso)}
                     onClick={() => crearOReusarRelacionConEntidad(ent)}
-                    className="flex flex-col items-start px-3 py-2 rounded-[10px] border border-[var(--border-subtle)] hover:border-[var(--primary)]/40 hover:bg-[var(--primary-subtle)] transition-all text-left cursor-pointer disabled:opacity-50"
+                    className="flex flex-col items-start px-3 py-2 rounded-md border border-gray-200 hover:border-[#1FAE6D]/40 hover:bg-[#1FAE6D]/5 transition-all text-left cursor-pointer disabled:opacity-50"
                   >
-                    <span className="text-[11px] font-bold text-[var(--text-primary)] uppercase">
+                    <span className="text-[11px] font-bold text-gray-900 uppercase">
                       {ent.nombre}
                       {entidadEnProceso === ent.clave && "…"}
                     </span>
                     {yaConfigurada && (
-                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider opacity-70">
+                      <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider opacity-70">
                         Ya configurada
                       </span>
                     )}
@@ -285,16 +285,16 @@ const ModalRelacionesDisponibles = ({ open, onClose, entidad }) => {
           PanelRelacionesContacto.jsx. */}
       {relacionAEliminar && (
         <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
-          <div className="bg-white border border-[var(--color-neutral-border)] rounded-[16px] max-w-md w-full p-8 shadow-xl animate-in zoom-in-95 duration-200">
+          <div className="bg-white border border-gray-200 rounded-md max-w-md w-full p-8 shadow-xl animate-in zoom-in-95 duration-200">
             <div className="flex flex-col items-center text-center gap-4">
-              <div className="w-16 h-16 rounded-[12px] bg-rose-50 flex items-center justify-center text-rose-600 mb-2 border border-rose-100 shadow-sm">
+              <div className="w-16 h-16 rounded-md bg-rose-50 flex items-center justify-center text-rose-600 mb-2 border border-rose-100 shadow-sm">
                 <AdvertenciaIcono size={32} />
               </div>
               <div className="space-y-2">
-                <h3 className="text-xl font-bold uppercase tracking-tighter text-[var(--color-neutral-text-main)]">
+                <h3 className="text-xl font-bold uppercase tracking-tighter text-gray-900">
                   ¿Eliminar esta relación?
                 </h3>
-                <p className="text-[13px] text-[var(--color-neutral-text-muted)] font-medium leading-relaxed tracking-wide">
+                <p className="text-[13px] text-gray-500 font-medium leading-relaxed tracking-wide">
                   ¿Estás seguro? Esta acción no se puede deshacer.
                 </p>
               </div>
@@ -302,17 +302,17 @@ const ModalRelacionesDisponibles = ({ open, onClose, entidad }) => {
                 <button
                   onClick={() => setRelacionAEliminar(null)}
                   disabled={eliminando}
-                  className="flex-1 py-3 rounded-[8px] bg-white border border-[var(--color-neutral-border)] text-[13px] font-bold text-[var(--color-neutral-text-main)] hover:bg-gray-50 disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
+                  className="flex-1 py-3 rounded-md bg-white border border-gray-200 text-[10px] uppercase font-bold tracking-widest text-gray-900 hover:bg-gray-50 disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleConfirmarEliminar}
                   disabled={eliminando}
-                  className="flex-1 py-3 rounded-[8px] bg-rose-600 text-white text-[13px] font-bold hover:bg-rose-700 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm"
+                  className="flex-1 py-3 rounded-md bg-[#EF5A5A] text-white text-[10px] uppercase font-bold tracking-widest hover:bg-rose-700 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm"
                 >
                   {eliminando ? (
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
                     <BorrarIcono size={14} />
                   )}
@@ -343,13 +343,13 @@ const FilaContactoRelaciones = ({ contacto, expandido, onToggle }) => {
     <div>
       <div
         onClick={onToggle}
-        className={`flex items-center gap-4 p-4 rounded-[12px] cursor-pointer transition-all group border bg-[var(--surface)] ${
+        className={`flex items-center gap-4 p-4 rounded-md cursor-pointer transition-all border ${
           expandido
-            ? "bg-[#F1FAF5] border-[#1FAE6D]/30 shadow-[0_2px_12px_rgba(0,0,0,0.05)]"
-            : "hover:bg-[#F5F7F6] border-transparent hover:shadow-[0_2px_12px_rgba(0,0,0,0.05)]"
+            ? "bg-[#F1FAF5] border-[#1FAE6D]/30 shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
+            : "bg-white border-transparent hover:border-gray-200 hover:bg-gray-50 shadow-sm"
         }`}
       >
-        <div className="w-10 h-10 rounded-full bg-white border border-[#E9EDEC] flex items-center justify-center text-[#1FAE6D] font-black text-lg shrink-0 uppercase shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
+        <div className="w-10 h-10 rounded-full bg-white border border-[#E9EDEC] flex items-center justify-center text-[#1FAE6D] font-black text-lg shrink-0 uppercase shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
           {avatarInitial}
         </div>
         <div className="flex-1 min-w-0">
@@ -362,7 +362,7 @@ const FilaContactoRelaciones = ({ contacto, expandido, onToggle }) => {
             {contacto.tipoEntidad || "Contacto"}
           </p>
         </div>
-        <div className="text-[var(--text-muted)] shrink-0">
+        <div className="text-gray-400 shrink-0">
           {expandido ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
         </div>
       </div>
@@ -415,28 +415,28 @@ const ListaRelacionesContactos = ({ entidad }) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[var(--surface)] border border-[var(--border-subtle)] rounded-[16px] shadow-sm overflow-hidden">
-      <div className="p-4 border-b border-[var(--border-subtle)] bg-[var(--fill-secondary)]/30 flex items-center justify-between gap-3 flex-wrap">
-        <h2 className="text-[13px] font-black uppercase text-[var(--text-primary)] tracking-widest flex items-center gap-2">
+    <div className="flex flex-col h-full bg-transparent overflow-hidden">
+      <div className="p-4 border-b border-gray-200 bg-gray-50/50 flex items-center justify-between gap-3 flex-wrap">
+        <h2 className="text-[13px] font-black uppercase text-gray-900 tracking-widest flex items-center gap-2">
           <Link2 size={16} />
           Relaciones entre Contactos
         </h2>
 
         <div className="flex items-center gap-3 flex-wrap">
           {/* R6: buscador local, independiente del buscador global (R7) */}
-          <div className="flex items-center bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md px-3 py-1 shadow-sm focus-within:ring-2 focus-within:ring-[var(--primary)]/20 transition-all">
-            <Search size={14} className="text-[var(--text-muted)]" />
+          <div className="flex items-center bg-white border border-gray-200 rounded-md px-3 py-1 shadow-sm focus-within:ring-2 focus-within:ring-gray-900/10 focus-within:border-gray-900 transition-all">
+            <Search size={14} className="text-gray-400" />
             <input
               type="text"
               value={busquedaLocal}
               onChange={(e) => setBusquedaLocal(e.target.value)}
               placeholder="Buscar por nombre o documento..."
-              className="bg-transparent border-none outline-none text-[12px] font-medium py-1.5 px-2 w-56 text-[var(--text-primary)]"
+              className="bg-transparent border-none outline-none text-[12px] font-medium py-1.5 px-2 w-56 text-gray-800"
             />
             {busquedaLocal && (
               <button
                 onClick={() => setBusquedaLocal("")}
-                className="text-[var(--text-muted)] hover:text-rose-500 transition-colors cursor-pointer"
+                className="text-gray-400 hover:text-rose-500 transition-colors cursor-pointer"
               >
                 <X size={14} />
               </button>
@@ -453,7 +453,7 @@ const ListaRelacionesContactos = ({ entidad }) => {
               contactoOrigenInicial ya fijado). */}
           <button
             onClick={() => setMostrarModalRelaciones(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[var(--primary)] text-white text-[11px] font-black uppercase tracking-widest rounded-[10px] shadow-sm hover:brightness-110 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 text-white text-[10px] font-black uppercase tracking-widest rounded-md shadow-sm hover:bg-black transition-all cursor-pointer"
           >
             <Eye size={14} />
             Ver Relaciones Disponibles
@@ -466,13 +466,13 @@ const ListaRelacionesContactos = ({ entidad }) => {
           Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}
-              className="h-16 bg-[var(--fill-secondary)]/50 rounded-md animate-pulse mb-1"
+              className="h-16 bg-gray-100 rounded-md animate-pulse mb-1"
             />
           ))
         ) : contactos.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-[var(--text-muted)] pb-10">
+          <div className="flex flex-col items-center justify-center h-full text-gray-400 pb-10">
             <Package size={40} className="mb-3 opacity-20" />
-            <span className="text-[12px] font-black uppercase tracking-widest">
+            <span className="text-[12px] font-black uppercase tracking-widest text-gray-500">
               {busquedaDebounced
                 ? "Sin resultados para la búsqueda"
                 : "No se encontraron contactos"}
@@ -491,15 +491,15 @@ const ListaRelacionesContactos = ({ entidad }) => {
       </div>
 
       {/* Controles de paginación local */}
-      <div className="p-4 border-t border-[var(--border-subtle)] bg-[var(--fill-secondary)]/20 flex items-center justify-between">
-        <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest hidden sm:block">
+      <div className="p-4 border-t border-gray-200 bg-gray-50/50 flex items-center justify-between">
+        <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest hidden sm:block">
           Total: {total}
         </span>
         <div className="flex items-center gap-3">
           <button
             disabled={pagina <= 1}
             onClick={() => setPagina((p) => p - 1)}
-            className="text-[10px] px-3 py-1.5 font-black uppercase tracking-widest bg-[var(--surface)] border border-[var(--border-subtle)] rounded hover:bg-[var(--fill-secondary)] disabled:opacity-30 cursor-pointer shadow-sm transition-all"
+            className="text-[10px] px-3 py-1.5 font-black uppercase tracking-widest bg-white border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-30 cursor-pointer shadow-sm transition-all"
           >
             Ant
           </button>
@@ -509,7 +509,7 @@ const ListaRelacionesContactos = ({ entidad }) => {
           <button
             disabled={pagina >= paginas}
             onClick={() => setPagina((p) => p + 1)}
-            className="text-[10px] px-3 py-1.5 font-black uppercase tracking-widest bg-[var(--surface)] border border-[var(--border-subtle)] rounded hover:bg-[var(--fill-secondary)] disabled:opacity-30 cursor-pointer shadow-sm transition-all"
+            className="text-[10px] px-3 py-1.5 font-black uppercase tracking-widest bg-white border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-30 cursor-pointer shadow-sm transition-all"
           >
             Sig
           </button>

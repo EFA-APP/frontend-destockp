@@ -198,6 +198,17 @@ const VistaCuentasCorrientes = lazy(
     import("../Componentes/Secciones/CuentasCorrientes/VistaCuentasCorrientes"),
 );
 
+// CAMARA
+const ContenidosInstitucionales = lazy(
+  () => import("../Componentes/Secciones/Camara/Contenidos/ContenidosInstitucionales")
+);
+const Banners = lazy(
+  () => import("../Componentes/Secciones/Camara/Banners/Banners")
+);
+const Beneficios = lazy(
+  () => import("../Componentes/Secciones/Camara/Beneficios/Beneficios")
+);
+
 export default function Router() {
   return (
     <Suspense>
@@ -443,6 +454,13 @@ export default function Router() {
                 path="tesoreria/cheques-propios"
                 element={<ChequePropio />}
               />
+            </Route>
+
+            {/* CAMARA */}
+            <Route element={<RutaProtegida />}>
+              <Route path="camara/contenidos" element={<ContenidosInstitucionales />} />
+              <Route path="camara/banners" element={<Banners />} />
+              <Route path="camara/beneficios" element={<Beneficios />} />
             </Route>
 
             {/* SISTEMA */}

@@ -227,15 +227,15 @@ const ModalCargaMasivaContactos = ({ open, onClose, onExito }) => {
               }}
               className={`p-3 rounded-md border flex items-center gap-3  ${
                 entidadSeleccionada === ent.clave
-                  ? "bg-[var(--primary)]/10 border-[var(--primary)] text-black shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)]"
-                  : "bg-white/[0.02] border-black/5 text-black/40 hover:bg-black/5"
+                  ? "bg-[#1FAE6D]/10 border-[#1FAE6D] text-gray-900 shadow-sm"
+                  : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
               }`}
             >
               <div
                 className={`w-8 h-8 rounded-md flex items-center justify-center ${
                   entidadSeleccionada === ent.clave
-                    ? "bg-[var(--primary)]/20 text-[var(--primary)]"
-                    : "bg-black/5 text-black/20"
+                    ? "bg-[#1FAE6D]/20 text-[#1FAE6D]"
+                    : "bg-gray-100 text-gray-400"
                 }`}
               >
                 <CuentaIcono size={16} />
@@ -266,7 +266,7 @@ const ModalCargaMasivaContactos = ({ open, onClose, onExito }) => {
             </div>
           </button>
 
-          <label className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border border-[var(--primary)]/20 rounded-md text-[var(--primary)]  cursor-pointer group">
+          <label className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-[#1FAE6D]/10 hover:bg-[#1FAE6D]/20 border border-[#1FAE6D]/20 rounded-md text-[#1FAE6D]  cursor-pointer group">
             <FileSpreadsheet size={20} className=" " />
             <div className="text-left">
               <div className="text-xs font-black uppercase tracking-wider">
@@ -300,7 +300,7 @@ const ModalCargaMasivaContactos = ({ open, onClose, onExito }) => {
             <label className="text-[13px] font-bold text-black/50 uppercase tracking-widest">
               Previsualización
             </label>
-            <span className="text-[12px] font-black text-[var(--primary)] uppercase">
+            <span className="text-[12px] font-black text-[#1FAE6D] uppercase">
               {fileData.length} registros detectados
             </span>
           </div>
@@ -309,21 +309,21 @@ const ModalCargaMasivaContactos = ({ open, onClose, onExito }) => {
             {fileData.map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-4 bg-white/[0.03] p-3 rounded-md border border-black/5 hover:bg-white/[0.06] "
+                className="flex items-center gap-4 bg-white p-3 rounded-md border border-gray-200 hover:bg-gray-50 "
               >
-                <div className="w-8 h-8 rounded-md bg-black/5 flex items-center justify-center border border-black/10 shrink-0">
-                  <CuentaIcono size={14} className="text-black/40" />
+                <div className="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center border border-gray-200 shrink-0">
+                  <CuentaIcono size={14} className="text-gray-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[13px] font-bold text-black truncate">
+                  <div className="text-[13px] font-bold text-gray-900 truncate">
                     {item.razonSocial || `${item.nombre} ${item.apellido}`}
                   </div>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-[11px] text-black/30 uppercase font-black">
+                    <span className="text-[11px] text-gray-500 uppercase font-black">
                       {item.documento || "S/D"}
                     </span>
-                    <span className="text-[11px] text-black/10">•</span>
-                    <span className="text-[11px] text-[var(--primary)]/70 font-bold">
+                    <span className="text-[11px] text-gray-300">•</span>
+                    <span className="text-[11px] text-[#1FAE6D] font-bold">
                       {item.condicionIva}
                     </span>
                   </div>
@@ -332,7 +332,7 @@ const ModalCargaMasivaContactos = ({ open, onClose, onExito }) => {
                       {Object.entries(item.atributos).map(([key, val]) => (
                         <span
                           key={key}
-                          className="px-1.5 py-0.5 rounded bg-black/5 border border-black/10 text-[10px] font-black text-black/40 uppercase"
+                          className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-[10px] font-black text-gray-500 uppercase"
                         >
                           {key}: {val || "---"}
                         </span>
@@ -360,7 +360,7 @@ const ModalCargaMasivaContactos = ({ open, onClose, onExito }) => {
       <button
         onClick={handleSubmit}
         disabled={fileData.length === 0 || cargando}
-        className="flex items-center gap-3 px-8 py-2.5 bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 hover:brightness-110 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed text-black rounded-md font-black text-[13px] uppercase tracking-widest  shadow-xl shadow-[var(--primary)]/20 active:scale-95"
+        className="flex items-center gap-3 px-8 py-2.5 bg-[#1FAE6D] hover:bg-[#178F58] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-md font-black text-[13px] uppercase tracking-widest shadow-sm active:scale-95 transition-all"
       >
         {cargando ? (
           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full " />

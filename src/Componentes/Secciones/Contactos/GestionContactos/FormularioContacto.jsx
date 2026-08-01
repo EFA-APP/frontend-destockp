@@ -200,19 +200,19 @@ const FormularioContacto = ({
         {cargandoEntidades || cargandoConfigs ? (
           <div className="flex-1 p-6 space-y-8 overflow-hidden animate-pulse">
             <div className="space-y-3">
-              <div className="h-2 w-24 bg-[var(--fill-secondary)] rounded" />
+              <div className="h-2 w-24 bg-gray-100 rounded" />
               <div className="grid grid-cols-2 gap-2">
-                <div className="h-10 bg-[var(--fill-secondary)] rounded-md" />
-                <div className="h-10 bg-[var(--fill-secondary)] rounded-md" />
+                <div className="h-10 bg-gray-100 rounded-md" />
+                <div className="h-10 bg-gray-100 rounded-md" />
               </div>
             </div>
             <div className="space-y-4 pt-6">
-              <div className="h-px bg-[var(--border-subtle)]" />
+              <div className="h-px bg-gray-200" />
               <div className="grid grid-cols-2 gap-3">
-                <div className="h-14 bg-[var(--fill-secondary)] rounded-md" />
-                <div className="h-14 bg-[var(--fill-secondary)] rounded-md" />
+                <div className="h-14 bg-gray-100 rounded-md" />
+                <div className="h-14 bg-gray-100 rounded-md" />
               </div>
-              <div className="h-12 bg-[var(--fill-secondary)] rounded-md" />
+              <div className="h-12 bg-gray-100 rounded-md" />
             </div>
           </div>
         ) : (
@@ -234,8 +234,8 @@ const FormularioContacto = ({
                       onClick={() => handleChange("tipoEntidad", ent.clave)}
                       className={`px-3 py-2.5 rounded-md border text-[11px] font-black flex items-center gap-2.5 tracking-wider transition-all cursor-pointer ${
                         form.tipoEntidad === ent.clave
-                          ? "bg-[var(--primary-subtle)] text-[var(--primary-emphasis)] border-[var(--primary)]/30 shadow-sm"
-                          : "bg-[var(--fill-secondary)] text-[var(--text-muted)] border-transparent hover:bg-[var(--border-subtle)]"
+                          ? "bg-[#1FAE6D]/10 text-[#178F58] border-[#1FAE6D]/30 shadow-sm"
+                          : "bg-white text-gray-500 border-gray-200 hover:bg-gray-50"
                       }`}
                     >
                       <div
@@ -254,39 +254,39 @@ const FormularioContacto = ({
             {/* 2. DATOS DE IDENTIDAD */}
             <div className="space-y-4">
               <div className="flex items-center gap-3 mb-2">
-                <span className="text-[12px] font-black text-[var(--primary)] uppercase tracking-[0.2em] whitespace-nowrap">
+                <span className="text-[12px] font-black text-gray-900 uppercase tracking-[0.2em] whitespace-nowrap">
                   Ficha Personal
                 </span>
-                <div className="h-px w-full bg-[var(--border-subtle)]" />
+                <div className="h-px w-full bg-gray-200" />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
                     Nombres
                   </label>
                   <input
                     type="text"
                     value={form.nombre}
                     onChange={(e) => handleChange("nombre", e.target.value)}
-                    className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all"
+                    className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-[13px] font-bold text-gray-900 focus:outline-none focus:border-[#1FAE6D] transition-all shadow-sm"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
                     Apellidos
                   </label>
                   <input
                     type="text"
                     value={form.apellido}
                     onChange={(e) => handleChange("apellido", e.target.value)}
-                    className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all"
+                    className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-[13px] font-bold text-gray-900 focus:outline-none focus:border-[#1FAE6D] transition-all shadow-sm"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
                   Razón Social / Denominación
                 </label>
                 <input
@@ -294,13 +294,13 @@ const FormularioContacto = ({
                   placeholder="Empresa o nombre completo"
                   value={form.razonSocial}
                   onChange={(e) => handleChange("razonSocial", e.target.value)}
-                  className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all placeholder:text-[var(--text-muted)] uppercase tracking-widest"
+                  className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-[13px] font-bold text-gray-900 focus:outline-none focus:border-[#1FAE6D] transition-all placeholder:text-gray-400 uppercase tracking-widest shadow-sm"
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
                     Tipo Doc.
                   </label>
                   <div className="relative">
@@ -309,7 +309,7 @@ const FormularioContacto = ({
                       onChange={(e) =>
                         handleChange("tipoDocumento", e.target.value)
                       }
-                      className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[12px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] appearance-none cursor-pointer transition-all uppercase"
+                      className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-[12px] font-bold text-gray-900 focus:outline-none focus:border-[#1FAE6D] appearance-none cursor-pointer transition-all uppercase shadow-sm"
                     >
                       <option value="">Seleccionar...</option>
                       <option value={80}>CUIT</option>
@@ -317,7 +317,7 @@ const FormularioContacto = ({
                       <option value={96}>DNI</option>
                       <option value={94}>Pasaporte</option>
                     </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-[var(--text-muted)]">
+                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-gray-400">
                       <svg
                         width="10"
                         height="10"
@@ -334,18 +334,18 @@ const FormularioContacto = ({
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
                     Número Doc.
                   </label>
                   <input
                     type="text"
                     value={form.documento}
                     onChange={(e) => handleChange("documento", e.target.value)}
-                    className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all"
+                    className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-[13px] font-bold text-gray-900 focus:outline-none focus:border-[#1FAE6D] transition-all shadow-sm"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
                     Cond. Fiscal
                   </label>
                   <div className="relative">
@@ -354,14 +354,14 @@ const FormularioContacto = ({
                       onChange={(e) =>
                         handleChange("condicionIva", e.target.value)
                       }
-                      className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[12px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] appearance-none cursor-pointer transition-all uppercase"
+                      className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-[12px] font-bold text-gray-900 focus:outline-none focus:border-[#1FAE6D] appearance-none cursor-pointer transition-all uppercase shadow-sm"
                     >
                       <option value="CF">Consumidor Final</option>
                       <option value="RI">Resp. Inscripto</option>
                       <option value="MO">Monotributista</option>
                       <option value="EX">Exento</option>
                     </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-[var(--text-muted)]">
+                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-gray-400">
                       <svg
                         width="10"
                         height="10"
@@ -387,7 +387,7 @@ const FormularioContacto = ({
 
               {/* Correo Electrónico */}
               <div className="space-y-1.5 mt-4">
-                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
                   Correo Electrónico
                 </label>
                 <input
@@ -404,10 +404,10 @@ const FormularioContacto = ({
                   onBlur={(e) => {
                     setEmailError(validarEmail(e.target.value));
                   }}
-                  className={`w-full bg-[var(--fill-secondary)] border rounded-md px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none transition-all ${
+                  className={`w-full bg-white border rounded-md px-3 py-2 text-[13px] font-bold text-gray-900 focus:outline-none shadow-sm transition-all ${
                     emailError
                       ? "border-rose-500 focus:border-rose-500"
-                      : "border-[var(--border-subtle)] focus:border-[var(--primary)]"
+                      : "border-gray-200 focus:border-[#1FAE6D]"
                   }`}
                 />
                 {emailError && (
@@ -420,9 +420,9 @@ const FormularioContacto = ({
 
             {/* 3. RESPONSABLE DE FACTURACIÓN */}
             <TieneAccion accion="ENTE_FACTURACION_CONTACTO">
-              <div className="space-y-4 pt-6 border-t border-[var(--border-subtle)]">
+              <div className="space-y-4 pt-6 border-t border-gray-200">
                 <div className="flex items-center justify-between gap-3 mb-1">
-                  <span className="text-[12px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] whitespace-nowrap">
+                  <span className="text-[12px] font-black text-gray-900 uppercase tracking-[0.2em] whitespace-nowrap">
                     Facturación
                   </span>
                   {!form.enteFacturacion && (
@@ -433,7 +433,7 @@ const FormularioContacto = ({
                 </div>
 
                 {!form.enteFacturacion?.codigo ? (
-                  <div className="space-y-3 bg-[var(--fill-secondary)] p-4 rounded-md border border-[var(--border-subtle)] shadow-inner">
+                  <div className="space-y-3 bg-gray-50 p-4 rounded-md border border-gray-200">
                     <div className="space-y-2">
                       <div className="relative">
                         <select
@@ -444,7 +444,7 @@ const FormularioContacto = ({
                               entidad: e.target.value,
                             })
                           }
-                          className="w-full bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[11px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] cursor-pointer appearance-none uppercase"
+                          className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-[11px] font-bold text-gray-900 focus:outline-none focus:border-[#1FAE6D] cursor-pointer appearance-none uppercase shadow-sm"
                         >
                           <option value="">Seleccionar Entidad...</option>
                           {entidades.map((ent) => (
@@ -453,7 +453,7 @@ const FormularioContacto = ({
                             </option>
                           ))}
                         </select>
-                        <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-[var(--text-muted)]">
+                        <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-gray-400">
                           <svg
                             width="10"
                             height="10"
@@ -470,7 +470,7 @@ const FormularioContacto = ({
                       </div>
 
                       <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--text-muted)]">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                           <Search size={12} />
                         </div>
                         <input
@@ -507,17 +507,17 @@ const FormularioContacto = ({
                               200,
                             )
                           }
-                          className="w-full bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md pl-9 pr-3 py-2 text-[11px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] disabled:opacity-50 transition-all"
+                          className="w-full bg-white border border-gray-200 rounded-md pl-9 pr-3 py-2 text-[11px] font-bold text-gray-900 focus:outline-none focus:border-[#1FAE6D] disabled:opacity-50 transition-all shadow-sm"
                         />
 
                         {cargandoEntes && (
                           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                            <div className="w-3 h-3 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+                            <div className="w-3 h-3 border-2 border-[#1FAE6D] border-t-transparent rounded-full animate-spin" />
                           </div>
                         )}
 
                         {busquedaEnte.mostrarDropdown && (
-                          <div className="absolute top-full mt-1 left-0 right-0 max-h-48 overflow-y-auto custom-scrollbar bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md shadow-2xl z-50 p-1 animate-in fade-in zoom-in-95 duration-200">
+                          <div className="absolute top-full mt-1 left-0 right-0 max-h-48 overflow-y-auto custom-scrollbar bg-white border border-gray-200 rounded-md shadow-2xl z-50 p-1 animate-in fade-in zoom-in-95 duration-200">
                             {Array.isArray(listaEntes) &&
                             listaEntes.length > 0 ? (
                               listaEntes.map((c, idx) => (
@@ -537,13 +537,13 @@ const FormularioContacto = ({
                                       mostrarDropdown: false,
                                     }));
                                   }}
-                                  className={`px-4 py-2.5 text-[11px] font-bold cursor-pointer rounded-md uppercase transition-colors ${idx === highlightedIndexEnte ? "bg-[var(--primary)] text-white" : "text-[var(--text-primary)] hover:bg-[var(--primary-subtle)] hover:text-[var(--primary)]"}`}
+                                  className={`px-4 py-2.5 text-[11px] font-bold cursor-pointer rounded-md uppercase transition-colors ${idx === highlightedIndexEnte ? "bg-[#1FAE6D] text-white" : "text-gray-900 hover:bg-[#1FAE6D]/10 hover:text-[#1FAE6D]"}`}
                                 >
                                   {c.razonSocial || `${c.nombre} ${c.apellido}`}
                                 </div>
                               ))
                             ) : (
-                              <div className="px-4 py-3 text-[11px] text-[var(--text-muted)] text-center font-bold uppercase italic">
+                              <div className="px-4 py-3 text-[11px] text-gray-500 text-center font-bold uppercase italic">
                                 {busquedaEnte.query
                                   ? "Sin resultados"
                                   : "Escriba para buscar..."}
@@ -555,12 +555,12 @@ const FormularioContacto = ({
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between p-4 bg-[var(--primary-subtle)] border border-[var(--primary)]/20 rounded-md shadow-sm">
+                  <div className="flex items-center justify-between p-4 bg-[#1FAE6D]/10 border border-[#1FAE6D]/20 rounded-md shadow-sm">
                     <div className="flex flex-col">
-                      <span className="text-[10px] font-black text-[var(--primary)] uppercase tracking-widest mb-0.5">
+                      <span className="text-[10px] font-black text-[#1FAE6D] uppercase tracking-widest mb-0.5">
                         ENTE FACTURADOR:
                       </span>
-                      <span className="text-[13px] font-black text-[var(--primary-emphasis)] uppercase truncate max-w-[200px]">
+                      <span className="text-[13px] font-black text-gray-900 uppercase truncate max-w-[200px]">
                         {form.enteFacturacion?.razonSocial ||
                           `${form.enteFacturacion?.nombre || ""} ${form.enteFacturacion?.apellido || ""}`}
                       </span>
@@ -592,18 +592,18 @@ const FormularioContacto = ({
 
             {/* 5. CAMPOS DINÁMICOS */}
             {configsEntidad.length > 0 && (
-              <div className="space-y-5 pt-6 border-t border-[var(--border-subtle)]">
+              <div className="space-y-5 pt-6 border-t border-gray-200">
                 <div className="flex items-center gap-3 mb-2">
-                  <span className="text-[12px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] whitespace-nowrap">
+                  <span className="text-[12px] font-black text-gray-900 uppercase tracking-[0.2em] whitespace-nowrap">
                     Atributos {entidadActual?.nombre}
                   </span>
-                  <div className="h-px w-full bg-[var(--border-subtle)]" />
+                  <div className="h-px w-full bg-gray-200" />
                 </div>
 
                 <div className="grid grid-cols-1 gap-5">
                   {configsEntidad.map((conf) => (
                     <div key={conf.claveCampo} className="space-y-1.5">
-                      <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                      <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
                         {conf.nombreCampo}{" "}
                         {conf.requerido && (
                           <span className="text-rose-500">*</span>
@@ -620,7 +620,7 @@ const FormularioContacto = ({
                                 e.target.value,
                               )
                             }
-                            className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[12px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] appearance-none cursor-pointer uppercase transition-all"
+                            className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-[12px] font-bold text-gray-900 focus:outline-none focus:border-[#1FAE6D] appearance-none cursor-pointer uppercase transition-all shadow-sm"
                           >
                             <option value="">Seleccionar...</option>
                             {(conf.opciones || []).map((opt) => (
@@ -629,7 +629,7 @@ const FormularioContacto = ({
                               </option>
                             ))}
                           </select>
-                          <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-[var(--text-muted)]">
+                          <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-gray-400">
                             <svg
                               width="10"
                               height="10"
@@ -645,13 +645,13 @@ const FormularioContacto = ({
                           </div>
                         </div>
                       ) : conf.tipoDato === "BOOLEANO" ? (
-                        <div className="flex gap-2 p-1 bg-[var(--fill-secondary)] rounded-md border border-[var(--border-subtle)] shadow-inner">
+                        <div className="flex gap-2 p-1 bg-gray-50 rounded-md border border-gray-200">
                           <button
                             type="button"
                             onClick={() =>
                               handleAtributoChange(conf.claveCampo, true)
                             }
-                            className={`flex-1 py-2 rounded-md text-[10px] font-black transition-all cursor-pointer ${form.atributos[conf.claveCampo] === true ? "bg-[var(--surface)] text-emerald-600 shadow-sm border border-emerald-500/20" : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"}`}
+                            className={`flex-1 py-2 rounded-md text-[10px] font-black transition-all cursor-pointer ${form.atributos[conf.claveCampo] === true ? "bg-white text-[#1FAE6D] shadow-sm border border-[#1FAE6D]/20" : "text-gray-500 hover:text-gray-900"}`}
                           >
                             SÍ
                           </button>
@@ -660,7 +660,7 @@ const FormularioContacto = ({
                             onClick={() =>
                               handleAtributoChange(conf.claveCampo, false)
                             }
-                            className={`flex-1 py-2 rounded-md text-[10px] font-black transition-all cursor-pointer ${form.atributos[conf.claveCampo] === false ? "bg-[var(--surface)] text-rose-600 shadow-sm border border-rose-500/20" : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"}`}
+                            className={`flex-1 py-2 rounded-md text-[10px] font-black transition-all cursor-pointer ${form.atributos[conf.claveCampo] === false ? "bg-white text-[#EF5A5A] shadow-sm border border-[#EF5A5A]/20" : "text-gray-500 hover:text-gray-900"}`}
                           >
                             NO
                           </button>
@@ -675,7 +675,7 @@ const FormularioContacto = ({
                               e.target.value,
                             )
                           }
-                          className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-md px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all"
+                          className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-[13px] font-bold text-gray-900 focus:outline-none focus:border-[#1FAE6D] transition-all shadow-sm"
                         />
                       )}
                     </div>
@@ -688,14 +688,14 @@ const FormularioContacto = ({
             <div className="pt-8 flex flex-col gap-3">
               <button
                 type="submit"
-                className="w-full py-4 bg-[var(--primary)] text-white rounded-md text-[12px] font-black uppercase tracking-[0.2em] hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-[var(--primary)]/20 cursor-pointer"
+                className="w-full py-4 bg-[#1FAE6D] text-white rounded-md text-[12px] font-black uppercase tracking-[0.2em] hover:bg-[#178F58] active:scale-95 transition-all shadow-sm shadow-[#1FAE6D]/20 cursor-pointer"
               >
                 {contacto ? "ACTUALIZAR FICHA" : "REGISTRAR CONTACTO"}
               </button>
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full py-3 bg-[var(--fill-secondary)] text-[var(--text-muted)] rounded-md text-[11px] font-black uppercase tracking-[0.2em] border border-transparent hover:border-[var(--border-subtle)] hover:text-[var(--text-primary)] transition-all cursor-pointer"
+                className="w-full py-3 bg-white text-gray-500 rounded-md text-[11px] font-black uppercase tracking-[0.2em] border border-gray-200 hover:text-gray-900 hover:bg-gray-50 transition-all cursor-pointer"
               >
                 DESCARTAR CAMBIOS
               </button>
@@ -707,7 +707,7 @@ const FormularioContacto = ({
 
   if (inline) {
     return (
-      <div className="flex flex-col h-full bg-[var(--surface)] overflow-hidden">
+      <div className="flex flex-col h-full bg-white overflow-hidden">
         {contenido}
       </div>
     );
@@ -717,13 +717,13 @@ const FormularioContacto = ({
     <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-gray-950/60 backdrop-blur-sm transition-opacity"
+        className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal Card */}
       <div
-        className="relative w-full max-w-3xl bg-[var(--surface)] rounded-md shadow-2xl border border-[var(--border-subtle)] flex flex-col my-8 max-h-[90vh] md:max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-300"
+        className="relative w-full max-w-3xl bg-white rounded-md shadow-2xl border border-gray-200 flex flex-col my-8 max-h-[90vh] md:max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-300"
         onClick={(e) => e.stopPropagation()}
       >
         {contenido}

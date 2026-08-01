@@ -37,7 +37,7 @@ const InlineEmailUsuario = ({ contacto, onActualizar }) => {
         onBlur={guardar}
         onKeyDown={(e) => e.key === "Enter" && guardar()}
         placeholder="correo@ejemplo.com"
-        className="w-full bg-[var(--surface)] border border-[var(--primary)] rounded-[8px] px-2 py-1 text-[12px] font-medium outline-none"
+        className="w-full bg-white border border-[#1FAE6D] rounded-md px-2 py-1 text-[12px] font-medium outline-none"
       />
     );
   }
@@ -46,7 +46,7 @@ const InlineEmailUsuario = ({ contacto, onActualizar }) => {
     <button
       type="button"
       onClick={() => setEditando(true)}
-      className="flex items-center gap-1.5 text-[var(--text-muted)] italic hover:text-[var(--primary)] hover:not-italic transition-colors cursor-pointer"
+      className="flex items-center gap-1.5 text-gray-500 italic hover:text-[#1FAE6D] hover:not-italic transition-colors cursor-pointer"
     >
       <MailX size={13} className="opacity-60" />
       Cargar email...
@@ -113,28 +113,28 @@ const ListaUsuariosContactos = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[var(--surface)] border border-[var(--border-subtle)] rounded-[16px] shadow-sm overflow-hidden">
-      <div className="p-4 border-b border-[var(--border-subtle)] bg-[var(--fill-secondary)]/30 flex items-center justify-between gap-3 flex-wrap">
-        <h2 className="text-[13px] font-black uppercase text-[var(--text-primary)] tracking-widest flex items-center gap-2">
+    <div className="flex flex-col h-full bg-transparent overflow-hidden">
+      <div className="p-4 border-b border-gray-200 bg-gray-50/50 flex items-center justify-between gap-3 flex-wrap">
+        <h2 className="text-[13px] font-black uppercase text-gray-900 tracking-widest flex items-center gap-2">
           <Users size={16} />
           Usuarios de contactos
         </h2>
 
         <div className="flex items-center gap-3 flex-wrap">
           {/* R5: buscador con debounce */}
-          <div className="flex items-center bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md px-3 py-1 shadow-sm focus-within:ring-2 focus-within:ring-[var(--primary)]/20 transition-all">
-            <Search size={14} className="text-[var(--text-muted)]" />
+          <div className="flex items-center bg-white border border-gray-200 rounded-md px-3 py-1 shadow-sm focus-within:ring-2 focus-within:ring-gray-900/10 focus-within:border-gray-900 transition-all">
+            <Search size={14} className="text-gray-400" />
             <input
               type="text"
               value={busquedaLocal}
               onChange={(e) => setBusquedaLocal(e.target.value)}
               placeholder="Buscar contactos..."
-              className="bg-transparent border-none outline-none text-[12px] font-medium py-1.5 px-2 w-48 text-[var(--text-primary)]"
+              className="bg-transparent border-none outline-none text-[12px] font-medium py-1.5 px-2 w-48 text-gray-800"
             />
             {busquedaLocal && (
               <button
                 onClick={() => setBusquedaLocal("")}
-                className="text-[var(--text-muted)] hover:text-rose-500 transition-colors cursor-pointer"
+                className="text-gray-400 hover:text-gray-900 transition-colors cursor-pointer"
               >
                 <X size={14} />
               </button>
@@ -144,7 +144,7 @@ const ListaUsuariosContactos = () => {
           {seleccionados.size > 0 && (
             <button
               onClick={() => setMostrarModal(true)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[var(--primary)] text-white text-[11px] font-black uppercase tracking-widest rounded-[10px] shadow-sm hover:brightness-110 transition-all cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#1FAE6D] text-white text-[10px] font-black uppercase tracking-widest rounded-md shadow-sm hover:bg-[#178F58] transition-all cursor-pointer"
             >
               <CandadoIcono size={14} />
               Habilitar como usuario ({seleccionados.size})
@@ -155,19 +155,19 @@ const ListaUsuariosContactos = () => {
 
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         <table className="w-full text-left border-collapse">
-          <thead className="sticky top-0 bg-[var(--surface)] z-10">
-            <tr className="border-b border-[var(--border-subtle)]">
+          <thead className="sticky top-0 bg-white z-10 shadow-sm">
+            <tr className="border-b border-gray-200">
               <th className="px-4 py-3 w-10"></th>
-              <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+              <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-50/50">
                 Contacto
               </th>
-              <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+              <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-50/50">
                 Tipo
               </th>
-              <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+              <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-50/50">
                 Email
               </th>
-              <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+              <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-50/50">
                 Estado de acceso
               </th>
             </tr>
@@ -177,7 +177,7 @@ const ListaUsuariosContactos = () => {
               Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i}>
                   <td colSpan={5} className="px-4 py-2">
-                    <div className="h-10 bg-[var(--fill-secondary)]/50 rounded-md animate-pulse" />
+                    <div className="h-10 bg-gray-100 rounded-md animate-pulse" />
                   </td>
                 </tr>
               ))
@@ -185,7 +185,7 @@ const ListaUsuariosContactos = () => {
               <tr>
                 <td
                   colSpan={5}
-                  className="px-4 py-10 text-center text-[12px] font-black uppercase tracking-widest text-[var(--text-muted)]"
+                  className="px-4 py-10 text-center text-[10px] font-black uppercase tracking-widest text-gray-500"
                 >
                   No se encontraron contactos
                 </td>
@@ -197,7 +197,7 @@ const ListaUsuariosContactos = () => {
                 return (
                   <tr
                     key={c.codigo}
-                    className="border-b border-[var(--border-subtle)] hover:bg-[var(--fill-secondary)]/20 transition-colors"
+                    className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
                   >
                     <td className="px-4 py-3">
                       <input
@@ -212,20 +212,20 @@ const ListaUsuariosContactos = () => {
                               ? "El contacto ya tiene usuario habilitado"
                               : undefined
                         }
-                        className="w-4 h-4 accent-[var(--primary)] disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+                        className="w-4 h-4 accent-[#1FAE6D] disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
                       />
                     </td>
-                    <td className="px-4 py-3 text-[13px] font-semibold text-[var(--text-primary)]">
+                    <td className="px-4 py-3 text-[12px] font-bold text-gray-800">
                       {c.razonSocial ||
                         `${c.nombre || ""} ${c.apellido || ""}`.trim() ||
                         "Sin Nombre"}
                     </td>
-                    <td className="px-4 py-3 text-[11px] font-bold uppercase text-[var(--text-muted)]">
+                    <td className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">
                       {c.tipoEntidad}
                     </td>
                     <td className="px-4 py-3 text-[12px] font-medium">
                       {c.correoElectronico ? (
-                        <span className="flex items-center gap-1.5 text-[var(--text-primary)]">
+                        <span className="flex items-center gap-1.5 text-gray-800">
                           <Mail size={13} className="opacity-60" />
                           {c.correoElectronico}
                         </span>
@@ -238,12 +238,15 @@ const ListaUsuariosContactos = () => {
                     </td>
                     <td className="px-4 py-3">
                       <span
-                        className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md border text-[10px] font-black uppercase tracking-widest ${
                           c.usuarioHabilitado
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200/60"
                             : "bg-gray-50 text-gray-500 border-gray-200"
                         }`}
                       >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${c.usuarioHabilitado ? "bg-emerald-500" : "bg-gray-400"}`}
+                        ></span>
                         {c.usuarioHabilitado ? "Habilitado" : "No habilitado"}
                       </span>
                     </td>
@@ -255,15 +258,15 @@ const ListaUsuariosContactos = () => {
         </table>
       </div>
 
-      <div className="p-4 border-t border-[var(--border-subtle)] bg-[var(--fill-secondary)]/20 flex items-center justify-between">
-        <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest hidden sm:block">
+      <div className="p-4 border-t border-gray-200 bg-gray-50/50 flex items-center justify-between">
+        <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest hidden sm:block">
           Total: {total}
         </span>
         <div className="flex items-center gap-3">
           <button
             disabled={pagina <= 1}
             onClick={() => setPagina((p) => p - 1)}
-            className="text-[10px] px-3 py-1.5 font-black uppercase tracking-widest bg-[var(--surface)] border border-[var(--border-subtle)] rounded hover:bg-[var(--fill-secondary)] disabled:opacity-30 cursor-pointer shadow-sm transition-all"
+            className="text-[10px] px-3 py-1.5 font-black uppercase tracking-widest bg-white border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-30 cursor-pointer shadow-sm transition-all"
           >
             Ant
           </button>
@@ -273,7 +276,7 @@ const ListaUsuariosContactos = () => {
           <button
             disabled={pagina >= paginas}
             onClick={() => setPagina((p) => p + 1)}
-            className="text-[10px] px-3 py-1.5 font-black uppercase tracking-widest bg-[var(--surface)] border border-[var(--border-subtle)] rounded hover:bg-[var(--fill-secondary)] disabled:opacity-30 cursor-pointer shadow-sm transition-all"
+            className="text-[10px] px-3 py-1.5 font-black uppercase tracking-widest bg-white border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-30 cursor-pointer shadow-sm transition-all"
           >
             Sig
           </button>

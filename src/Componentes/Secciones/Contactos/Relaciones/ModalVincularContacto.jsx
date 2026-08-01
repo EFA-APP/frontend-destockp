@@ -299,11 +299,11 @@ const ModalVincularContacto = ({
   return createPortal(
     <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-gray-950/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-lg bg-[var(--surface)] rounded-[16px] shadow-2xl border border-[var(--border-subtle)] flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        <div className="p-5 border-b border-[var(--border-subtle)] flex justify-between items-center bg-[var(--fill-secondary)]/30">
+      <div className="relative w-full max-w-lg bg-white rounded-md shadow-2xl border border-gray-200 flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="p-5 border-b border-gray-200 flex justify-between items-center bg-gray-50">
           <div className="flex items-center gap-2">
             {/* R21: cuando el modal se abrió con contactoOrigenInicial, el
                 paso "origen" fue salteado a propósito — no se ofrece un
@@ -315,19 +315,19 @@ const ModalVincularContacto = ({
                 onClick={() =>
                   setPaso(paso === "vinculo" ? "relacion" : "origen")
                 }
-                className="p-1.5 text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--fill-secondary)] rounded-md transition-all cursor-pointer"
+                className="p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-all cursor-pointer"
                 title="Atrás"
               >
                 <ChevronLeft size={18} />
               </button>
             )}
             <div>
-              <h3 className="text-[13px] font-black uppercase text-[var(--text-primary)] tracking-widest flex items-center gap-2">
-                <Link2 size={16} className="text-[var(--primary)]" />
+              <h3 className="text-[13px] font-black uppercase text-gray-900 tracking-widest flex items-center gap-2">
+                <Link2 size={16} className="text-[#1FAE6D]" />
                 Agregar Vínculo
               </h3>
               {contactoOrigen && (
-                <p className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mt-0.5 flex items-center gap-1">
+                <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mt-0.5 flex items-center gap-1">
                   {nombreContacto(contactoOrigen)}
                   {relacionElegida && (
                     <>
@@ -341,7 +341,7 @@ const ModalVincularContacto = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-[var(--text-muted)] hover:text-rose-500 hover:bg-rose-50 rounded-md transition-all cursor-pointer"
+            className="p-2 text-gray-500 hover:text-rose-500 hover:bg-rose-50 rounded-md transition-all cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -349,7 +349,7 @@ const ModalVincularContacto = ({
 
         <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-4">
           {errorMensaje && (
-            <div className="p-3 rounded-[10px] bg-rose-50 border border-rose-200 text-[12px] font-bold text-rose-700">
+            <div className="p-3 rounded-md bg-rose-50 border border-rose-200 text-[12px] font-bold text-rose-700">
               {errorMensaje}
             </div>
           )}
@@ -357,28 +357,28 @@ const ModalVincularContacto = ({
           {/* PASO 1: elegir contacto de origen (R36) */}
           {paso === "origen" && (
             <div className="space-y-3">
-              <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
+              <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
                 Paso 1: Elegir contacto de origen
               </span>
-              <div className="flex items-center bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-[10px] px-3 py-1 focus-within:ring-2 focus-within:ring-[var(--primary)]/20 transition-all">
-                <Search size={14} className="text-[var(--text-muted)]" />
+              <div className="flex items-center bg-white border border-gray-200 rounded-md px-3 py-1 focus-within:ring-2 focus-within:ring-[#1FAE6D]/20 transition-all shadow-sm">
+                <Search size={14} className="text-gray-400" />
                 <input
                   autoFocus
                   type="text"
                   value={busquedaOrigen}
                   onChange={(e) => setBusquedaOrigen(e.target.value)}
                   placeholder="Buscar cualquier contacto..."
-                  className="bg-transparent border-none outline-none text-[13px] font-medium py-2 px-3 w-full text-[var(--text-primary)]"
+                  className="bg-transparent border-none outline-none text-[13px] font-medium py-2 px-3 w-full text-gray-900"
                 />
               </div>
 
               <div className="space-y-1.5 max-h-64 overflow-y-auto custom-scrollbar">
                 {cargandoOrigen ? (
-                  <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase text-center py-4">
+                  <div className="text-[11px] font-bold text-gray-500 uppercase text-center py-4">
                     Buscando...
                   </div>
                 ) : resultadosOrigen.length === 0 ? (
-                  <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase text-center py-4">
+                  <div className="text-[11px] font-bold text-gray-500 uppercase text-center py-4">
                     {busquedaOrigen ? "Sin resultados" : "Escriba para buscar..."}
                   </div>
                 ) : (
@@ -387,13 +387,13 @@ const ModalVincularContacto = ({
                       key={c.codigo}
                       type="button"
                       onClick={() => handleElegirOrigen(c)}
-                      className="w-full flex items-center justify-between px-4 py-2.5 rounded-[10px] border border-[var(--border-subtle)] hover:border-[var(--primary)]/40 hover:bg-[var(--primary-subtle)] transition-all text-left cursor-pointer"
+                      className="w-full flex items-center justify-between px-4 py-2.5 rounded-md border border-gray-200 hover:border-[#1FAE6D]/40 hover:bg-[#1FAE6D]/10 transition-all text-left cursor-pointer"
                     >
                       <div className="flex flex-col">
-                        <span className="text-[12px] font-bold text-[var(--text-primary)] uppercase">
+                        <span className="text-[12px] font-bold text-gray-900 uppercase">
                           {nombreContacto(c)}
                         </span>
-                        <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase">
+                        <span className="text-[10px] text-gray-500 font-bold uppercase">
                           {c.tipoEntidad} · DNI/CUIT: {c.documento || "S/D"}
                         </span>
                       </div>
@@ -407,14 +407,14 @@ const ModalVincularContacto = ({
           {/* PASO 2: elegir relación disponible del contacto de origen (R37) */}
           {paso === "relacion" && (
             <div className="space-y-4">
-              <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
+              <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
                 Paso 2: Elegir tipo de relación
               </span>
 
               {/* Lista de relaciones ya configuradas — sin cambios de
                   lógica, solo reubicada (Feature 37, R9, R12). */}
               {relacionesDisponibles.length === 0 ? (
-                <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase text-center py-2">
+                <div className="text-[11px] font-bold text-gray-500 uppercase text-center py-2">
                   Este contacto todavía no tiene relaciones configuradas.
                 </div>
               ) : (
@@ -424,12 +424,12 @@ const ModalVincularContacto = ({
                       key={rel.idRelacion}
                       type="button"
                       onClick={() => handleElegirRelacion(rel)}
-                      className="w-full flex items-center justify-between px-4 py-2.5 rounded-[10px] border border-[var(--border-subtle)] hover:border-[var(--primary)]/40 hover:bg-[var(--primary-subtle)] transition-all text-left cursor-pointer"
+                      className="w-full flex items-center justify-between px-4 py-2.5 rounded-md border border-gray-200 hover:border-[#1FAE6D]/40 hover:bg-[#1FAE6D]/10 transition-all text-left cursor-pointer"
                     >
-                      <span className="text-[12px] font-bold text-[var(--text-primary)] uppercase">
+                      <span className="text-[12px] font-bold text-gray-900 uppercase">
                         {rel.nombre}
                       </span>
-                      <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase">
+                      <span className="text-[10px] text-gray-500 font-bold uppercase">
                         {rel.cantidadVinculos} vínculo(s)
                       </span>
                     </button>
@@ -439,8 +439,8 @@ const ModalVincularContacto = ({
 
               {/* Selector de entidad destino (Feature 37, R1, R9): coexiste
                   con la lista de arriba, no la reemplaza. */}
-              <div className="space-y-2 pt-3 border-t border-[var(--border-subtle)]">
-                <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
+              <div className="space-y-2 pt-3 border-t border-gray-200">
+                <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
                   O elegir una entidad
                 </span>
                 <div className="grid grid-cols-2 gap-1.5">
@@ -455,14 +455,14 @@ const ModalVincularContacto = ({
                         type="button"
                         disabled={Boolean(entidadEnProceso)}
                         onClick={() => handleElegirEntidadDestino(ent)}
-                        className="flex flex-col items-start px-3 py-2 rounded-[10px] border border-[var(--border-subtle)] hover:border-[var(--primary)]/40 hover:bg-[var(--primary-subtle)] transition-all text-left cursor-pointer disabled:opacity-50"
+                        className="flex flex-col items-start px-3 py-2 rounded-md border border-gray-200 hover:border-[#1FAE6D]/40 hover:bg-[#1FAE6D]/10 transition-all text-left cursor-pointer disabled:opacity-50"
                       >
-                        <span className="text-[11px] font-bold text-[var(--text-primary)] uppercase">
+                        <span className="text-[11px] font-bold text-gray-900 uppercase">
                           {ent.nombre}
                           {entidadEnProceso === ent.clave && "…"}
                         </span>
                         {coincidencias.length === 1 && (
-                          <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider opacity-70">
+                          <span className="text-[9px] text-gray-500 font-bold uppercase tracking-wider opacity-70">
                             Ya configurada
                           </span>
                         )}
@@ -471,7 +471,7 @@ const ModalVincularContacto = ({
                   })}
                 </div>
                 {entidadAmbigua && (
-                  <div className="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-[10px] px-3 py-2">
+                  <div className="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
                     Ya existen varias relaciones configuradas hacia esa
                     entidad. Elegí una de la lista de relaciones de arriba.
                   </div>
@@ -483,21 +483,21 @@ const ModalVincularContacto = ({
           {/* PASO 3: buscar existente / crear nuevo (R38, sin cambios de lógica) */}
           {paso === "vinculo" && (
             <>
-              <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
+              <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
                 Paso 3: Vincular contacto
               </span>
 
-              <div className="flex gap-1 p-1 bg-[var(--fill-secondary)] rounded-[10px] border border-[var(--border-subtle)]">
+              <div className="flex gap-1 p-1 bg-gray-50 rounded-md border border-gray-200">
                 <button
                   type="button"
                   onClick={() => {
                     setModo("existente");
                     setErrorMensaje("");
                   }}
-                  className={`flex-1 py-2 rounded-[8px] text-[11px] font-black uppercase tracking-widest transition-all cursor-pointer ${
+                  className={`flex-1 py-2 rounded-md text-[11px] font-black uppercase tracking-widest transition-all cursor-pointer ${
                     modo === "existente"
-                      ? "bg-[var(--surface)] text-[var(--primary)] shadow-sm"
-                      : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                      ? "bg-white text-[#1FAE6D] shadow-sm border border-gray-200"
+                      : "text-gray-500 hover:text-gray-900"
                   }`}
                 >
                   Buscar Existente
@@ -508,10 +508,10 @@ const ModalVincularContacto = ({
                     setModo("nuevo");
                     setErrorMensaje("");
                   }}
-                  className={`flex-1 py-2 rounded-[8px] text-[11px] font-black uppercase tracking-widest transition-all cursor-pointer ${
+                  className={`flex-1 py-2 rounded-md text-[11px] font-black uppercase tracking-widest transition-all cursor-pointer ${
                     modo === "nuevo"
-                      ? "bg-[var(--surface)] text-[var(--primary)] shadow-sm"
-                      : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                      ? "bg-white text-[#1FAE6D] shadow-sm border border-gray-200"
+                      : "text-gray-500 hover:text-gray-900"
                   }`}
                 >
                   Crear Nuevo
@@ -521,32 +521,32 @@ const ModalVincularContacto = ({
               {modo === "existente" ? (
                 <div className="space-y-3 mt-4">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
+                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
                       Buscando:
                     </span>
-                    <span className="px-2 py-0.5 rounded-full bg-[var(--primary-subtle)] text-[var(--primary)] text-[10px] font-black uppercase tracking-wider">
+                    <span className="px-2 py-0.5 rounded-full bg-[#1FAE6D]/10 text-[#1FAE6D] border border-[#1FAE6D]/20 text-[10px] font-black uppercase tracking-wider">
                       {relacionElegida?.tipoEntidadEsperado}
                     </span>
                   </div>
-                  <div className="flex items-center bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-[10px] px-3 py-1 focus-within:ring-2 focus-within:ring-[var(--primary)]/20 transition-all">
-                    <Search size={14} className="text-[var(--text-muted)]" />
+                  <div className="flex items-center bg-white border border-gray-200 rounded-md px-3 py-1 focus-within:ring-2 focus-within:ring-[#1FAE6D]/20 transition-all shadow-sm">
+                    <Search size={14} className="text-gray-400" />
                     <input
                       autoFocus
                       type="text"
                       value={busqueda}
                       onChange={(e) => setBusqueda(e.target.value)}
                       placeholder="Buscar por nombre, razón social o documento..."
-                      className="bg-transparent border-none outline-none text-[13px] font-medium py-2 px-3 w-full text-[var(--text-primary)]"
+                      className="bg-transparent border-none outline-none text-[13px] font-medium py-2 px-3 w-full text-gray-900"
                     />
                   </div>
 
                   <div className="space-y-1.5 max-h-64 overflow-y-auto custom-scrollbar">
                     {cargandoContactos ? (
-                      <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase text-center py-4">
+                      <div className="text-[11px] font-bold text-gray-500 uppercase text-center py-4">
                         Buscando...
                       </div>
                     ) : resultados.length === 0 ? (
-                      <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase text-center py-4">
+                      <div className="text-[11px] font-bold text-gray-500 uppercase text-center py-4">
                         {busqueda ? "Sin resultados" : "Escriba para buscar..."}
                       </div>
                     ) : (
@@ -556,13 +556,13 @@ const ModalVincularContacto = ({
                           type="button"
                           disabled={isPending}
                           onClick={() => handleSeleccionarExistente(c)}
-                          className="w-full flex items-center justify-between px-4 py-2.5 rounded-[10px] border border-[var(--border-subtle)] hover:border-[var(--primary)]/40 hover:bg-[var(--primary-subtle)] transition-all text-left cursor-pointer disabled:opacity-50"
+                          className="w-full flex items-center justify-between px-4 py-2.5 rounded-md border border-gray-200 hover:border-[#1FAE6D]/40 hover:bg-[#1FAE6D]/10 transition-all text-left cursor-pointer disabled:opacity-50"
                         >
                           <div className="flex flex-col">
-                            <span className="text-[12px] font-bold text-[var(--text-primary)] uppercase">
+                            <span className="text-[12px] font-bold text-gray-900 uppercase">
                               {nombreContacto(c)}
                             </span>
-                            <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase">
+                            <span className="text-[10px] text-gray-500 font-bold uppercase">
                               {c.tipoEntidad} · DNI/CUIT: {c.documento || "S/D"}
                             </span>
                           </div>
@@ -581,7 +581,7 @@ const ModalVincularContacto = ({
                       onChange={(e) =>
                         setContactoNuevo((p) => ({ ...p, nombre: e.target.value }))
                       }
-                      className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-[10px] px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all"
+                      className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-[13px] font-bold text-gray-900 focus:outline-none focus:border-[#1FAE6D] shadow-sm transition-all"
                     />
                     <input
                       type="text"
@@ -593,7 +593,7 @@ const ModalVincularContacto = ({
                           apellido: e.target.value,
                         }))
                       }
-                      className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-[10px] px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all"
+                      className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-[13px] font-bold text-gray-900 focus:outline-none focus:border-[#1FAE6D] shadow-sm transition-all"
                     />
                   </div>
                   <input
@@ -606,7 +606,7 @@ const ModalVincularContacto = ({
                         razonSocial: e.target.value,
                       }))
                     }
-                    className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-[10px] px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all uppercase"
+                    className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-[13px] font-bold text-gray-900 focus:outline-none focus:border-[#1FAE6D] shadow-sm transition-all uppercase"
                   />
                   <input
                     type="text"
@@ -618,7 +618,7 @@ const ModalVincularContacto = ({
                         documento: e.target.value,
                       }))
                     }
-                    className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-[10px] px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all"
+                    className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-[13px] font-bold text-gray-900 focus:outline-none focus:border-[#1FAE6D] shadow-sm transition-all"
                   />
                   <input
                     type="text"
@@ -630,13 +630,13 @@ const ModalVincularContacto = ({
                         correoElectronico: e.target.value,
                       }))
                     }
-                    className="w-full bg-[var(--fill-secondary)] border border-[var(--border-subtle)] rounded-[10px] px-3 py-2 text-[13px] font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] transition-all"
+                    className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-[13px] font-bold text-gray-900 focus:outline-none focus:border-[#1FAE6D] shadow-sm transition-all"
                   />
 
                   <button
                     type="submit"
                     disabled={isPending}
-                    className="w-full py-3 bg-[var(--primary)] text-white text-[12px] font-black uppercase tracking-widest rounded-[10px] shadow-sm hover:brightness-110 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-[#1FAE6D] hover:bg-[#178F58] text-white text-[12px] font-black uppercase tracking-widest rounded-md shadow-sm transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     <UserPlus size={16} />
                     {isPending ? "Vinculando..." : "Crear y Vincular"}

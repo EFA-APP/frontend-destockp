@@ -1,0 +1,1 @@
+import{t as s}from"./index-BzE7iRDa.js";import{l as o}from"./chequeTercero.api-B9lnUlIE.js";const t=(e="",r={})=>s({queryKey:["cheques-terceros-disponibles",e],queryFn:()=>o(e),...r});export{t as u};

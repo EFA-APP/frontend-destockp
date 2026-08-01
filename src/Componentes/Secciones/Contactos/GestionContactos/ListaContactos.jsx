@@ -71,7 +71,7 @@ export const InlineEnteFacturacion = ({ contacto, onActualizar }) => {
           </div>
           <button
             onClick={handleRemoverEnte}
-            className="opacity-0 group-hover:opacity-100 p-1.5 text-[#EF5A5A] hover:bg-[#EF5A5A]/10 rounded-[8px] transition-all cursor-pointer"
+            className="p-1.5 text-[#EF5A5A] border border-gray-200 bg-white hover:bg-gray-50 rounded-md transition-all cursor-pointer shadow-sm"
             title="Remover Ente"
           >
             <X size={14} />
@@ -82,7 +82,7 @@ export const InlineEnteFacturacion = ({ contacto, onActualizar }) => {
     return (
       <button
         onClick={() => setModoEdicion(true)}
-        className="px-3 py-1.5 text-[11px] font-bold uppercase border border-dashed border-[#1FAE6D]/50 text-[#1FAE6D] rounded-[8px] hover:bg-[#E8F7EF] transition-colors shadow-sm cursor-pointer"
+        className="px-3 py-1.5 text-[10px] font-bold uppercase border border-dashed border-[#1FAE6D]/50 text-[#1FAE6D] rounded-md hover:bg-[#E8F7EF] transition-colors shadow-sm cursor-pointer"
       >
         Asignar Ente
       </button>
@@ -91,7 +91,7 @@ export const InlineEnteFacturacion = ({ contacto, onActualizar }) => {
 
   return (
     <div
-      className="flex flex-col gap-2 min-w-[220px] p-4 bg-[#FFFFFF] border border-[#E9EDEC] rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] absolute z-50 bottom-full mb-2 md:bottom-auto md:mb-0 md:mt-2"
+      className="flex flex-col gap-2 min-w-[220px] p-4 bg-[#FFFFFF] border border-[#E9EDEC] rounded-md shadow-sm absolute z-50 bottom-full mb-2 md:bottom-auto md:mb-0 md:mt-2"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex justify-between items-center mb-1">
@@ -109,7 +109,7 @@ export const InlineEnteFacturacion = ({ contacto, onActualizar }) => {
         <select
           value={tipoEntidadSeleccionada}
           onChange={(e) => setTipoEntidadSeleccionada(e.target.value)}
-          className="w-full text-[12px] p-2 bg-[#F5F7F6] border border-[#E9EDEC] rounded-[10px] uppercase font-semibold text-[#1A1D1C] outline-none focus:border-[#1FAE6D] transition-all cursor-pointer"
+          className="w-full text-[12px] p-2 bg-[#F5F7F6] border border-[#E9EDEC] rounded-md uppercase font-semibold text-[#1A1D1C] outline-none focus:border-[#1FAE6D] transition-all cursor-pointer"
         >
           <option value="">Categoría...</option>
           {entidades.map((ent) => (
@@ -190,7 +190,7 @@ const InlineIdentidad = ({ contacto, onActualizar }) => {
 
   if (isEditing) {
     return (
-      <div className="flex flex-col gap-2 min-w-[280px] p-4 bg-[#FFFFFF] border border-[#1FAE6D] rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] absolute z-50 left-0 top-0">
+      <div className="flex flex-col gap-2 min-w-[280px] p-4 bg-[#FFFFFF] border border-[#1FAE6D] rounded-md shadow-sm absolute z-50 left-0 top-0">
         <div className="flex justify-between items-center mb-2">
           <span className="text-[11px] font-bold uppercase text-[#1FAE6D] tracking-widest">
             Editar Identidad
@@ -246,7 +246,7 @@ const InlineIdentidad = ({ contacto, onActualizar }) => {
 
         <button
           onClick={handleGuardar}
-          className="w-full py-2.5 mt-2 bg-[#1FAE6D] text-white text-[11px] font-bold uppercase tracking-widest rounded-[10px] hover:bg-[#178F58] transition-all cursor-pointer shadow-sm"
+          className="w-full py-2.5 mt-2 bg-[#1FAE6D] text-white text-[10px] font-bold uppercase tracking-widest rounded-md hover:bg-[#178F58] transition-all cursor-pointer shadow-sm"
         >
           Guardar Cambios
         </button>
@@ -256,7 +256,7 @@ const InlineIdentidad = ({ contacto, onActualizar }) => {
 
   return (
     <div
-      className="flex flex-col gap-1 mt-1 cursor-pointer group px-2 py-1.5 border border-transparent hover:bg-[#F5F7F6] rounded-[10px] transition-colors"
+      className="flex flex-col gap-1 mt-1 cursor-pointer group px-2 py-1.5 border border-transparent hover:bg-[#F5F7F6] rounded-md transition-colors"
       onClick={() => setIsEditing(true)}
       title="Clic para editar"
     >
@@ -321,7 +321,7 @@ export const InlineAtributo = ({ contacto, conf, onActualizar }) => {
             },
           });
         }}
-        className={`px-3 py-1 rounded text-[10px] font-black uppercase transition-all shadow-sm border ${isTrue ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"}`}
+        className={`px-3 py-1 rounded-md border text-[10px] font-black uppercase transition-all shadow-sm ${isTrue ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"}`}
       >
         {isTrue ? "SÍ" : "NO"}
       </button>
@@ -361,14 +361,14 @@ export const InlineAtributo = ({ contacto, conf, onActualizar }) => {
         onChange={(e) => setValor(e.target.value)}
         onBlur={handleGuardar}
         onKeyDown={handleKeyDown}
-        className="w-full min-w-[100px] bg-[#FFFFFF] border border-[#1FAE6D] rounded-[10px] px-3 py-1.5 text-[12px] font-medium outline-none shadow-[0_2px_12px_rgba(0,0,0,0.05)] text-[#1A1D1C] transition-all"
+        className="w-full min-w-[100px] bg-[#FFFFFF] border border-[#1FAE6D] rounded-md px-3 py-1.5 text-[12px] font-medium outline-none shadow-sm text-[#1A1D1C] transition-all"
       />
     );
   }
 
   return (
     <div
-      className="min-h-[28px] w-full flex items-center cursor-pointer px-2 py-1 border border-transparent hover:bg-[#F5F7F6] rounded-[10px] transition-colors group"
+      className="min-h-[28px] w-full flex items-center cursor-pointer px-2 py-1 border border-transparent hover:bg-[#F5F7F6] rounded-md transition-colors group"
       onClick={() => setIsEditing(true)}
     >
       <span className="text-[13px] font-semibold text-[#1A1D1C] truncate group-hover:text-[#1FAE6D]">
@@ -472,15 +472,15 @@ const ListaContactos = ({
   const ocultarListadoCentral = fichaAbierta && !mostrarFormulario;
 
   return (
-    <div className="flex h-full gap-4 overflow-hidden bg-transparent">
+    <div className="flex h-full overflow-hidden bg-transparent">
       {/* COLUMNA CENTRAL: Lista de Contactos (oculta, no desmontada, cuando hay Ficha abierta) */}
       <div
-        className={`${ocultarListadoCentral ? "hidden" : "flex"} flex-col flex-1 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-[16px] shadow-sm overflow-hidden min-w-[320px]`}
+        className={`${ocultarListadoCentral ? "hidden" : "flex"} flex-col flex-1 bg-transparent overflow-hidden min-w-[320px]`}
       >
         {/* Encabezado y Búsqueda */}
-        <div className="p-4 border-b border-[var(--border-subtle)] bg-[var(--fill-secondary)]/30 flex flex-col gap-4">
+        <div className="p-4 border-b border-gray-200 bg-gray-50/50 flex flex-col gap-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-[13px] font-black uppercase text-[var(--text-primary)] tracking-widest">
+            <h2 className="text-[13px] font-black uppercase text-gray-900 tracking-widest">
               {entidad ? entidad.nombre : "Contactos"}
             </h2>
             <TieneAccion accion="CREAR_CONTACTO">
@@ -489,26 +489,26 @@ const ListaContactos = ({
                   setContactoEditar(null);
                   setMostrarFormulario(true);
                 }}
-                className="bg-[var(--primary)] text-white text-[10px] font-black uppercase tracking-widest px-4 py-2.5 rounded-md shadow-sm shadow-[var(--primary)]/20 hover:brightness-110 flex items-center gap-2 transition-all cursor-pointer"
+                className="bg-[#1FAE6D] text-white text-[10px] font-black uppercase tracking-widest px-4 py-2.5 rounded-md hover:bg-[#178F58] flex items-center gap-2 transition-all cursor-pointer"
               >
                 <AgregarIcono size={14} /> Crear Contacto
               </button>
             </TieneAccion>
           </div>
 
-          <div className="flex items-center bg-[var(--surface)] border border-[var(--border-subtle)] rounded-md px-3 py-1 shadow-sm focus-within:ring-2 focus-within:ring-[var(--primary)]/20 transition-all">
-            <Search size={16} className="text-[var(--text-muted)]" />
+          <div className="flex items-center bg-white border border-gray-200 rounded-md px-3 py-1 shadow-sm focus-within:ring-2 focus-within:ring-[#1FAE6D]/20 transition-all">
+            <Search size={16} className="text-gray-400" />
             <input
               type="text"
               value={busquedaLocal}
               onChange={(e) => setBusquedaLocal(e.target.value)}
               placeholder="Buscar contactos..."
-              className="bg-transparent border-none outline-none text-[13px] font-medium py-2 px-3 w-full text-[var(--text-primary)]"
+              className="bg-transparent border-none outline-none text-[13px] font-medium py-2 px-3 w-full text-gray-900"
             />
             {busquedaLocal && (
               <button
                 onClick={() => setBusquedaLocal("")}
-                className="text-[var(--text-muted)] hover:text-rose-500 transition-colors cursor-pointer"
+                className="text-gray-400 hover:text-rose-500 transition-colors cursor-pointer"
               >
                 <X size={14} />
               </button>
@@ -522,7 +522,7 @@ const ListaContactos = ({
             Array.from({ length: 5 }).map((_, i) => (
               <div
                 key={i}
-                className="h-16 bg-[var(--fill-secondary)]/50 rounded-md animate-pulse mb-1"
+                className="h-16 bg-gray-100 rounded-md animate-pulse mb-1"
               />
             ))
           ) : contactos.length > 0 ? (
@@ -537,9 +537,9 @@ const ListaContactos = ({
                 <div
                   key={fila.codigo}
                   onClick={() => onAbrirFicha?.(fila, { raiz: true })}
-                  className={`flex items-center gap-4 p-4 rounded-[12px] cursor-pointer transition-all group border bg-[var(--surface)] ${isSelected ? "bg-[#F1FAF5] border-[#1FAE6D]/30 shadow-[0_2px_12px_rgba(0,0,0,0.05)]" : "hover:bg-[#F5F7F6] border-transparent hover:shadow-[0_2px_12px_rgba(0,0,0,0.05)]"}`}
+                  className={`flex items-center gap-4 p-4 rounded-md cursor-pointer transition-all border ${isSelected ? "bg-[#F1FAF5] border-[#1FAE6D]/30" : "bg-white border-transparent hover:border-gray-200 hover:bg-gray-50"}`}
                 >
-                  <div className="w-10 h-10 rounded-full bg-white border border-[#E9EDEC] flex items-center justify-center text-[#1FAE6D] font-black text-lg shrink-0 uppercase shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
+                  <div className="w-10 h-10 rounded-full bg-white border border-[#E9EDEC] flex items-center justify-center text-[#1FAE6D] font-black text-lg shrink-0 uppercase shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
                     {avatarInitial}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -554,27 +554,27 @@ const ListaContactos = ({
                       {entidad?.nombre || "Contacto"}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="p-2 text-[#6B7472] hover:text-[#F5B944] transition-colors rounded-[10px] hover:bg-[#F5B944]/10 cursor-pointer">
-                      <Star size={18} />
+                  <div className="flex items-center gap-2">
+                    <button className="px-3 py-1.5 rounded-md border border-gray-200 bg-white hover:bg-gray-100 text-[10px] font-bold uppercase flex items-center justify-center text-gray-500 hover:text-yellow-600 transition-colors shadow-sm cursor-pointer">
+                      <Star size={14} />
                     </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setContactoAEliminar(fila);
                       }}
-                      className="p-2 text-[#6B7472] hover:text-[#EF5A5A] transition-colors rounded-[10px] hover:bg-[#EF5A5A]/10 cursor-pointer"
+                      className="px-3 py-1.5 rounded-md border border-gray-200 bg-white hover:bg-gray-100 text-[10px] font-bold uppercase flex items-center justify-center text-gray-500 hover:text-red-600 transition-colors shadow-sm cursor-pointer"
                     >
-                      <BorrarIcono size={18} />
+                      <BorrarIcono size={14} />
                     </button>
                   </div>
                 </div>
               );
             })
           ) : (
-            <div className="flex flex-col items-center justify-center h-full text-[var(--text-muted)] pb-10">
+            <div className="flex flex-col items-center justify-center h-full text-gray-400 pb-10">
               <Package size={40} className="mb-3 opacity-20" />
-              <span className="text-[12px] font-black uppercase tracking-widest">
+              <span className="text-[12px] font-black uppercase tracking-widest text-gray-500">
                 No se encontraron contactos
               </span>
             </div>
@@ -582,8 +582,8 @@ const ListaContactos = ({
         </div>
 
         {/* Paginación */}
-        <div className="p-4 border-t border-[var(--border-subtle)] bg-[var(--fill-secondary)]/20 flex items-center justify-between">
-          <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest hidden sm:block">
+        <div className="p-4 border-t border-gray-200 bg-gray-50/50 flex items-center justify-between">
+          <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest hidden sm:block">
             Total: {total}
           </span>
           <div className="flex items-center gap-3">
@@ -592,7 +592,7 @@ const ListaContactos = ({
               onClick={() =>
                 setFiltros((p) => ({ ...p, pagina: p.pagina - 1 }))
               }
-              className="text-[10px] px-3 py-1.5 font-black uppercase tracking-widest bg-[var(--surface)] border border-[var(--border-subtle)] rounded hover:bg-[var(--fill-secondary)] disabled:opacity-30 cursor-pointer shadow-sm transition-all"
+              className="text-[10px] px-3 py-1.5 font-black uppercase tracking-widest bg-white border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-30 cursor-pointer shadow-sm transition-all text-gray-700"
             >
               Ant
             </button>
@@ -604,7 +604,7 @@ const ListaContactos = ({
               onClick={() =>
                 setFiltros((p) => ({ ...p, pagina: p.pagina + 1 }))
               }
-              className="text-[10px] px-3 py-1.5 font-black uppercase tracking-widest bg-[var(--surface)] border border-[var(--border-subtle)] rounded hover:bg-[var(--fill-secondary)] disabled:opacity-30 cursor-pointer shadow-sm transition-all"
+              className="text-[10px] px-3 py-1.5 font-black uppercase tracking-widest bg-white border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-30 cursor-pointer shadow-sm transition-all text-gray-700"
             >
               Sig
             </button>
@@ -614,7 +614,7 @@ const ListaContactos = ({
 
       {/* COLUMNA DERECHA: Formulario (alta/edición) o Ficha del Contacto (R19-R21, R54) */}
       {mostrarFormulario ? (
-        <div className="w-full md:w-[450px] bg-[var(--surface)] border border-[var(--border-subtle)] rounded-[16px] shadow-sm flex flex-col overflow-hidden shrink-0 animate-in slide-in-from-right-4 duration-300">
+        <div className="w-full md:w-[450px] bg-white border-l border-gray-200 flex flex-col overflow-hidden shrink-0 animate-in slide-in-from-right-4 duration-300">
           <FormularioContacto
             inline={true}
             entidad={entidad}
@@ -626,16 +626,16 @@ const ListaContactos = ({
           />
         </div>
       ) : fichaAbierta ? (
-        <div className="flex-1 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-[16px] shadow-sm flex flex-col overflow-hidden min-w-[320px] animate-in slide-in-from-right-4 duration-300">
+        <div className="flex-1 bg-white border-l border-gray-200 flex flex-col overflow-hidden min-w-[320px] animate-in slide-in-from-right-4 duration-300">
           {/* Breadcrumb (R21) */}
-          <div className="px-4 pt-3 border-b border-[var(--border-subtle)] bg-[var(--fill-secondary)]/30">
+          <div className="px-4 pt-3 border-b border-gray-200 bg-gray-50/50">
             <BreadcrumbFicha pila={pilaBreadcrumb} onVolverA={onVolverA} />
           </div>
 
           {!contactoEnFoco ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-3 p-10">
-              <div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" />
-              <span className="text-[11px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+              <div className="w-8 h-8 border-2 border-[#1FAE6D]/30 border-t-[#1FAE6D] rounded-full animate-spin" />
+              <span className="text-[11px] font-black uppercase tracking-widest text-gray-500">
                 {cargandoContactoEnFoco
                   ? "Cargando ficha..."
                   : "Contacto no encontrado"}
@@ -656,9 +656,9 @@ const ListaContactos = ({
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-6 flex flex-col custom-scrollbar max-w-3xl gap-6 bg-[#F5F7F6]">
+              <div className="flex-1 overflow-y-auto p-6 flex flex-col custom-scrollbar max-w-3xl gap-6 bg-[#F8FAFC]">
                 {/* Card de Identidad */}
-                <div className="bg-[#FFFFFF] p-5 rounded-[16px] shadow-[0_2px_12px_rgba(0,0,0,0.02)] border border-[#E9EDEC] flex items-center gap-5">
+                <div className="bg-white p-5 rounded-md shadow-[0_2px_8px_rgba(0,0,0,0.02)] border border-gray-200 flex items-center gap-5">
                   <div className="w-16 h-16 rounded-full bg-[#F1FAF5] border border-[#1FAE6D]/20 flex items-center justify-center text-[#1FAE6D] font-black text-2xl uppercase shadow-sm shrink-0">
                     {contactoEnFoco.nombre
                       ? contactoEnFoco.nombre.charAt(0)
@@ -680,8 +680,8 @@ const ListaContactos = ({
                 </div>
 
                 {/* Card Datos Fiscales/Contacto */}
-                <div className="bg-[#FFFFFF] p-5 rounded-[16px] shadow-[0_2px_12px_rgba(0,0,0,0.02)] border border-[#E9EDEC] flex flex-col gap-5">
-                  <h4 className="text-[12px] font-bold text-[#1A1D1C] uppercase tracking-wide border-b border-[#E9EDEC] pb-2 mb-1">
+                <div className="bg-white p-5 rounded-md shadow-[0_2px_8px_rgba(0,0,0,0.02)] border border-gray-200 flex flex-col gap-5">
+                  <h4 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest border-b border-gray-200 pb-2 mb-1">
                     Contacto y Facturación
                   </h4>
                   <div className="grid grid-cols-2 gap-y-6 gap-x-4">
@@ -720,8 +720,8 @@ const ListaContactos = ({
 
                 {/* Card Atributos Dinámicos */}
                 {configsEntidad.length > 0 && (
-                  <div className="bg-[#FFFFFF] p-5 rounded-[16px] shadow-[0_2px_12px_rgba(0,0,0,0.02)] border border-[#E9EDEC] flex flex-col gap-5">
-                    <h4 className="text-[12px] font-bold text-[#1A1D1C] uppercase tracking-wide border-b border-[#E9EDEC] pb-2 mb-1">
+                  <div className="bg-white p-5 rounded-md shadow-[0_2px_8px_rgba(0,0,0,0.02)] border border-gray-200 flex flex-col gap-5">
+                    <h4 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest border-b border-gray-200 pb-2 mb-1">
                       Información Adicional
                     </h4>
                     <div className="grid grid-cols-2 gap-y-6 gap-x-4">
@@ -747,17 +747,17 @@ const ListaContactos = ({
               </div>
 
               {/* Footer Action Buttons */}
-              <div className="p-5 border-t border-[#E9EDEC] bg-[#FFFFFF] flex gap-4">
+              <div className="p-5 border-t border-gray-200 bg-white flex gap-4">
                 <button
                   onClick={() => handleEditar(contactoEnFoco)}
-                  className="flex-1 py-3 bg-[#1FAE6D] text-white text-[13px] font-bold rounded-[10px] shadow-sm hover:bg-[#178F58] transition-all cursor-pointer flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-gray-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-md hover:bg-black transition-all cursor-pointer flex items-center justify-center gap-2"
                 >
                   <Edit2 size={16} />
                   Editar Completo
                 </button>
                 <button
                   onClick={() => setContactoAEliminar(contactoEnFoco)}
-                  className="px-5 py-3 text-[#EF5A5A] bg-[#EF5A5A]/5 border border-[#EF5A5A]/20 text-[13px] font-bold rounded-[10px] shadow-sm hover:bg-[#EF5A5A]/10 transition-all cursor-pointer flex items-center gap-2"
+                  className="px-5 py-3 text-[#EF5A5A] bg-[#EF5A5A]/5 border border-[#EF5A5A]/20 text-[10px] font-bold uppercase tracking-widest rounded-md hover:bg-[#EF5A5A]/10 transition-all cursor-pointer flex items-center gap-2"
                 >
                   <BorrarIcono size={16} />
                   Eliminar
@@ -767,10 +767,10 @@ const ListaContactos = ({
           )}
         </div>
       ) : (
-        <div className="hidden lg:flex w-[450px] bg-gray-50 border border-dashed border-[var(--color-neutral-border)] rounded-[16px] flex-col items-center justify-center shrink-0">
+        <div className="hidden lg:flex w-[450px] bg-gray-50 border border-dashed border-gray-200 rounded-md flex-col items-center justify-center shrink-0">
           <CuentaIcono
             size={64}
-            className="mb-4 text-[var(--color-neutral-text-muted)] opacity-20"
+            className="mb-4 text-gray-400 opacity-20"
           />
           <h3 className="text-[14px] font-bold uppercase tracking-widest text-[var(--color-neutral-text-muted)]">
             Seleccioná un Contacto
@@ -785,9 +785,9 @@ const ListaContactos = ({
 
       {contactoAEliminar && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
-          <div className="bg-white border border-[var(--color-neutral-border)] rounded-[16px] max-w-md w-full p-8 shadow-xl animate-in zoom-in-95 duration-200">
+          <div className="bg-white border border-gray-200 rounded-md max-w-md w-full p-8 shadow-xl animate-in zoom-in-95 duration-200">
             <div className="flex flex-col items-center text-center gap-4">
-              <div className="w-16 h-16 rounded-[12px] bg-rose-50 flex items-center justify-center text-rose-600 mb-2 border border-rose-100 shadow-sm">
+              <div className="w-16 h-16 rounded-md bg-rose-50 flex items-center justify-center text-rose-600 mb-2 border border-rose-100 shadow-sm">
                 <AdvertenciaIcono size={32} />
               </div>
               <div className="space-y-2">
@@ -808,14 +808,14 @@ const ListaContactos = ({
                 <button
                   onClick={() => setContactoAEliminar(null)}
                   disabled={eliminando}
-                  className="flex-1 py-3 rounded-[8px] bg-white border border-[var(--color-neutral-border)] text-[13px] font-bold text-[var(--color-neutral-text-main)] hover:bg-gray-50 disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
+                  className="flex-1 py-3 rounded-md bg-white border border-gray-200 text-[10px] font-bold uppercase tracking-widest text-gray-900 hover:bg-gray-50 disabled:opacity-50 transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleConfirmarEliminar}
                   disabled={eliminando}
-                  className="flex-1 py-3 rounded-[8px] bg-rose-600 text-white text-[13px] font-bold hover:bg-rose-700 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm"
+                  className="flex-1 py-3 rounded-md bg-[#EF5A5A] text-white text-[10px] font-bold uppercase tracking-widest hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm"
                 >
                   {eliminando ? (
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

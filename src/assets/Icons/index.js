@@ -88,3 +88,4 @@ export { default as FechaIcono } from "./FechaIcono";
 export { default as BilleteraIcono } from "./BilleteraIcono";
 export { default as HospitalIcono } from "./HospitalIcono";
 export { default as BancoIcono } from "./BancoIcono";
+export { default as PortalIcono } from "./PortalIcono";

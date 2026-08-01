@@ -11,6 +11,7 @@ const ModalConfirmacion = ({
   textoCancelar = "Cancelar",
   isPending = false,
   icono = <BorrarIcono size={32} className="text-red-500" />,
+  children,
 }) => {
   return (
     <ModalDetalleBase open={open} onClose={onClose}>
@@ -29,6 +30,8 @@ const ModalConfirmacion = ({
           <p className="text-[15px] text-[var(--color-neutral-text-muted)] font-normal leading-relaxed max-w-[280px]">
             {mensaje}
           </p>
+
+          {children && <div className="mt-4 w-full">{children}</div>}
         </div>
 
         <div className="p-6 bg-[var(--color-neutral-bg)] border-t border-[var(--color-neutral-border)] flex gap-3 rounded-b-[16px]">

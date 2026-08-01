@@ -9,6 +9,7 @@ import ModalReintentarComprobante from "../Componentes/ModalReintentarComprobant
 import ModalError from "../../../Modales/ModalError";
 import ModalConfirmacion from "../../../UI/ModalConfirmacion/ModalConfirmacion";
 import ModalPagoRapido from "../Componentes/ModalPagoRapido";
+import ModalSugerirSaldoAFavor from "../Componentes/ModalSugerirSaldoAFavor";
 import ComprobantePDF from "../../../Tablas/Ventas/Comprobantes/ComprobantePDF";
 import { useCabeceraComprobante } from "../../../../Backend/Comprobantes/useCabeceraComprobante";
 import { useDetalleComprobante } from "../../../../Backend/Comprobantes/useDetalleComprobante";
@@ -226,6 +227,7 @@ const Ingresos = ({ tipoOperacion }) => {
   // FACTURA/CONTADO recién guardada, pendiente de cobro rápido vía
   // <ModalPagoRapido/>. `null` = modal cerrado.
   const [facturaParaPagoRapido, setFacturaParaPagoRapido] = useState(null);
+  const [facturaParaSugerirSaldo, setFacturaParaSugerirSaldo] = useState(null);
 
   const { mutate: crearComprobante, isPending } = useGenerarComprobante();
 
@@ -449,6 +451,11 @@ const Ingresos = ({ tipoOperacion }) => {
               ...data?.comprobante,
               tipoOperacion,
             });
+          } else if (tipo === "FACTURA" && condicionOriginal === "CUENTA_CORRIENTE") {
+            setFacturaParaSugerirSaldo({
+              ...data?.comprobante,
+              tipoOperacion,
+            });
           } else if (tipo === "FACTURA" || tipo === "RECIBO") {
             setComprobanteExito({
               codigo: data?.comprobante?.codigo,
@@ -650,6 +657,21 @@ const Ingresos = ({ tipoOperacion }) => {
       <ModalPagoRapido
         factura={facturaParaPagoRapido}
         onClose={() => setFacturaParaPagoRapido(null)}
+      />
+      <ModalSugerirSaldoAFavor
+        factura={facturaParaSugerirSaldo}
+        onClose={() => {
+          // Al cerrar, continuamos con el modal de éxito de comprobante
+          const cbte = facturaParaSugerirSaldo;
+          setFacturaParaSugerirSaldo(null);
+          setComprobanteExito({
+            codigo: cbte?.codigo,
+            codigoReceptor: cbte?.codigoReceptor,
+            tipoDescripcion: cbte?.tipoDescripcionComprobante || "FACTURA",
+            puntoVenta: cbte?.puntoVenta || 1,
+            numeroComprobante: cbte?.numeroComprobante,
+          });
+        }}
       />
       {comprobanteConError && (
         <ModalReintentarComprobante

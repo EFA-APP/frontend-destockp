@@ -1,0 +1,1 @@
+import{t as u}from"./index-BzE7iRDa.js";import{L as i}from"./producto.api-B2xT4jB7.js";const n=(o={},r={})=>u({queryKey:["configuracion_producto",o],queryFn:()=>i("PRODUCTO",o),staleTime:1e3*60*5,...r});export{n as u};

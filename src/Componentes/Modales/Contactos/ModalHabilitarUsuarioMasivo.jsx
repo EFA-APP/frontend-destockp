@@ -87,18 +87,18 @@ const ModalHabilitarUsuarioMasivo = ({ open, onClose, contactos = [] }) => {
         <label className="text-[12px] font-black text-black/30 uppercase tracking-[0.2em] ml-1">
           Contactos seleccionados ({contactos.length})
         </label>
-        <div className="max-h-48 overflow-y-auto custom-scrollbar space-y-1.5 border border-[var(--border-subtle)] rounded-[10px] p-2">
+        <div className="max-h-48 overflow-y-auto custom-scrollbar space-y-1.5 border border-gray-200 rounded-md p-2">
           {contactos.map((c) => (
             <div
               key={c.codigo}
-              className="flex items-center justify-between gap-3 px-3 py-2 bg-[var(--surface-hover)]/40 rounded-[8px]"
+              className="flex items-center justify-between gap-3 px-3 py-2 bg-gray-50 rounded-md"
             >
-              <span className="text-[13px] font-bold text-[var(--text-primary)] truncate">
+              <span className="text-[13px] font-bold text-gray-900 truncate">
                 {c.razonSocial ||
                   `${c.nombre || ""} ${c.apellido || ""}`.trim() ||
                   "Sin Nombre"}
               </span>
-              <span className="text-[11px] text-[var(--text-secondary)] truncate">
+              <span className="text-[11px] text-gray-500 truncate">
                 {c.correoElectronico}
               </span>
             </div>
@@ -111,14 +111,14 @@ const ModalHabilitarUsuarioMasivo = ({ open, onClose, contactos = [] }) => {
           Rol del sistema (aplicado a todo el lote)
         </label>
         {cargandoRoles ? (
-          <p className="text-xs text-[var(--text-muted)] italic py-2">
+          <p className="text-xs text-gray-500 italic py-2">
             Cargando roles...
           </p>
         ) : (
           <select
             value={codigoRol}
             onChange={(e) => setCodigoRol(e.target.value)}
-            className="w-full px-4 py-3 rounded-[10px] border border-[var(--border-subtle)] bg-[#F5F7F6] text-[14px] font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 transition-all cursor-pointer"
+            className="w-full px-4 py-3 rounded-md border border-gray-200 bg-white text-[14px] font-medium text-gray-900 focus:outline-none focus:border-[#1FAE6D] transition-all cursor-pointer shadow-sm"
           >
             <option value="">Seleccioná un rol...</option>
             {roles.map((r) => (
@@ -141,7 +141,7 @@ const ModalHabilitarUsuarioMasivo = ({ open, onClose, contactos = [] }) => {
   const contenidoResultado = resultado && (
     <div className="space-y-6 py-2">
       <div className="grid grid-cols-3 gap-3">
-        <div className="flex flex-col items-center gap-1 p-3 rounded-[10px] bg-emerald-50 border border-emerald-200">
+        <div className="flex flex-col items-center gap-1 p-3 rounded-md bg-emerald-50 border border-emerald-200">
           <span className="text-[20px] font-black text-emerald-700">
             {resultado.totales?.habilitados ?? 0}
           </span>
@@ -149,7 +149,7 @@ const ModalHabilitarUsuarioMasivo = ({ open, onClose, contactos = [] }) => {
             Habilitados
           </span>
         </div>
-        <div className="flex flex-col items-center gap-1 p-3 rounded-[10px] bg-gray-50 border border-gray-200">
+        <div className="flex flex-col items-center gap-1 p-3 rounded-md bg-gray-50 border border-gray-200">
           <span className="text-[20px] font-black text-gray-500">
             {resultado.totales?.sinEmail ?? 0}
           </span>
@@ -157,7 +157,7 @@ const ModalHabilitarUsuarioMasivo = ({ open, onClose, contactos = [] }) => {
             Sin email
           </span>
         </div>
-        <div className="flex flex-col items-center gap-1 p-3 rounded-[10px] bg-rose-50 border border-rose-200">
+        <div className="flex flex-col items-center gap-1 p-3 rounded-md bg-rose-50 border border-rose-200">
           <span className="text-[20px] font-black text-rose-600">
             {resultado.totales?.errores ?? 0}
           </span>
@@ -174,12 +174,12 @@ const ModalHabilitarUsuarioMasivo = ({ open, onClose, contactos = [] }) => {
           return (
             <div
               key={item.codigoContacto}
-              className="flex items-start gap-3 px-3 py-2.5 bg-[var(--surface-hover)]/40 rounded-[8px]"
+              className="flex items-start gap-3 px-3 py-2.5 bg-gray-50 rounded-md border border-gray-100"
             >
               <Icon size={16} className={`${meta.className} shrink-0 mt-0.5`} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[13px] font-bold text-[var(--text-primary)] truncate">
+                  <span className="text-[13px] font-bold text-gray-900 truncate">
                     {item.nombre}
                   </span>
                   <span
@@ -189,7 +189,7 @@ const ModalHabilitarUsuarioMasivo = ({ open, onClose, contactos = [] }) => {
                   </span>
                 </div>
                 {item.correoElectronico && (
-                  <span className="text-[11px] text-[var(--text-secondary)] block truncate">
+                  <span className="text-[11px] text-gray-500 block truncate">
                     {item.correoElectronico}
                   </span>
                 )}
@@ -210,14 +210,14 @@ const ModalHabilitarUsuarioMasivo = ({ open, onClose, contactos = [] }) => {
     <div className="flex items-center justify-end gap-3 w-full mt-2">
       <button
         onClick={handleClose}
-        className="px-[20px] py-[10px] bg-[#E8F7EF] text-[var(--primary)] hover:brightness-95 rounded-[10px] font-semibold text-[13px] transition-all cursor-pointer"
+        className="px-[20px] py-[10px] bg-white border border-gray-200 text-gray-900 hover:bg-gray-50 shadow-sm rounded-md font-semibold text-[13px] transition-all cursor-pointer"
       >
         Cancelar
       </button>
       <button
         onClick={handleSubmit}
         disabled={enviando}
-        className="flex items-center gap-2 px-[20px] py-[10px] bg-[var(--primary)] text-white hover:brightness-110 disabled:opacity-50 rounded-[10px] font-semibold text-[13px] transition-all active:scale-95 cursor-pointer"
+        className="flex items-center gap-2 px-[20px] py-[10px] bg-[#1FAE6D] hover:bg-[#178F58] shadow-sm text-white disabled:opacity-50 rounded-md font-semibold text-[13px] transition-all active:scale-95 cursor-pointer"
       >
         {enviando ? (
           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -233,7 +233,7 @@ const ModalHabilitarUsuarioMasivo = ({ open, onClose, contactos = [] }) => {
     <div className="flex items-center justify-end gap-3 w-full mt-2">
       <button
         onClick={handleClose}
-        className="px-[20px] py-[10px] bg-[var(--primary)] text-white hover:brightness-110 rounded-[10px] font-semibold text-[13px] transition-all cursor-pointer"
+        className="px-[20px] py-[10px] bg-gray-900 text-white hover:bg-black rounded-md font-semibold text-[13px] transition-all cursor-pointer"
       >
         Cerrar
       </button>
